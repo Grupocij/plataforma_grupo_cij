@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Despesas por Relatório - Portal Grupo CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .print-full-width { width: 100% !important; grid-column: span 12 / span 12 !important; }
+            .print-card { background: white !important; color: black !important; border: 1px solid #ccc !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 flex flex-col bg-slate-50">
+
+    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO DE DESPESAS) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-receipt text-sky-600"></i> Controle de Despesas por Relatório</h2>
+            <p class="text-sm text-slate-500 mt-1">Lançamento de compras e viagens para prestação de contas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8" id="report-container">
+            
+            <section class="lg:col-span-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 h-fit no-print">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-sky-600"></i> Lançar Despesa
+                    </h2>
+                    <span id="form-mode-badge" class="text-xs px-2.5 py-1 bg-sky-100 text-sky-700 border border-sky-200 rounded-full font-medium">Novo Item</span>
+                </div>
+
+                <form id="expense-form" class="space-y-4">
+                    <input type="hidden" id="expense-id">
+
+                    <div class="bg-sky-50 p-3 rounded-xl border border-sky-200 flex justify-between items-center">
+                        <div>
+                            <label class="block text-[10px] font-bold text-sky-700 uppercase">Nº do Relatório Atual *</label>
+                            <input type="text" id="num_relatorio" value="Rascunho" class="bg-transparent font-black text-amber-600 text-sm focus:outline-none w-full" readonly>
+                        </div>
+                        <button type="button" onclick="window.finalizarRelatorio()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-check-double"></i> Finalizar
+                        </button>
+                    </div>
+
+                    <div>
+                        <label for="tecnico" class="block text-xs font-bold text-slate-700 mb-1">Técnico / Vendedor *</label>
+                        <select id="tecnico" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium">
+                            <option value="" disabled selected>Selecione o profissional...</option>
+                            <option value="Filipe">Filipe</option>
+                            <option value="Anderson">Anderson</option>
+                            <option value="Adriano">Adriano</option>
+                            <option value="Rafael">Rafael</option>
+                            <option value="Gabriel">Gabriel</option>
+                            <option value="Sidnei">Sidnei</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label for="cliente" class="block text-xs font-bold text-slate-700 mb-1">Cliente Atendido *</label>
+                            <input type="text" id="cliente" required placeholder="Nome do cliente/empresa" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium">
+                        </div>
+
+                        <div>
+                            <label for="cidade" class="block text-xs font-bold text-slate-700 mb-1">Cidade *</label>
+                            <input type="text" id="cidade" required placeholder="Ex: Joinville" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="descricao" class="block text-xs font-bold text-slate-700 mb-1">Descrição do Item / Compra *</label>
+                        <input type="text" id="descricao" required placeholder="Ex: Gasolina, Almoço, Parafusos M8..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="valor" class="block text-xs font-bold text-slate-700 mb-1">Valor (R$) *</label>
+                            <input type="number" id="valor" step="0.01" min="0.01" required placeholder="0,00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-black">
+                        </div>
+
+                        <div>
+                            <label for="data_pagamento" class="block text-xs font-bold text-slate-700 mb-1">Data do Pgto *</label>
+                            <input type="date" id="data_pagamento" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="categoria" class="block text-xs font-bold text-slate-700 mb-1">Categoria *</label>
+                        <select id="categoria" onchange="window.toggleCategoriaOutros()" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-semibold cursor-pointer">
+                            <option value="" disabled selected>Selecione a categoria...</option>
+                            <option value="Combustível">Combustível</option>
+                            <option value="Pedágio">Pedágio</option>
+                            <option value="Alimentação/Bebida">Alimentação/Bebida</option>
+                            <option value="Peças/Ferramentas">Peças/Ferramentas</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div id="categoria-outros-container" class="hidden">
+                        <label for="categoria_outros" class="block text-xs font-bold text-sky-700 mb-1">Especifique a Categoria *</label>
+                        <input type="text" id="categoria_outros" placeholder="Descreva a categoria personalizada" class="w-full px-3.5 py-2.5 bg-slate-50 border border-sky-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="pagamento" class="block text-xs font-bold text-slate-700 mb-1">Forma de Pgto *</label>
+                            <select id="pagamento" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-semibold cursor-pointer">
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Pix">Pix</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="cartao" class="block text-xs font-bold text-slate-700 mb-1">Cartão Utilizado</label>
+                            <select id="cartao" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-semibold cursor-pointer">
+                                <option value="Não se aplica">Não se aplica (Dinheiro/Pix)</option>
+                                <option value="Mastercard **0067">Mastercard **0067</option>
+                                <option value="Mastercard **9553">Mastercard **9553</option>
+                                <option value="Visa **7543">Visa **7543</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="observacoes" class="block text-xs font-bold text-slate-700 mb-1">Observações / Anotações</label>
+                        <textarea id="observacoes" rows="2" placeholder="Nº da nota fiscal, detalhes do comprovante..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl focus:outline-none focus:border-sky-600 transition text-xs font-medium"></textarea>
+                    </div>
+
+                    <div class="pt-2 flex flex-col gap-3">
+                        <button type="submit" id="btn-save" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs cursor-pointer">
+                            <i class="fa-solid fa-plus-circle"></i> <span id="btn-save-text">Adicionar Despesa ao Relatório</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="lg:col-span-8 space-y-4 print-full-width">
+                
+                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm space-y-4 print-card">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-lg flex items-center gap-2 text-slate-900">
+                                <i class="fa-solid fa-calculator text-sky-600"></i> Compilado dos Relatórios
+                            </h3>
+                            <p id="compilado-subtitle" class="text-xs text-slate-500 mt-1">Resumo acumulado dos relatórios ativos</p>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Valor Total Geral</span>
+                            <div id="total-geral-valor" class="text-3xl font-black tracking-tight text-sky-700 mt-1">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">Total por Categoria:</div>
+                        <div id="summary-by-category" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between no-print">
+                    <div class="relative w-full sm:w-60">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="search-input" onkeyup="window.filterExpenses()" placeholder="Buscar por relatório, cliente..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl text-xs font-medium focus:outline-none focus:border-sky-600 transition">
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <select id="filter-tecnico" onchange="window.filterExpenses()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold focus:outline-none focus:border-sky-600 cursor-pointer">
+                            <option value="Todos">Todos Técnicos</option>
+                            <option value="Filipe">Filipe</option>
+                            <option value="Anderson">Anderson</option>
+                            <option value="Adriano">Adriano</option>
+                            <option value="Rafael">Rafael</option>
+                            <option value="Gabriel">Gabriel</option>
+                            <option value="Sidnei">Sidnei</option>
+                        </select>
+
+                        <select id="filter-categoria" onchange="window.filterExpenses()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold focus:outline-none focus:border-sky-600 cursor-pointer">
+                            <option value="Todas">Todas Categs.</option>
+                            <option value="Combustível">Combustível</option>
+                            <option value="Pedágio">Pedágio</option>
+                            <option value="Alimentação/Bebida">Alimentação/Bebida</option>
+                            <option value="Peças/Ferramentas">Peças/Ferramentas</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden print-card">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900 text-white font-bold text-xs">
+                                    <th class="p-3.5">Relatório / Técnico</th>
+                                    <th class="p-3.5">Cliente Principal</th>
+                                    <th class="p-3.5">Qtd Itens</th>
+                                    <th class="p-3.5">Data Mínima</th>
+                                    <th class="p-3.5 text-right">Total (R$)</th>
+                                    <th class="p-3.5 text-center no-print">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="despesas-grouped-body" class="divide-y divide-slate-200 text-slate-700"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="empty-state" class="p-10 text-center">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400 border border-slate-200">
+                            <i class="fa-solid fa-receipt text-2xl"></i>
+                        </div>
+                        <p class="font-bold text-slate-700">Nenhum relatório de despesa registrado</p>
+                        <p class="text-xs text-slate-500 mt-1">Preencha o formulário ao lado para adicionar lançamentos.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA DO MÓDULO DE DESPESAS -->
+    <script>
+        window.expenses = [];
+        let relatoriosExpandidos = new Set();
+        window.relatorioManualSelecionado = false;
+
+        function formatSentenceCase(text) {
+            if (!text) return '';
+            text = text.trim();
+            if (!text) return '';
+            const lower = text.toLowerCase();
+            return lower.replace(/(^\s*|[.!?]\s*)([a-zà-ÿ])/g, (match, separator, char) => separator + char.toUpperCase());
+        }
+
+        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            const today = new Date().toISOString().split('T')[0];
+            const dataInput = document.getElementById('data_pagamento');
+            if(dataInput) dataInput.value = today;
+
+            const form = document.getElementById('expense-form');
+            if(form) form.addEventListener('submit', window.handleFormSubmit);
+
+            // Conexão com o Firebase via Globais do core.js
+            const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
+            
+            window.fsOnSnapshot(despesasCol, (snap) => {
+                window.expenses = [];
+                snap.forEach(d => window.expenses.push(d.data()));
+                window.renderExpenses();
+            });
+
+            window.inicializarNumeroRelatorio();
+        };
+
+        window.inicializarNumeroRelatorio = function() {
+            if (window.relatorioManualSelecionado) return;
+            const numRelInput = document.getElementById('num_relatorio');
+            if(numRelInput) {
+                numRelInput.value = 'Rascunho';
+                numRelInput.className = "bg-transparent font-black text-amber-600 text-sm focus:outline-none w-full";
+            }
+        };
+
+        window.finalizarRelatorio = function() {
+            if (window.relatorioManualSelecionado) {
+                window.relatorioManualSelecionado = false;
+                window.inicializarNumeroRelatorio();
+                window.mostrarNotificacao('Inserção no relatório concluída.');
+                window.renderExpenses();
+                return;
+            }
+
+            const autorEmail = window.currentUser ? window.currentUser.email : '';
+            const pendentes = window.expenses.filter(i => i.num_relatorio === 'Rascunho' && i.autor === autorEmail);
+
+            if (pendentes.length === 0) {
+                window.mostrarNotificacao('Nenhuma despesa pendente para finalizar.', true);
+                return;
+            }
+
+            const nums = window.expenses.map(i => i.num_relatorio).filter(Boolean).map(n => parseInt(n.replace(/\D/g, ''))).filter(n => !isNaN(n));
+            const maxRel = nums.length > 0 ? Math.max(...nums) : 1000;
+            const novoNumero = `REL-${maxRel + 1}`;
+
+            pendentes.forEach(item => {
+                item.num_relatorio = novoNumero;
+                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', item.id), item); } catch(e){}
+            });
+
+            document.getElementById('num_relatorio').value = 'Rascunho';
+            window.mostrarNotificacao(`Relatório finalizado com sucesso! Número gerado: ${novoNumero}`);
+            window.renderExpenses();
+        };
+
+        window.reabrirRelatorio = function(numRel) {
+            window.relatorioManualSelecionado = true;
+            document.getElementById('num_relatorio').value = numRel;
+            document.getElementById('num_relatorio').className = "bg-transparent font-black text-sky-600 text-sm focus:outline-none w-full";
+            window.mostrarNotificacao(`Relatório ${numRel} reaberto para inserção de novas despesas.`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.toggleCategoriaOutros = function() {
+            const categoriaSelect = document.getElementById('categoria');
+            const outrosContainer = document.getElementById('categoria-outros-container');
+            const outrosInput = document.getElementById('categoria_outros');
+
+            if (categoriaSelect.value === 'Outros') {
+                outrosContainer.classList.remove('hidden');
+                outrosInput.setAttribute('required', 'required');
+            } else {
+                outrosContainer.classList.add('hidden');
+                outrosInput.removeAttribute('required');
+                outrosInput.value = '';
+            }
+        };
+
+        window.handleFormSubmit = function(e) {
+            e.preventDefault();
+
+            let num_relatorio = document.getElementById('num_relatorio').value;
+            const idInput = document.getElementById('expense-id').value;
+
+            const tecnico = document.getElementById('tecnico').value;
+            const cliente = formatSentenceCase(document.getElementById('cliente').value);
+            const cidade = formatSentenceCase(document.getElementById('cidade').value);
+            const descricao = formatSentenceCase(document.getElementById('descricao').value);
+            const valor = parseFloat(document.getElementById('valor').value);
+            const data_pagamento = document.getElementById('data_pagamento').value;
+            const categoria = document.getElementById('categoria').value;
+            const categoria_outros = formatSentenceCase(document.getElementById('categoria_outros').value);
+            const pagamento = document.getElementById('pagamento').value;
+            const cartao = document.getElementById('cartao').value;
+            const observacoes = formatSentenceCase(document.getElementById('observacoes').value);
+
+            const autorEmail = window.currentUser ? window.currentUser.email : '';
+
+            if (idInput) {
+                const index = window.expenses.findIndex(item => item.id === idInput);
+                if (index !== -1) {
+                    window.expenses[index] = { 
+                        id: idInput, num_relatorio, tecnico, cliente, cidade, descricao, valor, 
+                        data_pagamento, categoria, categoria_outros, pagamento, cartao, observacoes, autor: window.expenses[index].autor || autorEmail
+                    };
+                    window.mostrarNotificacao(`Despesa atualizada com sucesso!`);
+                    try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', idInput), window.expenses[index]); } catch(e){}
+                }
+            } else {
+                const newExpense = {
+                    id: Date.now().toString(),
+                    num_relatorio,
+                    tecnico, cliente, cidade, descricao, valor,
+                    data_pagamento, categoria, categoria_outros, pagamento, cartao, observacoes,
+                    autor: autorEmail
+                };
+                window.expenses.unshift(newExpense);
+                window.mostrarNotificacao(`Despesa adicionada ao relatório! Lembre-se de FINALIZAR.`);
+                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', newExpense.id), newExpense); } catch(e){}
+            }
+
+            window.renderExpenses();
+            document.getElementById('descricao').value = '';
+            document.getElementById('valor').value = '';
+            document.getElementById('observacoes').value = '';
+            document.getElementById('expense-id').value = '';
+            
+            document.getElementById('form-mode-badge').innerText = 'Novo Item';
+            document.getElementById('form-mode-badge').className = 'text-xs px-2.5 py-1 bg-sky-100 text-sky-700 border border-sky-200 rounded-full font-medium';
+            document.getElementById('btn-save-text').innerText = 'Adicionar Despesa ao Relatório';
+        };
+
+        window.renderExpenses = function() {
+            const tableBody = document.getElementById('despesas-grouped-body');
+            const emptyState = document.getElementById('empty-state');
+            const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+            const filterTecnico = document.getElementById('filter-tecnico')?.value || 'Todos';
+            const filterCat = document.getElementById('filter-categoria')?.value || 'Todas';
+
+            if(!tableBody) return;
+            tableBody.innerHTML = '';
+
+            const baseList = window.expenses.filter(item => {
+                if (!window.isUserAdminOrFinance) {
+                    return window.currentUser ? item.autor === window.currentUser.email : false;
+                }
+                return true;
+            });
+
+            const filtered = baseList.filter(item => {
+                const matchesSearch = (item.num_relatorio && item.num_relatorio.toLowerCase().includes(searchTerm)) ||
+                                     item.descricao.toLowerCase().includes(searchTerm) || 
+                                     item.cliente.toLowerCase().includes(searchTerm) ||
+                                     item.cidade.toLowerCase().includes(searchTerm);
+                
+                const matchesTecnico = filterTecnico === 'Todos' || item.tecnico === filterTecnico;
+                const matchesCat = filterCat === 'Todas' || item.categoria === filterCat;
+                
+                return matchesSearch && matchesTecnico && matchesCat;
+            });
+
+            const grupos = {};
+            filtered.forEach(item => {
+                const key = item.num_relatorio || 'REL-1001';
+                if (!grupos[key]) {
+                    grupos[key] = {
+                        num_relatorio: key,
+                        tecnico: item.tecnico,
+                        cliente: item.cliente,
+                        cidade: item.cidade,
+                        data_min: item.data_pagamento,
+                        total: 0,
+                        itens: []
+                    };
+                }
+                grupos[key].total += item.valor;
+                grupos[key].itens.push(item);
+            });
+
+            window.updateSummary(filtered);
+
+            const chaves = Object.keys(grupos).sort((a,b) => {
+                if (a === 'Rascunho') return -1;
+                if (b === 'Rascunho') return 1;
+                const nA = parseInt(a.replace(/\D/g, '')) || 0;
+                const nB = parseInt(b.replace(/\D/g, '')) || 0;
+                return nB - nA;
+            });
+
+            if (chaves.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                chaves.forEach(num => {
+                    const g = grupos[num];
+                    const isExpanded = relatoriosExpandidos.has(num);
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition border-b border-slate-200 text-sm';
+
+                    const dataPartes = g.data_min ? g.data_min.split('-') : [];
+                    const dataFormatada = dataPartes.length === 3 ? `${dataPartes[2]}/${dataPartes[1]}/${dataPartes[0]}` : g.data_min;
+
+                    let badgeRel = g.num_relatorio === 'Rascunho' 
+                        ? `<span class="inline-block px-2.5 py-0.5 text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300 rounded mb-1 animate-pulse">RASCUNHO (Pendente)</span>`
+                        : `<span class="inline-block px-2.5 py-0.5 text-xs font-extrabold bg-sky-100 text-sky-800 border border-sky-300 rounded mb-1">${g.num_relatorio}</span>`;
+
+                    let btnContinuar = g.num_relatorio === 'Rascunho' ? '' : `
+                        <button onclick="window.reabrirRelatorio('${g.num_relatorio}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
+                            <i class="fa-solid fa-folder-open mr-1"></i> Continuar
+                        </button>
+                    `;
+
+                    tr.innerHTML = `
+                        <td class="p-3.5">${badgeRel}<div class="font-bold text-slate-900">${escapeHtml(g.tecnico)}</div></td>
+                        <td class="p-3.5"><div class="font-semibold text-slate-800">${escapeHtml(g.cliente)}</div><div class="text-xs font-medium text-sky-600">${escapeHtml(g.cidade)}</div></td>
+                        <td class="p-3.5 text-slate-700 font-medium">${g.itens.length} item(s)</td>
+                        <td class="p-3.5 whitespace-nowrap text-slate-700 font-medium">${dataFormatada}</td>
+                        <td class="p-3.5 font-black text-sky-700 whitespace-nowrap text-right">R$ ${g.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td class="p-3.5 text-center whitespace-nowrap no-print">
+                            <div class="flex items-center justify-center gap-1.5">
+                                ${btnContinuar}
+                                <button onclick="window.toggleExpandirRelatorio('${g.num_relatorio}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition border border-slate-300">
+                                    <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} mr-1"></i> Detalhes
+                                </button>
+                                <button onclick="window.excluirRelatorioCompleto('${g.num_relatorio}')" class="p-1.5 text-slate-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+
+                    if (isExpanded) {
+                        const trDetails = document.createElement('tr');
+                        trDetails.className = 'bg-slate-50 border-b border-slate-200';
+                        let subRows = g.itens.map(it => `
+                            <tr class="border-b border-slate-100 text-xs">
+                                <td class="p-2.5 font-medium text-slate-700">${escapeHtml(it.descricao)}</td>
+                                <td class="p-2.5 text-slate-500">${escapeHtml(it.categoria)} (${escapeHtml(it.cartao)})</td>
+                                <td class="p-2.5 text-slate-500">${it.data_pagamento.split('-').reverse().join('/')}</td>
+                                <td class="p-2.5 font-bold text-sky-700 text-right">R$ ${it.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td class="p-2.5 text-center">
+                                    <button onclick="window.editExpense('${it.id}')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="window.excluirItemDespesa('${it.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-xmark"></i></button>
+                                </td>
+                            </tr>
+                        `).join('');
+
+                        trDetails.innerHTML = `
+                            <td colspan="6" class="p-4">
+                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-3">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                        <h4 class="text-xs font-bold text-sky-700">Itens do Relatório ${g.num_relatorio}</h4>
+                                        <button onclick="window.reabrirRelatorio('${g.num_relatorio}')" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-700 text-white text-[10px] font-bold rounded-lg transition shadow-sm"><i class="fa-solid fa-plus mr-1"></i> Adicionar Mais Despesas</button>
+                                    </div>
+                                    <table class="w-full text-left">
+                                        <thead>
+                                            <tr class="text-[10px] uppercase font-bold text-slate-500 bg-slate-100">
+                                                <th class="p-2 rounded-l-lg">Descrição</th>
+                                                <th class="p-2">Categoria/Forma</th>
+                                                <th class="p-2">Data</th>
+                                                <th class="p-2 text-right">Valor</th>
+                                                <th class="p-2 text-center rounded-r-lg">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>${subRows}</tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(trDetails);
+                    }
+                });
+            }
+        };
+
+        window.toggleExpandirRelatorio = function(num) {
+            if (relatoriosExpandidos.has(num)) relatoriosExpandidos.delete(num);
+            else relatoriosExpandidos.add(num);
+            window.renderExpenses();
+        };
+
+        window.excluirItemDespesa = function(id) {
+            window.expenses = window.expenses.filter(i => i.id !== id);
+            try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', id)); } catch(e){}
+            window.renderExpenses();
+            window.mostrarNotificacao('Item removido com sucesso!');
+        };
+
+        window.excluirRelatorioCompleto = function(num) {
+            if(confirm(`Deseja realmente excluir todo o relatório ${num}?`)) {
+                const itensExcluir = window.expenses.filter(i => i.num_relatorio === num);
+                window.expenses = window.expenses.filter(i => i.num_relatorio !== num);
+                itensExcluir.forEach(it => {
+                    try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', it.id)); } catch(e){}
+                });
+                window.renderExpenses();
+                window.mostrarNotificacao(`Relatório ${num} excluído!`);
+            }
+        };
+
+        window.updateSummary = function(filteredList) {
+            const totalGeral = filteredList.reduce((sum, item) => sum + item.valor, 0);
+            document.getElementById('total-geral-valor').innerText = `R$ ${totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const categoryTotals = {};
+            filteredList.forEach(item => {
+                const catKey = item.categoria;
+                if (!categoryTotals[catKey]) categoryTotals[catKey] = 0;
+                categoryTotals[catKey] += item.valor;
+            });
+
+            const summaryContainer = document.getElementById('summary-by-category');
+            summaryContainer.innerHTML = '';
+
+            const categories = Object.keys(categoryTotals);
+            if (categories.length === 0) {
+                summaryContainer.innerHTML = `<span class="text-slate-400 col-span-3">Nenhum lançamento no momento.</span>`;
+                return;
+            }
+
+            categories.forEach(cat => {
+                const total = categoryTotals[cat];
+                const card = document.createElement('div');
+                card.className = 'bg-sky-50 px-3 py-2 rounded-xl border border-sky-200 flex flex-col justify-between';
+                card.innerHTML = `
+                    <span class="font-medium text-slate-700 truncate">${escapeHtml(cat)}</span>
+                    <span class="font-bold text-sky-800 mt-0.5">R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                `;
+                summaryContainer.appendChild(card);
+            });
+        };
+
+        window.editExpense = function(id) {
+            const item = window.expenses.find(i => i.id === id);
+            if (item) {
+                document.getElementById('expense-id').value = item.id;
+                document.getElementById('num_relatorio').value = item.num_relatorio || 'Rascunho';
+                window.relatorioManualSelecionado = (item.num_relatorio !== 'Rascunho');
+                document.getElementById('num_relatorio').className = window.relatorioManualSelecionado ? "bg-transparent font-black text-sky-600 text-sm focus:outline-none w-full" : "bg-transparent font-black text-amber-600 text-sm focus:outline-none w-full";
+                document.getElementById('tecnico').value = item.tecnico;
+                document.getElementById('cliente').value = item.cliente;
+                document.getElementById('cidade').value = item.cidade;
+                document.getElementById('descricao').value = item.descricao;
+                document.getElementById('valor').value = item.valor;
+                document.getElementById('data_pagamento').value = item.data_pagamento;
+                document.getElementById('categoria').value = item.categoria;
+                document.getElementById('categoria_outros').value = item.categoria_outros || '';
+                document.getElementById('pagamento').value = item.pagamento;
+                document.getElementById('cartao').value = item.cartao || 'Não se aplica';
+                document.getElementById('observacoes').value = item.observacoes || '';
+
+                window.toggleCategoriaOutros();
+
+                document.getElementById('form-mode-badge').innerText = 'Editando Item';
+                document.getElementById('form-mode-badge').className = 'text-xs px-2.5 py-1 bg-amber-100 text-amber-800 border border-amber-300 rounded-full font-bold';
+                document.getElementById('btn-save-text').innerText = 'Atualizar Item';
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+
+        window.filterExpenses = function() { window.renderExpenses(); };
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
