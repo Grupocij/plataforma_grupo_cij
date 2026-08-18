@@ -402,12 +402,12 @@
             tableBody.innerHTML = '';
 
             // APLICAÇÃO DA VISÃO GLOBAL (ADMIN/FINANCEIRO VÊ TUDO, TÉCNICO VÊ APENAS O SEU)
-            const baseList = window.expenses.filter(item => {
-                if (window.userVisaoGlobal === false) {
-                    return window.currentUser ? item.autor === window.currentUser.email : false;
-                }
-                return true;
-            });
+          const baseList = window.expenses.filter(item => {
+    if (window.userVisaoDespesas === false) {
+        return window.currentUser ? item.autor === window.currentUser.email : false;
+    }
+    return true;
+});
 
             const filtered = baseList.filter(item => {
                 const matchesSearch = (item.num_relatorio && item.num_relatorio.toLowerCase().includes(searchTerm)) ||
