@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Grupo CIJ - Início</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- CONTEÚDO PRINCIPAL (EXCLUSIVO DA INDEX) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center space-y-4 mt-4">
+            <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-2 shadow-inner border border-blue-100">
+                <i class="fa-solid fa-house"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Bem-vindo ao Portal CIJ</h2>
+            <p class="text-sm text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+                Sistema integrado de gestão operacional, comercial e financeira.<br>
+                Utilize o menu superior ou a barra de pesquisa para acessar seus módulos.
+            </p>
+        </div>
+
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA (Puxa menu, login, etc) -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA EXCLUSIVA DA HOME -->
+    <script>
+        window.initModule = function(perfil) {
+            // Como é a Home, todos que passam pelo login podem ver o painel de boas-vindas
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
