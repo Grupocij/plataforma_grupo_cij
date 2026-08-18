@@ -85,7 +85,7 @@
                     <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-globe text-blue-600"></i> Visão Global de Dados por Tela
                     </h4>
-                    <p class="text-[11px] text-slate-500">Se marcado, o usuário enxerga dados de toda a equipe nesta tela específica. Se desmarcado, vê apenas os seus próprios registros.</p>
+                    <p class="text-[11px] text-slate-500">Se marcado, o usuário enxerga dados de toda a equipe nesta tela. Se desmarcado, vê apenas os seus próprios registros.</p>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
                         <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
@@ -96,6 +96,12 @@
                         </label>
                         <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
                             <input type="checkbox" id="vg_veiculos" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Veículos Mobile
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="vg_ranking" class="w-4 h-4 text-blue-600 rounded"> Visão Global no Ranking
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="vg_solicitacoes" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Solicitações
                         </label>
                     </div>
                 </div>
@@ -176,6 +182,8 @@
                 if(vg.despesas) tagsVg.push('Desp');
                 if(vg.comissoes) tagsVg.push('Comis');
                 if(vg.veiculos) tagsVg.push('Veic');
+                if(vg.ranking) tagsVg.push('Rank');
+                if(vg.solicitacoes) tagsVg.push('Solic');
 
                 const badgeVg = tagsVg.length > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Global: ${tagsVg.join(', ')}</span>` : `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">Apenas Próprios</span>`;
                 const modulosQtd = (u.modulos || []).length;
@@ -206,6 +214,8 @@
             document.getElementById('vg_despesas').checked = false;
             document.getElementById('vg_comissoes').checked = false;
             document.getElementById('vg_veiculos').checked = false;
+            document.getElementById('vg_ranking').checked = false;
+            document.getElementById('vg_solicitacoes').checked = false;
             document.getElementById('modalUser').classList.remove('hidden');
         };
 
@@ -227,6 +237,8 @@
             document.getElementById('vg_despesas').checked = vg.despesas || false;
             document.getElementById('vg_comissoes').checked = vg.comissoes || false;
             document.getElementById('vg_veiculos').checked = vg.veiculos || false;
+            document.getElementById('vg_ranking').checked = vg.ranking || false;
+            document.getElementById('vg_solicitacoes').checked = vg.solicitacoes || false;
 
             document.querySelectorAll('.mod-checkbox').forEach(cb => {
                 cb.checked = (u.modulos || []).includes(cb.value);
@@ -248,7 +260,9 @@
                 visaoGlobalPorTela: {
                     despesas: document.getElementById('vg_despesas').checked,
                     comissoes: document.getElementById('vg_comissoes').checked,
-                    veiculos: document.getElementById('vg_veiculos').checked
+                    veiculos: document.getElementById('vg_veiculos').checked,
+                    ranking: document.getElementById('vg_ranking').checked,
+                    solicitacoes: document.getElementById('vg_solicitacoes').checked
                 },
                 modulos: modulosSelecionados
             };
