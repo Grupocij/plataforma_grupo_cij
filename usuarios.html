@@ -14,11 +14,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-        /* Toggle Switch CSS */
-        .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
-        .toggle-checkbox { right: 4px; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
-        .toggle-label { background-color: #cbd5e1; transition: all 0.3s; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
@@ -28,9 +23,9 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-users-gear text-slate-800"></i> Gestão de Usuários & Acessos</h2>
-                <p class="text-sm text-slate-500 mt-1">Defina quais módulos e permissões de visibilidade cada membro da equipe possui.</p>
+                <p class="text-sm text-slate-500 mt-1">Defina módulos, telas permitidas e visões globais de dados por colaborador.</p>
             </div>
-            <button onclick="window.abrirModalUsuario()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2">
+            <button onclick="window.abrirModalUsuario()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-user-plus"></i> Novo Acesso
             </button>
         </div>
@@ -43,13 +38,11 @@
                             <th class="p-4">Nome do Usuário</th>
                             <th class="p-4">E-mail</th>
                             <th class="p-4 text-center">Perfil</th>
-                            <th class="p-4 text-center">Visão de Dados</th>
                             <th class="p-4 text-center">Acesso a Módulos</th>
                             <th class="p-4 text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaUsuarios" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
-                        <!-- Gerado via JS -->
                     </tbody>
                 </table>
             </div>
@@ -60,11 +53,12 @@
     <div id="modalUser" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-200 my-auto transform transition-all">
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões do Usuário</h3>
-                <button onclick="window.fecharModalUsuario()" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões e Visão Global</h3>
+                <button onclick="window.fecharModalUsuario()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <form id="userForm" onsubmit="window.salvarUsuario(event)" class="p-6 space-y-6">
+                
                 <!-- Informações Básicas -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -77,7 +71,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Perfil Base</label>
-                        <select id="u_perfil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
+                        <select id="u_perfil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
                             <option value="Vendedor">Vendedor</option>
                             <option value="Técnico">Técnico</option>
                             <option value="Financeiro">Financeiro</option>
@@ -86,61 +80,60 @@
                     </div>
                 </div>
 
-                <div class="border-t border-slate-200 pt-5">
-                    <div class="flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-sm">Visão Global de Dados</h4>
-                            <p class="text-[10px] text-slate-500 font-medium mt-0.5">Se ativo, o usuário enxerga vendas e clientes de toda a equipe. Se inativo, enxerga apenas os cadastros feitos por ele mesmo.</p>
-                        </div>
-                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" id="u_visao_global" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                            <label for="u_visao_global" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
+                <!-- CONFIGURAÇÃO DE VISÃO GLOBAL POR TELA -->
+                <div class="border-t border-slate-200 pt-4 space-y-3">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-globe text-blue-600"></i> Visão Global de Dados por Tela
+                    </h4>
+                    <p class="text-[11px] text-slate-500">Se marcado, o usuário enxerga dados de toda a equipe nesta tela específica. Se desmarcado, vê apenas os seus próprios registros.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
+                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="vg_despesas" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Despesas
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="vg_comissoes" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Comissões Azul
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="vg_veiculos" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Veículos Mobile
+                        </label>
                     </div>
                 </div>
 
                 <!-- Matriz de Módulos -->
-                <div class="space-y-3">
-                    <h4 class="font-bold text-slate-800 text-sm border-b border-slate-200 pb-2">Selecione as telas permitidas:</h4>
+                <div class="space-y-3 border-t border-slate-200 pt-4">
+                    <h4 class="font-bold text-slate-800 text-sm">Selecione as telas permitidas (Menu):</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         
-                        <!-- Serviços & Comercial -->
                         <div class="space-y-2">
                             <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviços & Comercial</h5>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="veiculos_mobile.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Veículos Mobile</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="simulador.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Simulador Financeiro</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacao.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Solicitação CIJ</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="tabelas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Documentos Oficiais</label>
+                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="ranking.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Ranking de Vendas</label>
                         </div>
 
-                        <!-- Estoque & Admin -->
                         <div class="space-y-2">
                             <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estoque & Administrativo</h5>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="estoque.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Estoque Geral/Usados</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="estoque-novos.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Estoque Novos</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacoes-lista.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Lista de Solicitações</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="vendas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Vendas (Saídas)</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="veiculos.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Veículos Gerencial</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="painel_administrativo.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Painel Diretoria</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="usuarios.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Gerenciar Usuários</label>
+                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="painel_administrativo.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Painel Diretoria</label>
                         </div>
 
-                        <!-- Financeiro -->
                         <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financeiro & Rankings</h5>
+                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financeiro</h5>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="despesas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Controle de Despesas</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-azul.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Comissões Azul</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="ranking.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Ranking de Vendas</label>
                             <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="dashboard-equip.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Dashboard Gerencial</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-representantes.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Com. Representantes</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-consumiveis.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Com. Consumíveis</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex justify-end pt-4 mt-2 border-t border-slate-200">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-save"></i> Salvar Acessos
                     </button>
                 </div>
@@ -154,7 +147,7 @@
     <!-- LÓGICA DE USUÁRIOS -->
     <script>
         window.listaDeUsuarios = [];
-        let editingUserId = null; // Guarda o ID original para não duplicar
+        let editingUserId = null;
 
         window.initModule = function(perfil) {
             if (perfil !== 'Admin') {
@@ -178,11 +171,13 @@
         window.renderTabelaUsuarios = function() {
             const tbody = document.getElementById('tabelaUsuarios');
             tbody.innerHTML = window.listaDeUsuarios.map(u => {
-                
-                const visaoBadge = u.visaoGlobal 
-                    ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md text-[10px] font-bold"><i class="fa-solid fa-globe mr-1"></i> Global</span>` 
-                    : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold"><i class="fa-solid fa-lock mr-1"></i> Restrita</span>`;
+                const vg = u.visaoGlobalPorTela || {};
+                let tagsVg = [];
+                if(vg.despesas) tagsVg.push('Desp');
+                if(vg.comissoes) tagsVg.push('Comis');
+                if(vg.veiculos) tagsVg.push('Veic');
 
+                const badgeVg = tagsVg.length > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Global: ${tagsVg.join(', ')}</span>` : `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">Apenas Próprios</span>`;
                 const modulosQtd = (u.modulos || []).length;
                 
                 return `
@@ -190,11 +185,13 @@
                     <td class="p-4 font-bold text-slate-800">${u.nome}</td>
                     <td class="p-4 font-bold text-blue-600">${u.email}</td>
                     <td class="p-4 text-center font-bold text-slate-600">${u.perfil}</td>
-                    <td class="p-4 text-center">${visaoBadge}</td>
-                    <td class="p-4 text-center text-slate-500 font-semibold">${modulosQtd} Módulos Liberados</td>
+                    <td class="p-4 text-center">
+                        <div class="font-semibold text-slate-700">${modulosQtd} Módulos</div>
+                        <div class="mt-0.5">${badgeVg}</div>
+                    </td>
                     <td class="p-4 text-center space-x-2">
-                        <button onclick="window.editarUsuario('${u.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition">Editar Acesso</button>
-                        <button onclick="window.excluirUsuario('${u.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="window.editarUsuario('${u.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Editar</button>
+                        <button onclick="window.excluirUsuario('${u.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
                 `;
@@ -202,13 +199,13 @@
         };
 
         window.abrirModalUsuario = function() {
-            editingUserId = null; // Garante que é um cadastro novo
+            editingUserId = null;
             document.getElementById('userForm').reset();
             document.getElementById('u_email').readOnly = false;
-            
-            // Limpa checkboxes
             document.querySelectorAll('.mod-checkbox').forEach(cb => cb.checked = false);
-            
+            document.getElementById('vg_despesas').checked = false;
+            document.getElementById('vg_comissoes').checked = false;
+            document.getElementById('vg_veiculos').checked = false;
             document.getElementById('modalUser').classList.remove('hidden');
         };
 
@@ -220,13 +217,16 @@
             const u = window.listaDeUsuarios.find(x => x.id === id);
             if (!u) return;
 
-            editingUserId = u.id; // Guarda a memória do documento exato no banco!
-
+            editingUserId = u.id;
             document.getElementById('u_nome').value = u.nome;
             document.getElementById('u_email').value = u.email;
             document.getElementById('u_email').readOnly = true; 
             document.getElementById('u_perfil').value = u.perfil;
-            document.getElementById('u_visao_global').checked = u.visaoGlobal || false;
+
+            const vg = u.visaoGlobalPorTela || {};
+            document.getElementById('vg_despesas').checked = vg.despesas || false;
+            document.getElementById('vg_comissoes').checked = vg.comissoes || false;
+            document.getElementById('vg_veiculos').checked = vg.veiculos || false;
 
             document.querySelectorAll('.mod-checkbox').forEach(cb => {
                 cb.checked = (u.modulos || []).includes(cb.value);
@@ -245,11 +245,14 @@
                 email: emailFormatado,
                 nome: document.getElementById('u_nome').value,
                 perfil: document.getElementById('u_perfil').value,
-                visaoGlobal: document.getElementById('u_visao_global').checked,
+                visaoGlobalPorTela: {
+                    despesas: document.getElementById('vg_despesas').checked,
+                    comissoes: document.getElementById('vg_comissoes').checked,
+                    veiculos: document.getElementById('vg_veiculos').checked
+                },
                 modulos: modulosSelecionados
             };
 
-            // Define o ID correto do documento (evita a duplicação se for edição)
             const docId = editingUserId ? editingUserId : emailFormatado;
 
             try {
@@ -262,286 +265,10 @@
         };
 
         window.excluirUsuario = async function(id) {
-            if(confirm('Tem certeza que deseja remover as permissões deste usuário? Isso excluirá o cadastro da tabela.')) {
+            if(confirm('Tem certeza que deseja remover as permissões deste usuário?')) {
                 try {
                     await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', id));
-                } catch(e) {
-                    console.error("Erro ao excluir usuário:", e);
-                }
-            }
-        };
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Usuários - Portal CIJ</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-        /* Toggle Switch CSS */
-        .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
-        .toggle-checkbox { right: 4px; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
-        .toggle-label { background-color: #cbd5e1; transition: all 0.3s; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col bg-slate-50">
-
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
-        
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-users-gear text-slate-800"></i> Gestão de Usuários & Acessos</h2>
-                <p class="text-sm text-slate-500 mt-1">Defina quais módulos e permissões de visibilidade cada membro da equipe possui.</p>
-            </div>
-            <button onclick="window.abrirModalUsuario()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2">
-                <i class="fa-solid fa-user-plus"></i> Novo Acesso
-            </button>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-900 text-white font-bold">
-                            <th class="p-4">Nome do Usuário</th>
-                            <th class="p-4">E-mail</th>
-                            <th class="p-4 text-center">Perfil</th>
-                            <th class="p-4 text-center">Visão de Dados</th>
-                            <th class="p-4 text-center">Acesso a Módulos</th>
-                            <th class="p-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaUsuarios" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
-                        <!-- Gerado via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- MODAL DE CADASTRO/EDIÇÃO DE USUÁRIO -->
-    <div id="modalUser" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-200 my-auto transform transition-all">
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões do Usuário</h3>
-                <button onclick="window.fecharModalUsuario()" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <form id="userForm" onsubmit="window.salvarUsuario(event)" class="p-6 space-y-6">
-                <!-- Informações Básicas -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nome Completo *</label>
-                        <input type="text" id="u_nome" required placeholder="Ex: João Silva" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">E-mail (Login) *</label>
-                        <input type="email" id="u_email" required placeholder="joao@grupocij.com.br" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Perfil Base</label>
-                        <select id="u_perfil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
-                            <option value="Vendedor">Vendedor</option>
-                            <option value="Técnico">Técnico</option>
-                            <option value="Financeiro">Financeiro</option>
-                            <option value="Admin">Administrador Master</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-200 pt-5">
-                    <div class="flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-sm">Visão Global de Dados</h4>
-                            <p class="text-[10px] text-slate-500 font-medium mt-0.5">Se ativo, o usuário enxerga vendas e clientes de toda a equipe. Se inativo, enxerga apenas os cadastros feitos por ele mesmo.</p>
-                        </div>
-                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" id="u_visao_global" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                            <label for="u_visao_global" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Matriz de Módulos -->
-                <div class="space-y-3">
-                    <h4 class="font-bold text-slate-800 text-sm border-b border-slate-200 pb-2">Selecione as telas permitidas:</h4>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        
-                        <!-- Serviços & Comercial -->
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviços & Comercial</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="veiculos_mobile.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Veículos Mobile</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="simulador.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Simulador Financeiro</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacao.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Solicitação CIJ</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="tabelas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Documentos Oficiais</label>
-                        </div>
-
-                        <!-- Estoque & Admin -->
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estoque & Administrativo</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="estoque.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Estoque Geral/Usados</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="estoque-novos.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Estoque Novos</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacoes-lista.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Lista de Solicitações</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="vendas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Vendas (Saídas)</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="veiculos.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Veículos Gerencial</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="painel_administrativo.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Painel Diretoria</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="usuarios.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Gerenciar Usuários</label>
-                        </div>
-
-                        <!-- Financeiro -->
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financeiro & Rankings</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="despesas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Controle de Despesas</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-azul.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Comissões Azul</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="ranking.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Ranking de Vendas</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="dashboard-equip.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Dashboard Gerencial</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-representantes.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Com. Representantes</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-consumiveis.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Com. Consumíveis</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-4 mt-2 border-t border-slate-200">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-save"></i> Salvar Acessos
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPT MOTOR -->
-    <script type="module" src="core.js"></script>
-
-    <!-- LÓGICA DE USUÁRIOS -->
-    <script>
-        window.listaDeUsuarios = [];
-        let editingUserId = null; // Guarda o ID original para não duplicar
-
-        window.initModule = function(perfil) {
-            if (perfil !== 'Admin') {
-                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas Administradores podem gerenciar acessos.</span>';
-                window.fazerLogout();
-                return;
-            }
-            
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-
-            const usersCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes');
-            
-            window.fsOnSnapshot(usersCol, (snap) => {
-                window.listaDeUsuarios = [];
-                snap.forEach(d => window.listaDeUsuarios.push({ id: d.id, ...d.data() }));
-                window.renderTabelaUsuarios();
-            });
-        };
-
-        window.renderTabelaUsuarios = function() {
-            const tbody = document.getElementById('tabelaUsuarios');
-            tbody.innerHTML = window.listaDeUsuarios.map(u => {
-                
-                const visaoBadge = u.visaoGlobal 
-                    ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md text-[10px] font-bold"><i class="fa-solid fa-globe mr-1"></i> Global</span>` 
-                    : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold"><i class="fa-solid fa-lock mr-1"></i> Restrita</span>`;
-
-                const modulosQtd = (u.modulos || []).length;
-                
-                return `
-                <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
-                    <td class="p-4 font-bold text-slate-800">${u.nome}</td>
-                    <td class="p-4 font-bold text-blue-600">${u.email}</td>
-                    <td class="p-4 text-center font-bold text-slate-600">${u.perfil}</td>
-                    <td class="p-4 text-center">${visaoBadge}</td>
-                    <td class="p-4 text-center text-slate-500 font-semibold">${modulosQtd} Módulos Liberados</td>
-                    <td class="p-4 text-center space-x-2">
-                        <button onclick="window.editarUsuario('${u.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition">Editar Acesso</button>
-                        <button onclick="window.excluirUsuario('${u.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-                `;
-            }).join('');
-        };
-
-        window.abrirModalUsuario = function() {
-            editingUserId = null; // Garante que é um cadastro novo
-            document.getElementById('userForm').reset();
-            document.getElementById('u_email').readOnly = false;
-            
-            // Limpa checkboxes
-            document.querySelectorAll('.mod-checkbox').forEach(cb => cb.checked = false);
-            
-            document.getElementById('modalUser').classList.remove('hidden');
-        };
-
-        window.fecharModalUsuario = function() {
-            document.getElementById('modalUser').classList.add('hidden');
-        };
-
-        window.editarUsuario = function(id) {
-            const u = window.listaDeUsuarios.find(x => x.id === id);
-            if (!u) return;
-
-            editingUserId = u.id; // Guarda a memória do documento exato no banco!
-
-            document.getElementById('u_nome').value = u.nome;
-            document.getElementById('u_email').value = u.email;
-            document.getElementById('u_email').readOnly = true; 
-            document.getElementById('u_perfil').value = u.perfil;
-            document.getElementById('u_visao_global').checked = u.visaoGlobal || false;
-
-            document.querySelectorAll('.mod-checkbox').forEach(cb => {
-                cb.checked = (u.modulos || []).includes(cb.value);
-            });
-
-            document.getElementById('modalUser').classList.remove('hidden');
-        };
-
-        window.salvarUsuario = async function(e) {
-            e.preventDefault();
-
-            const emailFormatado = document.getElementById('u_email').value.toLowerCase().trim();
-            const modulosSelecionados = Array.from(document.querySelectorAll('.mod-checkbox:checked')).map(cb => cb.value);
-
-            const data = {
-                email: emailFormatado,
-                nome: document.getElementById('u_nome').value,
-                perfil: document.getElementById('u_perfil').value,
-                visaoGlobal: document.getElementById('u_visao_global').checked,
-                modulos: modulosSelecionados
-            };
-
-            // Define o ID correto do documento (evita a duplicação se for edição)
-            const docId = editingUserId ? editingUserId : emailFormatado;
-
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', docId), data);
-                editingUserId = null;
-                window.fecharModalUsuario();
-            } catch (err) {
-                alert("Erro ao salvar permissões: " + err.message);
-            }
-        };
-
-        window.excluirUsuario = async function(id) {
-            if(confirm('Tem certeza que deseja remover as permissões deste usuário? Isso excluirá o cadastro da tabela.')) {
-                try {
-                    await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', id));
-                } catch(e) {
-                    console.error("Erro ao excluir usuário:", e);
-                }
+                } catch(e) { console.error(e); }
             }
         };
     </script>
