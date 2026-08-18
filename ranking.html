@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de Vendas - Portal CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO RANKING) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+
+        <!-- TÍTULO DO MÓDULO -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 relative overflow-hidden">
+            <div class="absolute right-0 top-0 opacity-5 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+                <i class="fa-solid fa-trophy text-[12rem]"></i>
+            </div>
+            <div class="flex items-center space-x-3.5 relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center text-xl font-bold shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Ranking de Vendas</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Classificação e desempenho de vendas por itens e vendedores.</p>
+                </div>
+            </div>
+            
+            <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 shadow-inner w-full sm:w-auto">
+                    <label class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Vendido:</label>
+                    <select id="ranking_filterItemType" onchange="window.renderRanking()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-amber-500 cursor-pointer shadow-sm w-full sm:w-auto">
+                        <option value="">Todos os Itens</option>
+                        <option value="Maquina">Maquina</option>
+                        <option value="Consumíveis">Consumíveis</option>
+                        <option value="Locação">Locação</option>
+                        <option value="Alternativo">Alternativo</option>
+                        <option value="Corpo de Prova">Corpo de Prova</option>
+                        <option value="Certificação">Certificação</option>
+                        <option value="Contrato">Contrato</option>
+                    </select>
+                </div>
+                <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 shadow-inner w-full sm:w-auto">
+                    <label class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mês Ref:</label>
+                    <input type="month" id="ranking_filterMonth" onchange="window.renderRanking()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-amber-500 cursor-pointer shadow-sm w-full sm:w-auto">
+                </div>
+            </div>
+        </div>
+
+        <!-- PÓDIOS (TOP 1) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Pódio Volume -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mb-3 shadow-inner animate-float">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Campeão em Volume</h4>
+                <h3 id="podium_vol_name" class="text-xl font-black text-slate-900 truncate w-full px-2">-</h3>
+                <div class="mt-3 inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm font-bold border border-blue-200">
+                    <span id="podium_vol_val">0</span> Itens
+                </div>
+            </div>
+
+            <!-- Pódio Faturamento -->
+            <div class="bg-gradient-to-b from-amber-50 to-white rounded-3xl p-6 shadow-md border border-amber-200 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 scale-105 z-10">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-600"></div>
+                <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mb-3 shadow-inner shadow-amber-500/20 animate-float">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                </div>
+                <h4 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Campeão Faturamento</h4>
+                <h3 id="podium_fat_name" class="text-2xl font-black text-slate-900 truncate w-full px-2">-</h3>
+                <div class="mt-3 inline-block px-4 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-xl text-base font-black shadow-md">
+                    <span id="podium_fat_val">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- Pódio Negociação -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-3 shadow-inner animate-float">
+                    <i class="fa-solid fa-handshake-angle"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Melhor Negociador</h4>
+                <h3 id="podium_neg_name" class="text-xl font-black text-slate-900 truncate w-full px-2">-</h3>
+                <p class="text-[10px] text-slate-500 mb-2 leading-tight">Maior % média retida</p>
+                <div class="mt-auto inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-sm font-bold border border-emerald-200">
+                    Média de <span id="podium_neg_val">0%</span> comissão
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA DE CLASSIFICAÇÃO GERAL -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol text-slate-500"></i> Classificação Geral
+                </h3>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-bold border-b border-slate-800">
+                            <th class="p-3.5 text-center w-16">Pos</th>
+                            <th class="p-3.5">Vendedor</th>
+                            <th class="p-3.5 text-center">Qtd. Itens</th>
+                            <th class="p-3.5 text-right">Faturamento Total</th>
+                            <th class="p-3.5 text-center text-emerald-300">Comissão Média %</th>
+                            <th class="p-3.5">Itens / Modelos Vendidos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyRanking" class="divide-y divide-slate-200 bg-white text-slate-700">
+                        <!-- Gerado JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-2 text-center text-xs text-slate-400 font-medium pb-8">
+            * O "Melhor Negociador" é determinado pela maior média de percentual de comissão, o que indica que o vendedor concedeu menos descontos em relação ao preço de tabela base.
+        </div>
+
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA DO MÓDULO RANKING -->
+    <script>
+        window.listaComissoesAzul = JSON.parse(localStorage.getItem('banco_comissoes_azul_cij') || '[]');
+
+        window.formatarMoeda = (val) => {
+            if (val === undefined || val === null || val === '') return '';
+            let numero = val;
+            if (typeof val === 'string') numero = parseFloat(val.replace(',', '.'));
+            if (isNaN(numero)) return '';
+            return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
+
+        // 1. INICIALIZAÇÃO DO MÓDULO
+        window.initModule = function(perfil) {
+            // Técnicos são barrados de ver rankings de vendas
+            if (perfil === 'Técnico') {
+                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito: Técnicos não possuem permissão para este módulo.</span>';
+                window.fazerLogout();
+                return;
+            }
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+
+            const comissoesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul');
+            
+            window.fsOnSnapshot(comissoesCol, (snap) => {
+                window.listaComissoesAzul = [];
+                snap.forEach(d => window.listaComissoesAzul.push(d.data()));
+                localStorage.setItem('banco_comissoes_azul_cij', JSON.stringify(window.listaComissoesAzul));
+                window.renderRanking();
+            });
+
+            const d = new Date();
+            const curMonthStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+            if(document.getElementById('ranking_filterMonth')) {
+                document.getElementById('ranking_filterMonth').value = curMonthStr;
+            }
+            window.renderRanking();
+        };
+
+        window.renderRanking = function() {
+            const monthFilter = document.getElementById('ranking_filterMonth').value;
+            const itemFilter = document.getElementById('ranking_filterItemType').value;
+            
+            let sales = window.listaComissoesAzul;
+            
+            // Aplica a regra de Visão Global / Restrita
+            const isVisaoLimitada = window.userVisaoGlobal === false;
+            const myEmail = window.currentUser ? window.currentUser.email : '';
+            if (isVisaoLimitada) {
+                sales = sales.filter(s => s.autor === myEmail);
+            }
+
+            // Filtro de Mês de Venda
+            if (monthFilter) {
+                sales = sales.filter(s => s.date && s.date.startsWith(monthFilter));
+            }
+
+            // Filtro de Item Vendido
+            if (itemFilter) {
+                sales = sales.filter(s => s.itemType === itemFilter);
+            }
+
+            // 2. Agrupa por Vendedor
+            const sellersObj = {};
+            sales.forEach(s => {
+                const seller = s.sellerName ? s.sellerName.trim() : 'Desconhecido';
+                if (!sellersObj[seller]) {
+                    sellersObj[seller] = { name: seller, qtd: 0, val: 0, commSum: 0, models: [] };
+                }
+                sellersObj[seller].qtd += 1;
+                sellersObj[seller].val += parseFloat(s.saleValue) || 0;
+                sellersObj[seller].commSum += parseFloat(s.commissionPercent) || 0;
+                
+                let modelLabel = s.itemType;
+                if (s.itemType === 'Maquina' && s.machineModel) {
+                    modelLabel = `${s.machineCategory} - ${s.machineModel}`;
+                }
+                sellersObj[seller].models.push(modelLabel);
+            });
+
+            // 3. Formata Array e Calcula Média
+            const rankingArray = Object.values(sellersObj).map(s => {
+                s.avgComm = s.qtd > 0 ? (s.commSum / s.qtd) : 0;
+                
+                // Contar modelos repetidos
+                const mCounts = {};
+                s.models.forEach(m => { mCounts[m] = (mCounts[m] || 0) + 1; });
+                s.modelText = Object.entries(mCounts).map(([m, c]) => `<span class="bg-slate-100 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap inline-block mr-1 mb-1">${c}x ${m}</span>`).join('');
+                
+                return s;
+            });
+
+            // 4. Determina os Vencedores
+            let winnerQtd = { name: '-', qtd: 0 };
+            let winnerVal = { name: '-', val: 0 };
+            let winnerNeg = { name: '-', avgComm: 0 };
+
+            if (rankingArray.length > 0) {
+                winnerQtd = [...rankingArray].sort((a,b) => b.qtd - a.qtd)[0];
+                winnerVal = [...rankingArray].sort((a,b) => b.val - a.val)[0];
+                winnerNeg = [...rankingArray].sort((a,b) => b.avgComm - a.avgComm)[0];
+            }
+
+            // Atualiza Pódios
+            document.getElementById('podium_vol_name').innerText = winnerQtd.name;
+            document.getElementById('podium_vol_val').innerText = winnerQtd.qtd;
+
+            document.getElementById('podium_fat_name').innerText = winnerVal.name;
+            document.getElementById('podium_fat_val').innerText = window.formatarMoeda(winnerVal.val);
+
+            document.getElementById('podium_neg_name').innerText = winnerNeg.name;
+            document.getElementById('podium_neg_val').innerText = winnerNeg.avgComm.toFixed(1).replace('.', ',') + '%';
+
+            // 5. Preenche a Tabela 
+            rankingArray.sort((a,b) => b.val - a.val);
+            
+            const tbody = document.getElementById('tableBodyRanking');
+            if (rankingArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Nenhum item vendido no período ou filtro selecionado.</td></tr>`;
+            } else {
+                tbody.innerHTML = rankingArray.map((s, index) => {
+                    let posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 font-bold mx-auto text-[10px]">${index + 1}º</span>`;
+                    if (index === 0) posBadge = `<span class="w-7 h-7 flex items-center justify-center rounded-full bg-amber-100 text-amber-600 font-black mx-auto text-xs shadow-sm ring-1 ring-amber-300"><i class="fa-solid fa-trophy"></i></span>`;
+                    else if (index === 1) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 text-slate-600 font-black mx-auto text-[10px] shadow-sm">2º</span>`;
+                    else if (index === 2) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-700 font-black mx-auto text-[10px] shadow-sm">3º</span>`;
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100 group">
+                            <td class="p-3.5">${posBadge}</td>
+                            <td class="p-3.5 font-bold text-slate-900">${s.name}</td>
+                            <td class="p-3.5 text-center font-bold text-blue-700">${s.qtd}</td>
+                            <td class="p-3.5 text-right font-black text-slate-800">${window.formatarMoeda(s.val)}</td>
+                            <td class="p-3.5 text-center font-bold text-emerald-700">${s.avgComm.toFixed(1).replace('.', ',')}%</td>
+                            <td class="p-3.5 w-[35%]"><div class="flex flex-wrap gap-1">${s.modelText}</div></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        };
+    </script>
+</body>
+</html>
