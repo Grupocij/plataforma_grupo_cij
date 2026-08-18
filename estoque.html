@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque de Equipamentos - Portal CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO ESTOQUE GERAL) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <!-- TÍTULO DO MÓDULO -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-boxes-stacked text-cyan-600"></i> Gestão de Estoque de Equipamentos</h2>
+            <p class="text-sm text-slate-500 mt-1">Controle de entradas, saídas, reservas e localização de máquinas e acessórios.</p>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-cyan-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-cyan-600">Total em Estoque</p>
+                <h3 id="kpiTotalEstoque" class="text-2xl font-black text-cyan-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Itens cadastrados</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Disponíveis / Estoque</p>
+                <h3 id="kpiDisponivelEstoque" class="text-2xl font-black text-emerald-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-emerald-500 mt-1">Prontos para negócio</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Reservados</p>
+                <h3 id="kpiReservadoEstoque" class="text-2xl font-black text-amber-900 mt-1">0</h3>
+                <p class="text-xs font-medium text-amber-600 mt-1">Comprometidos em pedidos</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Vendidos / Entregues</p>
+                <h3 id="kpiVendidoEstoque" class="text-2xl font-black text-indigo-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-indigo-600 mt-1">Faturados</p>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO DE CADASTRO / EDIÇÃO -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-3">
+                <h3 id="formTitleEstoque" class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-cyan-600"></i> Cadastrar Equipamento
+                </h3>
+                <button type="button" id="btnCancelEditEstoque" onclick="window.resetFormEstoque()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300">
+                    Cancelar Edição
+                </button>
+            </div>
+
+            <form id="estoqueForm" onsubmit="window.salvarEquipamento(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Modelo / Equipamento *</label>
+                        <select id="est_modelo" required onchange="window.verificarOutroModeloEstoque(this)" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600">
+                            <option value="8820">8820 (CIJ)</option>
+                            <option value="8860">8860 (CIJ)</option>
+                            <option value="8910">8910 (CIJ)</option>
+                            <option value="T-110H">T-110H (TIJ)</option>
+                            <option value="UV 5W">UV 5W (Laser)</option>
+                            <option value="CO2 30W">CO2 30W (Laser)</option>
+                            <option value="FIBRA 30W">FIBRA 30W (Laser)</option>
+                            <option value="Outro">Outro (Digitar)</option>
+                        </select>
+                        <input type="text" id="est_modelo_outro" placeholder="Digite o modelo..." class="w-full mt-2 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium hidden">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nº de Série / Patrimônio *</label>
+                        <input type="text" id="est_serial" required placeholder="Ex: SN-998231" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-black shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Condição *</label>
+                        <select id="est_condicao" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600">
+                            <option value="Novo">Novo</option>
+                            <option value="Semi-Novo">Semi-Novo</option>
+                            <option value="Usado">Usado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status *</label>
+                        <select id="est_status" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600">
+                            <option value="Disponível para venda">Disponível para venda</option>
+                            <option value="Estoque">Estoque</option>
+                            <option value="Reservado">Reservado</option>
+                            <option value="Demonstração">Demonstração</option>
+                            <option value="Locação">Locação</option>
+                            <option value="Empréstimo">Empréstimo</option>
+                            <option value="Em Manutenção">Em Manutenção</option>
+                            <option value="Em Trânsito">Em Trânsito</option>
+                            <option value="Vendido">Vendido</option>
+                            <option value="Baixado">Baixado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Localização / Filial *</label>
+                        <select id="est_local" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600">
+                            <option value="Estoque Joinville">Estoque Joinville</option>
+                            <option value="Estoque RS">Estoque RS</option>
+                            <option value="Laboratório">Laboratório</option>
+                            <option value="Cliente">Cliente</option>
+                            <option value="Fabricante/Fornecedor">Fabricante/Fornecedor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Data de Entrada *</label>
+                        <input type="date" id="est_data" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-cyan-600">
+                    </div>
+                    <div class="lg:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Observações</label>
+                        <input type="text" id="est_obs" placeholder="Ex: Equipamento revisado, firmware atualizado..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-cyan-600">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-4 mt-2 border-t border-slate-100">
+                    <button type="submit" id="btnSubmitEstoque" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i> Salvar Equipamento
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FILTROS E TABELA -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-cyan-600"></i> Consulta de Estoque
+                </h3>
+                <button onclick="window.exportToExcelEstoque()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-excel"></i> Exportar
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Modelo</label>
+                    <input type="text" id="filter_modelo" oninput="window.renderTableEstoque()" placeholder="Filtrar modelo..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº de Série</label>
+                    <input type="text" id="filter_serial" oninput="window.renderTableEstoque()" placeholder="Filtrar serial..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                    <select id="filter_status" onchange="window.renderTableEstoque()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold outline-none focus:border-cyan-600">
+                        <option value="">Todos</option>
+                        <option value="Disponível para venda">Disponível para venda</option>
+                        <option value="Estoque">Estoque</option>
+                        <option value="Reservado">Reservado</option>
+                        <option value="Demonstração">Demonstração</option>
+                        <option value="Locação">Locação</option>
+                        <option value="Empréstimo">Empréstimo</option>
+                        <option value="Em Manutenção">Em Manutenção</option>
+                        <option value="Em Trânsito">Em Trânsito</option>
+                        <option value="Vendido">Vendido</option>
+                        <option value="Baixado">Baixado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Localização</label>
+                    <input type="text" id="filter_local" oninput="window.renderTableEstoque()" placeholder="Filtrar local..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 custom-scrollbar mt-3">
+                <table class="w-full text-left border-collapse min-w-[900px] text-xs">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-bold">
+                            <th class="p-3">Modelo</th>
+                            <th class="p-3">Nº de Série</th>
+                            <th class="p-3 text-center">Condição</th>
+                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3">Localização</th>
+                            <th class="p-3">Data Entrada</th>
+                            <th class="p-3">Observações</th>
+                            <th class="p-3 text-center no-print">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyEstoque" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA DO MÓDULO ESTOQUE -->
+    <script>
+        window.listaEstoque = JSON.parse(localStorage.getItem('banco_estoque_cij') || '[]');
+        let estoque_editingIndex = null;
+
+        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+
+            const estoqueCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_equipamentos');
+            
+            window.fsOnSnapshot(estoqueCol, (snap) => {
+                window.listaEstoque = [];
+                snap.forEach(d => window.listaEstoque.push(d.data()));
+                localStorage.setItem('banco_estoque_cij', JSON.stringify(window.listaEstoque));
+                window.renderTableEstoque();
+            });
+            
+            document.getElementById('est_data').valueAsDate = new Date();
+        };
+
+        window.safeGetVal = (id) => document.getElementById(id)?.value || '';
+        window.safeSetVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).value = val; };
+        window.safeSetText = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
+
+        window.verificarOutroModeloEstoque = function(selectEl) {
+            const inputOutro = document.getElementById('est_modelo_outro');
+            if (selectEl.value === 'Outro') {
+                inputOutro.classList.remove('hidden');
+                inputOutro.required = true;
+                inputOutro.focus();
+            } else {
+                inputOutro.classList.add('hidden');
+                inputOutro.required = false;
+                inputOutro.value = '';
+            }
+        };
+
+        window.getFilteredEstoque = function() {
+            const modelo = safeGetVal('filter_modelo').toLowerCase();
+            const serial = safeGetVal('filter_serial').toLowerCase();
+            const status = safeGetVal('filter_status');
+            const local = safeGetVal('filter_local').toLowerCase();
+
+            return window.listaEstoque.filter(item => {
+                if (modelo && !item.modelo.toLowerCase().includes(modelo)) return false;
+                if (serial && !item.serial.toLowerCase().includes(serial)) return false;
+                if (status && item.status !== status) return false;
+                if (local && !item.local.toLowerCase().includes(local)) return false;
+                return true;
+            });
+        };
+
+        window.renderTableEstoque = function() {
+            let filtered = window.getFilteredEstoque();
+            const tbody = document.getElementById('tableBodyEstoque');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let totalCount = window.listaEstoque.length;
+            let disponivelCount = window.listaEstoque.filter(i => i.status === 'Disponível para venda' || i.status === 'Estoque').length;
+            let reservadoCount = window.listaEstoque.filter(i => i.status === 'Reservado').length;
+            let vendidoCount = window.listaEstoque.filter(i => i.status === 'Vendido').length;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">Nenhum equipamento encontrado.</td></tr>`;
+            } else {
+                filtered.forEach((item) => {
+                    const dateFormatted = item.data ? item.data.split('-').reverse().join('/') : '-';
+                    const statusClass = (item.status === 'Disponível para venda' || item.status === 'Estoque') ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                        item.status === 'Reservado' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                        item.status === 'Vendido' ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-slate-100 text-slate-800 border-slate-300';
+
+                    let statusBadge = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${statusClass}">${item.status}</span>`;
+                    if (item.status === 'Reservado' && item.reservadoPor) {
+                        statusBadge += `<span class="block text-[10px] text-slate-500 mt-0.5 font-normal">Por: ${item.reservadoPor}</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-200">
+                            <td class="p-3 font-bold text-slate-900">${item.modelo}</td>
+                            <td class="p-3 font-bold text-cyan-900 font-mono">${item.serial}</td>
+                            <td class="p-3 text-center text-slate-700">${item.condicao || '-'}</td>
+                            <td class="p-3 text-center">${statusBadge}</td>
+                            <td class="p-3 text-slate-700">${item.local}</td>
+                            <td class="p-3 text-slate-600">${dateFormatted}</td>
+                            <td class="p-3 text-slate-500 text-[11px]">${item.obs || '-'}</td>
+                            <td class="p-3 text-center space-x-1 no-print">
+                                <button onclick="window.editEquipamento('${item.id}')" title="Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="window.deleteEquipamento('${item.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            safeSetText('kpiTotalEstoque', totalCount);
+            safeSetText('kpiDisponivelEstoque', disponivelCount);
+            safeSetText('kpiReservadoEstoque', reservadoCount);
+            safeSetText('kpiVendidoEstoque', vendidoCount);
+        };
+
+        window.salvarEquipamento = function(e) {
+            e.preventDefault();
+            let modeloVal = safeGetVal('est_modelo');
+            if (modeloVal === 'Outro') modeloVal = safeGetVal('est_modelo_outro');
+
+            const statusVal = safeGetVal('est_status');
+            const currentUserEmail = window.currentUser ? window.currentUser.email : 'Usuário';
+
+            let existingItem = null;
+            if (estoque_editingIndex !== null) existingItem = window.listaEstoque.find(i => i.id === estoque_editingIndex);
+
+            let reservadoPor = '';
+            if (statusVal === 'Reservado') {
+                if (existingItem && existingItem.status === 'Reservado' && existingItem.reservadoPor) {
+                    reservadoPor = existingItem.reservadoPor;
+                } else {
+                    reservadoPor = window.nomeUsuarioLogado || currentUserEmail;
+                }
+            }
+
+            const itemData = {
+                id: estoque_editingIndex !== null ? estoque_editingIndex : Date.now().toString(),
+                modelo: modeloVal,
+                serial: safeGetVal('est_serial'),
+                condicao: safeGetVal('est_condicao'),
+                status: statusVal,
+                local: safeGetVal('est_local'),
+                data: safeGetVal('est_data'),
+                obs: safeGetVal('est_obs'),
+                reservadoPor: reservadoPor
+            };
+
+            if (estoque_editingIndex !== null) {
+                const idx = window.listaEstoque.findIndex(i => i.id === estoque_editingIndex);
+                if(idx > -1) window.listaEstoque[idx] = itemData;
+                estoque_editingIndex = null;
+            } else {
+                window.listaEstoque.push(itemData);
+            }
+
+            localStorage.setItem('banco_estoque_cij', JSON.stringify(window.listaEstoque));
+            try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_equipamentos', itemData.id), itemData); } catch(e){}
+
+            window.resetFormEstoque();
+            window.renderTableEstoque();
+            window.mostrarNotificacao('Equipamento salvo com sucesso!');
+        };
+
+        window.editEquipamento = function(id) {
+            const item = window.listaEstoque.find(i => i.id === id);
+            if (!item) return;
+
+            estoque_editingIndex = id;
+            const defaultModelos = ["8820", "8860", "8910", "T-110H", "UV 5W", "CO2 30W", "FIBRA 30W"];
+            if (defaultModelos.includes(item.modelo)) {
+                safeSetVal('est_modelo', item.modelo);
+                document.getElementById('est_modelo_outro').classList.add('hidden');
+                document.getElementById('est_modelo_outro').value = '';
+                document.getElementById('est_modelo_outro').required = false;
+            } else {
+                safeSetVal('est_modelo', 'Outro');
+                document.getElementById('est_modelo_outro').classList.remove('hidden');
+                safeSetVal('est_modelo_outro', item.modelo);
+                document.getElementById('est_modelo_outro').required = true;
+            }
+
+            safeSetVal('est_serial', item.serial);
+            safeSetVal('est_condicao', item.condicao || 'Novo');
+            safeSetVal('est_status', item.status);
+            safeSetVal('est_local', item.local);
+            safeSetVal('est_data', item.data);
+            safeSetVal('est_obs', item.obs);
+
+            safeSetText('formTitleEstoque', "Editar Equipamento");
+            document.getElementById('btnSubmitEstoque').innerHTML = '<i class="fa-solid fa-save"></i> Atualizar';
+            document.getElementById('btnCancelEditEstoque').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.resetFormEstoque = function() {
+            document.getElementById('estoqueForm').reset();
+            document.getElementById('est_data').valueAsDate = new Date();
+            document.getElementById('est_modelo_outro').classList.add('hidden');
+            document.getElementById('est_modelo_outro').value = '';
+            document.getElementById('est_modelo_outro').required = false;
+            estoque_editingIndex = null;
+            safeSetText('formTitleEstoque', "Cadastrar Equipamento");
+            document.getElementById('btnSubmitEstoque').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Equipamento';
+            document.getElementById('btnCancelEditEstoque').classList.add('hidden');
+        };
+
+        window.deleteEquipamento = function(id) {
+            if (!window.isUserAdminOrFinance) {
+                window.mostrarNotificacao('Apenas usuários Admin e Financeiro podem excluir equipamentos.', true);
+                return;
+            }
+            if(confirm('Deseja remover este equipamento do estoque?')) {
+                window.listaEstoque = window.listaEstoque.filter(i => i.id !== id);
+                localStorage.setItem('banco_estoque_cij', JSON.stringify(window.listaEstoque));
+                try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_equipamentos', id)); } catch(e){}
+                window.renderTableEstoque();
+                window.mostrarNotificacao('Equipamento removido.');
+            }
+        };
+
+        window.exportToExcelEstoque = async function() {
+            if (typeof ExcelJS === 'undefined') { window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
+            const filteredData = window.getFilteredEstoque();
+            if (filteredData.length === 0) { window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Estoque de Equipamentos');
+
+            ws.columns = [
+                { header: 'Modelo', key: 'modelo', width: 20 },
+                { header: 'Nº de Série', key: 'serial', width: 20 },
+                { header: 'Condição', key: 'condicao', width: 15 },
+                { header: 'Status', key: 'status', width: 15 },
+                { header: 'Reservado Por', key: 'reservadoPor', width: 25 },
+                { header: 'Localização', key: 'local', width: 25 },
+                { header: 'Data Entrada', key: 'data', width: 15 },
+                { header: 'Observações', key: 'obs', width: 35 }
+            ];
+
+            const headerRow = ws.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0891B2' } };
+
+            filteredData.forEach((i) => {
+                ws.addRow({
+                    modelo: i.modelo,
+                    serial: i.serial,
+                    condicao: i.condicao || '-',
+                    status: i.status,
+                    reservadoPor: i.reservadoPor || '',
+                    local: i.local,
+                    data: i.data ? i.data.split('-').reverse().join('/') : '',
+                    obs: i.obs
+                });
+            });
+
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buffer]), `Estoque_Equipamentos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            window.mostrarNotificacao('Estoque exportado com sucesso!');
+        };
+    </script>
+</body>
+</html>
