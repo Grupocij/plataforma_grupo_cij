@@ -190,12 +190,8 @@
             
             let sales = window.listaComissoesAzul;
             
-            // Aplica a regra de Visão Global / Restrita
-            const isVisaoLimitada = window.userVisaoGlobal === false;
-            const myEmail = window.currentUser ? window.currentUser.email : '';
-            if (isVisaoLimitada) {
-                sales = sales.filter(s => s.autor === myEmail);
-            }
+            // EXCEÇÃO DA VISÃO GLOBAL APLICADA AQUI:
+            // A trava `isVisaoLimitada` foi removida. Todos veem tudo nesta tela específica!
 
             // Filtro de Mês de Venda
             if (monthFilter) {
