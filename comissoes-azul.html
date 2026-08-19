@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comissões Azul - Portal Grupo CIJ</title>
+    <title>Registro de Vendas - Portal Grupo CIJ</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,45 +20,59 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
         
-        @keyframes blink-animation {
-            0% { opacity: 1; background-color: #f59e0b; }
-            50% { opacity: 0.6; background-color: #d97706; }
-            100% { opacity: 1; background-color: #f59e0b; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        .blinking-alert { animation: blink-animation 1s infinite; }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-animate-enter { animation: slideInRight 0.3s ease-out forwards; }
+        .toast-animate-exit { animation: fadeOut 0.3s ease-out forwards; }
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- ÁREA CENTRAL DE CONTEÚDO (COMISSÕES AZUL) -->
+    <!-- Container de Toasts para Alertas -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2 pointer-events-none no-print"></div>
+
+    <!-- ÁREA CENTRAL DE CONTEÚDO -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
 
-        <!-- TÍTULO DO MÓDULO -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                <i class="fa-solid fa-chart-line text-blue-600"></i> Painel de Comissões Azul
-            </h2>
-            <p class="text-sm text-slate-500 mt-1">Gestão, cálculos e previsões de liquidação de comissões.</p>
+        <!-- CABEÇALHO INTERNO DO MÓDULO -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3.5">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Registro de Vendas</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Gestão, cálculos, ranking e previsões de comissões</p>
+                </div>
+            </div>
+            
+            <nav class="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-full md:w-auto overflow-x-auto">
+                <button onclick="window.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-ranking-star text-sm"></i><span>Ranking & Dashboard</span>
+                </button>
+                <button onclick="window.switchTab('nova-venda')" id="tab-btn-nova-venda" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-file-circle-plus text-sm"></i><span>Lançar NF</span>
+                </button>
+                <button onclick="window.switchTab('historico')" id="tab-btn-historico" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-list-check text-sm"></i><span>Histórico</span>
+                </button>
+                <button onclick="window.switchTab('resumo')" id="tab-btn-resumo" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-chart-bar text-sm"></i><span>Resumo Quinzenal</span>
+                </button>
+            </nav>
         </div>
 
-        <!-- NAVEGAÇÃO INTERNA DE ABAS -->
-        <nav class="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-full overflow-x-auto">
-            <button onclick="window.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap cursor-pointer">
-                <i class="fa-solid fa-ranking-star text-sm"></i><span>Ranking & Dashboard</span>
-            </button>
-            <button onclick="window.switchTab('nova-venda')" id="tab-btn-nova-venda" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
-                <i class="fa-solid fa-file-circle-plus text-sm"></i><span>Lançar NF</span>
-            </button>
-            <button onclick="window.switchTab('historico')" id="tab-btn-historico" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
-                <i class="fa-solid fa-list-check text-sm"></i><span>Histórico</span>
-            </button>
-            <button onclick="window.switchTab('resumo')" id="tab-btn-resumo" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
-                <i class="fa-solid fa-chart-bar text-sm"></i><span>Resumo Quinzenal</span>
-            </button>
-        </nav>
-
         <!-- TAB 1: DASHBOARD DE RANKING -->
-        <section id="tab-dashboard" class="tab-content space-y-4">
+        <section id="tab-dashboard" class="tab-content space-y-6">
             
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-blue-600"></i> Desempenho e Metas</h3>
@@ -68,7 +82,7 @@
                 </div>
             </div>
 
-            <!-- KPIs Gerais do Mês -->
+            <!-- KPIs Gerais -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Total de Vendas</p>
@@ -87,7 +101,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Ranking de Vendedores -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                     <h4 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2 flex items-center justify-between">
@@ -109,7 +123,7 @@
                     </div>
                 </div>
 
-                <!-- Vendas por Categoria/Produto -->
+                <!-- Performance de Produtos -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                     <h4 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2 flex items-center justify-between">
                         <span>Performance de Produtos</span>
@@ -133,49 +147,50 @@
 
         <!-- TAB 2: NOVA VENDA / LANÇAMENTO DE NF -->
         <section id="tab-nova-venda" class="tab-content hidden space-y-6">
-            <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm mb-6">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
-                    <h3 id="formTitleAzul" class="text-base font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-plus text-blue-600"></i> Nova Venda
-                    </h3>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+                <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h3 id="formTitleAzul" class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Lançar Nova Venda
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Preencha os dados da venda. A comissão das máquinas é calculada de forma automatizada pelas faixas de preço.</p>
+                    </div>
                     <button type="button" id="btnCancelEditAzul" onclick="window.resetFormAzul()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-xmark"></i> Cancelar Edição
                     </button>
                 </div>
 
-                <form id="commissionFormAzul" onsubmit="window.salvarVendaAzul(event)" class="space-y-3">
+                <form id="commissionFormAzul" onsubmit="window.salvarVendaAzul(event)" class="space-y-4">
                     <input type="hidden" id="venda-id-edicao" value="">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Vendedor *</label>
-                            <input type="text" id="azul_sellerName" required placeholder="Nome do Vendedor" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-medium outline-none focus:border-blue-600 transition">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendedor *</label>
+                            <input type="text" id="azul_sellerName" required placeholder="Nome do Vendedor" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-blue-600 transition">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Data da Venda *</label>
-                            <input type="date" id="azul_date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-medium outline-none focus:border-blue-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da Venda *</label>
+                            <input type="date" id="azul_date" required class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-blue-600 transition cursor-pointer">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nº da NF *</label>
-                            <input type="text" id="azul_nfNumber" required placeholder="Ex: NF-1092" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-medium outline-none focus:border-blue-600 transition uppercase">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº da NF *</label>
+                            <input type="text" id="azul_nfNumber" required placeholder="Ex: NF-1092" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition uppercase">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Cliente *</label>
-                            <input type="text" id="azul_client" required placeholder="Nome do Cliente" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-medium outline-none focus:border-blue-600 transition">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Cliente *</label>
+                            <input type="text" id="azul_client" required placeholder="Nome do Cliente" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-blue-600 transition">
                         </div>
 
-                        <div class="col-span-1 lg:col-span-4 border-t border-slate-100 pt-3 mt-1"></div>
-
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Tipo de Cliente</label>
-                            <select id="azul_clientType" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-semibold outline-none focus:border-blue-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Cliente</label>
+                            <select id="azul_clientType" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 transition cursor-pointer">
                                 <option value="Atual">Cliente Atual</option>
                                 <option value="Novo">Cliente Novo</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Item Vendido</label>
-                            <select id="azul_itemType" onchange="window.onChangeItemTypeAzul()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Item Vendido</label>
+                            <select id="azul_itemType" onchange="window.onChangeItemTypeAzul()" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
                                 <option value="Consumíveis" selected>Consumíveis</option>
                                 <option value="Maquina">Maquina</option>
                                 <option value="Alternativo">Alternativo</option>
@@ -187,8 +202,8 @@
                         </div>
 
                         <div id="azul_containerCategoria" class="hidden">
-                            <label class="block text-[11px] font-bold text-indigo-700 mb-1 uppercase">Categoria Máquina *</label>
-                            <select id="azul_machineCategory" onchange="window.onChangeMachineCategory()" class="w-full px-3 py-2 bg-indigo-50 border border-indigo-300 text-indigo-900 rounded-lg text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-indigo-700 mb-1 uppercase">Categoria Máquina *</label>
+                            <select id="azul_machineCategory" onchange="window.onChangeMachineCategory()" class="w-full bg-white px-3 py-2 border border-indigo-300 text-indigo-900 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
                                 <option value="">Selecione...</option>
                                 <option value="INKJET">Inkjet</option>
                                 <option value="LASER CO2">Laser CO2</option>
@@ -201,51 +216,49 @@
                             </select>
                         </div>
                         <div id="azul_containerModelo" class="hidden">
-                            <label class="block text-[11px] font-bold text-indigo-700 mb-1 uppercase">Modelo Máquina *</label>
-                            <select id="azul_machineModel" onchange="window.calcularComissaoMaquina()" class="w-full px-3 py-2 bg-indigo-50 border border-indigo-300 text-indigo-900 rounded-lg text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-indigo-700 mb-1 uppercase">Modelo Máquina *</label>
+                            <select id="azul_machineModel" onchange="window.calcularComissaoMaquina()" class="w-full bg-white px-3 py-2 border border-indigo-300 text-indigo-900 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
                                 <option value="">Selecione a Categoria</option>
                             </select>
                         </div>
 
-                        <div id="azul_containerRecorrencia" class="hidden lg:col-span-2 grid grid-cols-2 gap-3">
+                        <div id="azul_containerRecorrencia" class="hidden sm:col-span-2 grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-bold text-indigo-700 mb-1 uppercase">Data de Início *</label>
-                                <input type="date" id="azul_startDate" class="w-full px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-lg text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
+                                <label class="block text-[10px] font-bold text-indigo-700 mb-1 uppercase">Data de Início *</label>
+                                <input type="date" id="azul_startDate" class="w-full bg-white px-3 py-2 border border-indigo-200 text-indigo-900 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-indigo-700 mb-1 uppercase">Data de Fim *</label>
-                                <input type="date" id="azul_endDate" class="w-full px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-lg text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
+                                <label class="block text-[10px] font-bold text-indigo-700 mb-1 uppercase">Data de Fim *</label>
+                                <input type="date" id="azul_endDate" class="w-full bg-white px-3 py-2 border border-indigo-200 text-indigo-900 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 transition cursor-pointer">
                             </div>
                         </div>
 
-                        <div class="col-span-1 lg:col-span-4 border-t border-slate-100 pt-3 mt-1"></div>
-
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Valor da Venda (R$) *</label>
-                            <input type="number" step="0.01" min="0" id="azul_saleValue" oninput="window.calcularComissaoMaquina()" required placeholder="0.00" class="w-full px-3 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg text-xs font-black outline-none focus:border-blue-600 transition shadow-inner">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Valor da Venda (R$) *</label>
+                            <input type="number" step="0.01" min="0" id="azul_saleValue" oninput="window.calcularComissaoMaquina()" required placeholder="0.00" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-black outline-none focus:border-blue-600 transition shadow-inner">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Entrada (%) *</label>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Entrada (%) *</label>
                             <div class="relative">
-                                <input type="number" step="0.1" min="0" max="100" id="azul_entryPercent" required placeholder="Ex: 20" class="w-full px-3 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg text-xs font-black outline-none focus:border-blue-600 transition shadow-inner">
+                                <input type="number" step="0.1" min="0" max="100" id="azul_entryPercent" required placeholder="Ex: 20" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-black outline-none focus:border-blue-600 transition shadow-inner">
                                 <span class="absolute right-3 top-2 text-[10px] text-slate-400 font-bold">%</span>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Condição Pagamento</label>
-                            <select id="azul_paymentCond" onchange="window.updatePaymentFieldsAzul()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Condição Pagamento</label>
+                            <select id="azul_paymentCond" onchange="window.updatePaymentFieldsAzul()" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
                                 <option value="À Vista">À Vista</option>
                                 <option value="Parcelado">Parcelado</option>
                             </select>
                         </div>
                         
                         <div id="azul_containerInstallments" class="hidden">
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nº de Parcelas</label>
-                            <input type="number" id="azul_installmentsCount" min="1" max="72" value="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº de Parcelas</label>
+                            <input type="number" id="azul_installmentsCount" min="1" max="72" value="1" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition">
                         </div>
                         <div id="azul_containerInterval" class="hidden">
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Intervalo (dias)</label>
-                            <select id="azul_installmentInterval" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Intervalo (dias)</label>
+                            <select id="azul_installmentInterval" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
                                 <option value="7">7 dias</option>
                                 <option value="10">10 dias</option>
                                 <option value="14">14 dias</option>
@@ -257,16 +270,16 @@
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-indigo-700 mb-1 uppercase">Comissão Final (%) *</label>
+                            <label class="block text-[10px] font-bold text-indigo-700 mb-1 uppercase">Comissão Final (%) *</label>
                             <div class="relative">
-                                <input type="number" step="0.1" min="0" max="100" id="azul_commissionPercent" required placeholder="Ex: 5" class="w-full px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-lg text-xs font-black outline-none focus:border-indigo-600 transition shadow-inner">
+                                <input type="number" step="0.1" min="0" max="100" id="azul_commissionPercent" required placeholder="Ex: 5" class="w-full bg-white px-3 py-2 border border-indigo-200 text-indigo-900 rounded-xl text-xs font-black outline-none focus:border-indigo-600 transition shadow-inner">
                                 <span class="absolute right-3 top-2 text-[10px] text-indigo-400 font-bold">%</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex justify-end pt-4 border-t border-slate-100 mt-4">
-                        <button type="submit" id="btnSubmitAzul" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" id="btnSubmitAzul" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-save"></i> Salvar Venda
                         </button>
                     </div>
@@ -276,13 +289,16 @@
 
         <!-- TAB 3: HISTÓRICO DE NFs -->
         <section id="tab-historico" class="tab-content hidden space-y-6">
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-filter text-blue-600"></i> Histórico e Filtros
-                    </h3>
-                    <button onclick="window.exportToExcelAzul()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-file-excel"></i> Exportar
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-3 gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-blue-600"></i> Histórico e Filtros
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Consulte e gerencie o histórico quinzenal das vendas.</p>
+                    </div>
+                    <button onclick="window.exportToExcelAzul()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Exportar Excel
                     </button>
                 </div>
 
@@ -326,7 +342,7 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto border border-slate-200 border-b-0 rounded-t-xl custom-scrollbar">
+                <div class="overflow-x-auto border border-slate-200 border-b-0 rounded-t-xl custom-scrollbar mt-2">
                     <table class="w-full text-left border-collapse min-w-[950px] text-xs">
                         <thead>
                             <tr class="bg-slate-900 text-white font-bold border-b border-slate-800">
@@ -369,7 +385,7 @@
 
         <!-- TAB 4: RESUMO DE PAGAMENTOS -->
         <section id="tab-resumo" class="tab-content hidden space-y-6">
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-indigo-600"></i> Relatório de Comissões por Vendedor / Quinzena
@@ -436,7 +452,7 @@
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA DO MÓDULO COMISSÕES AZUL -->
+    <!-- LÓGICA DO MÓDULO REGISTRO DE VENDAS -->
     <script>
         let azul_editingIndex = null;
         let azul_sortColumn = 'date';
@@ -499,7 +515,33 @@
         
         window.mostrarModalConfirm = (t, m, cb) => { if(confirm(m)) cb(); };
 
-        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgColors = {
+                success: 'bg-emerald-900 border-emerald-500 text-emerald-100',
+                error: 'bg-rose-900 border-rose-500 text-rose-100',
+                warning: 'bg-amber-900 border-amber-500 text-amber-100',
+                info: 'bg-slate-900 border-blue-500 text-slate-100'
+            };
+            const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+
+            toast.className = `toast-animate-enter pointer-events-auto border-l-4 p-3.5 rounded-xl shadow-xl flex items-center justify-between space-x-3 text-xs max-w-md ${bgColors[type] || bgColors.info}`;
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i>
+                    <span class="font-medium">${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('toast-animate-enter'); toast.classList.add('toast-animate-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
             document.getElementById('main-content')?.classList.remove('hidden');
@@ -716,7 +758,6 @@
                 return { unlocked: true, info: `Dia 15 (${payDateStr})`, detail: `Contrato de Locação`, class: 'text-indigo-800 bg-indigo-100 border-indigo-300', payDateStr };
             }
 
-            // REGRA ATUALIZADA: Consumíveis liberam apenas após o pagamento da 1ª parcela
             if (itemType === 'Consumíveis' || itemType === 'Corpo de Prova') {
                 if (paymentCond === 'À Vista') {
                     const payDate = window.getNextPaymentDateAzul(sale.date);
@@ -826,7 +867,7 @@
                 window.renderTableAzul();
                 if(!document.getElementById('tab-dashboard').classList.contains('hidden')) window.renderDashboard();
                 if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
-                window.mostrarNotificacao(`Status alterado para ${novoStatus}`);
+                showToast(`Status alterado para ${novoStatus}`, "success");
             }
         };
 
@@ -1157,7 +1198,7 @@
             window.renderDashboard();
             if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
             window.switchTab('historico');
-            window.mostrarNotificacao('Venda salva com sucesso!');
+            showToast('Venda salva com sucesso!', "success");
         };
 
         window.editSaleAzul = function(id) {
@@ -1209,7 +1250,7 @@
         window.resetFormAzul = function() {
             document.getElementById('commissionFormAzul').reset();
             azul_editingIndex = null;
-            safeSetText('formTitleAzul', "Nova Venda");
+            safeSetText('formTitleAzul', "Lançar Nova Venda");
             document.getElementById('btnSubmitAzul').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Venda';
             document.getElementById('btnCancelEditAzul').classList.add('hidden');
             document.getElementById('azul_date').valueAsDate = new Date();
@@ -1224,17 +1265,17 @@
                 window.renderTableAzul();
                 window.renderDashboard();
                 if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
-                window.mostrarNotificacao('Venda removida.');
+                showToast('Venda removida.', "info");
             });
         };
 
         window.exportToExcelAzul = async function() {
-            if (typeof ExcelJS === 'undefined') { window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
+            if (typeof ExcelJS === 'undefined') { showToast('Carregando biblioteca Excel...', "warning"); return; }
             const filteredData = window.getFilteredSalesAzul();
-            if (filteredData.length === 0) { window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+            if (filteredData.length === 0) { showToast('Nenhum dado para exportar.', "warning"); return; }
 
             const wb = new ExcelJS.Workbook();
-            const ws = wb.addWorksheet('Comissões Azul');
+            const ws = wb.addWorksheet('Registro de Vendas');
 
             ws.columns = [
                 { header: 'Vendedor', key: 'sellerName', width: 20 }, { header: 'NF', key: 'nf', width: 12 },
@@ -1273,8 +1314,8 @@
             tRow.font = { bold: true }; tRow.getCell('saleValue').numFmt = '"R$" #,##0.00'; tRow.getCell('commissionValue').numFmt = '"R$" #,##0.00';
 
             const buffer = await wb.xlsx.writeBuffer();
-            saveAs(new Blob([buffer]), `Comissoes_Azul_${new Date().toISOString().slice(0, 10)}.xlsx`);
-            window.mostrarNotificacao('Exportado com sucesso!');
+            saveAs(new Blob([buffer]), `Registro_Vendas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            showToast('Exportado com sucesso!', "success");
         };
     </script>
 </body>
