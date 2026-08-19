@@ -5,9 +5,12 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendP
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const injectLayout = () => {
+    // Evita duplicar o menu caso já exista na página
+    if (document.querySelector('header')) return;
+
     const layoutHTML = `
     <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4">
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
             <div class="flex flex-col items-center justify-center gap-2">
                 <svg class="w-16 h-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -311,13 +314,15 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     });
 
     const mobContainer = document.getElementById('mobile-menu-container');
-    mobContainer.innerHTML = '<a href="index.html" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid fa-house text-blue-400"></i> Home</a>';
-    
-    globalModulesMap.forEach(m => {
-        if (isAdminTotal || modulosPermitidos.includes(m.url)) {
-            mobContainer.innerHTML += `<a href="${m.url}" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
-        }
-    });
+    if(mobContainer) {
+        mobContainer.innerHTML = '<a href="index.html" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid fa-house text-blue-400"></i> Home</a>';
+        
+        globalModulesMap.forEach(m => {
+            if (isAdminTotal || modulosPermitidos.includes(m.url)) {
+                mobContainer.innerHTML += `<a href="${m.url}" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
+            }
+        });
+    }
 
     const badgeTop = document.getElementById('user-role-badge-top');
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
@@ -326,19 +331,27 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
 onAuthStateChanged(auth, async (user) => {
     const loginScreen = document.getElementById('login-screen');
     if (user) {
+        if(loginScreen) loginScreen.classList.add('hidden');
+        
         const cleanEmail = (user.email || '').toLowerCase().trim();
         let dbUser = { 
             email: cleanEmail, 
             nome: cleanEmail.split('@')[0].toUpperCase(), 
             perfil: 'Vendedor', 
-            visaoGlobalPorTela: { despesas: false, comissoes: false, veiculos: false, ranking: false, solicitacoes: false },
+            visaoGlobalPorTela: {},
             modulos: [] 
         };
         
         const masterAdmins = ['adm@grupocij.com', 'marcos@grupocij.com'];
         if (masterAdmins.includes(cleanEmail)) {
             dbUser.perfil = 'Admin';
-            dbUser.visaoGlobalPorTela = { despesas: true, comissoes: true, veiculos: true, ranking: true, solicitacoes: true };
+            dbUser.visaoGlobalPorTela = { 
+                'despesas.html': true, 
+                'comissoes-azul.html': true, 
+                'veiculos.html': true, 
+                'ranking.html': true, 
+                'solicitacoes-lista.html': true 
+            };
         }
 
         try {
@@ -366,9 +379,9 @@ onAuthStateChanged(auth, async (user) => {
         window.aplicarPermissoesDeModulos(dbUser);
         
         if (typeof window.initModule === 'function') window.initModule(dbUser.perfil);
-        else loginScreen.classList.add('hidden'); 
     } else {
-        loginScreen.classList.remove('hidden');
-        document.getElementById('auth-form').classList.remove('hidden');
+        if(loginScreen) loginScreen.classList.remove('hidden');
+        const authForm = document.getElementById('auth-form');
+        if(authForm) authForm.classList.remove('hidden');
     }
 });
