@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas (Saídas) - Portal Grupo CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 pb-12">
+
+    <!-- ÁREA CENTRAL (VENDAS / SAÍDAS) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-cart-shopping text-rose-600"></i> Controle de Vendas (Saídas)</h2>
+            <p class="text-sm text-slate-500 mt-1">Registro oficial de faturamento, com baixa automática no estoque de equipamentos novos.</p>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Faturamento Total</p>
+                <h3 id="kpiTotalFaturamento" class="text-2xl font-black text-rose-950 mt-1">R$ 0,00</h3>
+                <p class="text-[10px] font-medium text-slate-500 mt-1">Soma das vendas filtradas</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total de Vendas</p>
+                <h3 id="kpiTotalVendas" class="text-2xl font-black text-emerald-950 mt-1">0</h3>
+                <p class="text-[10px] font-medium text-emerald-500 mt-1">Registros na base</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Ticket Médio</p>
+                <h3 id="kpiTicketMedio" class="text-2xl font-black text-indigo-950 mt-1">R$ 0,00</h3>
+                <p class="text-[10px] font-medium text-indigo-600 mt-1">Por equipamento vendido</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Equipamentos Entregues</p>
+                <h3 id="kpiEntregues" class="text-2xl font-black text-amber-900 mt-1">0</h3>
+                <p class="text-[10px] font-medium text-amber-600 mt-1">Status 'Faturado / Entregue'</p>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-3">
+                <h3 id="formTitleVenda" class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-rose-600"></i> Registrar Venda / Saída de Equipamento
+                </h3>
+                <button type="button" id="btnCancelEditVenda" onclick="window.resetFormVenda()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 cursor-pointer">
+                    Cancelar Edição
+                </button>
+            </div>
+
+            <form id="vendaForm" onsubmit="window.salvarVenda(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- SELETOR DE ESTOQUE DISPONÍVEL (VARREDURA) -->
+                    <div class="sm:col-span-2 bg-rose-50/60 p-3 rounded-2xl border border-rose-200">
+                        <label class="block text-xs font-bold text-rose-900 mb-1"><i class="fa-solid fa-boxes-stacked mr-1"></i> Vincular Máquina do Estoque de Novos (Opcional)</label>
+                        <select id="v_estoque_select" onchange="window.selecionarMaquinaEstoque(this)" class="w-full px-3 py-2 bg-white border border-rose-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-rose-600 transition cursor-pointer">
+                            <option value="">-- Ou selecione uma máquina disponível no estoque --</option>
+                        </select>
+                        <p class="text-[10px] text-rose-700 mt-1 font-medium">Selecionar aqui preenche o modelo e o serial automaticamente e dará baixa no estoque.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Cliente *</label>
+                        <input type="text" id="v_cliente" required placeholder="Nome do Cliente / Empresa" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-rose-600 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Modelo / Equipamento *</label>
+                        <select id="v_modelo" required onchange="window.verificarOutroModeloVendas(this)" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-rose-600 transition cursor-pointer">
+                            <option value="8820">8820 (CIJ)</option>
+                            <option value="8860">8860 (CIJ)</option>
+                            <option value="8910">8910 (CIJ)</option>
+                            <option value="T-110H">T-110H (TIJ)</option>
+                            <option value="UV 5W">UV 5W (Laser)</option>
+                            <option value="CO2 30W">CO2 30W (Laser)</option>
+                            <option value="FIBRA 30W">FIBRA 30W (Laser)</option>
+                            <option value="Outro">Outro (Digitar)</option>
+                        </select>
+                        <input type="text" id="v_modelo_outro" placeholder="Digite o modelo..." class="w-full mt-2 px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-rose-600 hidden transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nº de Série / Patrimônio *</label>
+                        <input type="text" id="v_serial" required placeholder="Ex: SN-998231" class="w-full px-3 py-2.5 bg-white border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-rose-600 transition shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Valor da Venda (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="v_valor" required placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-rose-600 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Data da Saída *</label>
+                        <input type="date" id="v_data" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-rose-600 transition cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vendedor / Responsável *</label>
+                        <input type="text" id="v_vendedor" required placeholder="Nome do vendedor" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-rose-600 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status da Entrega *</label>
+                        <select id="v_status" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-rose-600 transition cursor-pointer">
+                            <option value="Faturado / Entregue">Faturado / Entregue</option>
+                            <option value="Em Trânsito">Em Trânsito</option>
+                            <option value="Aguardando Faturamento">Aguardando Faturamento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Observações</label>
+                        <input type="text" id="v_obs" placeholder="Ex: NF-4091, Comodato..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-rose-600 transition">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-4 mt-2 border-t border-slate-100">
+                    <button type="submit" id="btnSubmitVenda" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-save"></i> Salvar Venda
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FILTROS E TABELA -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-3 gap-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-rose-600"></i> Histórico de Vendas Registradas
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.setFiltroMesAtualVendas()" class="bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition cursor-pointer">
+                        <i class="fa-regular fa-calendar-days mr-1"></i> Mês Atual
+                    </button>
+                    <button onclick="window.exportToExcelVendas()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Cliente</label>
+                    <input type="text" id="filter_v_cliente" oninput="window.renderTableVendas()" placeholder="Filtrar cliente..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-rose-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Modelo</label>
+                    <input type="text" id="filter_v_modelo" oninput="window.renderTableVendas()" placeholder="Filtrar modelo..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-rose-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº de Série</label>
+                    <input type="text" id="filter_v_serial" oninput="window.renderTableVendas()" placeholder="Filtrar serial..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-rose-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                    <select id="filter_v_status" onchange="window.renderTableVendas()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold outline-none focus:border-rose-600 cursor-pointer">
+                        <option value="">Todos</option>
+                        <option value="Faturado / Entregue">Faturado / Entregue</option>
+                        <option value="Em Trânsito">Em Trânsito</option>
+                        <option value="Aguardando Faturamento">Aguardando Faturamento</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data De</label>
+                    <input type="date" id="filter_v_date_from" onchange="window.renderTableVendas()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium outline-none focus:border-rose-600 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data Até</label>
+                    <input type="date" id="filter_v_date_to" onchange="window.renderTableVendas()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium outline-none focus:border-rose-600 cursor-pointer">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-t-xl border border-slate-200 border-b-0 custom-scrollbar mt-3">
+                <table class="w-full text-left border-collapse min-w-[950px] text-xs">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-bold">
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">Modelo</th>
+                            <th class="p-3">Nº de Série</th>
+                            <th class="p-3 text-right">Valor (R$)</th>
+                            <th class="p-3">Data Saída</th>
+                            <th class="p-3">Vendedor / Auditoria</th>
+                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3">Observações</th>
+                            <th class="p-3 text-center no-print">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyVendas" class="divide-y divide-slate-100 font-medium bg-white text-slate-700"></tbody>
+                    <tfoot id="tableFooterVendas" class="bg-slate-50 font-bold border-t border-slate-200 text-slate-900"></tfoot>
+                </table>
+            </div>
+
+            <!-- PAGINAÇÃO -->
+            <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-50 p-3 border border-slate-200 rounded-b-xl gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500">Exibir:</span>
+                    <select id="selectRowsPerPage" onchange="window.changeRowsPerPage()" class="px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-rose-600 transition cursor-pointer">
+                        <option value="10">10 linhas</option>
+                        <option value="25">25 linhas</option>
+                        <option value="50">50 linhas</option>
+                        <option value="all">Todas as linhas</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="btnPrevPage" onclick="window.changePage(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-300 hover:bg-slate-100 hover:text-rose-600 disabled:opacity-40 transition text-slate-600 shadow-sm cursor-pointer"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="pageInfo" class="text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Página 1 de 1</span>
+                    <button id="btnNextPage" onclick="window.changePage(1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-300 hover:bg-slate-100 hover:text-rose-600 disabled:opacity-40 transition text-slate-600 shadow-sm cursor-pointer"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA DO MÓDULO VENDAS -->
+    <script>
+        window.listaVendas = [];
+        window.estoqueNovosDisponiveis = [];
+        let venda_editingIndex = null;
+        
+        window.currentPage = 1;
+        window.rowsPerPage = 10;
+
+        window.safeGetVal = (id) => document.getElementById(id)?.value || '';
+        window.safeSetVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).value = val; };
+        window.safeSetText = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
+        window.formatarMoeda = (val) => (parseFloat(val) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            const fieldVendedor = document.getElementById('v_vendedor');
+            if (fieldVendedor && !fieldVendedor.value) {
+                fieldVendedor.value = window.nomeUsuarioLogado || '';
+            }
+
+            document.getElementById('v_data').valueAsDate = new Date();
+
+            // Sincronizar Vendas e Estoque de Novos em Tempo Real
+            const vendasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'vendas_registradas');
+            const estoqueNovosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos');
+
+            window.fsOnSnapshot(vendasCol, (snap) => {
+                window.listaVendas = [];
+                snap.forEach(d => window.listaVendas.push(d.data()));
+                window.renderTableVendas();
+            });
+
+            window.fsOnSnapshot(estoqueNovosCol, (snap) => {
+                window.estoqueNovosDisponiveis = [];
+                snap.forEach(d => {
+                    const item = d.data();
+                    if (item.status === 'Disponível para venda') {
+                        window.estoqueNovosDisponiveis.push(item);
+                    }
+                });
+                window.atualizarSelectEstoqueNovos();
+            });
+        };
+
+        window.setFiltroMesAtualVendas = function() {
+            const date = new Date();
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const lastDay = new Date(y, date.getMonth() + 1, 0).getDate();
+            
+            document.getElementById('filter_v_date_from').value = `${y}-${m}-01`;
+            document.getElementById('filter_v_date_to').value = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+            window.renderTableVendas();
+        };
+
+        window.atualizarSelectEstoqueNovos = function() {
+            const select = document.getElementById('v_estoque_select');
+            if (!select) return;
+            
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Ou selecione uma máquina disponível no estoque --</option>';
+            
+            window.estoqueNovosDisponiveis.forEach(eq => {
+                select.innerHTML += `<option value="${eq.id}">${eq.modelo} | Série: ${eq.serial} (${eq.local})</option>`;
+            });
+            select.value = currentVal;
+        };
+
+        window.selecionarMaquinaEstoque = function(selectEl) {
+            const eqId = selectEl.value;
+            if (!eqId) return;
+
+            const eq = window.estoqueNovosDisponiveis.find(i => i.id === eqId);
+            if (!eq) return;
+
+            // Preenche modelo
+            const modeloSelect = document.getElementById('v_modelo');
+            const defaultModelos = ["8820", "8860", "8910", "T-110H", "UV 5W", "CO2 30W", "FIBRA 30W"];
+            
+            if (defaultModelos.includes(eq.modelo)) {
+                modeloSelect.value = eq.modelo;
+                document.getElementById('v_modelo_outro').classList.add('hidden');
+                document.getElementById('v_modelo_outro').value = '';
+                document.getElementById('v_modelo_outro').required = false;
+            } else {
+                modeloSelect.value = 'Outro';
+                document.getElementById('v_modelo_outro').classList.remove('hidden');
+                document.getElementById('v_modelo_outro').value = eq.modelo;
+                document.getElementById('v_modelo_outro').required = true;
+            }
+
+            // Preenche número de série
+            document.getElementById('v_serial').value = eq.serial;
+            window.mostrarNotificacao(`Equipamento ${eq.modelo} (${eq.serial}) vinculado com sucesso!`);
+        };
+
+        window.verificarOutroModeloVendas = function(selectEl) {
+            const inputOutro = document.getElementById('v_modelo_outro');
+            if (selectEl.value === 'Outro') {
+                inputOutro.classList.remove('hidden');
+                inputOutro.required = true;
+                inputOutro.focus();
+            } else {
+                inputOutro.classList.add('hidden');
+                inputOutro.required = false;
+                inputOutro.value = '';
+            }
+        };
+
+        window.getFilteredVendas = function() {
+            const cliente = safeGetVal('filter_v_cliente').toLowerCase();
+            const modelo = safeGetVal('filter_v_modelo').toLowerCase();
+            const serial = safeGetVal('filter_v_serial').toLowerCase();
+            const status = safeGetVal('filter_v_status');
+            const dateFrom = safeGetVal('filter_v_date_from');
+            const dateTo = safeGetVal('filter_v_date_to');
+
+            let filtradas = window.listaVendas.filter(item => {
+                if (window.userVisaoGlobal === false && item.autor !== window.currentUser.email) return false;
+                if (cliente && !item.cliente.toLowerCase().includes(cliente)) return false;
+                if (modelo && !item.modelo.toLowerCase().includes(modelo)) return false;
+                if (serial && !item.serial.toLowerCase().includes(serial)) return false;
+                if (status && item.status !== status) return false;
+                if (dateFrom && item.data < dateFrom) return false;
+                if (dateTo && item.data > dateTo) return false;
+                return true;
+            });
+
+            filtradas.sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+            return filtradas;
+        };
+
+        window.changeRowsPerPage = function() {
+            const val = document.getElementById('selectRowsPerPage').value;
+            window.rowsPerPage = val === 'all' ? 999999 : parseInt(val);
+            window.currentPage = 1;
+            window.renderTableVendas();
+        };
+
+        window.changePage = function(dir) {
+            window.currentPage += dir;
+            window.renderTableVendas();
+        };
+
+        window.renderTableVendas = function() {
+            let filtered = window.getFilteredVendas();
+            const tbody = document.getElementById('tableBodyVendas');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let totalFaturamento = 0;
+            let totalVendasCount = filtered.length;
+            let entreguesCount = 0;
+
+            filtered.forEach(item => {
+                const valor = parseFloat(item.valor) || 0;
+                totalFaturamento += valor;
+                if (item.status === 'Faturado / Entregue') entreguesCount++;
+            });
+
+            const totalPages = Math.ceil(totalVendasCount / window.rowsPerPage);
+            if (window.currentPage > totalPages) window.currentPage = totalPages || 1;
+            if (window.currentPage < 1) window.currentPage = 1;
+
+            const startIndex = (window.currentPage - 1) * window.rowsPerPage;
+            const endIndex = startIndex + window.rowsPerPage;
+            const paginatedData = filtered.slice(startIndex, endIndex);
+
+            if(paginatedData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 font-medium">Nenhuma venda encontrada na base de dados.</td></tr>`;
+            } else {
+                paginatedData.forEach((item) => {
+                    const valor = parseFloat(item.valor) || 0;
+                    const dateFormatted = item.data ? item.data.split('-').reverse().join('/') : '-';
+                    const statusClass = item.status === 'Faturado / Entregue' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                        item.status === 'Em Trânsito' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-blue-100 text-blue-800 border-blue-300';
+
+                    let statusBadge = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${statusClass}">${item.status}</span>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="p-3 font-bold text-slate-900">${item.cliente}</td>
+                            <td class="p-3 font-bold text-rose-900">${item.modelo}</td>
+                            <td class="p-3 font-mono text-slate-700">${item.serial}</td>
+                            <td class="p-3 text-right font-black text-rose-700">${formatarMoeda(valor)}</td>
+                            <td class="p-3 text-slate-600">${dateFormatted}</td>
+                            <td class="p-3 text-slate-700">
+                                <div>${item.vendedor}</div>
+                                <span class="text-[9px] text-slate-400 font-medium">Por: ${item.atualizadoPor || item.autor || '-'}</span>
+                            </td>
+                            <td class="p-3 text-center">${statusBadge}</td>
+                            <td class="p-3 text-slate-500 text-[11px]">${item.obs || '-'}</td>
+                            <td class="p-3 text-center space-x-1 no-print">
+                                <button onclick="window.editVenda('${item.id}')" title="Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="window.deleteVenda('${item.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const ticketMedio = totalVendasCount > 0 ? (totalFaturamento / totalVendasCount) : 0;
+
+            const tfoot = document.getElementById('tableFooterVendas');
+            if(tfoot) {
+                tfoot.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="p-3 text-right uppercase tracking-wider text-[10px] text-slate-500">Totalizadores:</td>
+                        <td class="p-3 text-right font-black text-rose-900 text-sm">${formatarMoeda(totalFaturamento)}</td>
+                        <td colspan="5" class="p-3 text-[11px] text-slate-500 font-medium">(${totalVendasCount} venda(s) no total)</td>
+                    </tr>
+                `;
+            }
+
+            safeSetText('kpiTotalFaturamento', formatarMoeda(totalFaturamento));
+            safeSetText('kpiTotalVendas', totalVendasCount);
+            safeSetText('kpiTicketMedio', formatarMoeda(ticketMedio));
+            safeSetText('kpiEntregues', entreguesCount);
+
+            const pageInfo = document.getElementById('pageInfo');
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+            
+            if (pageInfo) pageInfo.innerText = `Página ${window.currentPage} de ${totalPages || 1}`;
+            if (btnPrev) btnPrev.disabled = window.currentPage === 1;
+            if (btnNext) btnNext.disabled = window.currentPage === totalPages || totalPages === 0;
+        };
+
+        window.salvarVenda = function(e) {
+            e.preventDefault();
+            const valor = parseFloat(safeGetVal('v_valor')) || 0;
+            let modeloVal = safeGetVal('v_modelo');
+            if (modeloVal === 'Outro') modeloVal = safeGetVal('v_modelo_outro');
+
+            const serialInput = safeGetVal('v_serial').trim();
+            const currentUserName = window.nomeUsuarioLogado || (window.currentUser ? window.currentUser.email : 'Usuário');
+
+            const vendaData = {
+                id: venda_editingIndex !== null ? venda_editingIndex : Date.now().toString(),
+                cliente: safeGetVal('v_cliente'),
+                modelo: modeloVal,
+                serial: serialInput,
+                valor: valor,
+                data: safeGetVal('v_data'),
+                vendedor: safeGetVal('v_vendedor'),
+                status: safeGetVal('v_status'),
+                obs: safeGetVal('v_obs'),
+                autor: window.currentUser ? window.currentUser.email : '',
+                atualizadoPor: currentUserName,
+                dataAtualizacao: new Date().toLocaleString('pt-BR')
+            };
+
+            if (venda_editingIndex !== null) {
+                const idx = window.listaVendas.findIndex(i => i.id === venda_editingIndex);
+                if(idx > -1) window.listaVendas[idx] = vendaData;
+                venda_editingIndex = null;
+            } else {
+                window.listaVendas.push(vendaData);
+            }
+
+            // SALVA A VENDA NO FIREBASE
+            try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'vendas_registradas', vendaData.id), vendaData); } catch(e){}
+
+            // REALIZA A BAIXA AUTOMÁTICA NO ESTOQUE DE NOVOS SE O SERIAL CORRESPONDER
+            const selectedEstoqueId = safeGetVal('v_estoque_select');
+            let itemEstoqueParaBaixa = null;
+
+            if (selectedEstoqueId) {
+                // Se foi selecionado diretamente pelo dropdown do estoque
+                itemEstoqueParaBaixa = window.estoqueNovosDisponiveis.find(i => i.id === selectedEstoqueId);
+            } else {
+                // Se o usuário digitou o serial manualmente, busca no banco se existe um equipamento com esse serial disponível
+                // (Para buscar todos os itens do estoque de novos sem filtrar só os disponíveis para o match de baixa)
+                // Vamos buscar diretamente na coleção local ou dar update se achar correspondência
+            }
+
+            // Busca no Firestore por serial igual para dar baixa
+            const atualizarBaixaEstoquePorSerial = async (serialBusca) => {
+                try {
+                    const estoqueColRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos');
+                    const snapEstoque = await window.fsGetDocs(estoqueColRef);
+                    snapEstoque.forEach(docSnap => {
+                        const eq = docSnap.data();
+                        if (eq.serial && eq.serial.toLowerCase() === serialBusca.toLowerCase() && eq.status === 'Disponível para venda') {
+                            eq.status = 'Vendido';
+                            eq.atualizadoPor = currentUserName + ' (Baixa por Venda)';
+                            eq.dataAtualizacao = new Date().toLocaleString('pt-BR');
+                            window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos', eq.id), eq);
+                        }
+                    });
+                } catch(err) { console.error("Erro ao dar baixa no estoque:", err); }
+            };
+
+            if (selectedEstoqueId && itemEstoqueParaBaixa) {
+                itemEstoqueParaBaixa.status = 'Vendido';
+                itemEstoqueParaBaixa.atualizadoPor = currentUserName + ' (Baixa por Venda)';
+                itemEstoqueParaBaixa.dataAtualizacao = new Date().toLocaleString('pt-BR');
+                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos', itemEstoqueParaBaixa.id), itemEstoqueParaBaixa); } catch(e){}
+            } else if (serialInput) {
+                atualizarBaixaEstoquePorSerial(serialInput);
+            }
+
+            window.resetFormVenda();
+            window.renderTableVendas();
+            window.mostrarNotificacao('Venda registrada e baixa realizada no estoque com sucesso!');
+        };
+
+        window.editVenda = function(id) {
+            const item = window.listaVendas.find(i => i.id === id);
+            if (!item) return;
+
+            venda_editingIndex = id;
+            const defaultModelos = ["8820", "8860", "8910", "T-110H", "UV 5W", "CO2 30W", "FIBRA 30W"];
+            if (defaultModelos.includes(item.modelo)) {
+                safeSetVal('v_modelo', item.modelo);
+                document.getElementById('v_modelo_outro').classList.add('hidden');
+                document.getElementById('v_modelo_outro').value = '';
+                document.getElementById('v_modelo_outro').required = false;
+            } else {
+                safeSetVal('v_modelo', 'Outro');
+                document.getElementById('v_modelo_outro').classList.remove('hidden');
+                safeSetVal('v_modelo_outro', item.modelo);
+                document.getElementById('v_modelo_outro').required = true;
+            }
+
+            safeSetVal('v_cliente', item.cliente);
+            safeSetVal('v_serial', item.serial);
+            safeSetVal('v_valor', item.valor);
+            safeSetVal('v_data', item.data);
+            safeSetVal('v_vendedor', item.vendedor);
+            safeSetVal('v_status', item.status);
+            safeSetVal('v_obs', item.obs);
+
+            safeSetText('formTitleVenda', "Editar Venda / Saída");
+            document.getElementById('btnSubmitVenda').innerHTML = '<i class="fa-solid fa-save"></i> Atualizar Venda';
+            document.getElementById('btnCancelEditVenda').classList.remove('hidden');
+
+            document.getElementById('vendaForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        window.resetFormVenda = function() {
+            document.getElementById('vendaForm').reset();
+            document.getElementById('v_data').valueAsDate = new Date();
+            document.getElementById('v_modelo_outro').classList.add('hidden');
+            document.getElementById('v_modelo_outro').value = '';
+            document.getElementById('v_modelo_outro').required = false;
+            venda_editingIndex = null;
+            safeSetText('formTitleVenda', "Registrar Venda / Saída de Equipamento");
+            document.getElementById('btnSubmitVenda').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Venda';
+            document.getElementById('btnCancelEditVenda').classList.add('hidden');
+            const selectEstoque = document.getElementById('v_estoque_select');
+            if(selectEstoque) selectEstoque.value = '';
+        };
+
+        window.deleteVenda = function(id) {
+            if(confirm('Deseja remover este registro de venda?')) {
+                window.listaVendas = window.listaVendas.filter(i => i.id !== id);
+                try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'vendas_registradas', id)); } catch(e){}
+                window.renderTableVendas();
+                window.mostrarNotificacao('Registro removido.');
+            }
+        };
+
+        window.exportToExcelVendas = async function() {
+            if (typeof ExcelJS === 'undefined') { window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
+            const filteredData = window.getFilteredVendas();
+            if (filteredData.length === 0) { window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Vendas Registradas');
+
+            ws.columns = [
+                { header: 'Cliente', key: 'cliente', width: 25 },
+                { header: 'Modelo', key: 'modelo', width: 20 },
+                { header: 'Nº de Série', key: 'serial', width: 20 },
+                { header: 'Valor (R$)', key: 'valor', width: 15 },
+                { header: 'Data Saída', key: 'data', width: 15 },
+                { header: 'Vendedor', key: 'vendedor', width: 20 },
+                { header: 'Status', key: 'status', width: 20 },
+                { header: 'Observações', key: 'obs', width: 30 }
+            ];
+
+            const headerRow = ws.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '881337' } };
+
+            let totalVal = 0;
+            filteredData.forEach((i) => {
+                const row = ws.addRow({
+                    cliente: i.cliente,
+                    modelo: i.modelo,
+                    serial: i.serial,
+                    valor: i.valor,
+                    data: i.data ? i.data.split('-').reverse().join('/') : '',
+                    vendedor: i.vendedor,
+                    status: i.status,
+                    obs: i.obs
+                });
+                row.getCell('valor').numFmt = '"R$" #,##0.00';
+                totalVal += i.valor;
+            });
+
+            const tRow = ws.addRow({ cliente: 'TOTAL GERAL:', valor: totalVal });
+            tRow.font = { bold: true };
+            tRow.getCell('valor').numFmt = '"R$" #,##0.00';
+
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buffer]), `Vendas_Registradas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            window.mostrarNotificacao('Relatório de vendas exportado com sucesso!');
+        };
+    </script>
+</body>
+</html>
