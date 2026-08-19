@@ -189,10 +189,11 @@
         let dataAtualAgenda = new Date();
         let modoVisualizacaoAgenda = 'calendario';
 
-        // Ponto de entrada chamado pelo core.js ao autenticar
+        // Ponto de entrada obrigatório chamado pelo core.js
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
-            document.getElementById('main-content')?.classList.remove('hidden');
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) mainContent.classList.remove('hidden');
 
             setInterval(atualizarPainelTopo, 1000);
             atualizarPainelTopo();
@@ -213,7 +214,8 @@
                 window.atualizarContadorUsuariosAtivos();
             });
 
-            document.getElementById('ag_data').valueAsDate = new Date();
+            const agData = document.getElementById('ag_data');
+            if(agData) agData.valueAsDate = new Date();
         };
 
         function atualizarPainelTopo() {
