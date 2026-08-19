@@ -19,10 +19,10 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- CONTEÚDO PRINCIPAL (INDEX COM MURAL E AGENDA) -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- PAINEL INFORMATIVO SUPERIOR (Data, Hora e Usuários Logados) -->
+        <!-- PAINEL INFORMATIVO SUPERIOR -->
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold border border-blue-100 shrink-0">
@@ -34,7 +34,6 @@
                 </div>
             </div>
 
-            <!-- Painel de Relógio e Ativos -->
             <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
                 <div class="flex items-center gap-2">
                     <i class="fa-regular fa-calendar text-blue-600"></i>
@@ -53,10 +52,10 @@
             </div>
         </div>
 
-        <!-- GRID PRINCIPAL: MURAL (REDUZIDO) E AGENDA (MAIOR PARTE) -->
+        <!-- GRID PRINCIPAL -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- MURAL DE RECADOS (COLUNA 4 - TAMANHO REDUZIDO) -->
+            <!-- MURAL DE RECADOS -->
             <section class="lg:col-span-4 bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box" id="box-mural">
                 <div class="space-y-3 flex flex-col h-full">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
@@ -75,14 +74,12 @@
                         </div>
                     </form>
 
-                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 min-h-[200px]" id="lista-recados-container">
-                        <!-- Injetado via Firebase -->
-                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 min-h-[200px]" id="lista-recados-container"></div>
                 </div>
                 <div class="text-[9px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Redimensione arrastando a borda.</div>
             </section>
 
-            <!-- AGENDA COMPARTILHADA (COLUNA 8 - MAIOR PARTE DA TELA) -->
+            <!-- AGENDA COMPARTILHADA -->
             <section class="lg:col-span-8 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box" id="box-agenda">
                 <div class="space-y-4 flex flex-col h-full">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
@@ -189,9 +186,11 @@
         let dataAtualAgenda = new Date();
         let modoVisualizacaoAgenda = 'calendario';
 
-        // Ponto de entrada obrigatório chamado pelo core.js
+        // Garante a inicialização correta sem falhar o escopo
         window.initModule = function(perfil) {
-            document.getElementById('login-screen')?.classList.add('hidden');
+            const loginScreen = document.getElementById('login-screen');
+            if(loginScreen) loginScreen.classList.add('hidden');
+            
             const mainContent = document.getElementById('main-content');
             if (mainContent) mainContent.classList.remove('hidden');
 
