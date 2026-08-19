@@ -46,12 +46,11 @@
             <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                 <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 shadow-inner w-full sm:w-auto">
                     <label class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Vendido:</label>
+                    <!-- Opções de Consumíveis e Alternativo totalmente removidas do select -->
                     <select id="ranking_filterItemType" onchange="window.renderRanking()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-amber-500 cursor-pointer shadow-sm w-full sm:w-auto">
                         <option value="">Todos os Itens</option>
                         <option value="Maquina">Maquina</option>
-                        <option value="Consumíveis">Consumíveis</option>
                         <option value="Locação">Locação</option>
-                        <option value="Alternativo">Alternativo</option>
                         <option value="Corpo de Prova">Corpo de Prova</option>
                         <option value="Certificação">Certificação</option>
                         <option value="Contrato">Contrato</option>
@@ -155,9 +154,7 @@
             return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         };
 
-        // 1. INICIALIZAÇÃO DO MÓDULO
         window.initModule = function(perfil) {
-            // Técnicos são barrados de ver rankings de vendas
             if (perfil === 'Técnico') {
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito: Técnicos não possuem permissão para este módulo.</span>';
                 window.fazerLogout();
@@ -189,21 +186,20 @@
             const itemFilter = document.getElementById('ranking_filterItemType').value;
             
             let sales = window.listaComissoesAzul;
-            
-            // EXCEÇÃO DA VISÃO GLOBAL APLICADA AQUI:
-            // A trava `isVisaoLimitada` foi removida. Todos veem tudo nesta tela específica!
 
             // Filtro de Mês de Venda
             if (monthFilter) {
                 sales = sales.filter(s => s.date && s.date.startsWith(monthFilter));
             }
 
-            // Filtro de Item Vendido
+            // Oculta obrigatoriamente e de forma definitiva Consumíveis e Alternativo
+            sales = sales.filter(s => s.itemType !== 'Consumíveis' && s.itemType !== 'Alternativo');
+
+            // Filtro específico do usuário, caso tenha selecionado algum dos itens restantes
             if (itemFilter) {
                 sales = sales.filter(s => s.itemType === itemFilter);
             }
 
-            // 2. Agrupa por Vendedor
             const sellersObj = {};
             sales.forEach(s => {
                 const seller = s.sellerName ? s.sellerName.trim() : 'Desconhecido';
@@ -221,11 +217,9 @@
                 sellersObj[seller].models.push(modelLabel);
             });
 
-            // 3. Formata Array e Calcula Média
             const rankingArray = Object.values(sellersObj).map(s => {
                 s.avgComm = s.qtd > 0 ? (s.commSum / s.qtd) : 0;
                 
-                // Contar modelos repetidos
                 const mCounts = {};
                 s.models.forEach(m => { mCounts[m] = (mCounts[m] || 0) + 1; });
                 s.modelText = Object.entries(mCounts).map(([m, c]) => `<span class="bg-slate-100 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap inline-block mr-1 mb-1">${c}x ${m}</span>`).join('');
@@ -233,7 +227,6 @@
                 return s;
             });
 
-            // 4. Determina os Vencedores
             let winnerQtd = { name: '-', qtd: 0 };
             let winnerVal = { name: '-', val: 0 };
             let winnerNeg = { name: '-', avgComm: 0 };
@@ -244,7 +237,6 @@
                 winnerNeg = [...rankingArray].sort((a,b) => b.avgComm - a.avgComm)[0];
             }
 
-            // Atualiza Pódios
             document.getElementById('podium_vol_name').innerText = winnerQtd.name;
             document.getElementById('podium_vol_val').innerText = winnerQtd.qtd;
 
@@ -254,18 +246,17 @@
             document.getElementById('podium_neg_name').innerText = winnerNeg.name;
             document.getElementById('podium_neg_val').innerText = winnerNeg.avgComm.toFixed(1).replace('.', ',') + '%';
 
-            // 5. Preenche a Tabela 
             rankingArray.sort((a,b) => b.val - a.val);
             
             const tbody = document.getElementById('tableBodyRanking');
             if (rankingArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Nenhum item vendido no período ou filtro selecionado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Nenhum item válido vendido no período ou filtro selecionado.</td></tr>`;
             } else {
                 tbody.innerHTML = rankingArray.map((s, index) => {
                     let posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 font-bold mx-auto text-[10px]">${index + 1}º</span>`;
                     if (index === 0) posBadge = `<span class="w-7 h-7 flex items-center justify-center rounded-full bg-amber-100 text-amber-600 font-black mx-auto text-xs shadow-sm ring-1 ring-amber-300"><i class="fa-solid fa-trophy"></i></span>`;
                     else if (index === 1) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 text-slate-600 font-black mx-auto text-[10px] shadow-sm">2º</span>`;
-                    else if (index === 2) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-700 font-black mx-auto text-[10px] shadow-sm">3º</span>`;
+                    else if (index === 2) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-700 font-black mx-auto text-xs shadow-sm">3º</span>`;
 
                     return `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-100 group">
