@@ -716,9 +716,19 @@
                 return { unlocked: true, info: `Dia 15 (${payDateStr})`, detail: `Contrato de Locação`, class: 'text-indigo-800 bg-indigo-100 border-indigo-300', payDateStr };
             }
 
+            // REGRA ATUALIZADA: Consumíveis liberam apenas após o pagamento da 1ª parcela
             if (itemType === 'Consumíveis' || itemType === 'Corpo de Prova') {
-                const payDate = window.getNextPaymentDateAzul(sale.date);
-                return { unlocked: true, info: `1º Pgto (${payDate})`, detail: `Liberado no 1º pagamento.`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+                if (paymentCond === 'À Vista') {
+                    const payDate = window.getNextPaymentDateAzul(sale.date);
+                    return { unlocked: true, info: `1º Pgto (${payDate})`, detail: `À Vista - Liberado no pagamento.`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+                } else {
+                    const intervalDays = parseInt(sale.installmentInterval) || 30;
+                    const saleDateObj = new Date(sale.date + 'T00:00:00');
+                    saleDateObj.setDate(saleDateObj.getDate() + intervalDays);
+                    const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
+                    const payDate = window.getNextPaymentDateAzul(targetDateStr);
+                    return { unlocked: false, info: `1ª Parc (${payDate})`, detail: `Aguardando pagamento da 1ª parcela.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
+                }
             }
 
             const isSpecialRule = (itemType === 'Alternativo') && clientType === 'Novo';
