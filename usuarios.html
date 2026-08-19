@@ -23,7 +23,7 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-users-gear text-slate-800"></i> Gestão de Usuários & Acessos</h2>
-                <p class="text-sm text-slate-500 mt-1">Defina módulos, telas permitidas e visões globais de dados por colaborador.</p>
+                <p class="text-sm text-slate-500 mt-1">Defina o acesso aos módulos e configure individualmente a Visão Global de cada tela.</p>
             </div>
             <button onclick="window.abrirModalUsuario()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-user-plus"></i> Novo Acesso
@@ -51,9 +51,9 @@
 
     <!-- MODAL DE CADASTRO/EDIÇÃO DE USUÁRIO -->
     <div id="modalUser" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-200 my-auto transform transition-all">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl border border-slate-200 my-auto transform transition-all">
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões e Visão Global</h3>
+                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões e Visão Global por Módulo</h3>
                 <button onclick="window.fecharModalUsuario()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -80,61 +80,15 @@
                     </div>
                 </div>
 
-                <!-- CONFIGURAÇÃO DE VISÃO GLOBAL POR TELA -->
-                <div class="border-t border-slate-200 pt-4 space-y-3">
-                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-globe text-blue-600"></i> Visão Global de Dados por Tela
-                    </h4>
-                    <p class="text-[11px] text-slate-500">Se marcado, o usuário enxerga dados de toda a equipe nesta tela. Se desmarcado, vê apenas os seus próprios registros.</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
-                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-                            <input type="checkbox" id="vg_despesas" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Despesas
-                        </label>
-                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-                            <input type="checkbox" id="vg_comissoes" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Comissões Azul
-                        </label>
-                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-                            <input type="checkbox" id="vg_veiculos" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Veículos Mobile
-                        </label>
-                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-                            <input type="checkbox" id="vg_ranking" class="w-4 h-4 text-blue-600 rounded"> Visão Global no Ranking
-                        </label>
-                        <label class="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-                            <input type="checkbox" id="vg_solicitacoes" class="w-4 h-4 text-blue-600 rounded"> Visão Global em Solicitações
-                        </label>
+                <!-- Matriz de Módulos com Checkbox de Acesso + Botão de Visão Global Lado a Lado -->
+                <div class="space-y-4 border-t border-slate-200 pt-4">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">Controle de Módulos e Visão Global de Dados:</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Marque a caixa para dar acesso à tela e use o botão ao lado para habilitar ou não a Visão Global (ver dados de toda a equipe).</p>
                     </div>
-                </div>
-
-                <!-- Matriz de Módulos -->
-                <div class="space-y-3 border-t border-slate-200 pt-4">
-                    <h4 class="font-bold text-slate-800 text-sm">Selecione as telas permitidas (Menu):</h4>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviços & Comercial</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="veiculos_mobile.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Veículos Mobile</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="simulador.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Simulador Financeiro</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacao.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Solicitação CIJ</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="tabelas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Documentos Oficiais</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="ranking.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Ranking de Vendas</label>
-                        </div>
-
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estoque & Administrativo</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="estoque.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Estoque Geral/Usados</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="solicitacoes-lista.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Lista de Solicitações</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="usuarios.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Gerenciar Usuários</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="painel_administrativo.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Painel Diretoria</label>
-                        </div>
-
-                        <div class="space-y-2">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financeiro</h5>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="despesas.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Controle de Despesas</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="comissoes-azul.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Comissões Azul</label>
-                            <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded"><input type="checkbox" value="dashboard-equip.html" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> Dashboard Gerencial</label>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="matriz-modulos-container">
+                        <!-- Gerado dinamicamente via JS para incluir todos os módulos da lista -->
                     </div>
                 </div>
 
@@ -155,6 +109,27 @@
         window.listaDeUsuarios = [];
         let editingUserId = null;
 
+        // Lista completa de todos os módulos reais da aplicação
+        const TODOS_MODULOS = [
+            { id: 'veiculos_mobile.html', nome: 'Veículos Mobile', cat: 'Serviços' },
+            { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
+            { id: 'simulador.html', nome: 'Simulador Financeiro', cat: 'Comercial' },
+            { id: 'solicitacao.html', nome: 'Solicitação CIJ', cat: 'Comercial' },
+            { id: 'solicitacoes-lista.html', nome: 'Lista de Solicitações', cat: 'Administrativo' },
+            { id: 'tabelas.html', nome: 'Documentos Oficiais', cat: 'Comercial' },
+            { id: 'ranking.html', nome: 'Ranking de Vendas', cat: 'Comercial' },
+            { id: 'estoque.html', nome: 'Estoque Usados/Geral', cat: 'Estoque' },
+            { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Estoque' },
+            { id: 'vendas.html', nome: 'Vendas (Saídas)', cat: 'Administrativo' },
+            { id: 'usuarios.html', nome: 'Gerenciar Usuários', cat: 'Administrativo' },
+            { id: 'painel_administrativo.html', nome: 'Painel Diretoria', cat: 'Administrativo' },
+            { id: 'despesas.html', nome: 'Controle de Despesas', cat: 'Financeiro' },
+            { id: 'dashboard_despesas.html', nome: 'Dashboard Gerencial', cat: 'Financeiro' },
+            { id: 'comissoes-azul.html', nome: 'Comissões Azul', cat: 'Financeiro' },
+            { id: 'comissoes-consumiveis.html', nome: 'Com. Consumíveis', cat: 'Financeiro' },
+            { id: 'comissoes-representantes.html', nome: 'Com. Representantes', cat: 'Financeiro' }
+        ];
+
         window.initModule = function(perfil) {
             if (perfil !== 'Admin') {
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas Administradores podem gerenciar acessos.</span>';
@@ -165,6 +140,8 @@
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
 
+            window.construirMatrizModulos();
+
             const usersCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes');
             
             window.fsOnSnapshot(usersCol, (snap) => {
@@ -174,18 +151,70 @@
             });
         };
 
+        window.construirMatrizModulos = function() {
+            const container = document.getElementById('matriz-modulos-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            TODOS_MODULOS.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-col justify-between space-y-2 hover:bg-slate-100/60 transition";
+                card.innerHTML = `
+                    <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
+                        <input type="checkbox" value="${m.id}" onchange="window.toggleModuloCheck(this)" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> 
+                        <span class="truncate">${m.nome}</span>
+                    </label>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase">Visão Global:</span>
+                        <button type="button" id="btn_vg_${m.id.replace('.html', '')}" data-mod="${m.id}" onclick="window.toggleVisaoGlobalBtn(this)" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer">
+                            Desativada
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.toggleModuloCheck = function(checkbox) {
+            const card = checkbox.closest('div.bg-slate-50');
+            const btn = card.querySelector('button');
+            if (!checkbox.checked) {
+                // Se desmarcar o módulo, desativa a visão global por segurança
+                btn.setAttribute('data-global', 'false');
+                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
+                btn.textContent = "Desativada";
+            }
+        };
+
+        window.toggleVisaoGlobalBtn = function(btn) {
+            const card = btn.closest('div.bg-slate-50');
+            const checkbox = card.querySelector('.mod-checkbox');
+            
+            // Se tentar ativar a visão global, garante que o módulo está marcado como permitido
+            if (!checkbox.checked) {
+                checkbox.checked = true;
+            }
+
+            const currentState = btn.getAttribute('data-global') === 'true';
+            const newState = !currentState;
+            btn.setAttribute('data-global', newState ? 'true' : 'false');
+
+            if (newState) {
+                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-emerald-100 text-emerald-800 border-emerald-400 cursor-pointer shadow-sm";
+                btn.textContent = "Habilitada";
+            } else {
+                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
+                btn.textContent = "Desativada";
+            }
+        };
+
         window.renderTabelaUsuarios = function() {
             const tbody = document.getElementById('tabelaUsuarios');
             tbody.innerHTML = window.listaDeUsuarios.map(u => {
                 const vg = u.visaoGlobalPorTela || {};
-                let tagsVg = [];
-                if(vg.despesas) tagsVg.push('Desp');
-                if(vg.comissoes) tagsVg.push('Comis');
-                if(vg.veiculos) tagsVg.push('Veic');
-                if(vg.ranking) tagsVg.push('Rank');
-                if(vg.solicitacoes) tagsVg.push('Solic');
+                let globaisAtivas = Object.keys(vg).filter(k => vg[k] === true).length;
 
-                const badgeVg = tagsVg.length > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Global: ${tagsVg.join(', ')}</span>` : `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">Apenas Próprios</span>`;
+                const badgeVg = globaisAtivas > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">${globaisAtivas} Globais Ativas</span>` : `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">Apenas Próprios</span>`;
                 const modulosQtd = (u.modulos || []).length;
                 
                 return `
@@ -194,7 +223,7 @@
                     <td class="p-4 font-bold text-blue-600">${u.email}</td>
                     <td class="p-4 text-center font-bold text-slate-600">${u.perfil}</td>
                     <td class="p-4 text-center">
-                        <div class="font-semibold text-slate-700">${modulosQtd} Módulos</div>
+                        <div class="font-semibold text-slate-700">${modulosQtd} de ${TODOS_MODULOS.length} Módulos</div>
                         <div class="mt-0.5">${badgeVg}</div>
                     </td>
                     <td class="p-4 text-center space-x-2">
@@ -210,12 +239,14 @@
             editingUserId = null;
             document.getElementById('userForm').reset();
             document.getElementById('u_email').readOnly = false;
+            
             document.querySelectorAll('.mod-checkbox').forEach(cb => cb.checked = false);
-            document.getElementById('vg_despesas').checked = false;
-            document.getElementById('vg_comissoes').checked = false;
-            document.getElementById('vg_veiculos').checked = false;
-            document.getElementById('vg_ranking').checked = false;
-            document.getElementById('vg_solicitacoes').checked = false;
+            document.querySelectorAll('#matriz-modulos-container button').forEach(btn => {
+                btn.setAttribute('data-global', 'false');
+                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
+                btn.textContent = "Desativada";
+            });
+
             document.getElementById('modalUser').classList.remove('hidden');
         };
 
@@ -234,14 +265,25 @@
             document.getElementById('u_perfil').value = u.perfil;
 
             const vg = u.visaoGlobalPorTela || {};
-            document.getElementById('vg_despesas').checked = vg.despesas || false;
-            document.getElementById('vg_comissoes').checked = vg.comissoes || false;
-            document.getElementById('vg_veiculos').checked = vg.veiculos || false;
-            document.getElementById('vg_ranking').checked = vg.ranking || false;
-            document.getElementById('vg_solicitacoes').checked = vg.solicitacoes || false;
+            const modulosUser = u.modulos || [];
 
             document.querySelectorAll('.mod-checkbox').forEach(cb => {
-                cb.checked = (u.modulos || []).includes(cb.value);
+                const modId = cb.value;
+                cb.checked = modulosUser.includes(modId);
+
+                // Configura o botão de visão global correspondente
+                const card = cb.closest('div.bg-slate-50');
+                const btn = card.querySelector('button');
+                const isGlobal = vg[modId] === true;
+
+                btn.setAttribute('data-global', isGlobal ? 'true' : 'false');
+                if (isGlobal) {
+                    btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-emerald-100 text-emerald-800 border-emerald-400 cursor-pointer shadow-sm";
+                    btn.textContent = "Habilitada";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
+                    btn.textContent = "Desativada";
+                }
             });
 
             document.getElementById('modalUser').classList.remove('hidden');
@@ -251,19 +293,26 @@
             e.preventDefault();
 
             const emailFormatado = document.getElementById('u_email').value.toLowerCase().trim();
-            const modulosSelecionados = Array.from(document.querySelectorAll('.mod-checkbox:checked')).map(cb => cb.value);
+            const modulosSelecionados = [];
+            const visaoGlobalObj = {};
+
+            document.querySelectorAll('.mod-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    modulosSelecionados.push(cb.value);
+                    const card = cb.closest('div.bg-slate-50');
+                    const btn = card.querySelector('button');
+                    const isGlobal = btn.getAttribute('data-global') === 'true';
+                    visaoGlobalObj[cb.value] = isGlobal;
+                } else {
+                    visaoGlobalObj[cb.value] = false;
+                }
+            });
 
             const data = {
                 email: emailFormatado,
                 nome: document.getElementById('u_nome').value,
                 perfil: document.getElementById('u_perfil').value,
-                visaoGlobalPorTela: {
-                    despesas: document.getElementById('vg_despesas').checked,
-                    comissoes: document.getElementById('vg_comissoes').checked,
-                    veiculos: document.getElementById('vg_veiculos').checked,
-                    ranking: document.getElementById('vg_ranking').checked,
-                    solicitacoes: document.getElementById('vg_solicitacoes').checked
-                },
+                visaoGlobalPorTela: visaoGlobalObj,
                 modulos: modulosSelecionados
             };
 
