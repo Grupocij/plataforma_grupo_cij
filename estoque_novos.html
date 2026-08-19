@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque de Equipamentos Novos - Portal Grupo CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO ESTOQUE NOVOS) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-boxes-stacked text-cyan-600"></i> Gestão de Estoque de Equipamentos Novos</h2>
+            <p class="text-sm text-slate-500 mt-1">Controle de entrada, reserva e faturamento exclusivo de máquinas zeradas.</p>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-cyan-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-cyan-600">Total em Estoque</p>
+                <h3 id="kpiTotalEstoque" class="text-2xl font-black text-cyan-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Máquinas Novas Cadastradas</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Disponíveis / Estoque</p>
+                <h3 id="kpiDisponivelEstoque" class="text-2xl font-black text-emerald-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-emerald-500 mt-1">Prontas para negócio</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Reservados / Trânsito</p>
+                <h3 id="kpiReservadoEstoque" class="text-2xl font-black text-amber-900 mt-1">0</h3>
+                <p class="text-xs font-medium text-amber-600 mt-1">Comprometidos ou em viagem</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Vendido</p>
+                <h3 id="kpiVendidoEstoque" class="text-2xl font-black text-indigo-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-indigo-600 mt-1">Faturados e entregues</p>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO DE CADASTRO / EDIÇÃO -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-3">
+                <h3 id="formTitleEstoque" class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-cyan-600"></i> Cadastrar Máquina Nova
+                </h3>
+                <button type="button" id="btnCancelEditEstoque" onclick="window.resetFormEstoque()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 cursor-pointer">
+                    Cancelar Edição
+                </button>
+            </div>
+
+            <form id="estoqueForm" onsubmit="window.salvarEquipamento(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Câmera / Upload de Foto -->
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Foto da Caixa/Equipamento</label>
+                        <div class="flex items-center gap-3">
+                            <label class="flex-1 flex items-center justify-center px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold cursor-pointer hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300 transition shadow-sm">
+                                <i class="fa-solid fa-camera mr-2"></i> Adicionar Foto
+                                <input type="file" id="est_foto_input" accept="image/*" class="hidden" onchange="window.handleFotoSelect(event)">
+                            </label>
+                            <img id="est_foto_preview" src="" class="hidden w-10 h-10 object-cover rounded-lg border border-slate-300 shadow-sm cursor-pointer" onclick="if(this.src) window.open(this.src, '_blank')">
+                        </div>
+                        <input type="hidden" id="est_foto_base64">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Modelo / Equipamento *</label>
+                        <select id="est_modelo" required onchange="window.verificarOutroModeloEstoque(this)" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600 transition cursor-pointer">
+                            <option value="8820">8820 (CIJ)</option>
+                            <option value="8860">8860 (CIJ)</option>
+                            <option value="8910">8910 (CIJ)</option>
+                            <option value="T-110H">T-110H (TIJ)</option>
+                            <option value="UV 5W">UV 5W (Laser)</option>
+                            <option value="CO2 30W">CO2 30W (Laser)</option>
+                            <option value="FIBRA 30W">FIBRA 30W (Laser)</option>
+                            <option value="Outro">Outro (Digitar)</option>
+                        </select>
+                        <input type="text" id="est_modelo_outro" placeholder="Digite o modelo..." class="w-full mt-2 px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-cyan-600 hidden">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nº de Série / Patrimônio *</label>
+                        <input type="text" id="est_serial" required placeholder="Ex: SN-998231" class="w-full px-3 py-2.5 bg-white border border-slate-300 text-slate-900 rounded-xl text-xs font-black outline-none focus:border-cyan-600 transition shadow-inner">
+                    </div>
+                    
+                    <!-- Condição é FIXA como Novo -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1">Condição</label>
+                        <input type="text" id="est_condicao" value="Novo" readonly class="w-full px-3 py-2.5 bg-slate-200 border border-slate-300 text-slate-500 rounded-xl text-xs font-bold outline-none cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status *</label>
+                        <select id="est_status" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600 transition cursor-pointer">
+                            <option value="Disponível para venda">Disponível para venda</option>
+                            <option value="Em Trânsito">Em Trânsito</option>
+                            <option value="Reservado">Reservado</option>
+                            <option value="Vendido">Vendido</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Localização / Filial *</label>
+                        <select id="est_local" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-semibold outline-none focus:border-cyan-600 transition cursor-pointer">
+                            <option value="Estoque Joinville">Estoque Joinville</option>
+                            <option value="Estoque RS">Estoque RS</option>
+                            <option value="Fabricante/Fornecedor">Fabricante/Fornecedor</option>
+                            <option value="Transportadora">Transportadora</option>
+                            <option value="Cliente">Cliente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Data de Entrada *</label>
+                        <input type="date" id="est_data" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-cyan-600 transition cursor-pointer">
+                    </div>
+                    <div class="lg:col-span-1">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Observações</label>
+                        <input type="text" id="est_obs" placeholder="Ex: Máquina faturada NF X..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-cyan-600 transition">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-4 mt-2 border-t border-slate-100">
+                    <button type="submit" id="btnSubmitEstoque" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-save"></i> Salvar Equipamento
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FILTROS E TABELA -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-cyan-600"></i> Consulta de Estoque de Novos
+                </h3>
+                <button onclick="window.exportToExcelEstoque()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i> Exportar
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Modelo</label>
+                    <input type="text" id="filter_modelo" oninput="window.renderTableEstoque()" placeholder="Filtrar modelo..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº de Série</label>
+                    <input type="text" id="filter_serial" oninput="window.renderTableEstoque()" placeholder="Filtrar serial..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status (Múltipla Escolha)</label>
+                    <div class="flex flex-wrap gap-1.5" id="filter_status_container">
+                        <button id="btn_filter_disp" onclick="window.toggleStatusFilter('Disponível para venda')" class="px-2 py-1 text-[10px] font-bold rounded-lg border border-slate-300 text-slate-500 bg-white hover:bg-slate-100 transition shadow-sm cursor-pointer">Disponível</button>
+                        <button id="btn_filter_trans" onclick="window.toggleStatusFilter('Em Trânsito')" class="px-2 py-1 text-[10px] font-bold rounded-lg border border-slate-300 text-slate-500 bg-white hover:bg-slate-100 transition shadow-sm cursor-pointer">Em Trânsito</button>
+                        <button id="btn_filter_res" onclick="window.toggleStatusFilter('Reservado')" class="px-2 py-1 text-[10px] font-bold rounded-lg border border-slate-300 text-slate-500 bg-white hover:bg-slate-100 transition shadow-sm cursor-pointer">Reservado</button>
+                        <button id="btn_filter_vend" onclick="window.toggleStatusFilter('Vendido')" class="px-2 py-1 text-[10px] font-bold rounded-lg border border-slate-300 text-slate-500 bg-white hover:bg-slate-100 transition shadow-sm cursor-pointer">Vendido</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Localização</label>
+                    <input type="text" id="filter_local" oninput="window.renderTableEstoque()" placeholder="Filtrar local..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-cyan-600">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 custom-scrollbar mt-3">
+                <table class="w-full text-left border-collapse min-w-[900px] text-xs">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-bold">
+                            <th class="p-3 text-center w-14">Foto</th>
+                            <th class="p-3">Modelo</th>
+                            <th class="p-3">Nº de Série</th>
+                            <th class="p-3 text-center">Condição</th>
+                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3">Localização</th>
+                            <th class="p-3">Observações / Auditoria</th>
+                            <th class="p-3 text-center no-print">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyEstoque" class="divide-y divide-slate-200 font-medium bg-white text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
+    <script type="module" src="core.js"></script>
+
+    <!-- LÓGICA DO MÓDULO ESTOQUE NOVOS -->
+    <script>
+        window.listaEstoque = [];
+        let estoque_editingIndex = null;
+        window.activeStatusFilters = [];
+
+        window.safeGetVal = (id) => document.getElementById(id)?.value || '';
+        window.safeSetVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).value = val; };
+        window.safeSetText = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
+
+        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            const estoqueNovosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos');
+            
+            window.fsOnSnapshot(estoqueNovosCol, (snap) => {
+                window.listaEstoque = [];
+                snap.forEach(d => window.listaEstoque.push(d.data()));
+                localStorage.setItem('banco_estoque_novos_cij', JSON.stringify(window.listaEstoque));
+                window.renderTableEstoque();
+            });
+
+            document.getElementById('est_data').valueAsDate = new Date();
+        };
+
+        window.handleFotoSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; 
+                    let scaleSize = 1;
+                    if (img.width > MAX_WIDTH) scaleSize = MAX_WIDTH / img.width;
+                    
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const base64Str = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.getElementById('est_foto_base64').value = base64Str;
+                    const preview = document.getElementById('est_foto_preview');
+                    preview.src = base64Str;
+                    preview.classList.remove('hidden');
+                };
+            };
+        };
+
+        window.verificarOutroModeloEstoque = function(selectEl) {
+            const inputOutro = document.getElementById('est_modelo_outro');
+            if (selectEl.value === 'Outro') {
+                inputOutro.classList.remove('hidden');
+                inputOutro.required = true;
+                inputOutro.focus();
+            } else {
+                inputOutro.classList.add('hidden');
+                inputOutro.required = false;
+                inputOutro.value = '';
+            }
+        };
+
+        window.toggleStatusFilter = function(statusStr) {
+            const idx = window.activeStatusFilters.indexOf(statusStr);
+            if (idx > -1) window.activeStatusFilters.splice(idx, 1);
+            else window.activeStatusFilters.push(statusStr);
+            
+            const btnMap = {
+                'Disponível para venda': 'btn_filter_disp',
+                'Em Trânsito': 'btn_filter_trans',
+                'Reservado': 'btn_filter_res',
+                'Vendido': 'btn_filter_vend'
+            };
+            
+            const btn = document.getElementById(btnMap[statusStr]);
+            if (idx > -1) { 
+                btn.classList.remove('bg-cyan-100', 'text-cyan-800', 'border-cyan-400');
+                btn.classList.add('bg-white', 'text-slate-500', 'border-slate-300');
+            } else { 
+                btn.classList.remove('bg-white', 'text-slate-500', 'border-slate-300');
+                btn.classList.add('bg-cyan-100', 'text-cyan-800', 'border-cyan-400');
+            }
+            window.renderTableEstoque();
+        };
+
+        window.getFilteredEstoque = function() {
+            const modelo = safeGetVal('filter_modelo').toLowerCase();
+            const serial = safeGetVal('filter_serial').toLowerCase();
+            const local = safeGetVal('filter_local').toLowerCase();
+
+            return window.listaEstoque.filter(item => {
+                if (modelo && !item.modelo.toLowerCase().includes(modelo)) return false;
+                if (serial && !item.serial.toLowerCase().includes(serial)) return false;
+                if (local && !item.local.toLowerCase().includes(local)) return false;
+                if (window.activeStatusFilters.length > 0 && !window.activeStatusFilters.includes(item.status)) return false;
+                return true;
+            });
+        };
+
+        window.renderTableEstoque = function() {
+            let filtered = window.getFilteredEstoque();
+            const tbody = document.getElementById('tableBodyEstoque');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let totalCount = window.listaEstoque.length;
+            let disponivelCount = window.listaEstoque.filter(i => i.status === 'Disponível para venda').length;
+            let reservadoCount = window.listaEstoque.filter(i => i.status === 'Reservado' || i.status === 'Em Trânsito').length;
+            let vendidoCount = window.listaEstoque.filter(i => i.status === 'Vendido').length;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">Nenhum equipamento novo encontrado.</td></tr>`;
+            } else {
+                filtered.forEach((item) => {
+                    const statusClass = item.status === 'Disponível para venda' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                        item.status === 'Em Trânsito' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                                        item.status === 'Reservado' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                        item.status === 'Vendido' ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-slate-100 text-slate-800 border-slate-300';
+
+                    let statusBadge = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${statusClass}">${item.status}</span>`;
+                    if (item.status === 'Reservado' && item.reservadoPor) {
+                        statusBadge += `<span class="block text-[10px] text-slate-500 mt-0.5 font-normal">Por: ${item.reservadoPor}</span>`;
+                    }
+
+                    const fotoHtml = item.foto 
+                        ? `<img src="${item.foto}" class="w-10 h-10 object-cover rounded-md border border-slate-300 shadow-sm cursor-pointer hover:scale-110 transition-transform mx-auto" onclick="window.open('${item.foto}', '_blank')">`
+                        : `<div class="w-10 h-10 bg-slate-100 rounded-md border border-slate-200 flex items-center justify-center text-slate-400 mx-auto"><i class="fa-solid fa-camera"></i></div>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-200">
+                            <td class="p-2 text-center">${fotoHtml}</td>
+                            <td class="p-3 font-bold text-slate-900">${item.modelo}</td>
+                            <td class="p-3 font-bold text-cyan-900 font-mono">${item.serial}</td>
+                            <td class="p-3 text-center text-emerald-700 font-bold tracking-wider">${item.condicao || 'NOVO'}</td>
+                            <td class="p-3 text-center">${statusBadge}</td>
+                            <td class="p-3 text-slate-700">${item.local}</td>
+                            <td class="p-3 text-slate-500 text-[11px]">
+                                <div>${item.obs || '-'}</div>
+                                <div class="mt-1.5 text-[9px] text-slate-400 font-bold bg-slate-100 inline-block px-1.5 py-0.5 rounded border border-slate-200">
+                                    <i class="fa-solid fa-user-pen mr-1"></i>Modificado por: ${item.atualizadoPor || 'Desconhecido'}
+                                </div>
+                            </td>
+                            <td class="p-3 text-center space-x-1 no-print">
+                                <button onclick="window.editEquipamento('${item.id}')" title="Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="window.deleteEquipamento('${item.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            safeSetText('kpiTotalEstoque', totalCount);
+            safeSetText('kpiDisponivelEstoque', disponivelCount);
+            safeSetText('kpiReservadoEstoque', reservadoCount);
+            safeSetText('kpiVendidoEstoque', vendidoCount);
+        };
+
+        window.salvarEquipamento = function(e) {
+            e.preventDefault();
+            
+            let modeloVal = safeGetVal('est_modelo');
+            if (modeloVal === 'Outro') modeloVal = safeGetVal('est_modelo_outro');
+
+            const serialVal = safeGetVal('est_serial').trim();
+            const statusVal = safeGetVal('est_status');
+            
+            const currentUserEmail = window.currentUser ? window.currentUser.email : 'Usuário';
+            const currentUserName = window.nomeUsuarioLogado || currentUserEmail; 
+            
+            const isDuplicate = window.listaEstoque.some(i => i.serial.toLowerCase() === serialVal.toLowerCase() && i.id !== estoque_editingIndex);
+            if (isDuplicate) {
+                window.mostrarNotificacao('ERRO: Este Número de Série já está cadastrado no estoque de Novos!', true);
+                return;
+            }
+
+            let existingItem = null;
+            if (estoque_editingIndex !== null) existingItem = window.listaEstoque.find(i => i.id === estoque_editingIndex);
+
+            let reservadoPor = '';
+            if (statusVal === 'Reservado') {
+                if (existingItem && existingItem.status === 'Reservado' && existingItem.reservadoPor) {
+                    reservadoPor = existingItem.reservadoPor;
+                } else {
+                    reservadoPor = currentUserName;
+                }
+            }
+
+            let fotoFinal = safeGetVal('est_foto_base64');
+            if (existingItem && !fotoFinal) fotoFinal = existingItem.foto || '';
+
+            const itemData = {
+                id: estoque_editingIndex !== null ? estoque_editingIndex : Date.now().toString(),
+                modelo: modeloVal,
+                serial: serialVal,
+                condicao: 'Novo',
+                status: statusVal,
+                local: safeGetVal('est_local'),
+                data: safeGetVal('est_data'),
+                obs: safeGetVal('est_obs'),
+                reservadoPor: reservadoPor,
+                foto: fotoFinal,
+                atualizadoPor: currentUserName,
+                dataAtualizacao: new Date().toLocaleString('pt-BR')
+            };
+
+            if (estoque_editingIndex !== null) {
+                const idx = window.listaEstoque.findIndex(i => i.id === estoque_editingIndex);
+                if(idx > -1) window.listaEstoque[idx] = itemData;
+                estoque_editingIndex = null;
+            } else {
+                window.listaEstoque.push(itemData);
+            }
+
+            localStorage.setItem('banco_estoque_novos_cij', JSON.stringify(window.listaEstoque));
+            try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos', itemData.id), itemData); } catch(e){}
+
+            window.resetFormEstoque();
+            window.renderTableEstoque();
+            window.mostrarNotificacao('Máquina salva com sucesso!');
+        };
+
+        window.editEquipamento = function(id) {
+            const item = window.listaEstoque.find(i => i.id === id);
+            if (!item) return;
+
+            estoque_editingIndex = id;
+            const defaultModelos = ["8820", "8860", "8910", "T-110H", "UV 5W", "CO2 30W", "FIBRA 30W"];
+            if (defaultModelos.includes(item.modelo)) {
+                safeSetVal('est_modelo', item.modelo);
+                document.getElementById('est_modelo_outro').classList.add('hidden');
+                document.getElementById('est_modelo_outro').value = '';
+                document.getElementById('est_modelo_outro').required = false;
+            } else {
+                safeSetVal('est_modelo', 'Outro');
+                document.getElementById('est_modelo_outro').classList.remove('hidden');
+                safeSetVal('est_modelo_outro', item.modelo);
+                document.getElementById('est_modelo_outro').required = true;
+            }
+
+            safeSetVal('est_serial', item.serial);
+            safeSetVal('est_status', item.status);
+            safeSetVal('est_local', item.local);
+            safeSetVal('est_data', item.data);
+            safeSetVal('est_obs', item.obs);
+
+            if (item.foto) {
+                document.getElementById('est_foto_preview').src = item.foto;
+                document.getElementById('est_foto_preview').classList.remove('hidden');
+            } else {
+                document.getElementById('est_foto_preview').src = '';
+                document.getElementById('est_foto_preview').classList.add('hidden');
+            }
+            document.getElementById('est_foto_base64').value = '';
+
+            safeSetText('formTitleEstoque', "Editar Máquina");
+            document.getElementById('btnSubmitEstoque').innerHTML = '<i class="fa-solid fa-save"></i> Atualizar Máquina';
+            document.getElementById('btnCancelEditEstoque').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.resetFormEstoque = function() {
+            document.getElementById('estoqueForm').reset();
+            document.getElementById('est_data').valueAsDate = new Date();
+            document.getElementById('est_modelo_outro').classList.add('hidden');
+            document.getElementById('est_modelo_outro').value = '';
+            document.getElementById('est_modelo_outro').required = false;
+            
+            document.getElementById('est_foto_preview').src = '';
+            document.getElementById('est_foto_preview').classList.add('hidden');
+            document.getElementById('est_foto_base64').value = '';
+            
+            estoque_editingIndex = null;
+            safeSetText('formTitleEstoque', "Cadastrar Máquina Nova");
+            document.getElementById('btnSubmitEstoque').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Equipamento';
+            document.getElementById('btnCancelEditEstoque').classList.add('hidden');
+        };
+
+        window.deleteEquipamento = function(id) {
+            if (!window.isUserAdminOrFinance) {
+                window.mostrarNotificacao('Apenas usuários Admin e Financeiro podem excluir equipamentos.', true);
+                return;
+            }
+            if(confirm('Deseja remover esta MÁQUINA NOVA do estoque?')) {
+                window.listaEstoque = window.listaEstoque.filter(i => i.id !== id);
+                localStorage.setItem('banco_estoque_novos_cij', JSON.stringify(window.listaEstoque));
+                try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos', id)); } catch(e){}
+                window.renderTableEstoque();
+                window.mostrarNotificacao('Máquina removida.');
+            }
+        };
+
+        window.exportToExcelEstoque = async function() {
+            if (typeof ExcelJS === 'undefined') { window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
+            const filteredData = window.getFilteredEstoque();
+            if (filteredData.length === 0) { window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Estoque de Novos');
+
+            ws.columns = [
+                { header: 'Modelo', key: 'modelo', width: 20 },
+                { header: 'Nº de Série', key: 'serial', width: 20 },
+                { header: 'Condição', key: 'condicao', width: 15 },
+                { header: 'Status', key: 'status', width: 15 },
+                { header: 'Reservado Por', key: 'reservadoPor', width: 25 },
+                { header: 'Localização', key: 'local', width: 25 },
+                { header: 'Data Entrada', key: 'data', width: 15 },
+                { header: 'Última Edição', key: 'atualizadoPor', width: 25 },
+                { header: 'Observações', key: 'obs', width: 35 }
+            ];
+
+            const headerRow = ws.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0891B2' } };
+
+            filteredData.forEach((i) => {
+                ws.addRow({
+                    modelo: i.modelo,
+                    serial: i.serial,
+                    condicao: i.condicao || 'Novo',
+                    status: i.status,
+                    reservadoPor: i.reservadoPor || '',
+                    local: i.local,
+                    data: i.data ? i.data.split('-').reverse().join('/') : '',
+                    atualizadoPor: i.atualizadoPor ? `${i.atualizadoPor} (${i.dataAtualizacao})` : '-',
+                    obs: i.obs
+                });
+            });
+
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buffer]), `Estoque_Novos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            window.mostrarNotificacao('Estoque exportado com sucesso!');
+        };
+    </script>
+</body>
+</html>
