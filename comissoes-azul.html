@@ -39,7 +39,8 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2 pointer-events-none no-print"></div>
 
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+    <!-- ÁREA CENTRAL COM SCROLL LIVRE E FLUIDO -->
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 hidden" id="main-content">
 
         <!-- CABEÇALHO INTERNO -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
@@ -1273,12 +1274,12 @@
         };
 
         window.deleteSaleAzul = function(id) {
-            window.mostrarModalConfirm('Excluir NF', 'Deseja remover esta nota fiscal?', () => {
+            if (confirm('Deseja realmente remover esta nota fiscal?')) {
                 window.listaComissoesAzul = window.listaComissoesAzul.filter(s => s.id !== id);
                 try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', id)); } catch(e){}
                 window.renderTableAzul();
                 showToast('Nota fiscal removida.', "info");
-            });
+            }
         };
 
         window.exportToExcelAzul = async function() {
