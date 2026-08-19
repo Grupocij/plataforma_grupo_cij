@@ -14,75 +14,92 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-        
-        /* Estilos customizados para os blocos redimensionáveis */
-        .resizable-box { resize: vertical; overflow: auto; min-height: 380px; }
+        .resizable-box { resize: vertical; overflow: auto; min-height: 420px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- CONTEÚDO PRINCIPAL (INDEX COM MURAL E CALENDÁRIO) -->
+    <!-- CONTEÚDO PRINCIPAL (INDEX COM MURAL E AGENDA) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- BOAS-VINDAS COMPACTAS -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- PAINEL INFORMATIVO SUPERIOR (Data, Hora e Usuários Logados) -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold border border-blue-100 shrink-0">
                     <i class="fa-solid fa-house"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Portal CIJ • Início</h2>
-                    <p class="text-xs text-slate-500 font-medium">Gestão operacional, mural de avisos e agenda compartilhada da equipe.</p>
+                    <h2 class="text-base font-black text-slate-900 tracking-tight">Portal CIJ • Início</h2>
+                    <p class="text-xs text-slate-500 font-medium">Mural de avisos e agenda compartilhada da equipe.</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="window.alternarLayoutHome()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer" title="Inverter Layout / Posição">
-                    <i class="fa-solid fa-shuffle"></i> Inverter Posição
-                </button>
+
+            <!-- Painel de Relógio e Ativos -->
+            <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-blue-600"></i>
+                    <span id="painel-data">--/--/----</span>
+                </div>
+                <div class="h-4 w-px bg-slate-300"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-emerald-600"></i>
+                    <span id="painel-hora">--:--:--</span>
+                </div>
+                <div class="h-4 w-px bg-slate-300"></div>
+                <div class="flex items-center gap-2" title="Usuários com sessão ativa recente">
+                    <i class="fa-solid fa-users text-purple-600"></i>
+                    <span id="painel-usuarios-ativos">1 ativo(s)</span>
+                </div>
             </div>
         </div>
 
-        <!-- GRID PRINCIPAL: MURAL E CALENDÁRIO (REDIMENSIONÁVEIS) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="home-grid-container">
+        <!-- GRID PRINCIPAL: MURAL (REDUZIDO) E AGENDA (MAIOR PARTE) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- MURAL DE RECADOS (LADO ESQUERDO / COLUNA 5) -->
-            <section class="lg:col-span-5 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box shadow-sm" id="box-mural">
-                <div class="space-y-4 flex flex-col h-full">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <!-- MURAL DE RECADOS (COLUNA 4 - TAMANHO REDUZIDO) -->
+            <section class="lg:col-span-4 bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box" id="box-mural">
+                <div class="space-y-3 flex flex-col h-full">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-2">
                             <i class="fa-solid fa-note-sticky text-amber-500"></i> Mural de Recados
                         </h3>
-                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">Compartilhado</span>
+                        <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Compartilhado</span>
                     </div>
 
-                    <!-- Formulário para Novo Recado -->
-                    <form onsubmit="window.publicarRecado(event)" class="space-y-2.5">
-                        <textarea id="novo_recado_texto" rows="2" required placeholder="Escreva um aviso ou recado para a equipe..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 font-medium resize-none"></textarea>
+                    <form onsubmit="window.publicarRecado(event)" class="space-y-2">
+                        <textarea id="novo_recado_texto" rows="2" required placeholder="Escreva um recado para a equipe..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 font-medium resize-none"></textarea>
                         <div class="flex justify-end">
-                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-paper-plane"></i> Publicar Recado
+                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i> Publicar
                             </button>
                         </div>
                     </form>
 
-                    <!-- Lista de Recados -->
-                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 min-h-[220px]" id="lista-recados-container">
+                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 min-h-[200px]" id="lista-recados-container">
                         <!-- Injetado via Firebase -->
                     </div>
                 </div>
-                <div class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Dica: Arraste a borda inferior para redimensionar este bloco.</div>
+                <div class="text-[9px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Redimensione arrastando a borda.</div>
             </section>
 
-            <!-- CALENDÁRIO COMPARTILHADO (LADO DIREITO / COLUNA 7) -->
-            <section class="lg:col-span-7 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box shadow-sm" id="box-calendario">
+            <!-- AGENDA COMPARTILHADA (COLUNA 8 - MAIOR PARTE DA TELA) -->
+            <section class="lg:col-span-8 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box" id="box-agenda">
                 <div class="space-y-4 flex flex-col h-full">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
                         <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-days text-blue-600"></i> Agenda de Agendamentos (Técnica & Visitas)
+                            <i class="fa-solid fa-calendar-days text-blue-600"></i> Agenda
                         </h3>
-                        <button onclick="window.abrirModalAgendamento()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-plus"></i> Novo Agendamento
-                        </button>
+                        
+                        <div class="flex items-center gap-2">
+                            <!-- Seletor de Modo de Visualização -->
+                            <div class="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
+                                <button onclick="window.mudarModoVisualizacao('calendario')" id="btn-modo-cal" class="px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-blue-600 shadow-sm"><i class="fa-solid fa-calendar-days mr-1"></i> Calendário</button>
+                                <button onclick="window.mudarModoVisualizacao('lista')" id="btn-modo-list" class="px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list mr-1"></i> Lista</button>
+                            </div>
+                            <button onclick="window.abrirModalAgendamento()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Novo Agendamento
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Legenda de Cores -->
@@ -91,25 +108,25 @@
                         <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Visita Comercial</span>
                     </div>
 
-                    <!-- Exibição do Calendário / Agendamentos do Mês -->
+                    <!-- Navegação do Mês -->
                     <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <button onclick="window.mudarMesAgenda(-1)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-chevron-left"></i></button>
                         <span id="label-mes-agenda" class="text-xs font-black text-slate-900 uppercase">Agosto de 2026</span>
                         <button onclick="window.mudarMesAgenda(1)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
 
-                    <!-- Lista de Agendamentos do Mês -->
-                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 min-h-[220px]" id="lista-agenda-container">
-                        <!-- Injetado via Firebase -->
+                    <!-- Contêiner Dinâmico (Exibe Grid de Calendário ou Lista) -->
+                    <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 min-h-[280px]" id="conteudo-agenda-view">
+                        <!-- Injetado via JS -->
                     </div>
                 </div>
-                <div class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Dica: Arraste a borda inferior para redimensionar este bloco.</div>
+                <div class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Redimensione arrastando a borda inferior.</div>
             </section>
 
         </div>
     </main>
 
-    <!-- MODAL DE NOVO AGENDAMENTO -->
+    <!-- MODAL DE NOVO AGENDAMENTO (Com suporte a Vários Dias) -->
     <div id="modalAgendamento" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -131,17 +148,23 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Data *</label>
-                        <input type="date" id="ag_data" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Data Início *</label>
+                        <input type="date" id="ag_data" required onchange="window.onDataInicioChange()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Horário *</label>
-                        <input type="time" id="ag_horario" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Data Fim (Vários Dias)</label>
+                        <input type="date" id="ag_data_fim" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer" title="Selecione caso o evento dure múltiplos dias">
                     </div>
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Responsável / Técnico *</label>
-                    <input type="text" id="ag_responsavel" required placeholder="Nome do responsável" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Horário *</label>
+                        <input type="time" id="ag_horario" required value="08:00" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Responsável *</label>
+                        <input type="text" id="ag_responsavel" required placeholder="Nome do técnico/vendedor" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600">
+                    </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Observações / Detalhes</label>
@@ -165,34 +188,57 @@
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA DA HOME (MURAL E CALENDÁRIO) -->
+    <!-- LÓGICA DA HOME -->
     <script>
         window.listaRecados = [];
         window.listaAgenda = [];
         let dataAtualAgenda = new Date();
+        let modoVisualizacaoAgenda = 'calendario'; // 'calendario' ou 'lista'
 
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
             document.getElementById('main-content')?.classList.remove('hidden');
 
+            // Relógio e Data em tempo real
+            setInterval(atualizarPainelTopo, 1000);
+            atualizarPainelTopo();
+
             const recadosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados');
             const agendaCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada');
 
-            // Sincronizar Mural em tempo real
             window.fsOnSnapshot(recadosCol, (snap) => {
                 window.listaRecados = [];
                 snap.forEach(d => window.listaRecados.push(d.data()));
                 window.renderizarRecados();
             });
 
-            // Sincronizar Agenda em tempo real
             window.fsOnSnapshot(agendaCol, (snap) => {
                 window.listaAgenda = [];
                 snap.forEach(d => window.listaAgenda.push(d.data()));
                 window.renderizarAgenda();
+                window.atualizarContadorUsuariosAtivos();
             });
 
             document.getElementById('ag_data').valueAsDate = new Date();
+        };
+
+        function atualizarPainelTopo() {
+            const agora = new Date();
+            const dataEl = document.getElementById('painel-data');
+            const horaEl = document.getElementById('painel-hora');
+            if(dataEl) dataEl.innerText = agora.toLocaleDateString('pt-BR');
+            if(horaEl) horaEl.innerText = agora.toLocaleTimeString('pt-BR');
+        }
+
+        window.atualizarContadorUsuariosAtivos = function() {
+            // Conta quantos autores diferentes agendaram ou publicaram recados recentemente, simulando ativos
+            const autores = new Set();
+            window.listaRecados.forEach(r => { if(r.emailAutor) autores.add(r.emailAutor); });
+            window.listaAgenda.forEach(a => { if(a.autor) autores.add(a.autor); });
+            if (window.currentUser) autores.add(window.currentUser.email);
+
+            const el = document.getElementById('painel-usuarios-ativos');
+            if (el) el.innerText = `${autores.size || 1} ativo(s)`;
         };
 
         window.mostrarNotificacao = function(msg, isError = false) {
@@ -227,24 +273,18 @@
                 window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados', recado.id), recado);
                 document.getElementById('novo_recado_texto').value = '';
                 window.mostrarNotificacao('Recado publicado com sucesso!');
-            } catch (err) {
-                alert("Erro ao publicar recado: " + err.message);
-            }
+            } catch (err) { alert("Erro ao publicar: " + err.message); }
         };
 
         window.toggleLidoRecado = function(id) {
             const recado = window.listaRecados.find(r => r.id === id);
             if (!recado) return;
-
             const userEmail = window.currentUser ? window.currentUser.email : '';
             if (!recado.lidoPor) recado.lidoPor = [];
 
             const idx = recado.lidoPor.indexOf(userEmail);
-            if (idx > -1) {
-                recado.lidoPor.splice(idx, 1);
-            } else {
-                recado.lidoPor.push(userEmail);
-            }
+            if (idx > -1) recado.lidoPor.splice(idx, 1);
+            else recado.lidoPor.push(userEmail);
 
             try {
                 window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados', id), recado);
@@ -266,9 +306,8 @@
             container.innerHTML = '';
 
             window.listaRecados.sort((a, b) => b.timestamp - a.timestamp);
-
             if (window.listaRecados.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">Nenhum recado no mural no momento.</p>`;
+                container.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-6">Nenhum recado no mural.</p>`;
                 return;
             }
 
@@ -280,24 +319,24 @@
                 const isAutor = r.emailAutor === userEmail || window.userVisaoGlobal;
 
                 container.innerHTML += `
-                    <div class="p-3.5 bg-slate-50 border ${jaLido ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'} rounded-2xl space-y-2 transition">
-                        <div class="flex items-center justify-between text-[11px]">
+                    <div class="p-3 bg-slate-50 border ${jaLido ? 'border-emerald-200 bg-emerald-50/10' : 'border-slate-200'} rounded-2xl space-y-1.5 transition">
+                        <div class="flex items-center justify-between text-[10px]">
                             <span class="font-bold text-slate-900"><i class="fa-solid fa-user-circle text-amber-500 mr-1"></i> ${r.autor}</span>
-                            <span class="text-slate-400 text-[10px]"><i class="fa-regular fa-clock mr-1"></i> ${r.dataHora}</span>
+                            <span class="text-slate-400">${r.dataHora}</span>
                         </div>
-                        <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-medium">${r.texto}</p>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
-                            <button onclick="window.toggleLidoRecado('${r.id}')" class="font-bold text-xs ${jaLido ? 'text-emerald-600 hover:text-emerald-700' : 'text-slate-500 hover:text-slate-700'} flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid ${jaLido ? 'fa-square-check' : 'fa-square'}"></i> ${jaLido ? 'Lido' : 'Marcar como Lido'} (${lidoPor.length})
+                        <p class="text-[11px] text-slate-700 whitespace-pre-line leading-relaxed font-medium">${r.texto}</p>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[10px]">
+                            <button onclick="window.toggleLidoRecado('${r.id}')" class="font-bold ${jaLido ? 'text-emerald-600' : 'text-slate-500'} flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid ${jaLido ? 'fa-square-check' : 'fa-square'}"></i> ${jaLido ? 'Lido' : 'Marcar Lido'} (${lidoPor.length})
                             </button>
-                            ${isAutor ? `<button onclick="window.excluirRecado('${r.id}')" class="text-red-500 hover:text-red-700 text-xs cursor-pointer"><i class="fa-solid fa-trash-can"></i> Excluir</button>` : ''}
+                            ${isAutor ? `<button onclick="window.excluirRecado('${r.id}')" class="text-red-500 hover:text-red-700 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                         </div>
                     </div>
                 `;
             });
         };
 
-        // --- CALENDÁRIO / AGENDA COMPARTILHADA ---
+        // --- AGENDA COMPARTILHADA ---
         window.abrirModalAgendamento = function() {
             document.getElementById('agendaForm').reset();
             document.getElementById('ag_data').valueAsDate = new Date();
@@ -308,18 +347,48 @@
             document.getElementById('modalAgendamento').classList.add('hidden');
         };
 
+        window.onDataInicioChange = function() {
+            const dataInicio = document.getElementById('ag_data').value;
+            const dataFim = document.getElementById('ag_data_fim');
+            if (dataFim && !dataFim.value) dataFim.value = dataInicio;
+        };
+
         window.mudarMesAgenda = function(dir) {
             dataAtualAgenda.setMonth(dataAtualAgenda.getMonth() + dir);
             window.renderizarAgenda();
         };
 
+        window.mudarModoVisualizacao = function(modo) {
+            modoVisualizacaoAgenda = modo;
+            const btnCal = document.getElementById('btn-modo-cal');
+            const btnList = document.getElementById('btn-modo-list');
+            if (modo === 'calendario') {
+                btnCal.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-blue-600 shadow-sm";
+                btnList.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900";
+            } else {
+                btnList.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-blue-600 shadow-sm";
+                btnCal.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900";
+            }
+            window.renderizarAgenda();
+        };
+
         window.salvarAgendamento = function(e) {
             e.preventDefault();
-            const item = {
-                id: Date.now().toString(),
-                tipo: document.getElementById('ag_tipo').value, // 'tecnica' ou 'comercial'
+            const dataInicio = document.getElementById('ag_data').value;
+            const dataFim = document.getElementById('ag_data_fim').value || dataInicio;
+
+            // Suporte a múltiplos dias: cria agendamento para cada dia no intervalo
+            let atual = new Date(dataInicio + 'T00:00:00');
+            const fim = new Date(dataFim + 'T00:00:00');
+
+            if (fim < atual) {
+                alert("A data de fim não pode ser anterior à data de início.");
+                return;
+            }
+
+            const baseItem = {
+                tipo: document.getElementById('ag_tipo').value,
                 cliente: document.getElementById('ag_cliente').value.trim(),
-                data: document.getElementById('ag_data').value,
                 horario: document.getElementById('ag_horario').value,
                 responsavel: document.getElementById('ag_responsavel').value.trim(),
                 obs: document.getElementById('ag_obs').value.trim(),
@@ -327,12 +396,15 @@
             };
 
             try {
-                window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada', item.id), item);
+                while (atual <= fim) {
+                    const dataStr = atual.toISOString().split('T')[0];
+                    const item = { ...baseItem, id: `${Date.now()}_${Math.random().toString(36).substr(2, 4)}`, data: dataStr };
+                    window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada', item.id), item);
+                    atual.setDate(atual.getDate() + 1);
+                }
                 window.fecharModalAgendamento();
-                window.mostrarNotificacao('Agendamento salvo com sucesso!');
-            } catch (err) {
-                alert("Erro ao salvar agendamento: " + err.message);
-            }
+                window.mostrarNotificacao('Agendamento(s) salvo(s) com sucesso!');
+            } catch (err) { alert("Erro ao salvar: " + err.message); }
         };
 
         window.excluirAgendamento = function(id) {
@@ -345,7 +417,7 @@
         };
 
         window.renderizarAgenda = function() {
-            const container = document.getElementById('lista-agenda-container');
+            const container = document.getElementById('conteudo-agenda-view');
             const labelMes = document.getElementById('label-mes-agenda');
             if (!container || !labelMes) return;
 
@@ -359,48 +431,86 @@
             const mesStr = `${ano}-${String(mes + 1).padStart(2, '0')}`;
             const agendamentosMes = window.listaAgenda.filter(a => a.data && a.data.startsWith(mesStr));
 
-            agendamentosMes.sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
+            if (modoVisualizacaoAgenda === 'lista') {
+                // RENDERIZAÇÃO EM MODO LISTA
+                agendamentosMes.sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
+                if (agendamentosMes.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-12">Nenhum agendamento para este mês.</p>`;
+                    return;
+                }
 
-            if (agendamentosMes.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">Nenhum agendamento para este mês.</p>`;
-                return;
-            }
+                let listHtml = '<div class="space-y-2.5">';
+                agendamentosMes.forEach(a => {
+                    const isTecnica = a.tipo === 'tecnica';
+                    const corBadge = isTecnica ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-100 text-blue-800 border-blue-300';
+                    const corBorda = isTecnica ? 'border-emerald-500' : 'border-blue-600';
+                    const icone = isTecnica ? 'fa-wrench text-emerald-600' : 'fa-handshake text-blue-600';
+                    const tipoTexto = isTecnica ? 'Assistência Técnica' : 'Visita Comercial';
+                    const dataFmt = a.data.split('-').reverse().join('/');
 
-            agendamentosMes.forEach(a => {
-                const isTecnica = a.tipo === 'tecnica';
-                const corBadge = isTecnica ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-100 text-blue-800 border-blue-300';
-                const corBorda = isTecnica ? 'border-emerald-500' : 'border-blue-600';
-                const icone = isTecnica ? 'fa-wrench text-emerald-600' : 'fa-handshake text-blue-600';
-                const tipoTexto = isTecnica ? 'Assistência Técnica' : 'Visita Comercial';
-
-                const dataFmt = a.data.split('-').reverse().join('/');
-
-                container.innerHTML += `
-                    <div class="p-3.5 bg-slate-50 border-l-4 ${corBorda} border border-slate-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${corBadge}"><i class="fa-solid ${icone} mr-1"></i> ${tipoTexto}</span>
-                                <span class="font-bold text-xs text-slate-900">${a.cliente}</span>
+                    listHtml += `
+                        <div class="p-3 bg-slate-50 border-l-4 ${corBorda} border border-slate-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${corBadge}"><i class="fa-solid ${icone} mr-1"></i> ${tipoTexto}</span>
+                                    <span class="font-bold text-xs text-slate-900">${a.cliente}</span>
+                                </div>
+                                <p class="text-xs text-slate-600 font-semibold"><i class="fa-regular fa-calendar mr-1 text-slate-400"></i> ${dataFmt} às ${a.horario} | <i class="fa-solid fa-user-tie ml-1 mr-1 text-slate-400"></i> ${a.responsavel}</p>
+                                ${a.obs ? `<p class="text-[11px] text-slate-500 italic">${a.obs}</p>` : ''}
                             </div>
-                            <p class="text-xs text-slate-600 font-semibold"><i class="fa-regular fa-calendar mr-1 text-slate-400"></i> ${dataFmt} às ${a.horario} | <i class="fa-solid fa-user-tie ml-1 mr-1 text-slate-400"></i> ${a.responsavel}</p>
-                            ${a.obs ? `<p class="text-[11px] text-slate-500 italic">${a.obs}</p>` : ''}
+                            <button onclick="window.excluirAgendamento('${a.id}')" class="text-red-500 hover:text-red-700 text-xs p-1.5 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
-                        <button onclick="window.excluirAgendamento('${a.id}')" class="text-red-500 hover:text-red-700 text-xs p-1.5 transition cursor-pointer" title="Cancelar Agendamento"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                `;
-            });
-        };
+                    `;
+                });
+                listHtml += '</div>';
+                container.innerHTML = listHtml;
 
-        // --- BOTÃO PARA INVERTER LAYOUT DA HOME ---
-        window.alternarLayoutHome = function() {
-            const grid = document.getElementById('home-grid-container');
-            if (!grid) return;
-            if (grid.classList.contains('flex-col-reverse')) {
-                grid.classList.remove('flex-col-reverse', 'lg:flex-row-reverse');
-                window.mostrarNotificacao('Layout padrão restaurado.');
             } else {
-                grid.classList.add('flex-col-reverse', 'lg:flex-row-reverse');
-                window.mostrarNotificacao('Posições invertidas com sucesso!');
+                // RENDERIZAÇÃO EM MODO CALENDÁRIO MENSAL (GRID REAL)
+                const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+                const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+
+                let calHtml = `
+                    <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-black text-slate-500 mb-2 uppercase">
+                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1.5">
+                `;
+
+                // Células vazias iniciais
+                for (let i = 0; i < primeiroDiaSemana; i++) {
+                    calHtml += `<div class="bg-slate-50/40 rounded-xl min-h-[90px] border border-transparent"></div>`;
+                }
+
+                // Dias do mês
+                for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+                    const diaStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                    const eventosDia = agendamentosMes.filter(a => a.data === diaStr);
+
+                    calHtml += `
+                        <div class="bg-white rounded-xl p-1.5 min-h-[95px] border border-slate-200 flex flex-col justify-between shadow-2xs">
+                            <span class="text-[11px] font-bold text-slate-700 px-1">${dia}</span>
+                            <div class="space-y-1 overflow-y-auto max-h-[70px] custom-scrollbar">
+                    `;
+
+                    eventosDia.forEach(ev => {
+                        const isTec = ev.tipo === 'tecnica';
+                        const bgCor = isTec ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white';
+                        calHtml += `
+                            <div onclick="alert('${ev.cliente} - ${ev.horario}\\nResp: ${ev.responsavel}\\nObs: ${ev.obs || \"Nenhuma\"}')" class="${bgCor} text-[9px] font-bold p-1 rounded truncate cursor-pointer shadow-2xs hover:opacity-90" title="${ev.cliente} (${ev.horario})">
+                                ${ev.horario.slice(0,5)} ${ev.cliente}
+                            </div>
+                        `;
+                    });
+
+                    calHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+
+                calHtml += `</div>`;
+                container.innerHTML = calHtml;
             }
         };
     </script>
