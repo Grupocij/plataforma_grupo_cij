@@ -1,7 +1,7 @@
 // core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const injectLayout = () => {
@@ -21,13 +21,21 @@ const injectLayout = () => {
             <form id="auth-form" class="space-y-4 text-left" onsubmit="window.handleLogin(event)">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail Corporativo</label>
-                    <input type="email" id="auth-email" required placeholder="seu.nome@grupocij.com.br" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600 font-medium">
+                    <input type="email" id="auth-email" required placeholder="seu.nome@grupocij.com.br" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600 font-medium text-slate-900">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Senha</label>
-                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600">
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600 text-slate-900">
                 </div>
-                <button type="submit" class="w-full py-3 bg-[#002d72] hover:bg-blue-900 text-white font-extrabold rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <label class="flex items-center gap-2 text-slate-600 font-semibold cursor-pointer select-none">
+                        <input type="checkbox" id="lembrar-dispositivo" class="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"> Lembrar neste dispositivo
+                    </label>
+                    <button type="button" onclick="window.esqueciMinhaSenha()" class="text-blue-600 hover:text-blue-800 font-bold transition cursor-pointer">Esqueci a senha?</button>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-[#002d72] hover:bg-blue-900 text-white font-extrabold rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-2">
                     <i class="fa-solid fa-right-to-bracket"></i> Entrar
                 </button>
             </form>
@@ -85,7 +93,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- ESTOQUE (COM ESTOQUE NOVOS E USADOS) -->
+                    <!-- ESTOQUE -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-estoque">
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-cyan-400"></i> Estoque <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
@@ -96,7 +104,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- ADMINISTRATIVO ( COM VEÍCULOS GERENCIAL, PAINEL ADMIN, USUÁRIOS, SOLICITAÇÕES ) -->
+                    <!-- ADMINISTRATIVO -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-admin">
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-shield-halved text-purple-400"></i> Administrativo <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[32rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
@@ -109,7 +117,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- FINANCEIRO (COM DESPESAS, COMISSÕES AZUL, CONSUMÍVEIS, REPRESENTANTES, DASHBOARD) -->
+                    <!-- FINANCEIRO -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-financeiro">
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-sack-dollar text-amber-400"></i> Financeiro <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 right-0 mt-1 w-[38rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
@@ -256,10 +264,30 @@ window.fazerLogout = () => signOut(auth);
 
 window.handleLogin = async (e) => {
     e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const lembrar = document.getElementById('lembrar-dispositivo')?.checked || false;
+
     try {
-        await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value);
+        await setPersistence(auth, lembrar ? browserLocalPersistence : browserSessionPersistence);
+        await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-        alert("Erro no login: Usuário ou senha incorretos.");
+        alert("Erro no login: E-mail ou senha incorretos.");
+    }
+};
+
+window.esqueciMinhaSenha = async () => {
+    const email = document.getElementById('auth-email').value.trim();
+    if (!email) {
+        alert("Por favor, preencha o campo de e-mail corporativo primeiro para recuperar a senha.");
+        document.getElementById('auth-email').focus();
+        return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert("E-mail de redefinição de senha enviado com sucesso! Verifique sua caixa de entrada.");
+    } catch (err) {
+        alert("Erro ao enviar e-mail de recuperação: " + err.message);
     }
 };
 
@@ -328,11 +356,11 @@ onAuthStateChanged(auth, async (user) => {
         const isAdminTotal = dbUser.perfil === 'Admin';
         const vg = dbUser.visaoGlobalPorTela || {};
         
-        window.userVisaoDespesas = isAdminTotal || vg.despesas === true;
-        window.userVisaoComissoes = isAdminTotal || vg.comissoes === true;
-        window.userVisaoVeiculos = isAdminTotal || vg.veiculos === true;
-        window.userVisaoRanking = isAdminTotal || vg.ranking === true;
-        window.userVisaoSolicitacoes = isAdminTotal || vg.solicitacoes === true;
+        window.userVisaoDespesas = isAdminTotal || vg['despesas.html'] === true || vg.despesas === true;
+        window.userVisaoComissoes = isAdminTotal || vg['comissoes-azul.html'] === true || vg.comissoes === true;
+        window.userVisaoVeiculos = isAdminTotal || vg['veiculos.html'] === true || vg['veiculos_mobile.html'] === true || vg.veiculos === true;
+        window.userVisaoRanking = isAdminTotal || vg['ranking.html'] === true || vg.ranking === true;
+        window.userVisaoSolicitacoes = isAdminTotal || vg['solicitacoes-lista.html'] === true || vg.solicitacoes === true;
         window.userVisaoGlobal = isAdminTotal;
 
         window.aplicarPermissoesDeModulos(dbUser);
@@ -341,6 +369,6 @@ onAuthStateChanged(auth, async (user) => {
         else loginScreen.classList.add('hidden'); 
     } else {
         loginScreen.classList.remove('hidden');
-        document.getElementById('auth-form').classList.add('hidden');
+        document.getElementById('auth-form').classList.remove('hidden');
     }
 });
