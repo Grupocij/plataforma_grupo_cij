@@ -14,35 +14,394 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        
+        /* Estilos customizados para os blocos redimensionáveis */
+        .resizable-box { resize: vertical; overflow: auto; min-height: 380px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- CONTEÚDO PRINCIPAL (EXCLUSIVO DA INDEX) -->
+    <!-- CONTEÚDO PRINCIPAL (INDEX COM MURAL E CALENDÁRIO) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center space-y-4 mt-4">
-            <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-2 shadow-inner border border-blue-100">
-                <i class="fa-solid fa-house"></i>
+        <!-- BOAS-VINDAS COMPACTAS -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg font-bold border border-blue-100 shrink-0">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Portal CIJ • Início</h2>
+                    <p class="text-xs text-slate-500 font-medium">Gestão operacional, mural de avisos e agenda compartilhada da equipe.</p>
+                </div>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Bem-vindo ao Portal CIJ</h2>
-            <p class="text-sm text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
-                Sistema integrado de gestão operacional, comercial e financeira.<br>
-                Utilize o menu superior ou a barra de pesquisa para acessar seus módulos.
-            </p>
+            <div class="flex items-center gap-2">
+                <button onclick="window.alternarLayoutHome()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer" title="Inverter Layout / Posição">
+                    <i class="fa-solid fa-shuffle"></i> Inverter Posição
+                </button>
+            </div>
         </div>
 
+        <!-- GRID PRINCIPAL: MURAL E CALENDÁRIO (REDIMENSIONÁVEIS) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="home-grid-container">
+            
+            <!-- MURAL DE RECADOS (LADO ESQUERDO / COLUNA 5) -->
+            <section class="lg:col-span-5 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box shadow-sm" id="box-mural">
+                <div class="space-y-4 flex flex-col h-full">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-note-sticky text-amber-500"></i> Mural de Recados
+                        </h3>
+                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">Compartilhado</span>
+                    </div>
+
+                    <!-- Formulário para Novo Recado -->
+                    <form onsubmit="window.publicarRecado(event)" class="space-y-2.5">
+                        <textarea id="novo_recado_texto" rows="2" required placeholder="Escreva um aviso ou recado para a equipe..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 font-medium resize-none"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i> Publicar Recado
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Lista de Recados -->
+                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 min-h-[220px]" id="lista-recados-container">
+                        <!-- Injetado via Firebase -->
+                    </div>
+                </div>
+                <div class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Dica: Arraste a borda inferior para redimensionar este bloco.</div>
+            </section>
+
+            <!-- CALENDÁRIO COMPARTILHADO (LADO DIREITO / COLUNA 7) -->
+            <section class="lg:col-span-7 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between resizable-box shadow-sm" id="box-calendario">
+                <div class="space-y-4 flex flex-col h-full">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-blue-600"></i> Agenda de Agendamentos (Técnica & Visitas)
+                        </h3>
+                        <button onclick="window.abrirModalAgendamento()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Novo Agendamento
+                        </button>
+                    </div>
+
+                    <!-- Legenda de Cores -->
+                    <div class="flex items-center gap-4 text-xs font-semibold text-slate-600">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Assistência Técnica</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Visita Comercial</span>
+                    </div>
+
+                    <!-- Exibição do Calendário / Agendamentos do Mês -->
+                    <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <button onclick="window.mudarMesAgenda(-1)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="label-mes-agenda" class="text-xs font-black text-slate-900 uppercase">Agosto de 2026</span>
+                        <button onclick="window.mudarMesAgenda(1)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <!-- Lista de Agendamentos do Mês -->
+                    <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 min-h-[220px]" id="lista-agenda-container">
+                        <!-- Injetado via Firebase -->
+                    </div>
+                </div>
+                <div class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100 mt-2">Dica: Arraste a borda inferior para redimensionar este bloco.</div>
+            </section>
+
+        </div>
     </main>
 
-    <!-- MOTOR CENTRAL DO SISTEMA (Puxa menu, login, etc) -->
+    <!-- MODAL DE NOVO AGENDAMENTO -->
+    <div id="modalAgendamento" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900"><i class="fa-solid fa-calendar-plus text-blue-600 mr-2"></i> Novo Agendamento</h3>
+                <button onclick="window.fecharModalAgendamento()" class="text-slate-400 hover:text-red-500 text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="agendaForm" onsubmit="window.salvarAgendamento(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Tipo de Compromisso *</label>
+                    <select id="ag_tipo" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold outline-none focus:border-blue-600 cursor-pointer">
+                        <option value="tecnica">🔧 Assistência Técnica</option>
+                        <option value="comercial">🤝 Visita Comercial</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Cliente / Empresa *</label>
+                    <input type="text" id="ag_cliente" required placeholder="Nome do cliente" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Data *</label>
+                        <input type="date" id="ag_data" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Horário *</label>
+                        <input type="time" id="ag_horario" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 cursor-pointer">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Responsável / Técnico *</label>
+                    <input type="text" id="ag_responsavel" required placeholder="Nome do responsável" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Observações / Detalhes</label>
+                    <textarea id="ag_obs" rows="2" placeholder="Detalhes do atendimento..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-600 resize-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="window.fecharModalAgendamento()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-sm transition cursor-pointer">Salvar Agendamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÃO TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
+    </div>
+
+    <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA EXCLUSIVA DA HOME -->
+    <!-- LÓGICA DA HOME (MURAL E CALENDÁRIO) -->
     <script>
+        window.listaRecados = [];
+        window.listaAgenda = [];
+        let dataAtualAgenda = new Date();
+
         window.initModule = function(perfil) {
-            // Como é a Home, todos que passam pelo login podem ver o painel de boas-vindas
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            const recadosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados');
+            const agendaCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada');
+
+            // Sincronizar Mural em tempo real
+            window.fsOnSnapshot(recadosCol, (snap) => {
+                window.listaRecados = [];
+                snap.forEach(d => window.listaRecados.push(d.data()));
+                window.renderizarRecados();
+            });
+
+            // Sincronizar Agenda em tempo real
+            window.fsOnSnapshot(agendaCol, (snap) => {
+                window.listaAgenda = [];
+                snap.forEach(d => window.listaAgenda.push(d.data()));
+                window.renderizarAgenda();
+            });
+
+            document.getElementById('ag_data').valueAsDate = new Date();
+        };
+
+        window.mostrarNotificacao = function(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
+        };
+
+        // --- MURAL DE RECADOS ---
+        window.publicarRecado = function(e) {
+            e.preventDefault();
+            const texto = document.getElementById('novo_recado_texto').value.trim();
+            if (!texto) return;
+
+            const userEmail = window.currentUser ? window.currentUser.email : 'Usuário';
+            const userName = window.nomeUsuarioLogado || userEmail.split('@')[0].toUpperCase();
+            const agora = new Date();
+
+            const recado = {
+                id: Date.now().toString(),
+                texto: texto,
+                autor: userName,
+                emailAutor: userEmail,
+                dataHora: agora.toLocaleString('pt-BR'),
+                timestamp: agora.getTime(),
+                lidoPor: []
+            };
+
+            try {
+                window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados', recado.id), recado);
+                document.getElementById('novo_recado_texto').value = '';
+                window.mostrarNotificacao('Recado publicado com sucesso!');
+            } catch (err) {
+                alert("Erro ao publicar recado: " + err.message);
+            }
+        };
+
+        window.toggleLidoRecado = function(id) {
+            const recado = window.listaRecados.find(r => r.id === id);
+            if (!recado) return;
+
+            const userEmail = window.currentUser ? window.currentUser.email : '';
+            if (!recado.lidoPor) recado.lidoPor = [];
+
+            const idx = recado.lidoPor.indexOf(userEmail);
+            if (idx > -1) {
+                recado.lidoPor.splice(idx, 1);
+            } else {
+                recado.lidoPor.push(userEmail);
+            }
+
+            try {
+                window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados', id), recado);
+            } catch(e) {}
+        };
+
+        window.excluirRecado = function(id) {
+            if (confirm('Deseja realmente apagar este recado?')) {
+                try {
+                    window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'mural_recados', id));
+                    window.mostrarNotificacao('Recado removido.');
+                } catch(e) {}
+            }
+        };
+
+        window.renderizarRecados = function() {
+            const container = document.getElementById('lista-recados-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            window.listaRecados.sort((a, b) => b.timestamp - a.timestamp);
+
+            if (window.listaRecados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">Nenhum recado no mural no momento.</p>`;
+                return;
+            }
+
+            const userEmail = window.currentUser ? window.currentUser.email : '';
+
+            window.listaRecados.forEach(r => {
+                const lidoPor = r.lidoPor || [];
+                const jaLido = lidoPor.includes(userEmail);
+                const isAutor = r.emailAutor === userEmail || window.userVisaoGlobal;
+
+                container.innerHTML += `
+                    <div class="p-3.5 bg-slate-50 border ${jaLido ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'} rounded-2xl space-y-2 transition">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="font-bold text-slate-900"><i class="fa-solid fa-user-circle text-amber-500 mr-1"></i> ${r.autor}</span>
+                            <span class="text-slate-400 text-[10px]"><i class="fa-regular fa-clock mr-1"></i> ${r.dataHora}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-medium">${r.texto}</p>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                            <button onclick="window.toggleLidoRecado('${r.id}')" class="font-bold text-xs ${jaLido ? 'text-emerald-600 hover:text-emerald-700' : 'text-slate-500 hover:text-slate-700'} flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid ${jaLido ? 'fa-square-check' : 'fa-square'}"></i> ${jaLido ? 'Lido' : 'Marcar como Lido'} (${lidoPor.length})
+                            </button>
+                            ${isAutor ? `<button onclick="window.excluirRecado('${r.id}')" class="text-red-500 hover:text-red-700 text-xs cursor-pointer"><i class="fa-solid fa-trash-can"></i> Excluir</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        // --- CALENDÁRIO / AGENDA COMPARTILHADA ---
+        window.abrirModalAgendamento = function() {
+            document.getElementById('agendaForm').reset();
+            document.getElementById('ag_data').valueAsDate = new Date();
+            document.getElementById('modalAgendamento').classList.remove('hidden');
+        };
+
+        window.fecharModalAgendamento = function() {
+            document.getElementById('modalAgendamento').classList.add('hidden');
+        };
+
+        window.mudarMesAgenda = function(dir) {
+            dataAtualAgenda.setMonth(dataAtualAgenda.getMonth() + dir);
+            window.renderizarAgenda();
+        };
+
+        window.salvarAgendamento = function(e) {
+            e.preventDefault();
+            const item = {
+                id: Date.now().toString(),
+                tipo: document.getElementById('ag_tipo').value, // 'tecnica' ou 'comercial'
+                cliente: document.getElementById('ag_cliente').value.trim(),
+                data: document.getElementById('ag_data').value,
+                horario: document.getElementById('ag_horario').value,
+                responsavel: document.getElementById('ag_responsavel').value.trim(),
+                obs: document.getElementById('ag_obs').value.trim(),
+                autor: window.currentUser ? window.currentUser.email : ''
+            };
+
+            try {
+                window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada', item.id), item);
+                window.fecharModalAgendamento();
+                window.mostrarNotificacao('Agendamento salvo com sucesso!');
+            } catch (err) {
+                alert("Erro ao salvar agendamento: " + err.message);
+            }
+        };
+
+        window.excluirAgendamento = function(id) {
+            if (confirm('Deseja realmente cancelar este agendamento?')) {
+                try {
+                    window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_compartilhada', id));
+                    window.mostrarNotificacao('Agendamento cancelado.');
+                } catch(e) {}
+            }
+        };
+
+        window.renderizarAgenda = function() {
+            const container = document.getElementById('lista-agenda-container');
+            const labelMes = document.getElementById('label-mes-agenda');
+            if (!container || !labelMes) return;
+
+            const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const ano = dataAtualAgenda.getFullYear();
+            const mes = dataAtualAgenda.getMonth();
+            labelMes.innerText = `${mesesNomes[mes]} de ${ano}`;
+
+            container.innerHTML = '';
+
+            const mesStr = `${ano}-${String(mes + 1).padStart(2, '0')}`;
+            const agendamentosMes = window.listaAgenda.filter(a => a.data && a.data.startsWith(mesStr));
+
+            agendamentosMes.sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
+
+            if (agendamentosMes.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">Nenhum agendamento para este mês.</p>`;
+                return;
+            }
+
+            agendamentosMes.forEach(a => {
+                const isTecnica = a.tipo === 'tecnica';
+                const corBadge = isTecnica ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-100 text-blue-800 border-blue-300';
+                const corBorda = isTecnica ? 'border-emerald-500' : 'border-blue-600';
+                const icone = isTecnica ? 'fa-wrench text-emerald-600' : 'fa-handshake text-blue-600';
+                const tipoTexto = isTecnica ? 'Assistência Técnica' : 'Visita Comercial';
+
+                const dataFmt = a.data.split('-').reverse().join('/');
+
+                container.innerHTML += `
+                    <div class="p-3.5 bg-slate-50 border-l-4 ${corBorda} border border-slate-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${corBadge}"><i class="fa-solid ${icone} mr-1"></i> ${tipoTexto}</span>
+                                <span class="font-bold text-xs text-slate-900">${a.cliente}</span>
+                            </div>
+                            <p class="text-xs text-slate-600 font-semibold"><i class="fa-regular fa-calendar mr-1 text-slate-400"></i> ${dataFmt} às ${a.horario} | <i class="fa-solid fa-user-tie ml-1 mr-1 text-slate-400"></i> ${a.responsavel}</p>
+                            ${a.obs ? `<p class="text-[11px] text-slate-500 italic">${a.obs}</p>` : ''}
+                        </div>
+                        <button onclick="window.excluirAgendamento('${a.id}')" class="text-red-500 hover:text-red-700 text-xs p-1.5 transition cursor-pointer" title="Cancelar Agendamento"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+            });
+        };
+
+        // --- BOTÃO PARA INVERTER LAYOUT DA HOME ---
+        window.alternarLayoutHome = function() {
+            const grid = document.getElementById('home-grid-container');
+            if (!grid) return;
+            if (grid.classList.contains('flex-col-reverse')) {
+                grid.classList.remove('flex-col-reverse', 'lg:flex-row-reverse');
+                window.mostrarNotificacao('Layout padrão restaurado.');
+            } else {
+                grid.classList.add('flex-col-reverse', 'lg:flex-row-reverse');
+                window.mostrarNotificacao('Posições invertidas com sucesso!');
+            }
         };
     </script>
 </body>
