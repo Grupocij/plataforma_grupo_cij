@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Chart.js & ExcelJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -19,11 +18,19 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+        
+        @keyframes blink-animation {
+            0% { opacity: 1; background-color: #f59e0b; }
+            50% { opacity: 0.6; background-color: #d97706; }
+            100% { opacity: 1; background-color: #f59e0b; }
+        }
+        .blinking-alert { animation: blink-animation 1s infinite; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO COMISSÕES) -->
+    <!-- ÁREA CENTRAL DE CONTEÚDO (COMISSÕES AZUL) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
 
         <!-- TÍTULO DO MÓDULO -->
@@ -31,27 +38,28 @@
             <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                 <i class="fa-solid fa-chart-line text-blue-600"></i> Painel de Comissões Azul
             </h2>
-            <p class="text-sm text-slate-500 mt-1">Gestão, cálculos e previsões de liquidação de comissões da equipe.</p>
+            <p class="text-sm text-slate-500 mt-1">Gestão, cálculos e previsões de liquidação de comissões.</p>
         </div>
 
         <!-- NAVEGAÇÃO INTERNA DE ABAS -->
         <nav class="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-full overflow-x-auto">
-            <button onclick="window.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap">
+            <button onclick="window.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap cursor-pointer">
                 <i class="fa-solid fa-ranking-star text-sm"></i><span>Ranking & Dashboard</span>
             </button>
-            <button onclick="window.switchTab('nova-venda')" id="tab-btn-nova-venda" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap">
-                <i class="fa-solid fa-file-circle-plus text-sm"></i><span>Lançar NF / Venda</span>
+            <button onclick="window.switchTab('nova-venda')" id="tab-btn-nova-venda" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
+                <i class="fa-solid fa-file-circle-plus text-sm"></i><span>Lançar NF</span>
             </button>
-            <button onclick="window.switchTab('historico')" id="tab-btn-historico" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap">
-                <i class="fa-solid fa-list-check text-sm"></i><span>Histórico & Filtros</span>
+            <button onclick="window.switchTab('historico')" id="tab-btn-historico" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
+                <i class="fa-solid fa-list-check text-sm"></i><span>Histórico</span>
             </button>
-            <button onclick="window.switchTab('resumo')" id="tab-btn-resumo" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap">
+            <button onclick="window.switchTab('resumo')" id="tab-btn-resumo" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
                 <i class="fa-solid fa-chart-bar text-sm"></i><span>Resumo Quinzenal</span>
             </button>
         </nav>
 
         <!-- TAB 1: DASHBOARD DE RANKING -->
         <section id="tab-dashboard" class="tab-content space-y-4">
+            
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-blue-600"></i> Desempenho e Metas</h3>
                 <div class="flex items-center gap-2">
@@ -60,6 +68,7 @@
                 </div>
             </div>
 
+            <!-- KPIs Gerais do Mês -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Total de Vendas</p>
@@ -79,9 +88,11 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Ranking de Vendedores -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                     <h4 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2 flex items-center justify-between">
-                        <span>Ranking de Vendedores</span><i class="fa-solid fa-trophy text-amber-500"></i>
+                        <span>Ranking de Vendedores</span>
+                        <i class="fa-solid fa-trophy text-amber-500"></i>
                     </h4>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left text-xs border-collapse">
@@ -98,9 +109,11 @@
                     </div>
                 </div>
 
+                <!-- Vendas por Categoria/Produto -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                     <h4 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2 flex items-center justify-between">
-                        <span>Performance de Produtos</span><i class="fa-solid fa-boxes-stacked text-blue-500"></i>
+                        <span>Performance de Produtos</span>
+                        <i class="fa-solid fa-boxes-stacked text-blue-500"></i>
                     </h4>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left text-xs border-collapse">
@@ -125,7 +138,7 @@
                     <h3 id="formTitleAzul" class="text-base font-bold text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-cart-plus text-blue-600"></i> Nova Venda
                     </h3>
-                    <button type="button" id="btnCancelEditAzul" onclick="window.resetFormAzul()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-sm">
+                    <button type="button" id="btnCancelEditAzul" onclick="window.resetFormAzul()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-xmark"></i> Cancelar Edição
                     </button>
                 </div>
@@ -226,7 +239,6 @@
                             </select>
                         </div>
                         
-                        <!-- PARCELAMENTO -->
                         <div id="azul_containerInstallments" class="hidden">
                             <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nº de Parcelas</label>
                             <input type="number" id="azul_installmentsCount" min="1" max="72" value="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
@@ -254,7 +266,7 @@
                     </div>
 
                     <div class="flex justify-end pt-4 border-t border-slate-100 mt-4">
-                        <button type="submit" id="btnSubmitAzul" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-md text-xs flex items-center gap-2">
+                        <button type="submit" id="btnSubmitAzul" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-save"></i> Salvar Venda
                         </button>
                     </div>
@@ -269,7 +281,7 @@
                     <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-filter text-blue-600"></i> Histórico e Filtros
                     </h3>
-                    <button onclick="window.exportToExcelAzul()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                    <button onclick="window.exportToExcelAzul()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-file-excel"></i> Exportar
                     </button>
                 </div>
@@ -285,15 +297,15 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Venda De</label>
-                        <input type="date" id="azul_filterDateFrom" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600">
+                        <input type="date" id="azul_filterDateFrom" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600 cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Venda Até</label>
-                        <input type="date" id="azul_filterDateTo" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600">
+                        <input type="date" id="azul_filterDateTo" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600 cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mês Pagamento</label>
-                        <input type="month" id="azul_filterPrevMonth" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600 cursor-pointer" title="Mês da Liberação">
+                        <input type="month" id="azul_filterPrevMonth" onchange="window.renderTableAzul()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600 cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Quinzena</label>
@@ -331,10 +343,8 @@
                                 <th class="py-3 px-3 text-center no-print">Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBodyAzul" class="divide-y divide-slate-200 bg-white text-slate-700">
-                        </tbody>
-                        <tfoot id="tableFooterAzul" class="bg-slate-50 font-bold border-t border-slate-200 text-slate-900">
-                        </tfoot>
+                        <tbody id="tableBodyAzul" class="divide-y divide-slate-200 bg-white text-slate-700"></tbody>
+                        <tfoot id="tableFooterAzul" class="bg-slate-50 font-bold border-t border-slate-200 text-slate-900"></tfoot>
                     </table>
                 </div>
                 
@@ -362,7 +372,7 @@
             <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-indigo-600"></i> Relatório de Comissões Quinzenal
+                        <i class="fa-solid fa-chart-column text-indigo-600"></i> Relatório de Comissões por Vendedor / Quinzena
                     </h3>
                 </div>
                 
@@ -415,32 +425,30 @@
                                 <th class="p-3 text-right">Total Comissão</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBodyResumo" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
-                        </tbody>
-                        <tfoot id="tableFooterResumo" class="bg-slate-50/80 font-bold border-t border-slate-300 text-slate-900">
-                        </tfoot>
+                        <tbody id="tableBodyResumo" class="divide-y divide-slate-200 font-medium bg-white text-slate-700"></tbody>
+                        <tfoot id="tableFooterResumo" class="bg-slate-50/80 font-bold border-t border-slate-300 text-slate-900"></tfoot>
                     </table>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- MOTOR CENTRAL DO SISTEMA (Puxa menu, login, firebase, etc) -->
+    <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
     <!-- LÓGICA DO MÓDULO COMISSÕES AZUL -->
     <script>
-        window.listaComissoesAzul = JSON.parse(localStorage.getItem('banco_comissoes_azul_cij') || '[]');
         let azul_editingIndex = null;
         let azul_sortColumn = 'date';
         let azul_sortAsc = false;
+        
         let azulCurrentPage = 1;
         let azulRowsPerPage = 10;
+
         let resumoChartMonthInstance = null;
         let resumoChartSellerInstance = null;
+        window.listaComissoesAzul = [];
 
-        // BANCO DA MATRIZ COMERCIAL DE MÁQUINAS
         const matrizComissoes = {
             'INKJET': [
                 { modelo: 'LEADJET V8820 (3 LINHAS)', faixas: [ {preco: 32000.80, com: 10}, {preco: 31040.78, com: 9}, {preco: 30080.75, com: 8}, {preco: 29120.73, com: 7}, {preco: 28160.70, com: 6}, {preco: 27200.68, com: 5}, {preco: 25920.65, com: 4}, {preco: 24640.62, com: 3}, {preco: 23360.58, com: 2}, {preco: 21840.55, com: 1} ] },
@@ -478,48 +486,6 @@
             ]
         };
 
-        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
-        window.initModule = function(perfil) {
-            // Técnicos são barrados nas Comissões
-            if (perfil === 'Técnico') {
-                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito ao Módulo Comercial.</span>';
-                window.fazerLogout();
-                return;
-            }
-
-            // Exibe a tela principal
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-
-            // Conecta ao banco de dados específico (comissoes_azul) usando o Firebase Global
-            const comissoesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul');
-            
-            window.fsOnSnapshot(comissoesCol, (snap) => {
-                window.listaComissoesAzul = [];
-                snap.forEach(d => window.listaComissoesAzul.push(d.data()));
-                localStorage.setItem('banco_comissoes_azul_cij', JSON.stringify(window.listaComissoesAzul));
-                
-                if (typeof window.renderTableAzul === 'function') window.renderTableAzul();
-                if (typeof window.renderDashboard === 'function' && !document.getElementById('tab-dashboard').classList.contains('hidden')) window.renderDashboard();
-                if (typeof window.renderResumo === 'function' && !document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
-            });
-
-            // Preparar Datas e Filtros
-            const d = new Date();
-            const curMonthStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
-            const curDay = d.getDate();
-            const curQuinzena = curDay <= 15 ? '1' : '2';
-
-            document.getElementById('azul_date').valueAsDate = new Date();
-            if(document.getElementById('dash_filterMonth')) document.getElementById('dash_filterMonth').value = curMonthStr;
-            if(document.getElementById('azul_filterPrevMonth')) document.getElementById('azul_filterPrevMonth').value = curMonthStr;
-            if(document.getElementById('azul_filterPrevQuinzena')) document.getElementById('azul_filterPrevQuinzena').value = curQuinzena;
-            if(document.getElementById('resumo_filterPrevMonth')) document.getElementById('resumo_filterPrevMonth').value = curMonthStr;
-            if(document.getElementById('resumo_filterPrevQuinzena')) document.getElementById('resumo_filterPrevQuinzena').value = curQuinzena;
-
-            window.onChangeItemTypeAzul();
-        };
-
         window.safeGetVal = (id) => document.getElementById(id)?.value || '';
         window.safeSetVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).value = val; };
         window.safeSetText = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
@@ -531,6 +497,45 @@
             return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         };
         
+        window.mostrarModalConfirm = (t, m, cb) => { if(confirm(m)) cb(); };
+
+        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            const fieldVendedor = document.getElementById('azul_sellerName');
+            if (fieldVendedor && !fieldVendedor.value) {
+                fieldVendedor.value = window.nomeUsuarioLogado || '';
+            }
+
+            document.getElementById('azul_date').valueAsDate = new Date();
+            const d = new Date();
+            const curMonthStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+            const curDay = d.getDate();
+            const curQuinzena = curDay <= 15 ? '1' : '2';
+
+            if(document.getElementById('dash_filterMonth')) document.getElementById('dash_filterMonth').value = curMonthStr;
+            if(document.getElementById('azul_filterPrevMonth')) document.getElementById('azul_filterPrevMonth').value = curMonthStr;
+            if(document.getElementById('azul_filterPrevQuinzena')) document.getElementById('azul_filterPrevQuinzena').value = curQuinzena;
+            if(document.getElementById('resumo_filterPrevMonth')) document.getElementById('resumo_filterPrevMonth').value = curMonthStr;
+            if(document.getElementById('resumo_filterPrevQuinzena')) document.getElementById('resumo_filterPrevQuinzena').value = curQuinzena;
+
+            window.onChangeItemTypeAzul();
+
+            const comissoesAzulCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul');
+            
+            window.fsOnSnapshot(comissoesAzulCol, (snap) => {
+                let loaded = [];
+                snap.forEach(d => loaded.push(d.data()));
+                window.listaComissoesAzul = loaded;
+
+                window.renderTableAzul();
+                if(!document.getElementById('tab-dashboard').classList.contains('hidden')) window.renderDashboard();
+                if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
+            });
+        };
+
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById(`tab-${tabId}`);
@@ -540,21 +545,25 @@
             navBtns.forEach(id => {
                 const btn = document.getElementById(`tab-btn-${id}`);
                 if (btn) {
-                    if (id === tabId) btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap";
-                    else btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap";
+                    if (id === tabId) {
+                        btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-sm whitespace-nowrap cursor-pointer";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 whitespace-nowrap cursor-pointer";
+                    }
                 }
             });
 
             if (tabId === 'dashboard') window.renderDashboard();
             if (tabId === 'historico') { azulCurrentPage = 1; window.renderTableAzul(); }
             if (tabId === 'resumo') { window.renderResumo(); }
-        }
+        };
 
         window.onChangeItemTypeAzul = function() {
             const val = document.getElementById('azul_itemType').value;
             const recCont = document.getElementById('azul_containerRecorrencia');
             const startInp = document.getElementById('azul_startDate');
             const endInp = document.getElementById('azul_endDate');
+
             const catCont = document.getElementById('azul_containerCategoria');
             const modCont = document.getElementById('azul_containerModelo');
             const catSel = document.getElementById('azul_machineCategory');
@@ -563,31 +572,44 @@
 
             if (val === 'Locação' || val === 'Contrato') {
                 recCont.classList.remove('hidden');
-                startInp.required = true; endInp.required = true;
+                startInp.required = true;
+                endInp.required = true;
             } else {
                 recCont.classList.add('hidden');
-                startInp.required = false; endInp.required = false;
+                startInp.required = false;
+                endInp.required = false;
             }
 
             if (val === 'Maquina') {
-                catCont.classList.remove('hidden'); modCont.classList.remove('hidden');
-                catSel.required = true; modSel.required = true;
-                commInp.readOnly = true; commInp.classList.add('bg-indigo-100', 'cursor-not-allowed', 'opacity-80');
+                catCont.classList.remove('hidden');
+                modCont.classList.remove('hidden');
+                catSel.required = true;
+                modSel.required = true;
+                commInp.readOnly = true;
+                commInp.classList.add('bg-indigo-100', 'cursor-not-allowed', 'opacity-80');
             } else {
-                catCont.classList.add('hidden'); modCont.classList.add('hidden');
-                catSel.required = false; modSel.required = false; catSel.value = '';
+                catCont.classList.add('hidden');
+                modCont.classList.add('hidden');
+                catSel.required = false;
+                modSel.required = false;
+                catSel.value = '';
                 modSel.innerHTML = '<option value="">Selecione a Categoria</option>';
-                commInp.readOnly = false; commInp.classList.remove('bg-indigo-100', 'cursor-not-allowed', 'opacity-80');
+                commInp.readOnly = false;
+                commInp.classList.remove('bg-indigo-100', 'cursor-not-allowed', 'opacity-80');
             }
+
             window.calcularComissaoMaquina();
         };
 
         window.onChangeMachineCategory = function() {
             const cat = document.getElementById('azul_machineCategory').value;
             const modSel = document.getElementById('azul_machineModel');
+            
             modSel.innerHTML = '<option value="">Selecione o Modelo...</option>';
             if (cat && matrizComissoes[cat]) {
-                matrizComissoes[cat].forEach(m => modSel.innerHTML += `<option value="${m.modelo}">${m.modelo}</option>`);
+                matrizComissoes[cat].forEach(m => {
+                    modSel.innerHTML += `<option value="${m.modelo}">${m.modelo}</option>`;
+                });
             }
             window.calcularComissaoMaquina();
         };
@@ -595,15 +617,20 @@
         window.calcularComissaoMaquina = function() {
             const itemType = document.getElementById('azul_itemType').value;
             const commInp = document.getElementById('azul_commissionPercent');
+            
             if (itemType !== 'Maquina') return;
             
             const cat = document.getElementById('azul_machineCategory').value;
             const mod = document.getElementById('azul_machineModel').value;
+            
             let saleValueStr = document.getElementById('azul_saleValue').value;
             if (typeof saleValueStr === 'string') saleValueStr = saleValueStr.replace(',', '.');
             const saleValue = parseFloat(saleValueStr) || 0;
             
-            if (!cat || !mod || saleValue <= 0) { commInp.value = ''; return; }
+            if (!cat || !mod || saleValue <= 0) {
+                commInp.value = '';
+                return;
+            }
             
             const machineData = matrizComissoes[cat].find(m => m.modelo === mod);
             if (machineData) {
@@ -627,9 +654,11 @@
             const contInst = document.getElementById('azul_containerInstallments');
             const contInt = document.getElementById('azul_containerInterval');
             if (isParcelado) {
-                contInst.classList.remove('hidden'); contInt.classList.remove('hidden');
+                contInst.classList.remove('hidden');
+                contInt.classList.remove('hidden');
             } else {
-                contInst.classList.add('hidden'); contInt.classList.add('hidden');
+                contInst.classList.add('hidden');
+                contInt.classList.add('hidden');
             }
         };
 
@@ -648,7 +677,8 @@
             } else if (day >= 15 && day <= 29) {
                 payDay = 30;
             } else {
-                payDay = 15; payMonth++;
+                payDay = 15;
+                payMonth++;
                 if (payMonth > 11) { payMonth = 0; payYear++; }
             }
 
@@ -656,13 +686,10 @@
             if (payDay > lastDayOfPayMonth) payDay = lastDayOfPayMonth;
 
             return `${String(payDay).padStart(2, '0')}/${String(payMonth + 1).padStart(2, '0')}/${payYear}`;
-        }
+        };
 
         window.getCommissionEligibilityAzul = function(sale) {
-            let entryPercent;
-            if (typeof sale.entryPercent === 'string') entryPercent = parseFloat(sale.entryPercent.replace(',', '.')) || 0;
-            else entryPercent = parseFloat(sale.entryPercent) || 0;
-            
+            let entryPercent = parseFloat(sale.entryPercent) || 0;
             const paymentCond = sale.paymentCond || (entryPercent >= 100 ? 'À Vista' : 'Parcelado');
             const itemType = sale.itemType;
             const clientType = sale.clientType;
@@ -670,7 +697,7 @@
             const sellerLower = (sale.sellerName || '').toLowerCase().trim();
             if (sellerLower.includes('juliana bazacas') && itemType === 'Consumíveis' && clientType === 'Atual') {
                 const payDateStr = window.getNextPaymentDateAzul(sale.date);
-                return { unlocked: true, info: `VIP (${payDateStr})`, detail: `VIP Consumíveis (Cliente Atual)`, class: 'text-purple-800 bg-purple-100 border-purple-300', payDateStr: payDateStr };
+                return { unlocked: true, info: `VIP (${payDateStr})`, detail: `VIP Consumíveis (Cliente Atual)`, class: 'text-purple-800 bg-purple-100 border-purple-300', payDateStr };
             }
 
             if (itemType === 'Locação' || itemType === 'Contrato') {
@@ -686,23 +713,12 @@
                         payDateStr = `${String(15).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
                     }
                 }
-                const start = sale.startDate ? sale.startDate.split('-').reverse().join('/') : '-';
-                const end = sale.endDate ? sale.endDate.split('-').reverse().join('/') : '-';
-                return { unlocked: true, info: `Dia 15 (${payDateStr})`, detail: `Válido de ${start} a ${end}`, class: 'text-indigo-800 bg-indigo-100 border-indigo-300', payDateStr: payDateStr };
+                return { unlocked: true, info: `Dia 15 (${payDateStr})`, detail: `Contrato de Locação`, class: 'text-indigo-800 bg-indigo-100 border-indigo-300', payDateStr };
             }
 
             if (itemType === 'Consumíveis' || itemType === 'Corpo de Prova') {
-                if (paymentCond === 'À Vista' || entryPercent > 0) {
-                    const payDate = window.getNextPaymentDateAzul(sale.date);
-                    return { unlocked: true, info: `1º Pgto (${payDate})`, detail: `Valor de entrada já recebido.`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
-                } else {
-                    const intervalDays = parseInt(sale.installmentInterval) || 30;
-                    const saleDateObj = new Date(sale.date + 'T00:00:00');
-                    saleDateObj.setDate(saleDateObj.getDate() + intervalDays);
-                    const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
-                    const payDate = window.getNextPaymentDateAzul(targetDateStr);
-                    return { unlocked: false, info: `1ª Parc (${payDate})`, detail: `Libera no pagamento da 1ª parcela.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
-                }
+                const payDate = window.getNextPaymentDateAzul(sale.date);
+                return { unlocked: true, info: `1º Pgto (${payDate})`, detail: `Liberado no 1º pagamento.`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
             }
 
             const isSpecialRule = (itemType === 'Alternativo') && clientType === 'Novo';
@@ -711,7 +727,7 @@
             if (paymentCond === 'À Vista' || entryPercent >= requiredPercent) {
                 const payDate = window.getNextPaymentDateAzul(sale.date);
                 const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Entrada (${payDate})`;
-                return { unlocked: true, info: label, detail: `Previsão de pagamento em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+                return { unlocked: true, info: label, detail: `Previsão em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
             }
 
             const installments = parseInt(sale.installmentsCount) || 1;
@@ -724,15 +740,11 @@
 
             const saleDateObj = new Date(sale.date + 'T00:00:00');
             saleDateObj.setDate(saleDateObj.getDate() + (k * intervalDays));
-
             const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
             const payDate = window.getNextPaymentDateAzul(targetDateStr);
 
-            const isQuitacao = (requiredPercent === 100);
-            const label = isQuitacao ? `Quitação (${k}ª Parc - ${payDate})` : `${k}ª Parc (${payDate})`;
-
-            return { unlocked: false, info: label, detail: isQuitacao ? `Requer 100% na ${k}ª parc.` : `Atinge 20% na ${k}ª parc.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
-        }
+            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Atinge ${requiredPercent}%`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
+        };
 
         window.getFilteredSalesAzul = function(module) {
             const seller = safeGetVal(module === 'resumo' ? 'resumo_filterSeller' : 'azul_filterSeller').toLowerCase();
@@ -743,13 +755,9 @@
             const prevMonth = safeGetVal(module === 'resumo' ? 'resumo_filterPrevMonth' : 'azul_filterPrevMonth');
             const prevQuinzena = safeGetVal(module === 'resumo' ? 'resumo_filterPrevQuinzena' : 'azul_filterPrevQuinzena');
 
-            const isVisaoLimitada = window.userVisaoGlobal === false;
-            const currentUserEmail = window.currentUser ? window.currentUser.email : '';
-
             return window.listaComissoesAzul.filter(s => {
-                // FILTRO DE VISÃO (GLOBAL VS RESTRITA)
-                if (isVisaoLimitada && s.autor !== currentUserEmail) return false;
-                
+                if (window.userVisaoGlobal === false && s.autor !== window.currentUser.email) return false;
+
                 if (module === 'resumo') {
                     if (status === 'Pago' && s.status !== 'Pago') return false;
                     if (status === 'Pendente' && (s.status === 'Pago' || s.status === 'Inadimplente')) return false;
@@ -801,16 +809,14 @@
         };
 
         window.mudarStatusAzul = function(id, novoStatus) {
-            if (!window.isUserAdminOrFinance) return;
             const idx = window.listaComissoesAzul.findIndex(s => s.id === id);
             if(idx > -1) {
                 window.listaComissoesAzul[idx].status = novoStatus;
-                localStorage.setItem('banco_comissoes_azul_cij', JSON.stringify(window.listaComissoesAzul));
                 try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', id), window.listaComissoesAzul[idx]); } catch(e){}
                 window.renderTableAzul();
                 if(!document.getElementById('tab-dashboard').classList.contains('hidden')) window.renderDashboard();
                 if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
-                if(window.mostrarNotificacao) window.mostrarNotificacao(`Status alterado para ${novoStatus}`);
+                window.mostrarNotificacao(`Status alterado para ${novoStatus}`);
             }
         };
 
@@ -818,7 +824,8 @@
             let filtered = window.getFilteredSalesAzul('historico');
 
             filtered.sort((a, b) => {
-                let valA = a[azul_sortColumn] || ''; let valB = b[azul_sortColumn] || '';
+                let valA = a[azul_sortColumn] || '';
+                let valB = b[azul_sortColumn] || '';
                 if (typeof valA === 'string') valA = valA.toLowerCase();
                 if (typeof valB === 'string') valB = valB.toLowerCase();
                 if (valA < valB) return azul_sortAsc ? -1 : 1;
@@ -836,10 +843,7 @@
             if(!tbody) return;
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500 font-medium">Nenhum registro encontrado para este filtro de quinzena.</td></tr>`;
-                if(document.getElementById('azulPageInfo')) document.getElementById('azulPageInfo').innerText = `Pág. 1`;
-                if(document.getElementById('btnAzulPrev')) document.getElementById('btnAzulPrev').disabled = true;
-                if(document.getElementById('btnAzulNext')) document.getElementById('btnAzulNext').disabled = true;
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500 font-medium">Nenhum registro encontrado.</td></tr>`;
             } else {
                 const totalPages = Math.ceil(filtered.length / azulRowsPerPage);
                 if (azulCurrentPage > totalPages) azulCurrentPage = totalPages || 1;
@@ -852,35 +856,22 @@
                 paginatedData.forEach((sale) => {
                     const saleVal = parseFloat(sale.saleValue) || 0;
                     const commVal = parseFloat(sale.commissionValue) || 0;
-                    let entryPercentStr = sale.entryPercent;
-                    if (typeof entryPercentStr === 'number') entryPercentStr = entryPercentStr.toString().replace('.', ',');
-
                     const elig = window.getCommissionEligibilityAzul(sale);
                     const dateFormatted = sale.date ? sale.date.split('-').reverse().join('/') : '-';
 
-                    let acoes = `-`;
-                    if (window.isUserAdminOrFinance || sale.autor === (window.currentUser ? window.currentUser.email : '')) {
-                        acoes = `
-                            <button onclick="window.editSaleAzul('${sale.id}')" title="Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="window.deleteSaleAzul('${sale.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button>
-                        `;
-                    }
+                    let acoes = `
+                        <button onclick="window.editSaleAzul('${sale.id}')" title="Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="window.deleteSaleAzul('${sale.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+                    `;
 
                     const stat = sale.status || 'Pendente';
-                    let btnStatus = `<span class="px-2 py-1 rounded-md text-[10px] font-bold border bg-amber-100 text-amber-800 border-amber-300">⏳ Pendente</span>`;
-                    if (stat === 'Pago') btnStatus = `<span class="px-2 py-1 rounded-md text-[10px] font-bold border bg-emerald-100 text-emerald-800 border-emerald-300">✓ Pago</span>`;
-                    else if (stat === 'Inadimplente') btnStatus = `<span class="px-2 py-1 rounded-md text-[10px] font-bold border bg-rose-100 text-rose-800 border-rose-300">❌ Inadim.</span>`;
-
-                    if (window.isUserAdminOrFinance) {
-                        const colorClass = stat === 'Pago' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : (stat === 'Inadimplente' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-100 text-amber-800 border-amber-300');
-                        btnStatus = `
-                            <select onchange="window.mudarStatusAzul('${sale.id}', this.value)" class="px-1 py-1.5 rounded-md text-[10px] font-bold border ${colorClass} outline-none cursor-pointer w-[90px]">
-                                <option value="Pendente" ${stat === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
-                                <option value="Pago" ${stat === 'Pago' ? 'selected' : ''}>✓ Pago</option>
-                                <option value="Inadimplente" ${stat === 'Inadimplente' ? 'selected' : ''}>❌ Inadimp.</option>
-                            </select>
-                        `;
-                    }
+                    let btnStatus = `
+                        <select onchange="window.mudarStatusAzul('${sale.id}', this.value)" class="px-1 py-1.5 rounded-md text-[10px] font-bold border ${stat === 'Pago' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'} outline-none cursor-pointer w-[90px]">
+                            <option value="Pendente" ${stat === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                            <option value="Pago" ${stat === 'Pago' ? 'selected' : ''}>✓ Pago</option>
+                            <option value="Inadimplente" ${stat === 'Inadimplente' ? 'selected' : ''}>❌ Inadimp.</option>
+                        </select>
+                    `;
 
                     const itemDisplay = sale.itemType === 'Maquina' && sale.machineModel ? `Maquina<br><span class="text-[9px] text-blue-600 font-bold">${sale.machineModel}</span>` : sale.itemType;
 
@@ -891,9 +882,9 @@
                             <td class="p-3 text-slate-600 text-center">${dateFormatted}</td>
                             <td class="p-3 text-slate-800"><div>${sale.client}</div><span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">${sale.clientType}</span></td>
                             <td class="p-3 text-slate-600 font-bold">${itemDisplay}</td>
-                            <td class="p-3 text-right font-bold text-slate-900">${window.formatarMoeda(saleVal)}</td>
-                            <td class="p-3 text-center text-slate-600 font-bold">${entryPercentStr}%</td>
-                            <td class="p-3 text-right font-black text-indigo-700 bg-indigo-50/50">${window.formatarMoeda(commVal)}</td>
+                            <td class="p-3 text-right font-bold text-slate-900">${formatarMoeda(saleVal)}</td>
+                            <td class="p-3 text-center text-slate-600 font-bold">${sale.entryPercent}%</td>
+                            <td class="p-3 text-right font-black text-indigo-700 bg-indigo-50/50">${formatarMoeda(commVal)}</td>
                             <td class="p-3 text-center"><span title="${elig.detail}" class="inline-block text-[10px] font-bold px-2 py-1 rounded-md border ${elig.class}">${elig.info}</span></td>
                             <td class="p-3 text-center">${btnStatus}</td>
                             <td class="p-3 text-center space-x-1 no-print">${acoes}</td>
@@ -911,9 +902,9 @@
                 tfoot.innerHTML = `
                     <tr>
                         <td colspan="5" class="p-3 text-right uppercase tracking-wider text-xs">Totais do Filtro:</td>
-                        <td class="p-3 text-right font-black text-slate-900">${window.formatarMoeda(totalSalesVal)}</td>
+                        <td class="p-3 text-right font-black text-slate-900">${formatarMoeda(totalSalesVal)}</td>
                         <td class="p-3"></td>
-                        <td class="p-3 text-right font-black text-indigo-800 bg-indigo-100/50">${window.formatarMoeda(totalCommissionVal)}</td>
+                        <td class="p-3 text-right font-black text-indigo-800 bg-indigo-100/50">${formatarMoeda(totalCommissionVal)}</td>
                         <td colspan="3" class="p-3 text-xs text-slate-500 font-medium">(${filtered.length} registro(s))</td>
                     </tr>
                 `;
@@ -922,6 +913,7 @@
 
         window.renderResumo = function() {
             const validSales = window.getFilteredSalesAzul('resumo');
+
             validSales.forEach(s => {
                 const elig = window.getCommissionEligibilityAzul(s);
                 if (elig.payDateStr && elig.payDateStr !== '-') {
@@ -932,7 +924,9 @@
                 }
             });
 
-            const monthMap = {}; const sellerMap = {}; const groupMap = {}; 
+            const monthMap = {};
+            const sellerMap = {};
+            const groupMap = {}; 
 
             validSales.forEach(s => {
                 const val = parseFloat(s.commissionValue) || 0;
@@ -940,7 +934,9 @@
                 sellerMap[s.sellerName] = (sellerMap[s.sellerName] || 0) + val;
                 
                 const gKey = `${s.sellerName}|${s._calc_month}|${s._calc_quinzena}|${s._calc_cat}`;
-                if (!groupMap[gKey]) groupMap[gKey] = { seller: s.sellerName, month: s._calc_month, quinzena: s._calc_quinzena, cat: s._calc_cat, total: 0 };
+                if (!groupMap[gKey]) {
+                    groupMap[gKey] = { seller: s.sellerName, month: s._calc_month, quinzena: s._calc_quinzena, cat: s._calc_cat, total: 0 };
+                }
                 groupMap[gKey].total += val;
             });
 
@@ -953,8 +949,9 @@
                 });
                 
                 let grandTotal = 0;
-                if (rows.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">Nenhum dado para os filtros atuais.</td></tr>`;
-                else {
+                if (rows.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">Nenhum dado encontrado.</td></tr>`;
+                } else {
                     tbody.innerHTML = rows.map(r => {
                         grandTotal += r.total;
                         return `
@@ -963,12 +960,21 @@
                             <td class="p-3 text-slate-600 text-center font-bold border-r border-slate-100">${r.month}</td>
                             <td class="p-3 text-slate-600 text-center border-r border-slate-100">${r.quinzena}</td>
                             <td class="p-3 text-indigo-700 font-bold border-r border-slate-100">${r.cat}</td>
-                            <td class="p-3 text-right font-black text-slate-800 bg-indigo-50/30">${window.formatarMoeda(r.total)}</td>
+                            <td class="p-3 text-right font-black text-slate-800 bg-indigo-50/30">${formatarMoeda(r.total)}</td>
                         </tr>
-                    `}).join('');
+                    `;
+                    }).join('');
                 }
+
                 const tfoot = document.getElementById('tableFooterResumo');
-                if (tfoot) tfoot.innerHTML = `<tr><td colspan="4" class="p-3 text-right uppercase tracking-wider text-xs">Total do Lote:</td><td class="p-3 text-right font-black text-indigo-900 bg-indigo-100/50">${window.formatarMoeda(grandTotal)}</td></tr>`;
+                if (tfoot) {
+                    tfoot.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="p-3 text-right uppercase tracking-wider text-xs">Total do Lote:</td>
+                            <td class="p-3 text-right font-black text-indigo-900 bg-indigo-100/50">${formatarMoeda(grandTotal)}</td>
+                        </tr>
+                    `;
+                }
             }
 
             const ctxMonth = document.getElementById('resumoChartMonth');
@@ -976,7 +982,11 @@
                 if (resumoChartMonthInstance) resumoChartMonthInstance.destroy();
                 const labels = Object.keys(monthMap).sort();
                 const data = labels.map(l => monthMap[l]);
-                resumoChartMonthInstance = new Chart(ctxMonth, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Comissões (R$)', data: data, backgroundColor: '#4f46e5', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+                resumoChartMonthInstance = new Chart(ctxMonth, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ label: 'Comissões (R$)', data: data, backgroundColor: '#4f46e5', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
             }
 
             const ctxSeller = document.getElementById('resumoChartSeller');
@@ -984,21 +994,29 @@
                 if (resumoChartSellerInstance) resumoChartSellerInstance.destroy();
                 const labels = Object.keys(sellerMap);
                 const data = Object.values(sellerMap);
-                resumoChartSellerInstance = new Chart(ctxSeller, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'], borderWidth: 2, borderColor: '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } } } });
+                resumoChartSellerInstance = new Chart(ctxSeller, {
+                    type: 'doughnut',
+                    data: { labels: labels, datasets: [{ data: data, backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'], borderWidth: 2, borderColor: '#ffffff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } } }
+                });
             }
         };
 
         window.renderDashboard = function() {
             const monthFilter = document.getElementById('dash_filterMonth')?.value; 
             let filtered = window.listaComissoesAzul;
-            if (monthFilter) filtered = filtered.filter(s => s.date && s.date.startsWith(monthFilter));
+            if (monthFilter) {
+                filtered = filtered.filter(s => s.date && s.date.startsWith(monthFilter));
+            }
 
-            const isVisaoLimitada = window.userVisaoGlobal === false;
-            const myEmail = window.currentUser ? window.currentUser.email : '';
-            if (isVisaoLimitada) filtered = filtered.filter(s => s.autor === myEmail);
+            if (window.userVisaoGlobal === false) {
+                filtered = filtered.filter(s => s.autor === window.currentUser.email);
+            }
 
             let tSales = 0, tComm = 0, tMachines = 0;
-            const sellerMap = {}; const catMap = {};
+            let pendentes = 0, pagas = 0;
+            const sellerMap = {};
+            const catMap = {};
 
             filtered.forEach(s => {
                 const val = parseFloat(s.saleValue) || 0;
@@ -1006,37 +1024,64 @@
                 const isMachine = s.itemType === 'Maquina';
                 const catLabel = isMachine ? `Máquina - ${s.machineCategory}` : s.itemType;
                 
-                tSales += val; tComm += comm; if (isMachine) tMachines += 1;
+                tSales += val;
+                tComm += comm;
+                if (isMachine) tMachines += 1;
+
+                if (s.status === 'Pago') pagas += comm;
+                else if ((s.status || 'Pendente') === 'Pendente') pendentes += comm;
 
                 if(!sellerMap[s.sellerName]) sellerMap[s.sellerName] = { qtd: 0, val: 0, comm: 0 };
-                sellerMap[s.sellerName].qtd += 1; sellerMap[s.sellerName].val += val; sellerMap[s.sellerName].comm += comm;
+                sellerMap[s.sellerName].qtd += 1;
+                sellerMap[s.sellerName].val += val;
+                sellerMap[s.sellerName].comm += comm;
 
                 if(!catMap[catLabel]) catMap[catLabel] = { qtd: 0, val: 0 };
-                catMap[catLabel].qtd += 1; catMap[catLabel].val += val;
+                catMap[catLabel].qtd += 1;
+                catMap[catLabel].val += val;
             });
 
-            safeSetText('dash_totalSales', window.formatarMoeda(tSales));
-            safeSetText('dash_totalComm', window.formatarMoeda(tComm));
+            safeSetText('dash_totalSales', formatarMoeda(tSales));
+            safeSetText('dash_totalComm', formatarMoeda(tComm));
             safeSetText('dash_totalMachines', tMachines);
 
             const sellerTbody = document.getElementById('dash_sellerRanking');
             const sortedSellers = Object.keys(sellerMap).sort((a,b) => sellerMap[b].val - sellerMap[a].val);
             if(sellerTbody) {
-                if(sortedSellers.length === 0) sellerTbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500 font-medium">Nenhuma venda no período.</td></tr>';
-                else sellerTbody.innerHTML = sortedSellers.map(name => {
-                    const row = sellerMap[name];
-                    return `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-2.5 font-bold text-slate-800">${name}</td><td class="p-2.5 text-center font-bold text-slate-600">${row.qtd}</td><td class="p-2.5 text-right font-bold text-blue-700">${window.formatarMoeda(row.val)}</td><td class="p-2.5 text-right font-black text-indigo-600">${window.formatarMoeda(row.comm)}</td></tr>`;
-                }).join('');
+                if(sortedSellers.length === 0) {
+                    sellerTbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500 font-medium">Nenhuma venda no período.</td></tr>';
+                } else {
+                    sellerTbody.innerHTML = sortedSellers.map(name => {
+                        const row = sellerMap[name];
+                        return `
+                            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                                <td class="p-2.5 font-bold text-slate-800">${name}</td>
+                                <td class="p-2.5 text-center font-bold text-slate-600">${row.qtd}</td>
+                                <td class="p-2.5 text-right font-bold text-blue-700">${formatarMoeda(row.val)}</td>
+                                <td class="p-2.5 text-right font-black text-indigo-600">${formatarMoeda(row.comm)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
             }
 
             const catTbody = document.getElementById('dash_catRanking');
             const sortedCats = Object.keys(catMap).sort((a,b) => catMap[b].val - catMap[a].val);
             if(catTbody) {
-                if(sortedCats.length === 0) catTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-500 font-medium">Nenhum item vendido.</td></tr>';
-                else catTbody.innerHTML = sortedCats.map(name => {
-                    const row = catMap[name];
-                    return `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-2.5 font-bold text-slate-800">${name}</td><td class="p-2.5 text-center font-bold text-slate-600">${row.qtd}</td><td class="p-2.5 text-right font-bold text-blue-700">${window.formatarMoeda(row.val)}</td></tr>`;
-                }).join('');
+                if(sortedCats.length === 0) {
+                    catTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-500 font-medium">Nenhum item vendido.</td></tr>';
+                } else {
+                    catTbody.innerHTML = sortedCats.map(name => {
+                        const row = catMap[name];
+                        return `
+                            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                                <td class="p-2.5 font-bold text-slate-800">${name}</td>
+                                <td class="p-2.5 text-center font-bold text-slate-600">${row.qtd}</td>
+                                <td class="p-2.5 text-right font-bold text-blue-700">${formatarMoeda(row.val)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
             }
         };
 
@@ -1095,13 +1140,14 @@
                 window.listaComissoesAzul.push(saleData);
             }
 
-            localStorage.setItem('banco_comissoes_azul_cij', JSON.stringify(window.listaComissoesAzul));
             try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', saleData.id), saleData); } catch(e){}
 
-            window.resetFormAzul(); window.renderTableAzul(); window.renderDashboard();
+            window.resetFormAzul();
+            window.renderTableAzul();
+            window.renderDashboard();
             if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
             window.switchTab('historico');
-            if(window.mostrarNotificacao) window.mostrarNotificacao('Venda salva com sucesso!');
+            window.mostrarNotificacao('Venda salva com sucesso!');
         };
 
         window.editSaleAzul = function(id) {
@@ -1118,18 +1164,23 @@
             safeSetVal('azul_startDate', sale.startDate || '');
             safeSetVal('azul_endDate', sale.endDate || '');
             
-            let sv = sale.saleValue; let cp = sale.commissionPercent; let ep = sale.entryPercent;
+            let sv = sale.saleValue;
+            let cp = sale.commissionPercent;
+            let ep = sale.entryPercent;
+            
             if (typeof sv === 'number') sv = sv.toString().replace('.', ',');
             if (typeof cp === 'number') cp = cp.toString().replace('.', ',');
             if (typeof ep === 'number') ep = ep.toString().replace('.', ',');
 
-            safeSetVal('azul_saleValue', sv); safeSetVal('azul_entryPercent', ep);
+            safeSetVal('azul_saleValue', sv);
+            safeSetVal('azul_entryPercent', ep);
             safeSetVal('azul_paymentCond', sale.paymentCond || 'À Vista');
             safeSetVal('azul_installmentsCount', sale.installmentsCount || 1);
             safeSetVal('azul_installmentInterval', sale.installmentInterval || 30);
             safeSetVal('azul_commissionPercent', cp);
 
             window.onChangeItemTypeAzul();
+            
             if (sale.itemType === 'Maquina') {
                 safeSetVal('azul_machineCategory', sale.machineCategory || '');
                 window.onChangeMachineCategory();
@@ -1141,6 +1192,7 @@
             safeSetText('formTitleAzul', "Editar Venda");
             document.getElementById('btnSubmitAzul').innerHTML = '<i class="fa-solid fa-save"></i> Atualizar Venda';
             document.getElementById('btnCancelEditAzul').classList.remove('hidden');
+
             window.switchTab('nova-venda');
         };
 
@@ -1151,24 +1203,25 @@
             document.getElementById('btnSubmitAzul').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Venda';
             document.getElementById('btnCancelEditAzul').classList.add('hidden');
             document.getElementById('azul_date').valueAsDate = new Date();
-            window.onChangeItemTypeAzul(); window.updatePaymentFieldsAzul();
+            window.onChangeItemTypeAzul();
+            window.updatePaymentFieldsAzul();
         };
 
         window.deleteSaleAzul = function(id) {
-            if(confirm('Deseja remover esta venda?')) {
+            window.mostrarModalConfirm('Excluir Venda', 'Deseja remover esta venda?', () => {
                 window.listaComissoesAzul = window.listaComissoesAzul.filter(s => s.id !== id);
-                localStorage.setItem('banco_comissoes_azul_cij', JSON.stringify(window.listaComissoesAzul));
                 try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', id)); } catch(e){}
-                window.renderTableAzul(); window.renderDashboard();
+                window.renderTableAzul();
+                window.renderDashboard();
                 if(!document.getElementById('tab-resumo').classList.contains('hidden')) window.renderResumo();
-                if(window.mostrarNotificacao) window.mostrarNotificacao('Venda removida.');
-            }
+                window.mostrarNotificacao('Venda removida.');
+            });
         };
 
         window.exportToExcelAzul = async function() {
-            if (typeof ExcelJS === 'undefined') { if(window.mostrarNotificacao) window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
+            if (typeof ExcelJS === 'undefined') { window.mostrarNotificacao('Carregando biblioteca Excel...', true); return; }
             const filteredData = window.getFilteredSalesAzul();
-            if (filteredData.length === 0) { if(window.mostrarNotificacao) window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+            if (filteredData.length === 0) { window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
 
             const wb = new ExcelJS.Workbook();
             const ws = wb.addWorksheet('Comissões Azul');
@@ -1211,7 +1264,7 @@
 
             const buffer = await wb.xlsx.writeBuffer();
             saveAs(new Blob([buffer]), `Comissoes_Azul_${new Date().toISOString().slice(0, 10)}.xlsx`);
-            if(window.mostrarNotificacao) window.mostrarNotificacao('Exportado com sucesso!');
+            window.mostrarNotificacao('Exportado com sucesso!');
         };
     </script>
 </body>
