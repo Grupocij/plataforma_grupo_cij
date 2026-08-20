@@ -109,8 +109,9 @@
         window.listaDeUsuarios = [];
         let editingUserId = null;
 
-        // Lista completa de todos os módulos reais da aplicação
+        // Lista completa de todos os módulos reais da aplicação (incluindo o Suporte Mobile)
         const TODOS_MODULOS = [
+            { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
             { id: 'veiculos_mobile.html', nome: 'Veículos Mobile', cat: 'Serviços' },
             { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
             { id: 'simulador.html', nome: 'Simulador Financeiro', cat: 'Comercial' },
@@ -122,7 +123,7 @@
             { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Estoque' },
             { id: 'vendas.html', nome: 'Vendas (Saídas)', cat: 'Administrativo' },
             { id: 'usuarios.html', nome: 'Gerenciar Usuários', cat: 'Administrativo' },
-            { id: 'painel_administrativo.html', nome: 'Painel Diretoria', cat: 'Administrativo' },
+            { id: 'admin.html', nome: 'Painel Diretoria', cat: 'Administrativo' },
             { id: 'despesas.html', nome: 'Controle de Despesas', cat: 'Financeiro' },
             { id: 'dashboard_despesas.html', nome: 'Dashboard Gerencial', cat: 'Financeiro' },
             { id: 'comissoes-azul.html', nome: 'Comissões Azul', cat: 'Financeiro' },
@@ -179,7 +180,6 @@
             const card = checkbox.closest('div.bg-slate-50');
             const btn = card.querySelector('button');
             if (!checkbox.checked) {
-                // Se desmarcar o módulo, desativa a visão global por segurança
                 btn.setAttribute('data-global', 'false');
                 btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
                 btn.textContent = "Desativada";
@@ -190,7 +190,6 @@
             const card = btn.closest('div.bg-slate-50');
             const checkbox = card.querySelector('.mod-checkbox');
             
-            // Se tentar ativar a visão global, garante que o módulo está marcado como permitido
             if (!checkbox.checked) {
                 checkbox.checked = true;
             }
@@ -271,7 +270,6 @@
                 const modId = cb.value;
                 cb.checked = modulosUser.includes(modId);
 
-                // Configura o botão de visão global correspondente
                 const card = cb.closest('div.bg-slate-50');
                 const btn = card.querySelector('button');
                 const isGlobal = vg[modId] === true;
