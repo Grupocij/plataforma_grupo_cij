@@ -259,7 +259,7 @@
             </div>
         </section>
 
-        <!-- TAB 3: HISTÓRICO COM DESMEMBRAMENTO E CHECKLIST DE PAGAMENTO -->
+        <!-- TAB 3: HISTÓRICO COM DESMEMBRAMENTO -->
         <section id="tab-historico" class="tab-content hidden space-y-6">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
                 <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-3 gap-3">
@@ -795,30 +795,31 @@
             const isSpecialRule = itens.some(i => i.tipo === 'Alternativo') && sale.clientType === 'Novo';
             const requiredPercent = isSpecialRule ? 100 : 20;
 
-            // Se o pagamento da entrada já foi confirmado manualmente via checklist, libera na hora!
-            if (sale.entradaPagaManual || paymentCond === 'À Vista' || entryPercent >= requiredPercent) {
-                const payDate = sale.dataEntrada ? window.getNextPaymentDateAzul(sale.dataEntrada) : window.getNextPaymentDateAzul(sale.date);
-                const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Liberado (${payDate})`;
-                return { unlocked: true, info: label, detail: `Previsão de Pagamento em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+            let acumuladoAtual = 0;
+            if (sale.entradaPagaManual) {
+                acumuladoAtual += entryPercent;
             }
 
             const installments = parseInt(sale.installmentsCount) || 1;
             const intervalDays = parseInt(sale.installmentInterval) || 30;
             const percentPerInstallment = installments > 0 ? (100 - entryPercent) / installments : (100 - entryPercent);
 
+            if (sale.parcelasPagasManual && Array.isArray(sale.parcelasPagasManual)) {
+                sale.parcelasPagasManual.forEach(pNum => {
+                    acumuladoAtual += percentPerInstallment;
+                });
+            }
+
+            if (paymentCond === 'À Vista' || acumuladoAtual >= requiredPercent) {
+                const baseDate = sale.dataEntrada || sale.date;
+                const payDate = window.getNextPaymentDateAzul(baseDate);
+                const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Liberado (${payDate})`;
+                return { unlocked: true, info: label, detail: `Atingiu ${acumuladoAtual.toFixed(1)}% - Pagamento em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+            }
+
             let k = Math.ceil((requiredPercent - entryPercent) / percentPerInstallment);
             if (k < 1) k = 1;
             if (k > installments) k = installments;
-
-            // Se a parcela exata 'k' teve o pagamento confirmado manualmente, libera!
-            if (sale.parcelasPagasManual && sale.parcelasPagasManual.includes(k)) {
-                const baseDateStr = sale.dataPrimeiraParcela || sale.date;
-                const saleDateObj = new Date(baseDateStr + 'T00:00:00');
-                saleDateObj.setDate(saleDateObj.getDate() + ((k - 1) * intervalDays));
-                const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
-                const payDate = window.getNextPaymentDateAzul(targetDateStr);
-                return { unlocked: true, info: `Liberado (${payDate})`, detail: `Confirmado pagamento da ${k}ª parcela`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
-            }
 
             const baseDateStr = sale.dataPrimeiraParcela || sale.date;
             const saleDateObj = new Date(baseDateStr + 'T00:00:00');
@@ -827,7 +828,7 @@
             
             const payDate = window.getNextPaymentDateAzul(targetDateStr);
 
-            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Atinge ${requiredPercent}% na ${k}ª parcela - Pgto em ${payDate}`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
+            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Acumulado atual: ${acumuladoAtual.toFixed(1)}% (Exige ${requiredPercent}%) - Pagamento em ${payDate}`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
         };
 
         window.getFilteredSalesAzul = function(module) {
@@ -887,7 +888,6 @@
             }
         };
 
-        // ALTERAR STATUS DE PAGAMENTO MANUAL DA ENTRADA OU PARCELA NO DESMEMBRAMENTO
         window.togglePagamentoManual = function(saleId, tipo, parcelaNum = null) {
             const sale = window.listaComissoesAzul.find(s => s.id === saleId);
             if (!sale) return;
@@ -909,7 +909,12 @@
             sale.previsao_liberacao = elig.payDateStr || '-';
 
             try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', sale.id), sale); } catch(e){}
+            
+            // Re-renderiza a tabela mantendo o painel de desmembramento aberto
             window.renderTableAzul();
+            const rowDesm = document.getElementById(`desmembramento-${saleId}`);
+            if (rowDesm) rowDesm.classList.remove('hidden');
+
             if(!document.getElementById('tab-proximos-pagamentos').classList.contains('hidden')) window.renderProximosPagamentos();
             showToast('Confirmação de pagamento atualizada!', 'success');
         };
@@ -952,7 +957,6 @@
                     </select>
                 `;
 
-                // Monta o checklist de parcelas para confirmação de pagamento no desmembramento
                 const entryPct = sale.entryPercent || 20;
                 const parcelasCount = sale.installmentsCount || 1;
                 const isParcelado = sale.paymentCond === 'Parcelado';
