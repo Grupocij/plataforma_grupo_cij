@@ -39,7 +39,6 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2 pointer-events-none no-print"></div>
 
-    <!-- ÁREA CENTRAL COM SCROLL LIVRE E FLUIDO -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 hidden" id="main-content">
 
         <!-- CABEÇALHO INTERNO -->
@@ -50,7 +49,7 @@
                 </div>
                 <div>
                     <h2 class="text-xl font-black text-slate-900 tracking-tight">Registro de Vendas</h2>
-                    <p class="text-xs text-slate-500 font-medium mt-0.5">Gestão de NFs com múltiplos itens, cálculos e previsões</p>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Gestão de NFs com múltiplos itens, quantidades, cálculos e previsões</p>
                 </div>
             </div>
             
@@ -143,15 +142,15 @@
             </div>
         </section>
 
-        <!-- TAB 2: LANÇAR NF COM MÚLTIPLOS ITENS -->
+        <!-- TAB 2: LANÇAR NF COM MÚLTIPLOS ITENS E QUANTIDADE -->
         <section id="tab-nova-venda" class="tab-content hidden space-y-6">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
                 <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h3 id="formTitleAzul" class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Lançar Nota Fiscal (Múltiplos Itens)
+                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Lançar Nota Fiscal (Múltiplos Itens & Quantidade)
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1">Adicione vários itens na mesma NF. O sistema calcula a comissão individualmente para cada linha.</p>
+                        <p class="text-xs text-slate-500 mt-1">Adicione vários itens, informe a quantidade e datas de entrada/parcelas.</p>
                     </div>
                     <button type="button" id="btnCancelEditAzul" onclick="window.resetFormAzul()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-xmark"></i> Cancelar Edição
@@ -193,23 +192,29 @@
                             </select>
                         </div>
                         <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da Entrada *</label>
+                            <input type="date" id="azul_dataEntrada" required class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-blue-600 transition cursor-pointer">
+                        </div>
+                        <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Entrada Global (%) *</label>
                             <input type="number" step="0.1" min="0" max="100" id="azul_entryPercent" required value="20" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-black outline-none focus:border-blue-600 transition shadow-inner">
                         </div>
+
                         <div id="azul_containerInstallments" class="hidden">
                             <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº de Parcelas</label>
                             <input type="number" id="azul_installmentsCount" min="1" max="72" value="1" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition">
                         </div>
                         <div id="azul_containerInterval" class="hidden">
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Intervalo (dias)</label>
-                            <select id="azul_installmentInterval" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
-                                <option value="30" selected>30 dias</option>
-                                <option value="15">15 dias</option>
-                            </select>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Intervalo (dias - Digite)</label>
+                            <input type="number" id="azul_installmentInterval" min="1" value="30" placeholder="Ex: 30" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-bold outline-none focus:border-blue-600 transition">
+                        </div>
+                        <div id="azul_containerPrimeiraParcela" class="hidden">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da 1ª Parcela</label>
+                            <input type="date" id="azul_dataPrimeiraParcela" class="w-full bg-white px-3 py-2 border border-slate-300 text-slate-900 rounded-xl text-xs font-medium outline-none focus:border-blue-600 transition cursor-pointer">
                         </div>
                     </div>
 
-                    <!-- TABELA DE ITENS DA NF -->
+                    <!-- TABELA DE ITENS DA NF COM QTD -->
                     <div>
                         <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
                             <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -221,14 +226,15 @@
                         </div>
 
                         <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl">
-                            <table class="w-full text-left text-xs border-collapse min-w-[900px]">
+                            <table class="w-full text-left text-xs border-collapse min-w-[950px]">
                                 <thead class="bg-slate-900 text-white">
                                     <tr>
-                                        <th class="py-3 px-3 font-bold w-1/4">Tipo de Item</th>
+                                        <th class="py-3 px-3 font-bold w-1/5">Tipo de Item</th>
                                         <th class="py-3 px-3 font-bold w-1/3">Especificação / Máquina</th>
-                                        <th class="py-3 px-3 font-bold text-right w-28">Valor (R$)</th>
-                                        <th class="py-3 px-3 font-bold text-center w-24 text-indigo-300">Comissão (%)</th>
-                                        <th class="py-3 px-3 font-bold text-right w-32 text-emerald-300">Comissão R$</th>
+                                        <th class="py-3 px-2 font-bold text-center w-20">Qtd</th>
+                                        <th class="py-3 px-3 font-bold text-right w-28">Vlr Un (R$)</th>
+                                        <th class="py-3 px-3 font-bold text-center w-24 text-indigo-300">Comis (%)</th>
+                                        <th class="py-3 px-3 font-bold text-right w-32 text-emerald-300">Comis Total R$</th>
                                         <th class="py-3 px-2 font-bold text-center w-12">Ação</th>
                                     </tr>
                                 </thead>
@@ -535,6 +541,9 @@
             }
 
             document.getElementById('azul_date').valueAsDate = new Date();
+            document.getElementById('azul_dataEntrada').valueAsDate = new Date();
+            document.getElementById('azul_dataPrimeiraParcela').valueAsDate = new Date();
+
             const d = new Date();
             const curMonthStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
             const curDay = d.getDate();
@@ -591,16 +600,20 @@
             const isParcelado = document.getElementById('azul_paymentCond').value === 'Parcelado';
             const contInst = document.getElementById('azul_containerInstallments');
             const contInt = document.getElementById('azul_containerInterval');
+            const cont1Parc = document.getElementById('azul_containerPrimeiraParcela');
+
             if (isParcelado) {
                 contInst.classList.remove('hidden');
                 contInt.classList.remove('hidden');
+                cont1Parc.classList.remove('hidden');
             } else {
                 contInst.classList.add('hidden');
                 contInt.classList.add('hidden');
+                cont1Parc.classList.add('hidden');
             }
         };
 
-        // GESTÃO DE MÚLTIPLOS ITENS NO FORMULÁRIO
+        // GESTÃO DE MÚLTIPLOS ITENS COM QUANTIDADE
         window.adicionarLinhaItemAzul = function() {
             contadorItensAzul++;
             const rowId = `item-azul-${contadorItensAzul}`;
@@ -638,6 +651,9 @@
                         </select>
                     </div>
                     <input type="text" id="desc-${rowId}" placeholder="Descrição ou detalhes..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium outline-none focus:border-blue-600">
+                </td>
+                <td class="py-2.5 px-2">
+                    <input type="number" min="1" id="qtd-${rowId}" oninput="window.calcularLinhaAzul('${rowId}')" required value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-bold text-center outline-none focus:border-blue-600">
                 </td>
                 <td class="py-2.5 px-3">
                     <input type="number" step="0.01" min="0" id="val-${rowId}" oninput="window.calcularLinhaAzul('${rowId}')" required placeholder="0.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-black text-right outline-none focus:border-blue-600 shadow-inner">
@@ -696,6 +712,7 @@
 
         window.calcularLinhaAzul = function(rowId) {
             const tipo = document.getElementById(`tipo-${rowId}`).value;
+            const qtd = parseInt(document.getElementById(`qtd-${rowId}`).value) || 1;
             const valInput = parseFloat(document.getElementById(`val-${rowId}`).value) || 0;
             const percInput = document.getElementById(`com-perc-${rowId}`);
 
@@ -724,7 +741,8 @@
                 }
             }
 
-            const comissaoVal = valInput * (comissaoPercent / 100);
+            const totalLinhaVal = valInput * qtd;
+            const comissaoVal = totalLinhaVal * (comissaoPercent / 100);
             document.getElementById(`com-val-${rowId}`).textContent = formatarMoeda(comissaoVal);
             window.calcularResumoTotalAzul();
         };
@@ -736,10 +754,13 @@
 
             Array.from(tbody.children).forEach(tr => {
                 const rowId = tr.id;
+                const qtd = parseInt(document.getElementById(`qtd-${rowId}`)?.value) || 1;
                 const v = parseFloat(document.getElementById(`val-${rowId}`)?.value) || 0;
                 const p = parseFloat(document.getElementById(`com-perc-${rowId}`)?.value) || 0;
-                totVenda += v;
-                totComissao += (v * (p / 100));
+                
+                const totalItem = v * qtd;
+                totVenda += totalItem;
+                totComissao += (totalItem * (p / 100));
             });
 
             document.getElementById('resumo-total-venda-azul').textContent = formatarMoeda(totVenda);
@@ -773,7 +794,7 @@
             
             const hasConsumivel = itens.some(i => i.tipo === 'Consumíveis' || i.tipo === 'Corpo de Prova');
             if (hasConsumivel && paymentCond !== 'À Vista') {
-                const payDate = window.getNextPaymentDateAzul(sale.date);
+                const payDate = sale.dataPrimeiraParcela ? window.getNextPaymentDateAzul(sale.dataPrimeiraParcela) : window.getNextPaymentDateAzul(sale.date);
                 return { unlocked: false, info: `1ª Parc (${payDate})`, detail: `Consumíveis - Aguarda 1ª parcela.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
             }
 
@@ -781,7 +802,7 @@
             const requiredPercent = isSpecialRule ? 100 : 20;
 
             if (paymentCond === 'À Vista' || entryPercent >= requiredPercent) {
-                const payDate = window.getNextPaymentDateAzul(sale.date);
+                const payDate = sale.dataEntrada ? window.getNextPaymentDateAzul(sale.dataEntrada) : window.getNextPaymentDateAzul(sale.date);
                 const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Liberado (${payDate})`;
                 return { unlocked: true, info: label, detail: `Previsão em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
             }
@@ -794,8 +815,9 @@
             if (k < 1) k = 1;
             if (k > installments) k = installments;
 
-            const saleDateObj = new Date(sale.date + 'T00:00:00');
-            saleDateObj.setDate(saleDateObj.getDate() + (k * intervalDays));
+            const baseDateStr = sale.dataPrimeiraParcela || sale.date;
+            const saleDateObj = new Date(baseDateStr + 'T00:00:00');
+            saleDateObj.setDate(saleDateObj.getDate() + ((k - 1) * intervalDays));
             const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
             const payDate = window.getNextPaymentDateAzul(targetDateStr);
 
@@ -932,7 +954,8 @@
                                         <tr>
                                             <th class="p-2">Tipo</th>
                                             <th class="p-2">Especificação / Máquina</th>
-                                            <th class="p-2 text-right">Valor Item</th>
+                                            <th class="p-2 text-center">Qtd</th>
+                                            <th class="p-2 text-right">Valor Un</th>
                                             <th class="p-2 text-center">Comissão %</th>
                                             <th class="p-2 text-right text-emerald-700">Comissão R$</th>
                                         </tr>
@@ -942,7 +965,8 @@
                                             <tr>
                                                 <td class="p-2 font-bold text-slate-800">${i.tipo}</td>
                                                 <td class="p-2 text-slate-600">${i.detalhe || '-'}</td>
-                                                <td class="p-2 text-right font-bold text-slate-900">${formatarMoeda(i.valor)}</td>
+                                                <td class="p-2 text-center font-bold text-slate-700">${i.qtd || 1}</td>
+                                                <td class="p-2 text-right font-medium">${formatarMoeda(i.valorUn || i.valor)}</td>
                                                 <td class="p-2 text-center font-bold text-indigo-700">${i.comissaoPercent}%</td>
                                                 <td class="p-2 text-right font-black text-emerald-700">${formatarMoeda(i.comissaoValor)}</td>
                                             </tr>
@@ -1112,15 +1136,16 @@
                 tComm += comm;
 
                 if(!sellerMap[s.sellerName]) sellerMap[s.sellerName] = { qtd: 0, val: 0, comm: 0 };
-                sellerMap[s.sellerName].qtd += (s.itens || []).length;
+                sellerMap[s.sellerName].qtd += (s.itens || []).reduce((acc, i) => acc + (i.qtd || 1), 0);
                 sellerMap[s.sellerName].val += val;
                 sellerMap[s.sellerName].comm += comm;
 
                 (s.itens || []).forEach(i => {
-                    tItens += 1;
+                    const itemQtd = i.qtd || 1;
+                    tItens += itemQtd;
                     if(!catMap[i.tipo]) catMap[i.tipo] = { qtd: 0, val: 0 };
-                    catMap[i.tipo].qtd += 1;
-                    catMap[i.tipo].val += i.valor;
+                    catMap[i.tipo].qtd += itemQtd;
+                    catMap[i.tipo].val += i.valor * itemQtd;
                 });
             });
 
@@ -1162,7 +1187,8 @@
             Array.from(tbody.children).forEach(tr => {
                 const rowId = tr.id;
                 const tipo = document.getElementById(`tipo-${rowId}`).value;
-                const val = parseFloat(document.getElementById(`val-${rowId}`).value) || 0;
+                const qtd = parseInt(document.getElementById(`qtd-${rowId}`).value) || 1;
+                const valUn = parseFloat(document.getElementById(`val-${rowId}`).value) || 0;
                 const perc = parseFloat(document.getElementById(`com-perc-${rowId}`).value) || 0;
                 
                 let detalhe = document.getElementById(`desc-${rowId}`).value.trim();
@@ -1172,10 +1198,12 @@
                     detalhe = `${cat} - ${mod}`;
                 }
 
-                const comVal = val * (perc / 100);
-                totalVenda += val;
+                const totalItemVal = valUn * qtd;
+                const comVal = totalItemVal * (perc / 100);
+                totalVenda += totalItemVal;
                 totalComissao += comVal;
-                itens.push({ tipo, detalhe, valor: val, comissaoPercent: perc, comissaoValor: comVal });
+
+                itens.push({ tipo, detalhe, qtd, valorUn: valUn, valor: totalItemVal, comissaoPercent: perc, comissaoValor: comVal });
             });
 
             if (itens.length === 0) { showToast("Adicione ao menos um item.", "warning"); return; }
@@ -1191,6 +1219,8 @@
                 client: safeGetVal('azul_client'),
                 clientType: safeGetVal('azul_clientType'),
                 paymentCond: safeGetVal('azul_paymentCond'),
+                dataEntrada: safeGetVal('azul_dataEntrada'),
+                dataPrimeiraParcela: safeGetVal('azul_dataPrimeiraParcela'),
                 entryPercent: parseFloat(safeGetVal('azul_entryPercent')) || 20,
                 installmentsCount: parseInt(safeGetVal('azul_installmentsCount')) || 1,
                 installmentInterval: parseInt(safeGetVal('azul_installmentInterval')) || 30,
@@ -1236,6 +1266,8 @@
             safeSetVal('azul_client', sale.client);
             safeSetVal('azul_clientType', sale.clientType);
             safeSetVal('azul_paymentCond', sale.paymentCond || 'À Vista');
+            safeSetVal('azul_dataEntrada', sale.dataEntrada || sale.date);
+            safeSetVal('azul_dataPrimeiraParcela', sale.dataPrimeiraParcela || sale.date);
             safeSetVal('azul_entryPercent', sale.entryPercent || 20);
             safeSetVal('azul_installmentsCount', sale.installmentsCount || 1);
             safeSetVal('azul_installmentInterval', sale.installmentInterval || 30);
@@ -1262,7 +1294,8 @@
                     document.getElementById(`desc-${rowId}`).value = i.detalhe || '';
                 }
 
-                document.getElementById(`val-${rowId}`).value = i.valor;
+                document.getElementById(`qtd-${rowId}`).value = i.qtd || 1;
+                document.getElementById(`val-${rowId}`).value = i.valorUn || (i.valor / (i.qtd || 1));
                 document.getElementById(`com-perc-${rowId}`).value = i.comissaoPercent;
                 window.calcularLinhaAzul(rowId);
             });
@@ -1281,6 +1314,8 @@
             document.getElementById('btnSubmitAzul').innerHTML = '<i class="fa-solid fa-save"></i> Salvar Lançamento';
             document.getElementById('btnCancelEditAzul').classList.add('hidden');
             document.getElementById('azul_date').valueAsDate = new Date();
+            document.getElementById('azul_dataEntrada').valueAsDate = new Date();
+            document.getElementById('azul_dataPrimeiraParcela').valueAsDate = new Date();
             
             const tbody = document.getElementById('itens-azul-tbody');
             tbody.innerHTML = '';
@@ -1289,7 +1324,6 @@
             window.updatePaymentFieldsAzul();
         };
 
-        // EXCLUSÃO COM CONFIRMAÇÃO NATIVA CORRIGIDA
         window.deleteSaleAzul = function(id) {
             if (confirm('Deseja realmente remover esta nota fiscal?')) {
                 window.listaComissoesAzul = window.listaComissoesAzul.filter(s => s.id !== id);
@@ -1326,7 +1360,7 @@
 
                 const row = ws.addRow({
                     sellerName: s.sellerName, nf: s.nf, date: s.date ? s.date.split('-').reverse().join('/') : '',
-                    client: s.client, qtdItens: (s.itens || []).length, saleValue: s.saleValue,
+                    client: s.client, qtdItens: (s.itens || []).reduce((acc, i) => acc + (i.qtd || 1), 0), saleValue: s.saleValue,
                     commissionValue: s.commissionValue, prev: prev, status: s.status || 'Pendente'
                 });
                 row.getCell('saleValue').numFmt = '"R$" #,##0.00';
