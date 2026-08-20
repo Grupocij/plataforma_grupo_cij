@@ -457,6 +457,9 @@
         let resumoChartSellerInstance = null;
         window.listaComissoesAzul = [];
 
+        // Mantém controle de quais linhas de desmembramento estão abertas ativamente na tela
+        window.openDesmembramentosSet = new Set();
+
         const matrizComissoes = {
             'INKJET': [
                 { modelo: 'LEADJET V8820 (3 LINHAS)', faixas: [ {preco: 32000.80, com: 10}, {preco: 31040.78, com: 9}, {preco: 30080.75, com: 8}, {preco: 29120.73, com: 7}, {preco: 28160.70, com: 6}, {preco: 27200.68, com: 5}, {preco: 25920.65, com: 4}, {preco: 24640.62, com: 3}, {preco: 23360.58, com: 2}, {preco: 21840.55, com: 1} ] },
@@ -910,11 +913,10 @@
 
             try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul', sale.id), sale); } catch(e){}
             
-            // Re-renderiza a tabela mantendo o painel de desmembramento aberto
-            window.renderTableAzul();
-            const rowDesm = document.getElementById(`desmembramento-${saleId}`);
-            if (rowDesm) rowDesm.classList.remove('hidden');
+            // Mantém a gaveta aberta para esta NF específica
+            window.openDesmembramentosSet.add(saleId);
 
+            window.renderTableAzul();
             if(!document.getElementById('tab-proximos-pagamentos').classList.contains('hidden')) window.renderProximosPagamentos();
             showToast('Confirmação de pagamento atualizada!', 'success');
         };
@@ -948,6 +950,7 @@
                 const elig = window.getCommissionEligibilityAzul(sale);
                 const dateFormatted = sale.date ? sale.date.split('-').reverse().join('/') : '-';
                 const stat = sale.status || 'Pendente';
+                const isOpen = window.openDesmembramentosSet.has(sale.id);
 
                 let btnStatus = `
                     <select onchange="window.mudarStatusAzul('${sale.id}', this.value)" class="px-1 py-1.5 rounded-md text-[10px] font-bold border ${stat === 'Pago' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'} outline-none cursor-pointer w-[90px]">
@@ -1009,7 +1012,7 @@
                             <button onclick="window.deleteSaleAzul('${sale.id}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>
-                    <tr id="desmembramento-${sale.id}" class="hidden bg-slate-50 border-b border-slate-200">
+                    <tr id="desmembramento-${sale.id}" class="${isOpen ? '' : 'hidden'} bg-slate-50 border-b border-slate-200">
                         <td colspan="11" class="p-3">
                             <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-inner space-y-2">
                                 <div class="flex items-center justify-between text-[11px]">
@@ -1056,7 +1059,14 @@
 
         window.toggleDesmembramento = function(id) {
             const row = document.getElementById(`desmembramento-${id}`);
-            if (row) row.classList.toggle('hidden');
+            if (row) {
+                row.classList.toggle('hidden');
+                if (row.classList.contains('hidden')) {
+                    window.openDesmembramentosSet.delete(id);
+                } else {
+                    window.openDesmembramentosSet.add(id);
+                }
+            }
         };
 
         window.renderProximosPagamentos = function() {
