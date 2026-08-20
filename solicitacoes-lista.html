@@ -3,733 +3,549 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitação CIJ - Portal Grupo CIJ</title>
+    <title>Lista de Solicitações CIJ - Portal Grupo CIJ</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
-        .section-header { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #64748b; }
 
         @media print {
-            @page { size: A4 portrait; margin: 6mm; }
-            body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; font-size: 10px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .no-print { display: none !important; }
-            body > header { display: none !important; }
-            input, select, textarea { border: 1px solid #cbd5e1 !important; background: transparent !important; padding: 4px !important; color: #000 !important; }
-            .section-header { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; padding: 8px !important;}
-            main { padding: 0 !important; max-width: 100% !important; margin-top: 0 !important; height: auto !important; overflow: visible !important; }
-            section { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 10px !important; break-inside: avoid !important; }
-            .p-6 { padding: 12px !important; }
-            .gap-4 { gap: 8px !important; }
-            .mb-1 { margin-bottom: 2px !important; }
-            label { font-size: 9px !important; }
-            input { font-size: 10px !important; }
+            body { background: white !important; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-12 bg-slate-50">
+<body class="min-h-screen pb-12 flex flex-col bg-slate-50">
 
-    <!-- MODAL DE SELEÇÃO DE SOLICITAÇÃO EXISTENTE PARA EDIÇÃO -->
-    <div id="modal-editar-solicitacao" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[80vh]">
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-folder-open text-blue-400"></i> Selecionar Solicitação Salva para Editar</h3>
-                <button onclick="window.fecharModalEditar()" class="text-slate-400 hover:text-white p-1 cursor-pointer"><i class="fa-solid fa-xmark text-base"></i></button>
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <!-- KPIS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total de Solicitações</p>
+                <h3 id="kpiTotalSolicitacoes" class="text-2xl font-black text-emerald-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Cadastradas na base</p>
             </div>
-            <div class="p-4 bg-slate-50 border-b border-slate-200">
-                <input type="text" id="filtro-modal-busca" oninput="window.filtrarListaModal()" placeholder="Buscar por Cliente, Pedido ou Nº Solicitação..." class="w-full bg-white px-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600">
+            <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Valor Geral Estimado</p>
+                <h3 id="kpiValorGeral" class="text-2xl font-black text-blue-950 mt-1">R$ 0,00</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Soma dos pedidos</p>
             </div>
-            <div class="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-2" id="lista-solicitacoes-modal">
-                <p class="text-center text-xs text-slate-500 py-6">Carregando solicitações salvas...</p>
+            <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm hover:shadow-md transition">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-purple-600">Vendedores Ativos</p>
+                <h3 id="kpiVendedores" class="text-2xl font-black text-purple-950 mt-1">0</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Com propostas emitidas</p>
             </div>
-            <div class="p-4 bg-slate-100 border-t border-slate-200 text-right">
-                <button onclick="window.fecharModalEditar()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition cursor-pointer">Fechar</button>
+        </div>
+
+        <!-- FILTROS E TABELA -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5 mb-10">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-3 gap-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-filter text-emerald-600"></i> Histórico de Solicitações CIJ
+                </h3>
+                <div class="flex gap-2">
+                    <button onclick="window.exportarExcelSolicitacoes()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Exportar Lista
+                    </button>
+                    <a href="solicitacao.html" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Nova Solicitação
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar por Cliente</label>
+                    <input type="text" id="filtroCliente" placeholder="Razão social..." oninput="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº Solicitação / Pedido</label>
+                    <input type="text" id="filtroNumero" placeholder="SOL-1001 ou Pedido..." oninput="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendedor</label>
+                    <input type="text" id="filtroVendedor" placeholder="Nome..." oninput="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data De</label>
+                    <input type="date" id="filtroDataDe" onchange="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data Até</label>
+                    <input type="date" id="filtroDataAte" onchange="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600 cursor-pointer">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 custom-scrollbar">
+                <table class="w-full text-left border-collapse min-w-[900px] text-xs">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-bold">
+                            <th class="p-3">Nº Solicitação</th>
+                            <th class="p-3">Data</th>
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">Pedido / Proposta</th>
+                            <th class="p-3">Vendedor</th>
+                            <th class="p-3 text-right">Valor Total</th>
+                            <th class="p-3 text-center no-print">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaSolicitacoes" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DE VISUALIZAÇÃO COMPLETA -->
+    <div id="modalDetalhes" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-[#0f172a] text-white p-5 flex items-center justify-between">
+                <div>
+                    <span id="modalNumSol" class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">SOL-1000</span>
+                    <h3 id="modalRazaoSocial" class="text-lg font-bold mt-1">Nome do Cliente</h3>
+                </div>
+                <button onclick="window.fecharModalDetalhes()" class="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar text-xs text-slate-700">
+                
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-building mr-1"></i> 1. Dados do Cliente</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <div><strong class="text-slate-500 block">Nome Fantasia:</strong> <span id="detFantasia">-</span></div>
+                        <div><strong class="text-slate-500 block">CNPJ / CPF:</strong> <span id="detCnpj">-</span></div>
+                        <div><strong class="text-slate-500 block">Inscrição Estadual:</strong> <span id="detIe">-</span></div>
+                        <div><strong class="text-slate-500 block">CEP:</strong> <span id="detCep">-</span></div>
+                        
+                        <div class="md:col-span-2"><strong class="text-slate-500 block">Endereço Completo:</strong> <span id="detEndereco">-</span></div>
+                        <div><strong class="text-slate-500 block">Cidade / UF:</strong> <span id="detCidade">-</span></div>
+                        <div><strong class="text-slate-500 block">Transportadora:</strong> <span id="detTransportadora">-</span></div>
+                        
+                        <div><strong class="text-slate-500 block">Contato Responsável:</strong> <span id="detContato">-</span></div>
+                        <div><strong class="text-slate-500 block">Telefone / WhatsApp:</strong> <span id="detTelefone">-</span></div>
+                        <div><strong class="text-slate-500 block">E-mail de Contato:</strong> <span id="detEmail">-</span></div>
+                        <div><strong class="text-slate-500 block">E-mail p/ NFe:</strong> <span id="detEmailNfe">-</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-file-contract mr-1"></i> 2. Dados Comerciais</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div><strong class="text-slate-500 block">Nº Pedido:</strong> <span id="detPedido">-</span></div>
+                        <div><strong class="text-slate-500 block">Nº Proposta:</strong> <span id="detProposta">-</span></div>
+                        <div><strong class="text-slate-500 block">Vendedor:</strong> <span id="detVendedor">-</span></div>
+                        <div><strong class="text-slate-500 block">Modalidade:</strong> <span id="detModalidade">-</span></div>
+                        
+                        <div><strong class="text-slate-500 block">Tipo de Frete:</strong> <span id="detFrete">-</span></div>
+                        <div><strong class="text-slate-500 block">Pagamento (Entrada):</strong> <span id="detCondEntrada">-</span></div>
+                        <div class="sm:col-span-2"><strong class="text-slate-500 block">Pagamento (Saldo):</strong> <span id="detCondSaldo">-</span></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-boxes-stacked mr-1"></i> 3. Relação de Itens</h4>
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-900 text-white font-bold">
+                                <tr class="text-[10px] uppercase tracking-wider">
+                                    <th class="p-2.5">Categoria</th>
+                                    <th class="p-2.5">Descrição</th>
+                                    <th class="p-2.5 text-center">Qtd</th>
+                                    <th class="p-2.5 text-right">Preço Unit.</th>
+                                    <th class="p-2.5 text-right text-amber-300">Desconto</th>
+                                    <th class="p-2.5 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detTabelaItens" class="divide-y divide-slate-100 font-medium"></tbody>
+                        </table>
+                    </div>
+                    <div class="text-right font-black text-sm text-emerald-700 pt-1">
+                        Valor Geral: <span id="detValorGeral">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                        <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-cogs mr-1"></i> 4. Condições Técnicas</h4>
+                        <div class="space-y-1">
+                            <div><strong class="text-slate-500">Produto/Substrato:</strong> <span id="detProd">-</span></div>
+                            <div><strong class="text-slate-500">Material:</strong> <span id="detMat">-</span></div>
+                            <div><strong class="text-slate-500">Velocidade:</strong> <span id="detVel">-</span></div>
+                            <div><strong class="text-slate-500">Distância Cabeçote:</strong> <span id="detDist">-</span></div>
+                            <div><strong class="text-slate-500">Sentido Impressão:</strong> <span id="detSentido">-</span></div>
+                            <div><strong class="text-slate-500">Ambiente:</strong> <span id="detAmb">-</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                        <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-user-gear mr-1"></i> 5. Escopo de Instalação</h4>
+                        <div class="space-y-1">
+                            <div><strong class="text-slate-500">Treinamento:</strong> <span id="detTrein">-</span></div>
+                            <div><strong class="text-slate-500">Qtd. Pessoas:</strong> <span id="detPessoas">-</span></div>
+                            <div><strong class="text-slate-500">Suporte/Pedestal:</strong> <span id="detSup">-</span></div>
+                            <div><strong class="text-slate-500">Ar Comprimido:</strong> <span id="detAr">-</span></div>
+                            <div><strong class="text-slate-500">Energia Elétrica:</strong> <span id="detEnerg">-</span></div>
+                            <div><strong class="text-slate-500">Dias Estimados:</strong> <span id="detDias">-</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-comment-dots mr-1"></i> 6. Observações e Anexos</h4>
+                    <div>
+                        <strong class="text-slate-500 block mb-1">Observações Gerais:</strong>
+                        <p id="detObs" class="text-slate-600 italic whitespace-pre-wrap">-</p>
+                    </div>
+                    
+                    <div id="detAnexoContainer" class="hidden pt-3 border-t border-slate-200 mt-2">
+                        <strong class="text-slate-500 block mb-2">Documento Anexado:</strong>
+                        <a id="detAnexoLink" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-300 rounded-xl transition text-xs font-bold shadow-sm">
+                            <i class="fa-solid fa-paperclip text-lg"></i> <span id="detAnexoNome">Visualizar Arquivo Anexado</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-slate-100 p-4 flex justify-end gap-2 border-t border-slate-200 no-print">
+                <button onclick="window.fecharModalDetalhes()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition shadow-sm cursor-pointer">Fechar Visão</button>
+                <button id="btnExportarIndividual" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-print"></i> Imprimir</button>
             </div>
         </div>
     </div>
 
-    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO SOLICITAÇÃO CIJ) -->
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
-        
-        <!-- TÍTULO DO MÓDULO E BOTÃO DE EDITAR -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-file-signature text-blue-600"></i> Solicitação Técnica CIJ</h2>
-                <p class="text-sm text-slate-500 mt-1">Preenchimento de requisitos para nova instalação ou faturamento.</p>
+    <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
+    <div id="modalAcaoConfirmacao" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 space-y-4">
+            <h4 class="text-base font-bold text-slate-900"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i> Excluir Solicitação</h4>
+            <p class="text-xs text-slate-600">Deseja realmente apagar esta solicitação do banco de dados?</p>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="window.fecharModalAcao()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                <button id="modalAcaoBtnSim" onclick="" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm cursor-pointer">Sim, Excluir</button>
             </div>
-            <button type="button" onclick="window.abrirModalEditar()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer no-print">
-                <i class="fa-solid fa-pen-to-square"></i> Carregar e Editar Solicitação Salva
-            </button>
         </div>
-
-        <form id="formVendaInstalacao" class="space-y-6" onsubmit="event.preventDefault();">
-            
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-building text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">1. Dados do Cliente</h2></div></div>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="lg:col-span-2"><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Razão Social / Cliente *</label><input type="text" id="cli_razao" required class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Fantasia</label><input type="text" id="cli_fantasia" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">CNPJ / CPF *</label><input type="text" id="cli_cnpj" required class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Inscrição Estadual</label><input type="text" id="cli_ie" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">CEP</label><input type="text" id="cli_cep" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div class="lg:col-span-2"><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Endereço Completo de Instalação</label><input type="text" id="cli_endereco" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade / UF</label><input type="text" id="cli_cidade" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contato Responsável</label><input type="text" id="cli_contato_nome" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Telefone / WhatsApp</label><input type="text" id="cli_contato_fone" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail de Contato</label><input type="email" id="cli_contato_email" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    
-                    <div class="lg:col-span-2"><label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail para envio de NFe</label><input type="email" id="cli_email_nfe" placeholder="email@cliente.com.br" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div class="lg:col-span-2"><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Transportadora</label><input type="text" id="cli_transportadora" placeholder="Nome da Transportadora" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-file-contract text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">2. Dados Comerciais</h2></div></div>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div><label class="block text-xs font-extrabold text-blue-700 uppercase mb-1">Nº Solicitação (Gerado)</label><input type="text" id="ven_num_solicitacao" readonly placeholder="Salvar na Nuvem" class="w-full rounded-xl border border-blue-300 p-2.5 text-xs font-bold text-blue-900 bg-blue-50"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nº Proposta</label><input type="text" id="ven_num_proposta" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nº Pedido *</label><input type="text" id="ven_num_pedido" required class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data Solicitação</label><input type="date" id="ven_data_solicitacao" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600"></div>
-                    
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Vendedor</label><input type="text" id="ven_vendedor" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600"></div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Modalidade</label>
-                        <select id="ven_modalidade" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600">
-                            <option>Venda Direta</option><option>Locação</option><option>Comodato</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Frete</label>
-                        <select id="ven_frete" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600">
-                            <option value="">Selecione...</option>
-                            <option>CIF (Por conta do Remetente)</option>
-                            <option>FOB (Por conta do Destinatário)</option>
-                            <option>Técnico CIJ</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1 border border-slate-200 rounded-xl p-3 bg-slate-50">
-                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-2">Condição de Pagamento</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="col-span-1">
-                                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Entrada</label>
-                                <input type="text" id="ven_cond_entrada" placeholder="Ex: 30%" class="w-full rounded border border-slate-300 p-1.5 text-xs outline-none focus:border-blue-600">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Saldo</label>
-                                <input type="text" id="ven_cond_saldo" placeholder="Ex: 30/60/90 dias" class="w-full rounded border border-slate-300 p-1.5 text-xs outline-none focus:border-blue-600">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-boxes-stacked text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">3. Relação de Itens da Venda</h2></div></div>
-                </div>
-                <div class="p-6">
-                    <div class="overflow-x-auto border border-slate-200 rounded-xl mb-4">
-                        <table class="w-full text-left border-collapse" id="tabelaVendaEquipamentos">
-                            <thead>
-                                <tr class="bg-slate-900 text-white text-[11px] font-bold uppercase tracking-wider">
-                                    <th class="py-3 px-2 text-center w-8">#</th>
-                                    <th class="py-3 px-2 w-48">Categoria</th>
-                                    <th class="py-3 px-2 w-auto">Descrição do Item</th>
-                                    <th class="py-3 px-2 text-center w-16">Qtd</th>
-                                    <th class="py-3 px-2 text-right w-32 whitespace-nowrap">Preço Unit.</th>
-                                    <th class="py-3 px-2 text-right w-28 whitespace-nowrap text-amber-300">Desconto (R$)</th>
-                                    <th class="py-3 px-2 text-right w-36 whitespace-nowrap">Preço Total</th>
-                                    <th class="py-3 px-2 text-center no-print w-10">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="corpoTabelaVenda" class="divide-y divide-slate-200 text-xs">
-                                <!-- Linhas inseridas via JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <button type="button" onclick="window.adicionarLinhaVenda()" class="bg-blue-600 hover:bg-blue-700 transition text-white text-xs font-bold px-4 py-2.5 rounded-xl no-print shadow-sm cursor-pointer"><i class="fa-solid fa-plus"></i> Adicionar Item</button>
-                        <div class="text-xs font-semibold text-slate-700 bg-white px-4 py-2 rounded-lg border shadow-sm">
-                            Total Itens: <strong id="totalItensVenda" class="text-blue-900 ml-1">0</strong> | Valor Final: <strong id="valorTotalGeral" class="text-emerald-600 font-black ml-1 text-sm">R$ 0,00</strong>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-cogs text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">4. Condições Técnicas da Linha de Produção</h2></div></div>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Produto a ser impresso / Substrato</label><input type="text" id="tec_produto" placeholder="Ex: Rótulo, Caixa, Pote..." class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Material</label>
-                        <select id="tec_material" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option value="">Selecione...</option><option>Plástico (PET/PE/PP)</option><option>Papelão / Papel</option><option>Vidro</option><option>Metal / Alumínio</option><option>Madeira</option><option>Outro</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Velocidade da Linha</label><input type="text" id="tec_velocidade" placeholder="Ex: 30 m/min ou 500 un/hora" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Distância do Cabeçote ao Produto</label><input type="text" id="tec_distancia" placeholder="Ex: 10mm" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sentido de Impressão</label>
-                        <select id="tec_sentido" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option value="">Selecione...</option><option>Topo (De cima para baixo)</option><option>Lateral</option><option>Fundo (De baixo para cima)</option><option>Inclinado</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ambiente da Instalação</label>
-                        <select id="tec_ambiente" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option value="">Selecione...</option><option>Seco / Normal</option><option>Úmido / Lavagem</option><option>Poeira / Pó</option><option>Câmara Fria</option><option>Alta Temperatura</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-user-gear text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">5. Escopo de Serviços de Instalação e Treinamento</h2></div></div>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Necessidade de Treinamento?</label>
-                        <select id="esc_treinamento" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option>Sim, realizar treinamento</option><option>Não é necessário</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qtd. de Pessoas p/ Treinar</label><input type="number" id="esc_pessoas" placeholder="Ex: 3" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fornecimento do Suporte / Pedestal</label>
-                        <select id="esc_suporte" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option>Por conta da CIJ (Incluso na Venda)</option><option>Por conta do Cliente</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente possui Ar Comprimido?</label>
-                        <select id="esc_ar_comprimido" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option>Não se Aplica (CIJ)</option><option>Sim, disponível no local</option><option>Não possui</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente possui Ponto de Energia?</label>
-                        <select id="esc_energia" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition">
-                            <option>Sim, ponto isolado / estabilizado</option><option>Sim, mas compartilhado</option><option>Não possui no local</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Dias estimados de Instalação</label><input type="number" id="esc_dias" placeholder="Ex: 1" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800 outline-none focus:border-blue-600 bg-slate-50/50 transition"></div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="section-header px-6 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3"><span class="bg-blue-500/30 text-blue-200 p-2 rounded-lg border border-blue-400/20"><i class="fa-solid fa-comment-dots text-lg"></i></span><div><h2 class="text-base md:text-lg font-bold">6. Observações e Anexos</h2></div></div>
-                </div>
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações Gerais</label>
-                        <textarea id="obs_gerais" rows="4" class="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none bg-slate-50/50 transition focus:border-blue-600" placeholder="Anotações extras..."></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Anexar Arquivo (Opcional)</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl bg-slate-50 hover:bg-slate-100 transition relative">
-                            <div class="space-y-1 text-center">
-                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
-                                <div class="flex text-sm text-slate-600 justify-center">
-                                    <label for="arquivo_anexo" class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                        <span>Faça upload de um arquivo</span>
-                                        <input id="arquivo_anexo" name="arquivo_anexo" type="file" class="sr-only" onchange="window.atualizarNomeArquivo(this)">
-                                    </label>
-                                </div>
-                                <p class="text-xs text-slate-500 mt-1" id="nome_arquivo_selecionado">PDF, DOCX, JPG ou PNG (Até 10MB)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col lg:flex-row items-center justify-between gap-4 no-print mb-10">
-                <button type="button" onclick="window.limparFormulario()" class="text-xs font-bold bg-red-50 hover:bg-red-100 transition text-red-700 px-4 py-3 rounded-xl border border-red-200 cursor-pointer"><i class="fa-solid fa-trash-can mr-1"></i> Limpar Formulário</button>
-                <div class="flex flex-wrap items-center justify-center gap-3">
-                    <button type="button" id="btn-salvar-nuvem" onclick="window.salvarSolicitacaoNuvem()" class="bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar / Atualizar na Nuvem</button>
-                    <button type="button" onclick="window.exportarExcel()" class="bg-blue-600 hover:bg-blue-700 transition text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
-                    <button type="button" onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 transition text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-print"></i> Imprimir PDF</button>
-                </div>
-            </div>
-        </form>
-    </main>
+    </div>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA DO MÓDULO SOLICITAÇÃO -->
-    <script type="module">
-        import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-
-        window.FirebaseRunTransaction = runTransaction;
-        window.FirebaseStorageRef = ref;
-        window.FirebaseUploadBytes = uploadBytes;
-        window.FirebaseGetDownloadURL = getDownloadURL;
-        window.AppStorage = getStorage(window.AppAuth.app);
-    </script>
-
     <script>
-        let listaSolicitacoesCache = [];
+        window.listaSolicitacoes = [];
 
         window.initModule = function(perfil) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
 
-            const campoVendedor = document.getElementById('ven_vendedor');
-            if(campoVendedor && !campoVendedor.value) {
-                campoVendedor.value = window.nomeUsuarioLogado || '';
-            }
+            const solicitacoesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes');
 
-            document.getElementById('ven_data_solicitacao').valueAsDate = new Date(); 
-            window.adicionarLinhaItemAzul(); 
+            window.fsOnSnapshot(solicitacoesCol, (snap) => {
+                window.listaSolicitacoes = [];
+                snap.forEach(d => window.listaSolicitacoes.push(d.data()));
+                window.renderizarTabela();
+            }, (err) => console.error(err));
         };
 
-        const modelosPorCategoria = {
-            "Impressora CIJ": ["8820", "8860", "8860P", "8910", "8610", "Outro (Digitar)"],
-            "Impressora TIJ": ["T-110H", "T110M", "291", "280", "Outro (Digitar)"],
-            "Datador Laser Industrial": ["UV3 W", "UV 5W", "UV 5W MINI", "CO2 30W", "CO2 60W", "FIBRA 30 W", "FIBRA 50W", "Outro (Digitar)"],
-            "Impressora TTO - Termotransferência": ["32MM", "53MM", "Outro (Digitar)"],
-            "Tinta": ["4101 STANDARD", "4223 RESIST. ALCOOL", "4209 AMARELA", "2BK120 BASE AGUA", "2BK708", "Outro (Digitar)"],
-            "Diluente": ["1507", "1901", "Outro (Digitar)"],
-            "Solução de Limpeza": ["901Q", "Outro (Digitar)"],
-            "Instalação": ["Serviço de Instalação e Treinamento Técnico", "Instalação Padrão CIJ", "Instalação Datador Laser", "Instalação TIJ / TTO", "Outro (Digitar)"],
-            "Acessório / Suporte": ["Pedestal", "Sensor", "Mesa", "Nobreak", "Módulo Isolador", "Esteira Transportadora", "Outro (Digitar)"],
-            "Sensor / Encoder / Automação": ["Sensor Fotoelétrico NPN/PNP", "Encoder Rotativo com Roda", "Cabo de Sinal / Comunicação CLP", "Outro (Digitar)"]
-        };
+        window.getFilteredSolicitacoes = function() {
+            const fCliente = (document.getElementById('filtroCliente')?.value || '').toLowerCase();
+            const fNumero = (document.getElementById('filtroNumero')?.value || '').toLowerCase();
+            const fVendedor = (document.getElementById('filtroVendedor')?.value || '').toLowerCase();
+            const fDe = document.getElementById('filtroDataDe')?.value || '';
+            const fAte = document.getElementById('filtroDataAte')?.value || '';
 
-        let contadorLinhas = 0; 
+            return window.listaSolicitacoes.filter(item => {
+                const clienteNome = (item.cliente?.razao_social || '').toLowerCase();
+                const numeroSol = (item.numero_solicitacao || '').toLowerCase();
+                const pedidoNum = (item.comercial?.pedido || '').toLowerCase();
+                const vendedorNome = (item.comercial?.vendedor || '').toLowerCase();
+                const dataRegStr = item.data_registro ? new Date(item.data_registro).toISOString().split('T')[0] : '';
 
-        window.atualizarModelos = function(selectEl) {
-            const tr = selectEl.closest('tr'); 
-            const cat = selectEl.value; 
-            const selMod = tr.querySelector('.item-descricao-select'); 
-            const inpMod = tr.querySelector('.item-descricao-input');
-            
-            selMod.innerHTML = '<option value="" disabled selected>Selecione o modelo...</option>';
-            if(modelosPorCategoria[cat]) { 
-                modelosPorCategoria[cat].forEach(op => { selMod.innerHTML += `<option value="${op}">${op}</option>`; }); 
-            }
-            selMod.classList.remove('hidden'); inpMod.classList.add('hidden'); inpMod.value = '';
-        };
-
-        window.verificarOutroModelo = function(selectEl) {
-            const tr = selectEl.closest('tr'); 
-            const inpMod = tr.querySelector('.item-descricao-input');
-            if(selectEl.value === 'Outro (Digitar)') { 
-                selectEl.classList.add('hidden'); inpMod.classList.remove('hidden'); inpMod.focus(); 
-            }
-        };
-
-        window.adicionarLinhaItemAzul = function(itemData = null) {
-            contadorLinhas++; 
-            const tbody = document.getElementById('corpoTabelaVenda'); 
-            if(!tbody) return;
-            
-            const tr = document.createElement('tr'); 
-            tr.id = `linha-item-${contadorLinhas}`; 
-            tr.className = "border-b border-slate-100 hover:bg-slate-50 transition";
-            
-            let categoriasOptions = '<option value="" disabled selected>Selecione a família...</option>';
-            Object.keys(modelosPorCategoria).forEach(k => { 
-                const selected = (itemData && itemData.categoria === k) ? 'selected' : '';
-                categoriasOptions += `<option value="${k}" ${selected}>${k}</option>`; 
-            });
-
-            tr.innerHTML = `
-                <td class="py-2 px-1 text-center font-bold text-slate-400">${contadorLinhas}</td>
-                <td class="py-2 px-1"><select onchange="window.atualizarModelos(this)" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-500 item-categoria">${categoriasOptions}</select></td>
-                <td class="py-2 px-1">
-                    <select onchange="window.verificarOutroModelo(this)" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-500 item-descricao-select"><option value="" disabled selected>Aguardando categoria...</option></select>
-                    <input type="text" placeholder="Digite a descrição..." class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-500 item-descricao-input hidden">
-                </td>
-                <td class="py-2 px-1"><input type="number" value="${itemData ? itemData.qtd : 1}" min="1" oninput="window.calcularTotalVenda()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs text-center outline-none focus:border-blue-500 font-bold item-qtd"></td>
-                <td class="py-2 px-1"><input type="number" step="0.01" value="${itemData ? itemData.preco_unit : '0.00'}" oninput="window.calcularTotalVenda()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs text-right outline-none focus:border-blue-500 item-preco"></td>
-                <td class="py-2 px-1"><input type="number" step="0.01" value="${itemData ? (itemData.desconto || 0) : '0.00'}" oninput="window.calcularTotalVenda()" class="w-full p-2.5 bg-white border border-amber-300 text-amber-900 rounded-xl text-xs text-right outline-none focus:border-amber-500 item-desconto placeholder-amber-200" placeholder="0.00"></td>
-                <td class="py-2 px-2 text-right font-bold text-blue-700 item-total whitespace-nowrap">R$ 0,00</td>
-                <td class="py-2 px-1 text-center no-print"><button type="button" onclick="window.removerLinhaVenda('${tr.id}')" class="text-red-500 hover:bg-red-100 p-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>`;
-            
-            tbody.appendChild(tr); 
-
-            if (itemData) {
-                const selMod = tr.querySelector('.item-descricao-select');
-                const inpMod = tr.querySelector('.item-descricao-input');
-                const cat = itemData.categoria;
+                if (fCliente && !clienteNome.includes(fCliente)) return false;
+                if (fNumero && !numeroSol.includes(fNumero) && !pedidoNum.includes(fNumero)) return false;
+                if (fVendedor && !vendedorNome.includes(fVendedor)) return false;
+                if (fDe && dataRegStr && dataRegStr < fDe) return false;
+                if (fAte && dataRegStr && dataRegStr > fAte) return false;
                 
-                selMod.innerHTML = '<option value="" disabled selected>Selecione o modelo...</option>';
-                if(modelosPorCategoria[cat]) { 
-                    modelosPorCategoria[cat].forEach(op => { selMod.innerHTML += `<option value="${op}">${op}</option>`; }); 
-                }
+                if (window.userVisaoGlobal === false && (item.autor !== window.currentUser.email && vendedorNome !== (window.nomeUsuarioLogado || '').toLowerCase())) return false;
 
-                if (modelosPorCategoria[cat] && modelosPorCategoria[cat].includes(itemData.descricao)) {
-                    selMod.value = itemData.descricao;
-                } else {
-                    selMod.value = 'Outro (Digitar)';
-                    selMod.classList.add('hidden');
-                    inpMod.classList.remove('hidden');
-                    inpMod.value = itemData.descricao;
-                }
-            }
-
-            window.calcularTotalVenda();
-        };
-
-        window.removerLinhaVenda = function(idLinha) { 
-            const linha = document.getElementById(idLinha); 
-            if(linha) { linha.remove(); window.calcularTotalVenda(); } 
-        };
-
-        window.calcularTotalVenda = function() {
-            let totalGeral = 0; let totalQtd = 0;
-            document.querySelectorAll('#corpoTabelaVenda tr').forEach(linha => {
-                const qtd = parseFloat(linha.querySelector('.item-qtd').value) || 0; 
-                const preco = parseFloat(linha.querySelector('.item-preco').value) || 0;
-                const desconto = parseFloat(linha.querySelector('.item-desconto').value) || 0;
-                const subtotal = (qtd * preco) - desconto; 
-                linha.querySelector('.item-total').innerText = subtotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                totalGeral += subtotal; totalQtd += qtd;
+                return true;
             });
-            document.getElementById('totalItensVenda').innerText = totalQtd;
-            document.getElementById('valorTotalGeral').innerText = totalGeral.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         };
 
-        window.atualizarNomeArquivo = function(input) {
-            const display = document.getElementById('nome_arquivo_selecionado');
-            if(input.files && input.files[0]) {
-                display.innerHTML = `<span class="text-blue-600 font-bold"><i class="fa-solid fa-file-check"></i> Arquivo Anexado: ${input.files[0].name}</span>`;
+        window.renderizarTabela = function() {
+            const tbody = document.getElementById('tabelaSolicitacoes');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const filtered = window.getFilteredSolicitacoes();
+            let totalValSum = 0;
+            const vendedoresSet = new Set();
+
+            filtered.sort((a, b) => new Date(b.data_registro) - new Date(a.data_registro));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Nenhuma solicitação encontrada.</td></tr>`;
             } else {
-                display.innerText = 'PDF, DOCX, JPG ou PNG (Até 10MB)';
-            }
-        };
+                filtered.forEach(item => {
+                    const numSol = item.numero_solicitacao || 'SOL-0000';
+                    const dataFmt = item.data_registro ? new Date(item.data_registro).toLocaleDateString('pt-BR') : '-';
+                    const razao = item.cliente?.razao_social || 'Cliente não informado';
+                    const pedido = item.comercial?.pedido || '-';
+                    const vendedor = item.comercial?.vendedor || '-';
+                    const valorGeralStr = item.totais?.valor_geral || 'R$ 0,00';
+                    
+                    const numValClean = parseFloat(valorGeralStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+                    totalValSum += numValClean;
+                    if(vendedor !== '-') vendedoresSet.add(vendedor);
 
-        window.limparFormulario = function() {
-            if(confirm("Tem certeza que deseja apagar todos os dados desta solicitação?")) {
-                document.getElementById('formVendaInstalacao').reset();
-                document.getElementById('corpoTabelaVenda').innerHTML = '';
-                document.getElementById('ven_num_solicitacao').value = '';
-                document.getElementById('nome_arquivo_selecionado').innerText = 'PDF, DOCX, JPG ou PNG (Até 10MB)';
-                contadorLinhas = 0;
-                window.adicionarLinhaItemAzul();
-                window.mostrarNotificacao("Formulário limpo com sucesso!");
-                window.scrollTo({top:0, behavior:'smooth'});
-            }
-        };
+                    const anexoIcon = item.anexo_url ? `<i class="fa-solid fa-paperclip text-blue-500 ml-2" title="Possui Anexo"></i>` : '';
+                    
+                    let actionBtn = `
+                        <button onclick="window.abrirDetalhes('${numSol}')" title="Visualizar Completo" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                        <a href="solicitacao.html?editar=${numSol}" title="Editar Solicitação" class="p-1.5 text-amber-600 hover:bg-amber-100 rounded-md transition inline-block"><i class="fa-solid fa-pen-to-square"></i></a>
+                    `;
 
-        // MODAL DE EDIÇÃO DE SOLICITAÇÕES SALVAS
-        window.abrirModalEditar = async function() {
-            const modal = document.getElementById('modal-editar-solicitacao');
-            const container = document.getElementById('lista-solicitacoes-modal');
-            modal.classList.remove('hidden');
-            container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Buscando solicitações salvas...</p>`;
+                    if (window.userVisaoGlobal) { 
+                         actionBtn += `<button onclick="window.pedirExclusao('${numSol}')" title="Excluir" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>`;
+                    }
 
-            try {
-                const colRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes');
-                const snap = await window.fsGetDocs(colRef);
-                listaSolicitacoesCache = [];
-                snap.forEach(doc => {
-                    listaSolicitacoesCache.push({ id: doc.id, ...doc.data() });
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-200">
+                            <td class="p-3 font-bold text-emerald-900">${numSol} ${anexoIcon}</td>
+                            <td class="p-3 text-slate-600">${dataFmt}</td>
+                            <td class="p-3 font-bold text-slate-900">${razao}</td>
+                            <td class="p-3 font-semibold text-blue-900">${pedido}</td>
+                            <td class="p-3 text-slate-700">${vendedor}</td>
+                            <td class="p-3 text-right font-black text-emerald-700">${valorGeralStr}</td>
+                            <td class="p-3 text-center space-x-1 no-print">${actionBtn}</td>
+                        </tr>
+                    `;
                 });
-
-                listaSolicitacoesCache.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                window.renderizarListaModal(listaSolicitacoesCache);
-            } catch (e) {
-                container.innerHTML = `<p class="text-center text-xs text-red-500 py-6">Erro ao carregar solicitações do banco de dados.</p>`;
-            }
-        };
-
-        window.fecharModalEditar = function() {
-            document.getElementById('modal-editar-solicitacao').classList.add('hidden');
-        };
-
-        window.filtrarListaModal = function() {
-            const termo = document.getElementById('filtro-modal-busca').value.toLowerCase();
-            const filtrados = listaSolicitacoesCache.filter(s => {
-                const cli = (s.cliente?.razao_social || '').toLowerCase();
-                const ped = (s.comercial?.pedido || '').toLowerCase();
-                const num = (s.numero_solicitacao || '').toLowerCase();
-                return cli.includes(termo) || ped.includes(termo) || num.includes(termo);
-            });
-            window.renderizarListaModal(filtrados);
-        };
-
-        window.renderizarListaModal = function(dados) {
-            const container = document.getElementById('lista-solicitacoes-modal');
-            if (dados.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Nenhuma solicitação encontrada.</p>`;
-                return;
             }
 
-            container.innerHTML = dados.map(s => `
-                <div class="bg-white p-3.5 rounded-xl border border-slate-200 hover:border-blue-500 transition flex items-center justify-between gap-3 shadow-xs">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="bg-blue-100 text-blue-800 font-black text-[10px] px-2 py-0.5 rounded">${s.numero_solicitacao || 'S/N'}</span>
-                            <span class="text-xs font-bold text-slate-800">Pedido: ${s.comercial?.pedido || '-'}</span>
-                        </div>
-                        <p class="text-xs font-semibold text-slate-600 mt-1">${s.cliente?.razao_social || 'Cliente não informado'}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Vendedor: ${s.comercial?.vendedor || '-'} | Data: ${s.comercial?.data_solicitacao || '-'}</p>
-                    </div>
-                    <button type="button" onclick="window.carregarSolicitacaoParaEdicao('${s.numero_solicitacao}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer">
-                        <i class="fa-solid fa-pen-to-square mr-1"></i> Carregar
-                    </button>
-                </div>
-            `).join('');
+            document.getElementById('kpiTotalSolicitacoes').innerText = filtered.length;
+            document.getElementById('kpiValorGeral').innerText = totalValSum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpiVendedores').innerText = vendedoresSet.size;
         };
 
-        window.carregarSolicitacaoParaEdicao = function(numeroSol) {
-            const s = listaSolicitacoesCache.find(item => item.numero_solicitacao === numeroSol);
-            if (!s) return;
+        window.abrirDetalhes = function(numSol) {
+            const item = window.listaSolicitacoes.find(i => i.numero_solicitacao === numSol);
+            if (!item) return;
 
-            // Preenche dados do cliente
-            document.getElementById('cli_razao').value = s.cliente?.razao_social || '';
-            document.getElementById('cli_fantasia').value = s.cliente?.fantasia || '';
-            document.getElementById('cli_cnpj').value = s.cliente?.cnpj || '';
-            document.getElementById('cli_ie').value = s.cliente?.ie || '';
-            document.getElementById('cli_cep').value = s.cliente?.cep || '';
-            document.getElementById('cli_endereco').value = s.cliente?.endereco || '';
-            document.getElementById('cli_cidade').value = s.cliente?.cidade || '';
-            document.getElementById('cli_contato_nome').value = s.cliente?.contato || '';
-            document.getElementById('cli_contato_fone').value = s.cliente?.telefone || '';
-            document.getElementById('cli_contato_email').value = s.cliente?.email || '';
-            document.getElementById('cli_email_nfe').value = s.cliente?.email_nfe || '';
-            document.getElementById('cli_transportadora').value = s.cliente?.transportadora || '';
+            document.getElementById('btnExportarIndividual').onclick = () => window.exportarExcelIndividual(numSol);
 
-            // Preenche dados comerciais
-            document.getElementById('ven_num_solicitacao').value = s.numero_solicitacao || '';
-            document.getElementById('ven_num_proposta').value = s.comercial?.proposta || '';
-            document.getElementById('ven_num_pedido').value = s.comercial?.pedido || '';
-            document.getElementById('ven_data_solicitacao').value = s.comercial?.data_solicitacao || '';
-            document.getElementById('ven_vendedor').value = s.comercial?.vendedor || '';
-            document.getElementById('ven_modalidade').value = s.comercial?.modalidade || 'Venda Direta';
-            document.getElementById('ven_frete').value = s.comercial?.frete || '';
-            document.getElementById('ven_cond_entrada').value = s.comercial?.cond_entrada || '';
-            document.getElementById('ven_cond_saldo').value = s.comercial?.cond_saldo || '';
+            document.getElementById('modalNumSol').innerText = item.numero_solicitacao || 'SOL';
+            document.getElementById('modalRazaoSocial').innerText = item.cliente?.razao_social || '-';
+            
+            document.getElementById('detFantasia').innerText = item.cliente?.fantasia || '-';
+            document.getElementById('detCnpj').innerText = item.cliente?.cnpj || '-';
+            document.getElementById('detIe').innerText = item.cliente?.ie || '-';
+            document.getElementById('detCep').innerText = item.cliente?.cep || '-';
+            document.getElementById('detEndereco').innerText = item.cliente?.endereco || '-';
+            document.getElementById('detCidade').innerText = item.cliente?.cidade || '-';
+            document.getElementById('detTransportadora').innerText = item.cliente?.transportadora || '-';
+            document.getElementById('detContato').innerText = item.cliente?.contato || '-';
+            document.getElementById('detTelefone').innerText = item.cliente?.telefone || '-';
+            document.getElementById('detEmail').innerText = item.cliente?.email || '-';
+            document.getElementById('detEmailNfe').innerText = item.cliente?.email_nfe || '-';
 
-            // Preenche itens
-            document.getElementById('corpoTabelaVenda').innerHTML = '';
-            contadorLinhas = 0;
-            if (s.itens && Array.isArray(s.itens) && s.itens.length > 0) {
-                s.itens.forEach(it => {
-                    window.adicionarLinhaItemAzul(it);
+            document.getElementById('detPedido').innerText = item.comercial?.pedido || '-';
+            document.getElementById('detProposta').innerText = item.comercial?.proposta || '-';
+            document.getElementById('detVendedor').innerText = item.comercial?.vendedor || '-';
+            document.getElementById('detModalidade').innerText = item.comercial?.modalidade || '-';
+            document.getElementById('detFrete').innerText = item.comercial?.frete || '-';
+            document.getElementById('detCondEntrada').innerText = item.comercial?.cond_entrada || '-';
+            document.getElementById('detCondSaldo').innerText = item.comercial?.cond_saldo || '-';
+
+            const tbodyItens = document.getElementById('detTabelaItens');
+            tbodyItens.innerHTML = '';
+            if (item.itens && item.itens.length > 0) {
+                item.itens.forEach(it => {
+                    const desc = parseFloat(it.desconto) || 0;
+                    const subtotal = ((it.qtd || 0) * (it.preco_unit || 0)) - desc;
+                    tbodyItens.innerHTML += `
+                        <tr class="border-b border-slate-100 text-[11px]">
+                            <td class="p-2.5 font-semibold text-slate-800">${it.categoria}</td>
+                            <td class="p-2.5 text-slate-600">${it.descricao}</td>
+                            <td class="p-2.5 text-center font-bold">${it.qtd}</td>
+                            <td class="p-2.5 text-right">${(it.preco_unit || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                            <td class="p-2.5 text-right text-amber-600 font-semibold">${desc > 0 ? '-' + desc.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</td>
+                            <td class="p-2.5 text-right font-bold text-blue-900">${subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        </tr>
+                    `;
                 });
             } else {
-                window.adicionarLinhaItemAzul();
+                tbodyItens.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-400">Nenhum item registrado.</td></tr>`;
             }
 
-            // Condições Técnicas
-            document.getElementById('tec_produto').value = s.condicoes_tecnicas?.produto || '';
-            document.getElementById('tec_material').value = s.condicoes_tecnicas?.material || '';
-            document.getElementById('tec_velocidade').value = s.condicoes_tecnicas?.velocidade || '';
-            document.getElementById('tec_distancia').value = s.condicoes_tecnicas?.distancia || '';
-            document.getElementById('tec_sentido').value = s.condicoes_tecnicas?.sentido || '';
-            document.getElementById('tec_ambiente').value = s.condicoes_tecnicas?.ambiente || '';
+            document.getElementById('detValorGeral').innerText = item.totais?.valor_geral || 'R$ 0,00';
 
-            // Escopo
-            document.getElementById('esc_treinamento').value = s.escopo_instalacao?.treinamento || 'Sim, realizar treinamento';
-            document.getElementById('esc_pessoas').value = s.escopo_instalacao?.pessoas || '';
-            document.getElementById('esc_suporte').value = s.escopo_instalacao?.suporte || 'Por conta da CIJ (Incluso na Venda)';
-            document.getElementById('esc_ar_comprimido').value = s.escopo_instalacao?.ar_comprimido || 'Não se Aplica (CIJ)';
-            document.getElementById('esc_energia').value = s.escopo_instalacao?.energia || 'Sim, ponto isolado / estabilizado';
-            document.getElementById('esc_dias').value = s.escopo_instalacao?.dias || '';
+            document.getElementById('detProd').innerText = item.condicoes_tecnicas?.produto || '-';
+            document.getElementById('detMat').innerText = item.condicoes_tecnicas?.material || '-';
+            document.getElementById('detVel').innerText = item.condicoes_tecnicas?.velocidade || '-';
+            document.getElementById('detDist').innerText = item.condicoes_tecnicas?.distancia || '-';
+            document.getElementById('detSentido').innerText = item.condicoes_tecnicas?.sentido || '-';
+            document.getElementById('detAmb').innerText = item.condicoes_tecnicas?.ambiente || '-';
 
-            // Observações
-            document.getElementById('obs_gerais').value = s.observacoes || '';
+            document.getElementById('detTrein').innerText = item.escopo_instalacao?.treinamento || '-';
+            document.getElementById('detPessoas').innerText = item.escopo_instalacao?.pessoas || '-';
+            document.getElementById('detSup').innerText = item.escopo_instalacao?.suporte || '-';
+            document.getElementById('detAr').innerText = item.escopo_instalacao?.ar_comprimido || '-';
+            document.getElementById('detEnerg').innerText = item.escopo_instalacao?.energia || '-';
+            document.getElementById('detDias').innerText = item.escopo_instalacao?.dias || '-';
 
-            window.fecharModalEditar();
-            window.mostrarNotificacao(`Solicitação ${s.numero_solicitacao} carregada para edição!`);
-            window.scrollTo({top:0, behavior:'smooth'});
+            document.getElementById('detObs').innerText = item.observacoes || 'Nenhuma observação informada.';
+
+            const anexoContainer = document.getElementById('detAnexoContainer');
+            const anexoLink = document.getElementById('detAnexoLink');
+            const anexoNome = document.getElementById('detAnexoNome');
+
+            if (item.anexo_url) {
+                anexoContainer.classList.remove('hidden');
+                anexoLink.href = item.anexo_url;
+                anexoNome.innerText = item.anexo_nome || 'Baixar Arquivo Anexado';
+            } else {
+                anexoContainer.classList.add('hidden');
+                anexoLink.href = '#';
+            }
+
+            document.getElementById('modalDetalhes').classList.remove('hidden');
         };
 
-        window.salvarSolicitacaoNuvem = async function() {
-            if(!document.getElementById('cli_razao').value.trim() || !document.getElementById('ven_num_pedido').value.trim()) {
-                window.mostrarNotificacao("Preencha ao menos Razão Social e Nº do Pedido para salvar.", true); 
-                window.scrollTo({top:0, behavior:'smooth'}); 
-                return;
-            }
-            
-            const btn = document.getElementById('btn-salvar-nuvem');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
-            btn.disabled = true;
+        window.fecharModalDetalhes = function() { document.getElementById('modalDetalhes').classList.add('hidden'); };
 
-            const itensLista = [];
-            document.querySelectorAll('#corpoTabelaVenda tr').forEach(linha => {
-                const cat = linha.querySelector('.item-categoria').value; 
-                const sel = linha.querySelector('.item-descricao-select').value; 
-                const inp = linha.querySelector('.item-descricao-input').value.trim();
-                const desc = (sel === 'Outro (Digitar)' || sel === '') ? inp : sel;
-                
-                if(desc !== "" && cat !== "") {
-                    itensLista.push({ 
-                        categoria: cat, descricao: desc, 
-                        qtd: parseFloat(linha.querySelector('.item-qtd').value) || 0, 
-                        preco_unit: parseFloat(linha.querySelector('.item-preco').value) || 0,
-                        desconto: parseFloat(linha.querySelector('.item-desconto').value) || 0
-                    });
-                }
+        window.pedirExclusao = function(numSol) {
+            document.getElementById('modalAcaoBtnSim').onclick = () => {
+                window.fecharModalAcao();
+                window.listaSolicitacoes = window.listaSolicitacoes.filter(i => i.numero_solicitacao !== numSol);
+                try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes', numSol)); } catch(e){}
+                window.renderizarTabela();
+                if(window.mostrarNotificacao) window.mostrarNotificacao('Solicitação excluída com sucesso!');
+            };
+            document.getElementById('modalAcaoConfirmacao').classList.remove('hidden');
+        };
+
+        window.fecharModalAcao = function() { document.getElementById('modalAcaoConfirmacao').classList.add('hidden'); };
+
+        window.exportarExcelSolicitacoes = async function() {
+            if (typeof ExcelJS === 'undefined') { if(window.mostrarNotificacao) window.mostrarNotificacao('Carregando Excel...', true); return; }
+            const filtered = window.getFilteredSolicitacoes();
+            if (filtered.length === 0) { if(window.mostrarNotificacao) window.mostrarNotificacao('Nenhum dado para exportar.', true); return; }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Lista de Solicitações');
+
+            ws.columns = [
+                { header: 'Nº Solicitação', key: 'num', width: 18 }, { header: 'Data Registro', key: 'data', width: 16 },
+                { header: 'Cliente (Razão Social)', key: 'cliente', width: 35 }, { header: 'CNPJ', key: 'cnpj', width: 20 },
+                { header: 'Pedido', key: 'pedido', width: 18 }, { header: 'Vendedor', key: 'vendedor', width: 22 },
+                { header: 'Valor Total', key: 'valor', width: 20 }
+            ];
+
+            const headerRow = ws.getRow(1);
+            headerRow.font = { bold: true, color: { argb: 'FFFFFF' }, size: 11, name: 'Arial' };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '047857' } }; 
+            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+            headerRow.height = 25;
+
+            let sumTot = 0;
+            filtered.forEach((item, index) => {
+                const valStr = item.totais?.valor_geral || '0';
+                const valNum = parseFloat(valStr.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+                sumTot += valNum;
+
+                const row = ws.addRow({
+                    num: item.numero_solicitacao, data: item.data_registro ? new Date(item.data_registro).toLocaleDateString('pt-BR') : '',
+                    cliente: item.cliente?.razao_social || '', cnpj: item.cliente?.cnpj || '',
+                    pedido: item.comercial?.pedido || '', vendedor: item.comercial?.vendedor || '', valor: valNum
+                });
+
+                row.font = { name: 'Arial', size: 10 };
+                row.getCell('valor').numFmt = '"R$ "#,##0.00';
             });
-            
-            const numExistente = document.getElementById('ven_num_solicitacao').value.trim();
 
-            const solicitacaoObj = { 
-                data_registro: new Date().toISOString(), 
-                autor: window.currentUser ? window.currentUser.email : '',
-                cliente: { 
-                    razao_social: document.getElementById('cli_razao').value, fantasia: document.getElementById('cli_fantasia').value, cnpj: document.getElementById('cli_cnpj').value, ie: document.getElementById('cli_ie').value, cep: document.getElementById('cli_cep').value, endereco: document.getElementById('cli_endereco').value, cidade: document.getElementById('cli_cidade').value, contato: document.getElementById('cli_contato_nome').value, telefone: document.getElementById('cli_contato_fone').value, email: document.getElementById('cli_contato_email').value, email_nfe: document.getElementById('cli_email_nfe').value, transportadora: document.getElementById('cli_transportadora').value
-                }, 
-                comercial: { 
-                    pedido: document.getElementById('ven_num_pedido').value, proposta: document.getElementById('ven_num_proposta').value, vendedor: document.getElementById('ven_vendedor').value, modalidade: document.getElementById('ven_modalidade').value, frete: document.getElementById('ven_frete').value, cond_entrada: document.getElementById('ven_cond_entrada').value, cond_saldo: document.getElementById('ven_cond_saldo').value, data_solicitacao: document.getElementById('ven_data_solicitacao').value
-                }, 
-                itens: itensLista, 
-                condicoes_tecnicas: {
-                    produto: document.getElementById('tec_produto').value, material: document.getElementById('tec_material').value, velocidade: document.getElementById('tec_velocidade').value, distancia: document.getElementById('tec_distancia').value, sentido: document.getElementById('tec_sentido').value, ambiente: document.getElementById('tec_ambiente').value
-                },
-                escopo_instalacao: {
-                    treinamento: document.getElementById('esc_treinamento').value, pessoas: document.getElementById('esc_pessoas').value, suporte: document.getElementById('esc_suporte').value, ar_comprimido: document.getElementById('esc_ar_comprimido').value, energia: document.getElementById('esc_energia').value, dias: document.getElementById('esc_dias').value
-                },
-                totais: { valor_geral: document.getElementById('valorTotalGeral').innerText },
-                observacoes: document.getElementById('obs_gerais').value
+            const tRow = ws.addRow({ num: 'TOTAL GERAL', valor: sumTot });
+            tRow.font = { bold: true, name: 'Arial', size: 11, color: { argb: '064E3B' } };
+            tRow.getCell('valor').numFmt = '"R$ "#,##0.00';
+            tRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'D1FAE5' } };
+
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buffer]), `Lista_Solicitacoes_CIJ_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            if(window.mostrarNotificacao) window.mostrarNotificacao('Planilha geral exportada com sucesso!');
+        };
+
+        window.exportarExcelIndividual = async function(numSol) {
+            if (typeof ExcelJS === 'undefined') return;
+            const item = window.listaSolicitacoes.find(i => i.numero_solicitacao === numSol);
+            if (!item) return;
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Solicitação ' + numSol);
+
+            ws.columns = [{ width: 25 }, { width: 40 }, { width: 10 }, { width: 15 }, { width: 15 }, { width: 15 }];
+
+            const addHeader = (text) => {
+                const row = ws.addRow([text]); ws.mergeCells(`A${row.number}:F${row.number}`);
+                row.font = { bold: true, color: { argb: 'FFFFFF' }, size: 10, name: 'Arial' };
+                row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1E3A8A' } }; 
+                return row;
             };
 
-            const fileInput = document.getElementById('arquivo_anexo');
-            const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+            const addDataRow = (label, value) => {
+                const row = ws.addRow([label, value]); ws.mergeCells(`B${row.number}:F${row.number}`);
+                row.getCell(1).font = { bold: true, color: { argb: '475569' }, size: 10, name: 'Arial' }; 
+                return row;
+            };
 
-            try {
-                if (file && window.FirebaseUploadBytes && window.FirebaseStorageRef) {
-                    const storageRef = window.FirebaseStorageRef(window.AppStorage, `solicitacoes_anexos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
-                    const snapshot = await window.FirebaseUploadBytes(storageRef, file);
-                    solicitacaoObj.anexo_url = await window.FirebaseGetDownloadURL(snapshot.ref);
-                    solicitacaoObj.anexo_nome = file.name;
-                }
+            const mainHeader = ws.addRow([`SOLICITAÇÃO DE VENDA / INSTALAÇÃO - ${numSol}`]);
+            ws.mergeCells(`A1:F1`); mainHeader.font = { bold: true, color: { argb: 'FFFFFF' }, size: 12, name: 'Arial' };
+            mainHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0F172A' } }; mainHeader.height = 30;
 
-                if (numExistente) {
-                    // Atualiza o documento existente
-                    solicitacaoObj.numero_solicitacao = numExistente;
-                    solicitacaoObj.timestamp = new Date().getTime();
-                    const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes', numExistente);
-                    await window.fsSetDoc(docRef, solicitacaoObj, { merge: true });
-                    window.mostrarNotificacao(`Solicitação ${numExistente} atualizada com sucesso!`);
-                } else if (window.FirebaseRunTransaction && window.AppDB) {
-                    // Cria uma nova solicitação com contador
-                    const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'solicitacao');
-                    
-                    const numFormatado = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
-                        const counterDoc = await transaction.get(counterRef);
-                        let currentNum = 1000;
-                        if (counterDoc.exists()) currentNum = counterDoc.data().current || 1000;
-                        const nextNum = currentNum + 1;
-                        transaction.set(counterRef, { current: nextNum }, { merge: true });
-                        
-                        const numeroGerado = `SOL-${nextNum}`;
-                        solicitacaoObj.numero_solicitacao = numeroGerado;
-                        solicitacaoObj.timestamp = new Date().getTime();
-                        
-                        const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes', numeroGerado);
-                        transaction.set(docRef, solicitacaoObj);
-                        return numeroGerado;
-                    });
-                    
-                    document.getElementById('ven_num_solicitacao').value = numFormatado;
-                    window.mostrarNotificacao(`Salvo com sucesso! Número Oficial: ${numFormatado}`);
-                }
-            } catch (error) { 
-                console.error("ERRO AO SALVAR:", error);
-                alert("Erro ao salvar no banco de dados. Verifique a conexão.");
-            } finally {
-                btn.innerHTML = originalText; btn.disabled = false;
-            }
-        };
+            ws.addRow([]);
+            addHeader('1. DADOS DO CLIENTE');
+            addDataRow('Razão Social:', item.cliente?.razao_social || '-');
+            addDataRow('CNPJ/CPF:', item.cliente?.cnpj || '-');
+            addDataRow('Contato:', item.cliente?.contato || '-');
+            addDataRow('Telefone:', item.cliente?.telefone || '-');
 
-        window.exportarExcel = function() {
-            try {
-                let dados = [
-                    ["SOLICITAÇÃO DE VENDA / INSTALAÇÃO - GRUPO CIJ"],
-                    ["Nº Solicitação:", document.getElementById('ven_num_solicitacao').value || "Não gerado"],
-                    ["Data:", document.getElementById('ven_data_solicitacao').value.split('-').reverse().join('/')],
-                    [""], ["1. DADOS DO CLIENTE"],
-                    ["Razão Social:", document.getElementById('cli_razao').value],
-                    ["Nome Fantasia:", document.getElementById('cli_fantasia').value],
-                    ["CNPJ/CPF:", document.getElementById('cli_cnpj').value],
-                    ["Insc. Estadual:", document.getElementById('cli_ie').value],
-                    ["CEP:", document.getElementById('cli_cep').value],
-                    ["Endereço:", document.getElementById('cli_endereco').value],
-                    ["Cidade/UF:", document.getElementById('cli_cidade').value],
-                    ["Contato:", document.getElementById('cli_contato_nome').value],
-                    ["Telefone:", document.getElementById('cli_contato_fone').value],
-                    ["E-mail:", document.getElementById('cli_contato_email').value],
-                    ["E-mail NFe:", document.getElementById('cli_email_nfe').value],
-                    ["Transportadora:", document.getElementById('cli_transportadora').value],
-                    [""], ["2. DADOS COMERCIAIS"],
-                    ["Nº Pedido:", document.getElementById('ven_num_pedido').value],
-                    ["Nº Proposta:", document.getElementById('ven_num_proposta').value],
-                    ["Vendedor:", document.getElementById('ven_vendedor').value],
-                    ["Modalidade:", document.getElementById('ven_modalidade').value],
-                    ["Tipo de Frete:", document.getElementById('ven_frete').value],
-                    ["Pagamento (Entrada):", document.getElementById('ven_cond_entrada').value],
-                    ["Pagamento (Saldo):", document.getElementById('ven_cond_saldo').value],
-                    [""], ["3. ITENS DA VENDA"],
-                    ["CATEGORIA", "DESCRIÇÃO", "QTD", "PREÇO UNIT.", "DESCONTO", "TOTAL"]
-                ];
+            ws.addRow([]);
+            addHeader('2. DADOS COMERCIAIS');
+            addDataRow('Vendedor:', item.comercial?.vendedor || '-');
+            addDataRow('Nº Pedido:', item.comercial?.pedido || '-');
 
-                document.querySelectorAll('#corpoTabelaVenda tr').forEach(linha => {
-                    const cat = linha.querySelector('.item-categoria').value; 
-                    const sel = linha.querySelector('.item-descricao-select').value; 
-                    const inp = linha.querySelector('.item-descricao-input').value.trim();
-                    const desc = (sel === 'Outro (Digitar)' || sel === '') ? inp : sel;
-                    const qtd = parseFloat(linha.querySelector('.item-qtd').value) || 0;
-                    const preco = parseFloat(linha.querySelector('.item-preco').value) || 0;
-                    const desconto = parseFloat(linha.querySelector('.item-desconto').value) || 0;
-                    const subtotal = (qtd * preco) - desconto;
-                    
-                    if(desc !== "" && cat !== "") dados.push([cat, desc, qtd, preco, desconto, subtotal]);
+            ws.addRow([]);
+            addHeader('3. RELAÇÃO DE ITENS');
+            const itemHeader = ws.addRow(['Categoria', 'Descrição', 'Qtd', 'Preço Unit.', 'Desconto', 'Total']);
+            itemHeader.font = { bold: true, size: 9 };
+
+            if (item.itens && item.itens.length > 0) {
+                item.itens.forEach(it => {
+                    const desc = parseFloat(it.desconto) || 0;
+                    const subtotal = ((it.qtd || 0) * (it.preco_unit || 0)) - desc;
+                    const row = ws.addRow([it.categoria, it.descricao, it.qtd, parseFloat(it.preco_unit) || 0, desc, subtotal]);
+                    row.getCell(4).numFmt = '"R$ "#,##0.00'; row.getCell(5).numFmt = '"R$ "#,##0.00'; row.getCell(6).numFmt = '"R$ "#,##0.00';
                 });
-
-                dados.push(["", "", "", "", "TOTAL GERAL:", document.getElementById('valorTotalGeral').innerText]);
-                dados.push([""]); ["4. CONDIÇÕES TÉCNICAS"];
-                dados.push(["Produto/Substrato:", document.getElementById('tec_produto').value]);
-                dados.push(["Material:", document.getElementById('tec_material').value]);
-                dados.push(["Velocidade:", document.getElementById('tec_velocidade').value]);
-                dados.push(["Distância Cabeçote:", document.getElementById('tec_distancia').value]);
-                dados.push(["Sentido de Impressão:", document.getElementById('tec_sentido').value]);
-                dados.push(["Ambiente:", document.getElementById('tec_ambiente').value]);
-                dados.push([""]);
-
-                dados.push(["5. ESCOPO DE INSTALAÇÃO"]);
-                dados.push(["Treinamento:", document.getElementById('esc_treinamento').value]);
-                dados.push(["Qtd. Pessoas:", document.getElementById('esc_pessoas').value]);
-                dados.push(["Suporte:", document.getElementById('esc_suporte').value]);
-                dados.push(["Ar Comprimido:", document.getElementById('esc_ar_comprimido').value]);
-                dados.push(["Ponto de Energia:", document.getElementById('esc_energia').value]);
-                dados.push(["Dias Instalacão:", document.getElementById('esc_dias').value]);
-                dados.push([""]);
-
-                dados.push(["6. OBSERVAÇÕES E ANEXOS"]);
-                dados.push([document.getElementById('obs_gerais').value]);
-                const fileInput = document.getElementById('arquivo_anexo');
-                if (fileInput && fileInput.files.length > 0) dados.push(["Arquivo Anexado:", fileInput.files[0].name]);
-
-                const wb = XLSX.utils.book_new(); 
-                const ws = XLSX.utils.aoa_to_sheet(dados); 
-                ws['!cols'] = [{wch: 25}, {wch: 40}, {wch: 10}, {wch: 15}, {wch: 15}, {wch: 15}];
-                XLSX.utils.book_append_sheet(wb, ws, "Solicitacao"); 
-                
-                XLSX.writeFile(wb, `Solicitacao_${document.getElementById('cli_razao').value.replace(/[^a-z0-9]/gi, '_') || 'CIJ'}_${Date.now()}.xlsx`);
-                window.mostrarNotificacao("Excel exportado com sucesso!");
-                
-            } catch (e) {
-                window.mostrarNotificacao("Erro ao gerar arquivo Excel.", true);
             }
+            
+            const totValNum = parseFloat((item.totais?.valor_geral || '0').replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+            const totRow = ws.addRow(['', '', '', '', 'VALOR GERAL:', totValNum]);
+            totRow.font = { bold: true, size: 10 }; totRow.getCell(6).numFmt = '"R$ "#,##0.00';
+
+            const buffer = await wb.xlsx.writeBuffer();
+            const clienteLimpo = (item.cliente?.razao_social || 'CIJ').substring(0, 15).replace(/[^a-z0-9]/gi, '_');
+            saveAs(new Blob([buffer]), `Solicitacao_${numSol}_${clienteLimpo}.xlsx`);
         };
     </script>
 </body>
