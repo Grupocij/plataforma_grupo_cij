@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
@@ -107,13 +107,13 @@
         </div>
     </main>
 
-    <!-- MODAL DE VISUALIZAÇÃO COMPLETA -->
+    <!-- MODAL DE VISUALIZAÇÃO E EDIÇÃO INTEGRADA -->
     <div id="modalDetalhes" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-[#0f172a] text-white p-5 flex items-center justify-between">
                 <div>
                     <span id="modalNumSol" class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">SOL-1000</span>
-                    <h3 id="modalRazaoSocial" class="text-lg font-bold mt-1">Nome do Cliente</h3>
+                    <h3 class="text-xs text-slate-300 mt-1" id="infoAuditoriaEdicao">Última alteração: -</h3>
                 </div>
                 <button onclick="window.fecharModalDetalhes()" class="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
@@ -125,33 +125,35 @@
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-building mr-1"></i> 1. Dados do Cliente</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        <div><strong class="text-slate-500 block">Nome Fantasia:</strong> <span id="detFantasia">-</span></div>
-                        <div><strong class="text-slate-500 block">CNPJ / CPF:</strong> <span id="detCnpj">-</span></div>
-                        <div><strong class="text-slate-500 block">Inscrição Estadual:</strong> <span id="detIe">-</span></div>
-                        <div><strong class="text-slate-500 block">CEP:</strong> <span id="detCep">-</span></div>
+                        <div><strong class="text-slate-500 block mb-1">Razão Social:</strong> <input type="text" id="detRazao" class="w-full p-2 bg-white border border-slate-300 rounded-lg font-semibold"></div>
+                        <div><strong class="text-slate-500 block mb-1">Nome Fantasia:</strong> <input type="text" id="detFantasia" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">CNPJ / CPF:</strong> <input type="text" id="detCnpj" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Inscrição Estadual:</strong> <input type="text" id="detIe" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                         
-                        <div class="md:col-span-2"><strong class="text-slate-500 block">Endereço Completo:</strong> <span id="detEndereco">-</span></div>
-                        <div><strong class="text-slate-500 block">Cidade / UF:</strong> <span id="detCidade">-</span></div>
-                        <div><strong class="text-slate-500 block">Transportadora:</strong> <span id="detTransportadora">-</span></div>
+                        <div><strong class="text-slate-500 block mb-1">CEP:</strong> <input type="text" id="detCep" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div class="md:col-span-2"><strong class="text-slate-500 block mb-1">Endereço Completo:</strong> <input type="text" id="detEndereco" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Cidade / UF:</strong> <input type="text" id="detCidade" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                         
-                        <div><strong class="text-slate-500 block">Contato Responsável:</strong> <span id="detContato">-</span></div>
-                        <div><strong class="text-slate-500 block">Telefone / WhatsApp:</strong> <span id="detTelefone">-</span></div>
-                        <div><strong class="text-slate-500 block">E-mail de Contato:</strong> <span id="detEmail">-</span></div>
-                        <div><strong class="text-slate-500 block">E-mail p/ NFe:</strong> <span id="detEmailNfe">-</span></div>
+                        <div><strong class="text-slate-500 block mb-1">Transportadora:</strong> <input type="text" id="detTransportadora" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Contato Responsável:</strong> <input type="text" id="detContato" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Telefone / WhatsApp:</strong> <input type="text" id="detTelefone" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">E-mail de Contato:</strong> <input type="text" id="detEmail" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        
+                        <div class="md:col-span-2"><strong class="text-slate-500 block mb-1">E-mail p/ NFe:</strong> <input type="text" id="detEmailNfe" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-file-contract mr-1"></i> 2. Dados Comerciais</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div><strong class="text-slate-500 block">Nº Pedido:</strong> <span id="detPedido">-</span></div>
-                        <div><strong class="text-slate-500 block">Nº Proposta:</strong> <span id="detProposta">-</span></div>
-                        <div><strong class="text-slate-500 block">Vendedor:</strong> <span id="detVendedor">-</span></div>
-                        <div><strong class="text-slate-500 block">Modalidade:</strong> <span id="detModalidade">-</span></div>
+                        <div><strong class="text-slate-500 block mb-1">Nº Pedido:</strong> <input type="text" id="detPedido" class="w-full p-2 bg-white border border-slate-300 rounded-lg font-semibold"></div>
+                        <div><strong class="text-slate-500 block mb-1">Nº Proposta:</strong> <input type="text" id="detProposta" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Vendedor:</strong> <input type="text" id="detVendedor" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Modalidade:</strong> <input type="text" id="detModalidade" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                         
-                        <div><strong class="text-slate-500 block">Tipo de Frete:</strong> <span id="detFrete">-</span></div>
-                        <div><strong class="text-slate-500 block">Pagamento (Entrada):</strong> <span id="detCondEntrada">-</span></div>
-                        <div class="sm:col-span-2"><strong class="text-slate-500 block">Pagamento (Saldo):</strong> <span id="detCondSaldo">-</span></div>
+                        <div><strong class="text-slate-500 block mb-1">Tipo de Frete:</strong> <input type="text" id="detFrete" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div><strong class="text-slate-500 block mb-1">Pagamento (Entrada):</strong> <input type="text" id="detCondEntrada" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                        <div class="sm:col-span-2"><strong class="text-slate-500 block mb-1">Pagamento (Saldo):</strong> <input type="text" id="detCondSaldo" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                     </div>
                 </div>
 
@@ -180,24 +182,24 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-cogs mr-1"></i> 4. Condições Técnicas</h4>
-                        <div class="space-y-1">
-                            <div><strong class="text-slate-500">Produto/Substrato:</strong> <span id="detProd">-</span></div>
-                            <div><strong class="text-slate-500">Material:</strong> <span id="detMat">-</span></div>
-                            <div><strong class="text-slate-500">Velocidade:</strong> <span id="detVel">-</span></div>
-                            <div><strong class="text-slate-500">Distância Cabeçote:</strong> <span id="detDist">-</span></div>
-                            <div><strong class="text-slate-500">Sentido Impressão:</strong> <span id="detSentido">-</span></div>
-                            <div><strong class="text-slate-500">Ambiente:</strong> <span id="detAmb">-</span></div>
+                        <div class="space-y-2">
+                            <div><strong class="text-slate-500 block mb-0.5">Produto/Substrato:</strong> <input type="text" id="detProd" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Material:</strong> <input type="text" id="detMat" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Velocidade:</strong> <input type="text" id="detVel" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Distância Cabeçote:</strong> <input type="text" id="detDist" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Sentido Impressão:</strong> <input type="text" id="detSentido" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Ambiente:</strong> <input type="text" id="detAmb" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                         </div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-user-gear mr-1"></i> 5. Escopo de Instalação</h4>
-                        <div class="space-y-1">
-                            <div><strong class="text-slate-500">Treinamento:</strong> <span id="detTrein">-</span></div>
-                            <div><strong class="text-slate-500">Qtd. Pessoas:</strong> <span id="detPessoas">-</span></div>
-                            <div><strong class="text-slate-500">Suporte/Pedestal:</strong> <span id="detSup">-</span></div>
-                            <div><strong class="text-slate-500">Ar Comprimido:</strong> <span id="detAr">-</span></div>
-                            <div><strong class="text-slate-500">Energia Elétrica:</strong> <span id="detEnerg">-</span></div>
-                            <div><strong class="text-slate-500">Dias Estimados:</strong> <span id="detDias">-</span></div>
+                        <div class="space-y-2">
+                            <div><strong class="text-slate-500 block mb-0.5">Treinamento:</strong> <input type="text" id="detTrein" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Qtd. Pessoas:</strong> <input type="text" id="detPessoas" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Suporte/Pedestal:</strong> <input type="text" id="detSup" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Ar Comprimido:</strong> <input type="text" id="detAr" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Energia Elétrica:</strong> <input type="text" id="detEnerg" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
+                            <div><strong class="text-slate-500 block mb-0.5">Dias Estimados:</strong> <input type="text" id="detDias" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></div>
                         </div>
                     </div>
                 </div>
@@ -206,7 +208,7 @@
                     <h4 class="font-bold text-slate-900 uppercase tracking-wide text-blue-900 border-b pb-1"><i class="fa-solid fa-comment-dots mr-1"></i> 6. Observações e Anexos</h4>
                     <div>
                         <strong class="text-slate-500 block mb-1">Observações Gerais:</strong>
-                        <p id="detObs" class="text-slate-600 italic whitespace-pre-wrap">-</p>
+                        <textarea id="detObs" rows="3" class="w-full p-3 bg-white border border-slate-300 rounded-lg text-slate-700"></textarea>
                     </div>
                     
                     <div id="detAnexoContainer" class="hidden pt-3 border-t border-slate-200 mt-2">
@@ -219,10 +221,13 @@
 
             </div>
 
-            <div class="bg-slate-100 p-4 flex justify-end gap-2 border-t border-slate-200 no-print">
-                <button onclick="window.fecharModalDetalhes()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition shadow-sm cursor-pointer">Fechar Visão</button>
-                <button id="btnExportarIndividual" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
-                <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-print"></i> Imprimir</button>
+            <div class="bg-slate-100 p-4 flex justify-between items-center border-t border-slate-200 no-print">
+                <button onclick="window.fecharModalDetalhes()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition shadow-sm cursor-pointer">Cancelar</button>
+                <div class="flex gap-2">
+                    <button id="btnSalvarEdicaoModal" onclick="window.salvarAlteracoesModal()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações</button>
+                    <button id="btnExportarIndividual" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                    <button onclick="window.print()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"><i class="fa-solid fa-print"></i> Imprimir</button>
+                </div>
             </div>
         </div>
     </div>
@@ -244,6 +249,7 @@
 
     <script>
         window.listaSolicitacoes = [];
+        let numSolAtualEditando = null;
 
         window.initModule = function(perfil) {
             document.getElementById('login-screen').classList.add('hidden');
@@ -313,8 +319,7 @@
                     const anexoIcon = item.anexo_url ? `<i class="fa-solid fa-paperclip text-blue-500 ml-2" title="Possui Anexo"></i>` : '';
                     
                     let actionBtn = `
-                        <button onclick="window.abrirDetalhes('${numSol}')" title="Visualizar Completo" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-eye"></i></button>
-                        <a href="solicitacao.html?editar=${numSol}" title="Editar Solicitação" class="p-1.5 text-amber-600 hover:bg-amber-100 rounded-md transition inline-block"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <button onclick="window.abrirDetalhes('${numSol}')" title="Visualizar / Editar" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition cursor-pointer"><i class="fa-solid fa-eye"></i></button>
                     `;
 
                     if (window.userVisaoGlobal) { 
@@ -344,30 +349,37 @@
             const item = window.listaSolicitacoes.find(i => i.numero_solicitacao === numSol);
             if (!item) return;
 
+            numSolAtualEditando = numSol;
             document.getElementById('btnExportarIndividual').onclick = () => window.exportarExcelIndividual(numSol);
 
             document.getElementById('modalNumSol').innerText = item.numero_solicitacao || 'SOL';
-            document.getElementById('modalRazaoSocial').innerText = item.cliente?.razao_social || '-';
             
-            document.getElementById('detFantasia').innerText = item.cliente?.fantasia || '-';
-            document.getElementById('detCnpj').innerText = item.cliente?.cnpj || '-';
-            document.getElementById('detIe').innerText = item.cliente?.ie || '-';
-            document.getElementById('detCep').innerText = item.cliente?.cep || '-';
-            document.getElementById('detEndereco').innerText = item.cliente?.endereco || '-';
-            document.getElementById('detCidade').innerText = item.cliente?.cidade || '-';
-            document.getElementById('detTransportadora').innerText = item.cliente?.transportadora || '-';
-            document.getElementById('detContato').innerText = item.cliente?.contato || '-';
-            document.getElementById('detTelefone').innerText = item.cliente?.telefone || '-';
-            document.getElementById('detEmail').innerText = item.cliente?.email || '-';
-            document.getElementById('detEmailNfe').innerText = item.cliente?.email_nfe || '-';
+            // Exibe a auditoria de alteração
+            const altPor = item.ultima_alteracao_por || item.autor || 'Desconhecido';
+            const altData = item.ultima_alteracao_data || (item.data_registro ? new Date(item.data_registro).toLocaleString('pt-BR') : '-');
+            document.getElementById('infoAuditoriaEdicao').innerText = `Última alteração por: ${altPor} em ${altData}`;
 
-            document.getElementById('detPedido').innerText = item.comercial?.pedido || '-';
-            document.getElementById('detProposta').innerText = item.comercial?.proposta || '-';
-            document.getElementById('detVendedor').innerText = item.comercial?.vendedor || '-';
-            document.getElementById('detModalidade').innerText = item.comercial?.modalidade || '-';
-            document.getElementById('detFrete').innerText = item.comercial?.frete || '-';
-            document.getElementById('detCondEntrada').innerText = item.comercial?.cond_entrada || '-';
-            document.getElementById('detCondSaldo').innerText = item.comercial?.cond_saldo || '-';
+            // Preenche inputs editáveis
+            document.getElementById('detRazao').value = item.cliente?.razao_social || '';
+            document.getElementById('detFantasia').value = item.cliente?.fantasia || '';
+            document.getElementById('detCnpj').value = item.cliente?.cnpj || '';
+            document.getElementById('detIe').value = item.cliente?.ie || '';
+            document.getElementById('detCep').value = item.cliente?.cep || '';
+            document.getElementById('detEndereco').value = item.cliente?.endereco || '';
+            document.getElementById('detCidade').value = item.cliente?.cidade || '';
+            document.getElementById('detTransportadora').value = item.cliente?.transportadora || '';
+            document.getElementById('detContato').value = item.cliente?.contato || '';
+            document.getElementById('detTelefone').value = item.cliente?.telefone || '';
+            document.getElementById('detEmail').value = item.cliente?.email || '';
+            document.getElementById('detEmailNfe').value = item.cliente?.email_nfe || '';
+
+            document.getElementById('detPedido').value = item.comercial?.pedido || '';
+            document.getElementById('detProposta').value = item.comercial?.proposta || '';
+            document.getElementById('detVendedor').value = item.comercial?.vendedor || '';
+            document.getElementById('detModalidade').value = item.comercial?.modalidade || '';
+            document.getElementById('detFrete').value = item.comercial?.frete || '';
+            document.getElementById('detCondEntrada').value = item.comercial?.cond_entrada || '';
+            document.getElementById('detCondSaldo').value = item.comercial?.cond_saldo || '';
 
             const tbodyItens = document.getElementById('detTabelaItens');
             tbodyItens.innerHTML = '';
@@ -392,21 +404,21 @@
 
             document.getElementById('detValorGeral').innerText = item.totais?.valor_geral || 'R$ 0,00';
 
-            document.getElementById('detProd').innerText = item.condicoes_tecnicas?.produto || '-';
-            document.getElementById('detMat').innerText = item.condicoes_tecnicas?.material || '-';
-            document.getElementById('detVel').innerText = item.condicoes_tecnicas?.velocidade || '-';
-            document.getElementById('detDist').innerText = item.condicoes_tecnicas?.distancia || '-';
-            document.getElementById('detSentido').innerText = item.condicoes_tecnicas?.sentido || '-';
-            document.getElementById('detAmb').innerText = item.condicoes_tecnicas?.ambiente || '-';
+            document.getElementById('detProd').value = item.condicoes_tecnicas?.produto || '';
+            document.getElementById('detMat').value = item.condicoes_tecnicas?.material || '';
+            document.getElementById('detVel').value = item.condicoes_tecnicas?.velocidade || '';
+            document.getElementById('detDist').value = item.condicoes_tecnicas?.distancia || '';
+            document.getElementById('detSentido').value = item.condicoes_tecnicas?.sentido || '';
+            document.getElementById('detAmb').value = item.condicoes_tecnicas?.ambiente || '';
 
-            document.getElementById('detTrein').innerText = item.escopo_instalacao?.treinamento || '-';
-            document.getElementById('detPessoas').innerText = item.escopo_instalacao?.pessoas || '-';
-            document.getElementById('detSup').innerText = item.escopo_instalacao?.suporte || '-';
-            document.getElementById('detAr').innerText = item.escopo_instalacao?.ar_comprimido || '-';
-            document.getElementById('detEnerg').innerText = item.escopo_instalacao?.energia || '-';
-            document.getElementById('detDias').innerText = item.escopo_instalacao?.dias || '-';
+            document.getElementById('detTrein').value = item.escopo_instalacao?.treinamento || '';
+            document.getElementById('detPessoas').value = item.escopo_instalacao?.pessoas || '';
+            document.getElementById('detSup').value = item.escopo_instalacao?.suporte || '';
+            document.getElementById('detAr').value = item.escopo_instalacao?.ar_comprimido || '';
+            document.getElementById('detEnerg').value = item.escopo_instalacao?.energia || '';
+            document.getElementById('detDias').value = item.escopo_instalacao?.dias || '';
 
-            document.getElementById('detObs').innerText = item.observacoes || 'Nenhuma observação informada.';
+            document.getElementById('detObs').value = item.observacoes || '';
 
             const anexoContainer = document.getElementById('detAnexoContainer');
             const anexoLink = document.getElementById('detAnexoLink');
@@ -422,6 +434,68 @@
             }
 
             document.getElementById('modalDetalhes').classList.remove('hidden');
+        };
+
+        window.salvarAlteracoesModal = async function() {
+            if (!numSolAtualEditando) return;
+            const itemIdx = window.listaSolicitacoes.findIndex(i => i.numero_solicitacao === numSolAtualEditando);
+            if (itemIdx === -1) return;
+
+            const item = window.listaSolicitacoes[itemIdx];
+
+            // Atualiza os dados com os valores atuais dos inputs do modal
+            item.cliente.razao_social = document.getElementById('detRazao').value;
+            item.cliente.fantasia = document.getElementById('detFantasia').value;
+            item.cliente.cnpj = document.getElementById('detCnpj').value;
+            item.cliente.ie = document.getElementById('detIe').value;
+            item.cliente.cep = document.getElementById('detCep').value;
+            item.cliente.endereco = document.getElementById('detEndereco').value;
+            item.cliente.cidade = document.getElementById('detCidade').value;
+            item.cliente.transportadora = document.getElementById('detTransportadora').value;
+            item.cliente.contato = document.getElementById('detContato').value;
+            item.cliente.telefone = document.getElementById('detTelefone').value;
+            item.cliente.email = document.getElementById('detEmail').value;
+            item.cliente.email_nfe = document.getElementById('detEmailNfe').value;
+
+            item.comercial.pedido = document.getElementById('detPedido').value;
+            item.comercial.proposta = document.getElementById('detProposta').value;
+            item.comercial.vendedor = document.getElementById('detVendedor').value;
+            item.comercial.modalidade = document.getElementById('detModalidade').value;
+            item.comercial.frete = document.getElementById('detFrete').value;
+            item.comercial.cond_entrada = document.getElementById('detCondEntrada').value;
+            item.comercial.cond_saldo = document.getElementById('detCondSaldo').value;
+
+            item.condicoes_tecnicas.produto = document.getElementById('detProd').value;
+            item.condicoes_tecnicas.material = document.getElementById('detMat').value;
+            item.condicoes_tecnicas.velocidade = document.getElementById('detVel').value;
+            item.condicoes_tecnicas.distancia = document.getElementById('detDist').value;
+            item.condicoes_tecnicas.sentido = document.getElementById('detSentido').value;
+            item.condicoes_tecnicas.ambiente = document.getElementById('detAmb').value;
+
+            item.escopo_instalacao.treinamento = document.getElementById('detTrein').value;
+            item.escopo_instalacao.pessoas = document.getElementById('detPessoas').value;
+            item.escopo_instalacao.suporte = document.getElementById('detSup').value;
+            item.escopo_instalacao.ar_comprimido = document.getElementById('detAr').value;
+            item.escopo_instalacao.energia = document.getElementById('detEnerg').value;
+            item.escopo_instalacao.dias = document.getElementById('detDias').value;
+
+            item.observacoes = document.getElementById('detObs').value;
+
+            // Registro de Auditoria
+            const nomeUser = window.nomeUsuarioLogado || (window.currentUser ? window.currentUser.email : 'Usuário');
+            item.ultima_alteracao_por = nomeUser;
+            item.ultima_alteracao_data = new Date().toLocaleString('pt-BR');
+
+            try {
+                const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes', numSolAtualEditando);
+                await window.fsSetDoc(docRef, item, { merge: true });
+                window.renderizarTabela();
+                window.fecharModalDetalhes();
+                if(window.mostrarNotificacao) window.mostrarNotificacao(`Solicitação ${numSolAtualEditando} atualizada com sucesso!`);
+            } catch (err) {
+                console.error("Erro ao salvar alterações:", err);
+                alert("Erro ao atualizar no banco de dados.");
+            }
         };
 
         window.fecharModalDetalhes = function() { document.getElementById('modalDetalhes').classList.add('hidden'); };
