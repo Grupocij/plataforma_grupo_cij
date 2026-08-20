@@ -39,6 +39,7 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2 pointer-events-none no-print"></div>
 
+    <!-- ÁREA CENTRAL COM SCROLL LIVRE E FLUIDO -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 hidden" id="main-content">
 
         <!-- CABEÇALHO INTERNO -->
@@ -49,7 +50,7 @@
                 </div>
                 <div>
                     <h2 class="text-xl font-black text-slate-900 tracking-tight">Registro de Vendas</h2>
-                    <p class="text-xs text-slate-500 font-medium mt-0.5">Gestão de NFs com múltiplos itens, quantidades, cálculos e previsões</p>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Gestão de NFs com múltiplos itens, cálculos quinzenais e previsões</p>
                 </div>
             </div>
             
@@ -142,15 +143,15 @@
             </div>
         </section>
 
-        <!-- TAB 2: LANÇAR NF COM MÚLTIPLOS ITENS E QUANTIDADE -->
+        <!-- TAB 2: LANÇAR NF COM MÚLTIPLOS ITENS -->
         <section id="tab-nova-venda" class="tab-content hidden space-y-6">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
                 <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h3 id="formTitleAzul" class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Lançar Nota Fiscal (Múltiplos Itens & Quantidade)
+                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Lançar Nota Fiscal (Múltiplos Itens)
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1">Adicione vários itens, informe a quantidade e datas de entrada/parcelas.</p>
+                        <p class="text-xs text-slate-500 mt-1">Adicione vários itens na mesma NF. O sistema calcula a comissão individualmente para cada linha.</p>
                     </div>
                     <button type="button" id="btnCancelEditAzul" onclick="window.resetFormAzul()" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-xmark"></i> Cancelar Edição
@@ -792,12 +793,6 @@
             const paymentCond = sale.paymentCond || 'À Vista';
             const itens = sale.itens || [];
             
-            const hasConsumivel = itens.some(i => i.tipo === 'Consumíveis' || i.tipo === 'Corpo de Prova');
-            if (hasConsumivel && paymentCond !== 'À Vista') {
-                const payDate = sale.dataPrimeiraParcela ? window.getNextPaymentDateAzul(sale.dataPrimeiraParcela) : window.getNextPaymentDateAzul(sale.date);
-                return { unlocked: false, info: `1ª Parc (${payDate})`, detail: `Consumíveis - Aguarda 1ª parcela.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
-            }
-
             const isSpecialRule = itens.some(i => i.tipo === 'Alternativo') && sale.clientType === 'Novo';
             const requiredPercent = isSpecialRule ? 100 : 20;
 
@@ -925,7 +920,7 @@
                         <td class="p-3 font-bold text-blue-900">${sale.nf}</td>
                         <td class="p-3 text-slate-600 text-center">${dateFormatted}</td>
                         <td class="p-3 text-slate-800"><div>${sale.client}</div><span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">${sale.clientType}</span></td>
-                        <td class="p-3 text-center font-bold text-blue-700">${(sale.itens || []).length} item(ns)</td>
+                        <td class="p-3 text-center font-bold text-blue-700">${(sale.itens || []).reduce((acc, i) => acc + (i.qtd || 1), 0)} item(ns)</td>
                         <td class="p-3 text-right font-bold text-slate-900">${formatarMoeda(saleVal)}</td>
                         <td class="p-3 text-right font-black text-indigo-700 bg-indigo-50/50">${formatarMoeda(commVal)}</td>
                         <td class="p-3 text-center"><span class="inline-block text-[10px] font-bold px-2 py-1 rounded-md border ${elig.class}">${elig.info}</span></td>
@@ -966,7 +961,7 @@
                                                 <td class="p-2 font-bold text-slate-800">${i.tipo}</td>
                                                 <td class="p-2 text-slate-600">${i.detalhe || '-'}</td>
                                                 <td class="p-2 text-center font-bold text-slate-700">${i.qtd || 1}</td>
-                                                <td class="p-2 text-right font-medium">${formatarMoeda(i.valorUn || i.valor)}</td>
+                                                <td class="p-2 text-right font-medium">${formatarMoeda(i.valorUn || (i.valor / (i.qtd || 1)))}</td>
                                                 <td class="p-2 text-center font-bold text-indigo-700">${i.comissaoPercent}%</td>
                                                 <td class="p-2 text-right font-black text-emerald-700">${formatarMoeda(i.comissaoValor)}</td>
                                             </tr>
