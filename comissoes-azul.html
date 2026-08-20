@@ -777,13 +777,29 @@
                 return { unlocked: false, info: `1ª Parc (${payDate})`, detail: `Consumíveis - Aguarda 1ª parcela.`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
             }
 
-            if (entryPercent >= 20 || paymentCond === 'À Vista') {
+            const isSpecialRule = itens.some(i => i.tipo === 'Alternativo') && sale.clientType === 'Novo';
+            const requiredPercent = isSpecialRule ? 100 : 20;
+
+            if (paymentCond === 'À Vista' || entryPercent >= requiredPercent) {
                 const payDate = window.getNextPaymentDateAzul(sale.date);
-                return { unlocked: true, info: `Liberado (${payDate})`, detail: `Previsão em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+                const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Liberado (${payDate})`;
+                return { unlocked: true, info: label, detail: `Previsão em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
             }
 
-            const payDate = window.getNextPaymentDateAzul(sale.date);
-            return { unlocked: false, info: `Pendente (${payDate})`, detail: `Aguardando quitação/entrada mínima`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
+            const installments = parseInt(sale.installmentsCount) || 1;
+            const intervalDays = parseInt(sale.installmentInterval) || 30;
+            const percentPerInstallment = installments > 0 ? (100 - entryPercent) / installments : (100 - entryPercent);
+
+            let k = Math.ceil((requiredPercent - entryPercent) / percentPerInstallment);
+            if (k < 1) k = 1;
+            if (k > installments) k = installments;
+
+            const saleDateObj = new Date(sale.date + 'T00:00:00');
+            saleDateObj.setDate(saleDateObj.getDate() + (k * intervalDays));
+            const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
+            const payDate = window.getNextPaymentDateAzul(targetDateStr);
+
+            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Atinge ${requiredPercent}% na ${k}ª parcela`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
         };
 
         window.getFilteredSalesAzul = function(module) {
@@ -1273,6 +1289,7 @@
             window.updatePaymentFieldsAzul();
         };
 
+        // EXCLUSÃO COM CONFIRMAÇÃO NATIVA CORRIGIDA
         window.deleteSaleAzul = function(id) {
             if (confirm('Deseja realmente remover esta nota fiscal?')) {
                 window.listaComissoesAzul = window.listaComissoesAzul.filter(s => s.id !== id);
