@@ -433,7 +433,7 @@
                                 <th class="p-3">Vendedor</th>
                                 <th class="p-3">NF</th>
                                 <th class="p-3">Cliente</th>
-                                <th class="p-3 text-center">Previsão</th>
+                                <th class="p-3 text-center">Previsão (Repasse)</th>
                                 <th class="p-3 text-right text-emerald-300">Valor Comissão</th>
                             </tr>
                         </thead>
@@ -798,7 +798,7 @@
             if (paymentCond === 'À Vista' || entryPercent >= requiredPercent) {
                 const payDate = sale.dataEntrada ? window.getNextPaymentDateAzul(sale.dataEntrada) : window.getNextPaymentDateAzul(sale.date);
                 const label = requiredPercent === 100 ? `100% Pago (${payDate})` : `Liberado (${payDate})`;
-                return { unlocked: true, info: label, detail: `Previsão em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
+                return { unlocked: true, info: label, detail: `Previsão de Pagamento em ${payDate}`, class: 'text-emerald-800 bg-emerald-100 border-emerald-300', payDateStr: payDate };
             }
 
             const installments = parseInt(sale.installmentsCount) || 1;
@@ -813,9 +813,10 @@
             const saleDateObj = new Date(baseDateStr + 'T00:00:00');
             saleDateObj.setDate(saleDateObj.getDate() + ((k - 1) * intervalDays));
             const targetDateStr = `${saleDateObj.getFullYear()}-${String(saleDateObj.getMonth() + 1).padStart(2, '0')}-${String(saleDateObj.getDate()).padStart(2, '0')}`;
+            
             const payDate = window.getNextPaymentDateAzul(targetDateStr);
 
-            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Atinge ${requiredPercent}% na ${k}ª parcela`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
+            return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Atinge ${requiredPercent}% na ${k}ª parcela - Pgto em ${payDate}`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
         };
 
         window.getFilteredSalesAzul = function(module) {
