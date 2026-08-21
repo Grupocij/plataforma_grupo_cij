@@ -26,88 +26,88 @@
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
     <!-- CONTEÚDO PRINCIPAL (Exibido após o login pelo core.js) -->
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-3 md:p-5 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- CABEÇALHO INTERNO DA AGENDA (Substitui o antigo navbar) -->
-        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-4 shrink-0">
+        <!-- CABEÇALHO INTERNO DA AGENDA (Mais compacto) -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-3 w-full lg:w-auto">
-                <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-md shadow-blue-500/20 shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20 shrink-0">
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black text-slate-900 leading-tight">Agenda</h1>
-                    <p class="text-xs text-slate-500 font-medium hidden sm:block">Gestão de Visitas e Chamados Internos</p>
+                    <h1 class="text-lg font-black text-slate-900 leading-tight">Agenda</h1>
+                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Gestão de Visitas e Chamados Internos</p>
                 </div>
             </div>
 
             <!-- Botões de Troca de Visão -->
-            <div class="flex w-full sm:w-auto items-center justify-center p-1.5 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto">
-                <button onclick="window.switchView('calendar')" id="tabCalendar" class="px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 bg-white text-blue-600 shadow-sm whitespace-nowrap cursor-pointer">
+            <div class="flex w-full sm:w-auto items-center justify-center p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto">
+                <button onclick="window.switchView('calendar')" id="tabCalendar" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 bg-white text-blue-600 shadow-sm whitespace-nowrap cursor-pointer">
                     <i class="fa-regular fa-calendar"></i> Calendário
                 </button>
-                <button onclick="window.switchView('kanban')" id="tabKanban" class="px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer">
-                    <i class="fa-solid fa-columns"></i> Quadro Kanban
+                <button onclick="window.switchView('kanban')" id="tabKanban" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-columns"></i> Kanban
                 </button>
-                <button onclick="window.switchView('table')" id="tabTable" class="px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer">
-                    <i class="fa-solid fa-list-check"></i> Lista Detalhada
+                <button onclick="window.switchView('table')" id="tabTable" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-list-check"></i> Lista
                 </button>
             </div>
 
             <!-- Filtros e Ações Diretas -->
-            <div class="flex items-center gap-2 sm:gap-3 w-full lg:w-auto justify-end">
-                <button id="btnOnlyMine" onclick="window.toggleOnlyMine()" class="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+            <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
+                <button id="btnOnlyMine" onclick="window.toggleOnlyMine()" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-user-tag text-slate-400"></i>
                     <span class="hidden sm:inline">Somente Minhas</span>
                 </button>
-                <button onclick="window.openTaskModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 shrink-0 cursor-pointer">
+                <button onclick="window.openTaskModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-sm transition flex items-center gap-1.5 shrink-0 cursor-pointer">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Novo Agendamento</span>
                 </button>
             </div>
         </div>
         
-        <!-- KPIS DA AGENDA -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 shrink-0">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <!-- KPIS DA AGENDA (Mais compactos) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Demandas</p>
-                    <p id="statTotal" class="text-xl sm:text-2xl font-black text-slate-800 mt-0.5">0</p>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Total Demandas</p>
+                    <p id="statTotal" class="text-lg sm:text-xl font-black text-slate-800 mt-0.5">0</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-clipboard-list text-lg"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-clipboard-list"></i></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Agendados</p>
-                    <p id="statPending" class="text-xl sm:text-2xl font-black text-blue-700 mt-0.5">0</p>
+                    <p class="text-[9px] font-bold text-blue-600 uppercase tracking-wider">Agendados</p>
+                    <p id="statPending" class="text-lg sm:text-xl font-black text-blue-700 mt-0.5">0</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-regular fa-calendar-check text-lg"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-regular fa-calendar-check"></i></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Em Andamento</p>
-                    <p id="statProgress" class="text-xl sm:text-2xl font-black text-amber-700 mt-0.5">0</p>
+                    <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Em Andamento</p>
+                    <p id="statProgress" class="text-lg sm:text-xl font-black text-amber-700 mt-0.5">0</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><i class="fa-solid fa-spinner text-lg"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600"><i class="fa-solid fa-spinner"></i></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Urgência Crítica</p>
-                    <p id="statCritical" class="text-xl sm:text-2xl font-black text-red-700 mt-0.5">0</p>
+                    <p class="text-[9px] font-bold text-red-600 uppercase tracking-wider">Urgência Crítica</p>
+                    <p id="statCritical" class="text-lg sm:text-xl font-black text-red-700 mt-0.5">0</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600"><i class="fa-solid fa-triangle-exclamation text-lg"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600"><i class="fa-solid fa-triangle-exclamation"></i></div>
             </div>
         </div>
 
-        <!-- BARRA DE PESQUISA -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                <div class="relative flex-1 sm:w-64">
+        <!-- BARRA DE PESQUISA (Mais compacta) -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-56">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="filterSearch" placeholder="Buscar por cliente ou OS..." oninput="window.renderApp()" class="w-full pl-9 pr-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                    <input type="text" id="filterSearch" placeholder="Buscar por cliente/OS..." oninput="window.renderApp()" class="w-full pl-8 pr-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white">
                 </div>
-                <select id="filterTech" onchange="window.renderApp()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"></select>
-                <select id="filterUrgency" onchange="window.renderApp()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                    <option value="ALL">Todas as Urgências</option>
+                <select id="filterTech" onchange="window.renderApp()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-slate-700 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"></select>
+                <select id="filterUrgency" onchange="window.renderApp()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-slate-700 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
+                    <option value="ALL">Todas Urgências</option>
                     <option value="LOW">Baixa</option>
                     <option value="MEDIUM">Média</option>
                     <option value="HIGH">Alta</option>
@@ -116,105 +116,105 @@
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-500 self-end sm:self-auto">
                 <span id="activeFilterBadge" class="hidden px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-md border border-blue-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-filter"></i> Somente Minhas
+                    <i class="fa-solid fa-filter"></i> Som. Minhas
                     <button onclick="window.clearOnlyMine()" class="hover:text-blue-900 ml-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </span>
                 <span id="resultsCount" class="font-bold text-slate-700">0 agendamentos</span>
             </div>
         </div>
 
-        <!-- VISÃO 1: CALENDÁRIO & MURAL -->
-        <div id="viewCalendar" class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
+        <!-- VISÃO 1: CALENDÁRIO & MURAL (Ajustado com scroll natural) -->
+        <div id="viewCalendar" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             
-            <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden h-[600px] lg:h-auto">
-                <div class="p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50">
+            <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
+                <div class="p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 shrink-0">
                     <div class="flex items-center gap-3">
-                        <h2 id="calendarMonthYear" class="text-base font-black text-slate-800 capitalize">Mês / Ano</h2>
-                        <button onclick="window.goToday()" class="text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg border border-blue-200 transition cursor-pointer">Hoje</button>
+                        <h2 id="calendarMonthYear" class="text-sm font-black text-slate-800 capitalize">Mês / Ano</h2>
+                        <button onclick="window.goToday()" class="text-[11px] font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2.5 py-1 rounded-lg border border-blue-200 transition cursor-pointer">Hoje</button>
                     </div>
-                    <div class="flex items-center gap-2.5 text-[10px] font-bold text-slate-600 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Agendado</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Em Andamento</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Concluído</span>
+                    <div class="flex items-center gap-2 text-[9px] font-bold text-slate-600 bg-white px-2 py-1 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Agendado</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Em Andamento</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Concluído</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="window.prevMonth()" class="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                        <button onclick="window.nextMonth()" class="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                        <button onclick="window.prevMonth()" class="w-7 h-7 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                        <button onclick="window.nextMonth()" class="w-7 h-7 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                     </div>
                 </div>
-                <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-100 text-center text-[11px] font-black text-slate-500 uppercase py-2">
+                <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-100 text-center text-[10px] font-black text-slate-500 uppercase py-1.5 shrink-0">
                     <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                 </div>
-                <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr gap-px bg-slate-200 flex-1 overflow-y-auto"></div>
+                <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr gap-px bg-slate-200 flex-1 h-full"></div>
             </div>
 
             <!-- MURAL DE RECADOS -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[600px] lg:h-auto overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[750px] overflow-hidden">
+                <div class="p-3 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-bullhorn text-sm"></i></div>
-                        <div><h3 class="text-sm font-black text-slate-800">Mural de Recados</h3><p class="text-[10px] text-slate-500 font-bold">Avisos e Notas da Equipe</p></div>
+                        <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-bullhorn text-xs"></i></div>
+                        <div><h3 class="text-xs font-black text-slate-800">Mural de Recados</h3><p class="text-[9px] text-slate-500 font-bold">Avisos e Notas da Equipe</p></div>
                     </div>
                 </div>
-                <div class="p-3 border-b border-slate-100 bg-slate-50 shrink-0">
+                <div class="p-2.5 border-b border-slate-100 bg-slate-50 shrink-0">
                     <form onsubmit="window.handleAddNotice(event)" class="flex flex-col gap-2">
                         <div class="flex gap-2">
-                            <select id="noticeCategory" class="text-[11px] bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-slate-700 font-bold focus:outline-none cursor-pointer">
+                            <select id="noticeCategory" class="text-[10px] bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-700 font-bold focus:outline-none cursor-pointer w-full">
                                 <option value="INFO">📢 Aviso Geral</option>
                                 <option value="URGENT">🚨 Urgente</option>
                                 <option value="STOCK">📦 Peças/Estoque</option>
                                 <option value="REMINDER">💡 Lembrete</option>
                             </select>
                         </div>
-                        <textarea id="noticeContent" rows="2" placeholder="Escreva um recado para a equipe..." required class="w-full p-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 resize-none"></textarea>
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-paper-plane text-[10px]"></i> Publicar Recado
+                        <textarea id="noticeContent" rows="2" placeholder="Escreva um recado..." required class="w-full p-2 text-[11px] font-medium bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold py-1.5 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-paper-plane text-[9px]"></i> Publicar
                         </button>
                     </form>
                 </div>
-                <div id="noticeList" class="p-3 flex-1 overflow-y-auto space-y-3 custom-scrollbar"></div>
+                <div id="noticeList" class="p-2.5 flex-1 overflow-y-auto space-y-2.5 custom-scrollbar"></div>
             </div>
         </div>
 
-        <!-- VISÃO 2: KANBAN -->
-        <div id="viewKanban" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-0">
-            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'PENDING')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col h-[600px] lg:h-auto transition-all duration-150">
+        <!-- VISÃO 2: KANBAN (Ajustado para altura generosa e rolagem natural) -->
+        <div id="viewKanban" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 pb-12">
+            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'PENDING')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col min-h-[750px] transition-all duration-150">
                 <div class="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-300 pointer-events-none shrink-0">
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span><h3 class="text-xs font-black text-slate-700 uppercase tracking-wider">Agendado</h3></div>
                     <span id="kanbanCountPending" class="text-xs font-bold bg-white px-2 py-0.5 rounded-full border border-slate-300 text-slate-600">0</span>
                 </div>
-                <div id="kanbanPending" class="space-y-3 flex-1 overflow-y-auto pr-0.5 custom-scrollbar"></div>
+                <div id="kanbanPending" class="space-y-3 flex-1"></div>
             </div>
-            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'IN_PROGRESS')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col h-[600px] lg:h-auto transition-all duration-150">
+            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'IN_PROGRESS')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col min-h-[750px] transition-all duration-150">
                 <div class="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-300 pointer-events-none shrink-0">
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><h3 class="text-xs font-black text-slate-700 uppercase tracking-wider">Em Andamento</h3></div>
                     <span id="kanbanCountProgress" class="text-xs font-bold bg-white px-2 py-0.5 rounded-full border border-slate-300 text-slate-600">0</span>
                 </div>
-                <div id="kanbanProgress" class="space-y-3 flex-1 overflow-y-auto pr-0.5 custom-scrollbar"></div>
+                <div id="kanbanProgress" class="space-y-3 flex-1"></div>
             </div>
-            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'DONE')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col h-[600px] lg:h-auto transition-all duration-150">
+            <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'DONE')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col min-h-[750px] transition-all duration-150">
                 <div class="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-300 pointer-events-none shrink-0">
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><h3 class="text-xs font-black text-slate-700 uppercase tracking-wider">Concluído</h3></div>
                     <span id="kanbanCountDone" class="text-xs font-bold bg-white px-2 py-0.5 rounded-full border border-slate-300 text-slate-600">0</span>
                 </div>
-                <div id="kanbanDone" class="space-y-3 flex-1 overflow-y-auto pr-0.5 custom-scrollbar"></div>
+                <div id="kanbanDone" class="space-y-3 flex-1"></div>
             </div>
         </div>
 
         <!-- VISÃO 3: TABELA -->
-        <div id="viewTable" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
+        <div id="viewTable" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
             <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs">
+                <table class="w-full text-left text-xs min-w-[800px]">
                     <thead class="bg-slate-900 text-white uppercase font-bold sticky top-0 z-10">
                         <tr>
-                            <th class="p-4">OS / Cliente</th>
-                            <th class="p-4">Tipo</th>
-                            <th class="p-4">Responsável</th>
-                            <th class="p-4">Urgência</th>
-                            <th class="p-4">Data Início</th>
-                            <th class="p-4">Data Conclusão</th>
-                            <th class="p-4">Status</th>
-                            <th class="p-4 text-right">Ações</th>
+                            <th class="p-3">OS / Cliente</th>
+                            <th class="p-3">Tipo</th>
+                            <th class="p-3">Responsável</th>
+                            <th class="p-3">Urgência</th>
+                            <th class="p-3">Data Início</th>
+                            <th class="p-3">Data Conclusão</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 font-medium"></tbody>
@@ -224,45 +224,45 @@
     </main>
 
     <!-- MODAL: NOVO / EDITAR TAREFA -->
-    <div id="taskModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden transform transition-all">
-            <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
-                <h3 id="modalTitle" class="text-base font-black">Novo Agendamento Técnico</h3>
+    <div id="taskModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden transform transition-all my-auto">
+            <div class="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between shrink-0">
+                <h3 id="modalTitle" class="text-sm sm:text-base font-black">Novo Agendamento</h3>
                 <button onclick="window.closeTaskModal()" class="w-8 h-8 rounded-xl hover:bg-white/20 flex items-center justify-center transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="taskForm" onsubmit="window.handleTaskSubmit(event)" class="p-6 space-y-4">
+            <form id="taskForm" onsubmit="window.handleTaskSubmit(event)" class="p-4 sm:p-6 space-y-3 sm:space-y-4">
                 <input type="hidden" id="taskId">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Número da OS</label>
-                        <input type="text" id="taskOsNumber" placeholder="Ex: OS #1042" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Número da OS</label>
+                        <input type="text" id="taskOsNumber" placeholder="Ex: OS #1042" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Cliente *</label>
-                        <input type="text" id="taskClient" required placeholder="Ex: Empresa ACME" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Cliente *</label>
+                        <input type="text" id="taskClient" required placeholder="Ex: Empresa ACME" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Tipo de Compromisso *</label>
-                        <select id="taskType" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Tipo de Compromisso *</label>
+                        <select id="taskType" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                             <option value="TECHNICAL">🛠️ Atendimento Técnico</option>
                             <option value="COMMERCIAL">💼 Visita Comercial</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Localização *</label>
-                        <input type="text" id="taskLocation" required placeholder="Ex: Av. Brasil, Centro" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Localização *</label>
+                        <input type="text" id="taskLocation" required placeholder="Ex: Av. Brasil, Centro" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Responsável *</label>
-                        <select id="taskTech" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer"></select>
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Responsável *</label>
+                        <select id="taskTech" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer"></select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Grau de Urgência *</label>
-                        <select id="taskUrgency" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Grau de Urgência *</label>
+                        <select id="taskUrgency" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                             <option value="LOW">🟢 Baixa</option>
                             <option value="MEDIUM">🟡 Média</option>
                             <option value="HIGH">🟠 Alta</option>
@@ -270,68 +270,68 @@
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Início *</label>
-                        <input type="date" id="taskScheduledDate" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Início *</label>
+                        <input type="date" id="taskScheduledDate" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Conclusão *</label>
-                        <input type="date" id="taskDueDate" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Conclusão *</label>
+                        <input type="date" id="taskDueDate" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Status de Andamento *</label>
-                    <select id="taskStatus" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                    <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Status de Andamento *</label>
+                    <select id="taskStatus" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                         <option value="PENDING">📅 Agendado</option>
                         <option value="IN_PROGRESS">⚡ Em Andamento</option>
                         <option value="DONE">✅ Concluído</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas</label>
-                    <textarea id="taskDescription" rows="3" placeholder="Detalhes do problema, peças necessárias..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-600 transition resize-none"></textarea>
+                    <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas</label>
+                    <textarea id="taskDescription" rows="3" placeholder="Detalhes..." class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-600 transition resize-none"></textarea>
                 </div>
-                <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
-                    <button type="button" onclick="window.closeTaskModal()" class="px-5 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer">Cancelar</button>
-                    <button type="submit" class="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md cursor-pointer">Salvar Agendamento</button>
+                <div class="pt-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="window.closeTaskModal()" class="px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md cursor-pointer">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL: VISUALIZAR DETALHES -->
-    <div id="detailsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
-            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+    <div id="detailsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden my-auto">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
                 <span id="detailBadgeType" class="text-[11px] font-black px-2.5 py-1 rounded-md">--</span>
                 <button onclick="window.closeDetailsModal()" class="text-slate-400 hover:text-slate-800 text-xl transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-4 sm:p-6 space-y-4">
                 <div>
-                    <h3 id="detailTitle" class="text-lg font-black text-slate-900">--</h3>
+                    <h3 id="detailTitle" class="text-base sm:text-lg font-black text-slate-900 leading-tight">--</h3>
                     <p id="detailClient" class="text-xs text-slate-500 font-bold mt-0.5">--</p>
                 </div>
-                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">OS</p><p id="detailOsNumber" class="font-bold text-slate-800">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">Cliente</p><p id="detailClientText" class="font-bold text-slate-800">--</p></div>
-                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[10px] uppercase">Localização</p><p id="detailLocationText" class="font-bold text-slate-800">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">Responsável</p><p id="detailTech" class="font-bold text-slate-800">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">Urgência</p><p id="detailUrgency" class="mt-1">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">Status Atual</p><p id="detailStatus" class="mt-1">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[10px] uppercase">Data de Início</p><p id="detailScheduled" class="font-bold text-slate-800">--</p></div>
-                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[10px] uppercase">Data de Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
+                <div class="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200 text-xs">
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">OS</p><p id="detailOsNumber" class="font-bold text-slate-800">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Cliente</p><p id="detailClientText" class="font-bold text-slate-800 truncate">--</p></div>
+                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Localização</p><p id="detailLocationText" class="font-bold text-slate-800">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Responsável</p><p id="detailTech" class="font-bold text-slate-800">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Urgência</p><p id="detailUrgency" class="mt-1">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Status</p><p id="detailStatus" class="mt-1">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Início</p><p id="detailScheduled" class="font-bold text-slate-800">--</p></div>
+                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
                 </div>
                 <div>
-                    <p class="text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas:</p>
-                    <div id="detailDescription" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 min-h-[60px] whitespace-pre-wrap">--</div>
+                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas:</p>
+                    <div id="detailDescription" class="p-3 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] sm:text-xs font-medium text-slate-700 min-h-[60px] whitespace-pre-wrap">--</div>
                 </div>
             </div>
-            <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-                <button id="btnDeleteTask" class="text-red-600 hover:bg-red-50 font-bold text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl transition cursor-pointer"><i class="fa-regular fa-trash-can"></i> Excluir</button>
+            <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0">
+                <button id="btnDeleteTask" class="text-red-600 hover:bg-red-50 font-bold text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl transition cursor-pointer"><i class="fa-regular fa-trash-can"></i> <span class="hidden sm:inline">Excluir</span></button>
                 <div class="flex gap-2">
-                    <button id="btnEditTask" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-pen"></i> Editar</button>
-                    <button onclick="window.closeDetailsModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-sm">Fechar</button>
+                    <button id="btnEditTask" class="px-3 sm:px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-pen"></i> Editar</button>
+                    <button onclick="window.closeDetailsModal()" class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-sm">Fechar</button>
                 </div>
             </div>
         </div>
@@ -370,7 +370,6 @@
 
             window.populateTechnicianSelects();
 
-            // Integração Firebase: Demandas e Kanban
             const tasksCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2');
             window.fsOnSnapshot(tasksCol, (snap) => {
                 window.tasks = [];
@@ -378,7 +377,6 @@
                 window.renderApp();
             });
 
-            // Integração Firebase: Mural de Recados
             const noticesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1');
             window.fsOnSnapshot(noticesCol, (snap) => {
                 window.notices = [];
@@ -484,28 +482,28 @@
             const todayStr = new Date().toISOString().split('T')[0];
 
             for (let i = firstDay - 1; i >= 0; i--) {
-                grid.innerHTML += `<div class="bg-slate-50/50 p-1.5 text-slate-400 text-[11px] min-h-[90px] font-bold opacity-60"><span>${daysInPrevMonth - i}</span></div>`;
+                grid.innerHTML += `<div class="bg-slate-50/50 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-60"><span>${daysInPrevMonth - i}</span></div>`;
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = dateStr === todayStr;
                 const cell = document.createElement('div');
-                cell.className = `bg-white p-1.5 min-h-[95px] flex flex-col gap-1 transition hover:bg-slate-50/80 ${isToday ? 'bg-blue-50/40 ring-2 ring-blue-400 inset-0' : ''}`;
+                cell.className = `bg-white p-2 min-h-[110px] flex flex-col gap-1 transition hover:bg-slate-50/80 ${isToday ? 'bg-blue-50/40 ring-2 ring-blue-400 inset-0' : ''}`;
                 
                 cell.innerHTML = `
                     <div class="flex justify-between items-center mb-0.5">
-                        <span class="text-[11px] font-black ${isToday ? 'w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center' : 'text-slate-700'}">${day}</span>
-                        <button onclick="window.openTaskModalWithDate('${dateStr}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
+                        <span class="text-xs font-black ${isToday ? 'w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center' : 'text-slate-700'}">${day}</span>
+                        <button onclick="window.openTaskModalWithDate('${dateStr}')" class="text-slate-300 hover:text-blue-600 p-1 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
                     </div>`;
 
                 const dayTasks = filteredTasks.filter(t => t.scheduledDate <= dateStr && (t.dueDate >= dateStr || t.dueDate === t.scheduledDate));
                 const tContainer = document.createElement('div');
-                tContainer.className = 'space-y-1 overflow-y-auto max-h-[75px] custom-scrollbar';
+                tContainer.className = 'space-y-1.5 overflow-y-auto max-h-[85px] custom-scrollbar pr-0.5';
 
                 dayTasks.forEach(task => {
                     const isCritical = task.urgency === 'CRITICAL';
-                    const bgClass = task.status === 'PENDING' ? 'bg-blue-100 text-blue-900 border-l-2 border-blue-500 hover:bg-blue-200' : task.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-900 border-l-2 border-amber-500 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-900 border-l-2 border-emerald-500 line-through opacity-75 hover:bg-emerald-200';
+                    const bgClass = task.status === 'PENDING' ? 'bg-blue-100 text-blue-900 border-l-[3px] border-blue-500 hover:bg-blue-200' : task.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-900 border-l-[3px] border-amber-500 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-900 border-l-[3px] border-emerald-500 line-through opacity-75 hover:bg-emerald-200';
                     const uColor = task.urgency === 'LOW' ? '#10b981' : task.urgency === 'MEDIUM' ? '#f59e0b' : task.urgency === 'HIGH' ? '#f97316' : '#ef4444';
                     
                     const isMulti = task.dueDate && task.dueDate > task.scheduledDate;
@@ -513,13 +511,13 @@
                     if(isMulti) {
                         if(dateStr === task.scheduledDate) badge = ' <span class="text-[9px] opacity-75">(Início)</span>';
                         else if(dateStr === task.dueDate) badge = ' <span class="text-[9px] opacity-75">(Fim)</span>';
-                        else badge = ' <span class="text-[9px] opacity-75">(Em andamento)</span>';
+                        else badge = ' <span class="text-[9px] opacity-75">(Andamento)</span>';
                     }
 
                     const item = document.createElement('div');
                     item.onclick = () => window.openDetailsModal(task.id);
-                    item.className = `p-1 rounded text-[10px] font-bold leading-tight cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
-                    item.innerHTML = `<span class="truncate">${task.osNumber || ''} ${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1" style="background-color: ${uColor}"></span>`;
+                    item.className = `px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
+                    item.innerHTML = `<span class="truncate">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1" style="background-color: ${uColor}"></span>`;
                     tContainer.appendChild(item);
                 });
                 cell.appendChild(tContainer);
@@ -528,7 +526,7 @@
 
             const remaining = (firstDay + daysInMonth > 35 ? 42 : 35) - (firstDay + daysInMonth);
             for (let i = 1; i <= remaining; i++) {
-                grid.innerHTML += `<div class="bg-slate-50/50 p-1.5 text-slate-400 text-[11px] min-h-[90px] font-bold opacity-60"><span>${i}</span></div>`;
+                grid.innerHTML += `<div class="bg-slate-50/50 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-60"><span>${i}</span></div>`;
             }
         };
 
@@ -543,12 +541,12 @@
             if (window.notices.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center font-bold py-6">Nenhum recado no mural.</p>'; return; }
 
             list.innerHTML = window.notices.map(n => {
-                const b = n.category === 'URGENT' ? '<span class="text-[10px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded">🚨 Urgente</span>' : n.category === 'STOCK' ? '<span class="text-[10px] font-black bg-purple-100 text-purple-700 px-2 py-0.5 rounded">📦 Peças</span>' : n.category === 'REMINDER' ? '<span class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded">💡 Lembrete</span>' : '<span class="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded">📢 Geral</span>';
+                const b = n.category === 'URGENT' ? '<span class="text-[9px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded">🚨 Urgente</span>' : n.category === 'STOCK' ? '<span class="text-[9px] font-black bg-purple-100 text-purple-700 px-2 py-0.5 rounded">📦 Peças</span>' : n.category === 'REMINDER' ? '<span class="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded">💡 Lembrete</span>' : '<span class="text-[9px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded">📢 Geral</span>';
                 return `
-                <div class="p-3.5 bg-white border border-slate-200 rounded-xl space-y-2.5 shadow-sm transition hover:border-slate-300">
+                <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm transition hover:border-slate-300">
                     <div class="flex items-center justify-between">${b} <button onclick="window.deleteNotice('${n.id}')" class="text-slate-400 hover:text-red-600 transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button></div>
-                    <p class="text-xs font-semibold text-slate-700 leading-snug whitespace-pre-wrap">${n.content}</p>
-                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 pt-1 border-t border-slate-100">
+                    <p class="text-[11px] font-semibold text-slate-700 leading-snug whitespace-pre-wrap">${n.content}</p>
+                    <div class="flex justify-between items-center text-[9px] font-bold text-slate-400 pt-1 border-t border-slate-100">
                         <span>Por: <span class="text-slate-600">${n.author}</span></span>
                         <span>${n.date}</span>
                     </div>
@@ -592,7 +590,7 @@
 
                 const card = document.createElement('div');
                 card.draggable = true;
-                card.className = `bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing space-y-2.5 ${task.urgency==='CRITICAL' ? 'pulse-critical border-red-300' : ''}`;
+                card.className = `bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing space-y-3 ${task.urgency==='CRITICAL' ? 'pulse-critical border-red-300' : ''}`;
                 card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', task.id); setTimeout(() => card.classList.add('opacity-40', 'scale-95'), 0); };
                 card.ondragend = () => card.classList.remove('opacity-40', 'scale-95');
                 card.onclick = () => window.openDetailsModal(task.id);
@@ -604,11 +602,11 @@
                     </div>
                     <div class="pointer-events-none">
                         ${task.osNumber ? `<span class="text-[10px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 mr-1 inline-block mb-1">${task.osNumber}</span>` : ''}
-                        <h4 class="text-xs font-black text-slate-800 leading-snug inline">${task.client}</h4>
-                        ${task.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1 flex items-center gap-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${task.location}</p>` : ''}
+                        <h4 class="text-sm font-black text-slate-800 leading-snug inline">${task.client}</h4>
+                        ${task.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-slate-400"></i> ${task.location}</p>` : ''}
                     </div>
-                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500 pointer-events-none">
-                        <div class="flex items-center gap-1.5"><div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px]" style="background-color:${t.color}">${t.name.substring(0,2).toUpperCase()}</div> <span class="truncate max-w-[70px]">${t.name}</span></div>
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500 pointer-events-none">
+                        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px]" style="background-color:${t.color}">${t.name.substring(0,2).toUpperCase()}</div> <span class="truncate max-w-[80px]">${t.name}</span></div>
                         <span class="text-[10px] text-slate-400"><i class="fa-regular fa-calendar"></i> ${task.scheduledDate.split('-').reverse().join('/')}</span>
                     </div>`;
 
@@ -645,19 +643,19 @@
                 
                 return `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer">
-                    <td class="p-4" onclick="window.openDetailsModal('${t.id}')">
+                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')">
                         <div class="flex items-center gap-1.5"><span class="text-[10px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">${t.osNumber || '--'}</span><span class="font-bold text-slate-800">${t.client}</span></div>
                         ${t.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${t.location}</p>` : ''}
                     </td>
-                    <td class="p-4 font-black text-[10px] uppercase tracking-wider ${isCom ? 'text-purple-600' : 'text-blue-600'}" onclick="window.openDetailsModal('${t.id}')">${isCom ? 'Comercial' : 'Técnico'}</td>
-                    <td class="p-4 font-bold text-slate-700" onclick="window.openDetailsModal('${t.id}')"><span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color:${tech.color}"></span>${tech.name}</td>
-                    <td class="p-4" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgUrg}">${t.urgency === 'CRITICAL' ? 'Crítica' : t.urgency === 'HIGH' ? 'Alta' : t.urgency === 'MEDIUM' ? 'Média' : 'Baixa'}</span></td>
-                    <td class="p-4 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.scheduledDate.split('-').reverse().join('/')}</td>
-                    <td class="p-4 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.dueDate.split('-').reverse().join('/')}</td>
-                    <td class="p-4" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgStat}">${t.status === 'PENDING' ? 'Agendado' : t.status === 'IN_PROGRESS' ? 'Em Andamento' : 'Concluído'}</span></td>
-                    <td class="p-4 text-right space-x-1 no-print">
-                        <button onclick="window.openTaskModal('${t.id}')" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="if(confirm('Excluir agendamento?')){ window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', '${t.id}')); }" class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-3 font-black text-[10px] uppercase tracking-wider ${isCom ? 'text-purple-600' : 'text-blue-600'}" onclick="window.openDetailsModal('${t.id}')">${isCom ? 'Comercial' : 'Técnico'}</td>
+                    <td class="p-3 font-bold text-slate-700" onclick="window.openDetailsModal('${t.id}')"><span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color:${tech.color}"></span>${tech.name}</td>
+                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgUrg}">${t.urgency === 'CRITICAL' ? 'Crítica' : t.urgency === 'HIGH' ? 'Alta' : t.urgency === 'MEDIUM' ? 'Média' : 'Baixa'}</span></td>
+                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.scheduledDate.split('-').reverse().join('/')}</td>
+                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.dueDate.split('-').reverse().join('/')}</td>
+                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgStat}">${t.status === 'PENDING' ? 'Agendado' : t.status === 'IN_PROGRESS' ? 'Em Andamento' : 'Concluído'}</span></td>
+                    <td class="p-3 text-right space-x-1 no-print">
+                        <button onclick="window.openTaskModal('${t.id}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="if(confirm('Excluir agendamento?')){ window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', '${t.id}')); }" class="p-2 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>`;
             }).join('');
