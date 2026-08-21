@@ -412,15 +412,15 @@
             </div>
         </section>
 
-        <!-- TAB 5: PRÓXIMOS PAGAMENTOS COM DESTAQUE VERDE -->
+        <!-- TAB 5: PRÓXIMOS PAGAMENTOS COM FILTRO DE QUINZENA ATUAL -->
         <section id="tab-proximos-pagamentos" class="tab-content hidden space-y-6">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-3">
                     <div>
                         <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-check text-emerald-600"></i> Pagamentos em Aberto para a Próxima Quinzena
+                            <i class="fa-solid fa-calendar-check text-emerald-600"></i> Pagamentos Aprovados (Ciclo: <span id="lbl-data-alvo-pagamento" class="text-blue-600">--/--/----</span>)
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Valores pendentes com destaque verde indicando os pagamentos aprovados e prontos para o próximo ciclo.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Exibindo comissões previstas para o ciclo atual (ocultando repasses futuros).</p>
                     </div>
                 </div>
 
@@ -834,6 +834,7 @@
             return { unlocked: false, info: `${k}ª Parc (${payDate})`, detail: `Acumulado atual: ${acumuladoAtual.toFixed(1)}% (Exige ${requiredPercent}%) - Pagamento em ${payDate}`, class: 'text-amber-800 bg-amber-100 border-amber-300', payDateStr: payDate };
         };
 
+        // --- FILTRO GLOBAL ---
         window.getFilteredSalesAzul = function(module) {
             const seller = safeGetVal(module === 'resumo' ? 'resumo_filterSeller' : 'azul_filterSeller').toLowerCase();
             const client = safeGetVal('azul_filterClient').toLowerCase();
@@ -841,16 +842,28 @@
             const dateTo = safeGetVal('azul_filterDateTo');
             const status = safeGetVal(module === 'resumo' ? 'resumo_filterStatus' : 'azul_filterStatus');
 
+            const podeVerTudo = window.userVisaoGlobal || window.userVisaoComissoes;
+            const myEmail = (window.currentUser ? window.currentUser.email : '').toLowerCase();
+            const myName = (window.nomeUsuarioLogado || '').toLowerCase();
+
             return window.listaComissoesAzul.filter(s => {
-                if (window.userVisaoGlobal === false && s.autor !== window.currentUser.email) return false;
+                // TRAVA DE VISÃO GLOBAL ATUALIZADA
+                if (!podeVerTudo) {
+                    const saleAutor = (s.autor || '').toLowerCase();
+                    const saleSeller = (s.sellerName || '').toLowerCase();
+                    if (saleAutor !== myEmail && saleSeller !== myName) {
+                        return false;
+                    }
+                }
+
                 if (module === 'resumo') {
                     if (status === 'Pago' && s.status !== 'Pago') return false;
                     if (status === 'Pendente' && (s.status === 'Pago' || s.status === 'Inadimplente')) return false;
                 } else {
                     if (status && (s.status || 'Pendente') !== status) return false;
                 }
-                if (seller && !s.sellerName.toLowerCase().includes(seller)) return false;
-                if (module !== 'resumo' && client && !s.client.toLowerCase().includes(client)) return false;
+                if (seller && !(s.sellerName || '').toLowerCase().includes(seller)) return false;
+                if (module !== 'resumo' && client && !(s.client || '').toLowerCase().includes(client)) return false;
                 if (module !== 'resumo' && dateFrom && s.date < dateFrom) return false;
                 if (module !== 'resumo' && dateTo && s.date > dateTo) return false;
                 return true;
@@ -1072,9 +1085,37 @@
         window.renderProximosPagamentos = function() {
             const containerCards = document.getElementById('cards-proximos-pagamentos');
             const tbody = document.getElementById('tableBodyProximosPagamentos');
+            const lblAlvo = document.getElementById('lbl-data-alvo-pagamento');
             if (!containerCards || !tbody) return;
 
-            const pendentes = window.listaComissoesAzul.filter(s => (s.status || 'Pendente') === 'Pendente');
+            const podeVerTudo = window.userVisaoGlobal || window.userVisaoComissoes;
+            const myEmail = (window.currentUser ? window.currentUser.email : '').toLowerCase();
+            const myName = (window.nomeUsuarioLogado || '').toLowerCase();
+
+            // Data limite: Quinzena atual baseada em hoje
+            const hoje = new Date();
+            const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+            const targetPayDateStr = window.getNextPaymentDateAzul(hojeStr);
+            if(lblAlvo) lblAlvo.innerText = targetPayDateStr;
+
+            const tParts = targetPayDateStr.split('/');
+            const targetVal = tParts.length === 3 ? parseInt(tParts[2] + tParts[1] + tParts[0]) : 0;
+
+            const pendentes = window.listaComissoesAzul.filter(s => {
+                if (!podeVerTudo) {
+                    const saleAutor = (s.autor || '').toLowerCase();
+                    const saleSeller = (s.sellerName || '').toLowerCase();
+                    if (saleAutor !== myEmail && saleSeller !== myName) return false;
+                }
+                if ((s.status || 'Pendente') !== 'Pendente') return false;
+
+                if (!s.previsao_liberacao || s.previsao_liberacao === '-') return false;
+                const sParts = s.previsao_liberacao.split('/');
+                if(sParts.length !== 3) return false;
+                
+                const saleVal = parseInt(sParts[2] + sParts[1] + sParts[0]);
+                return saleVal <= targetVal;
+            });
 
             const porVendedor = {};
             pendentes.forEach(s => {
@@ -1086,13 +1127,13 @@
 
             containerCards.innerHTML = '';
             if (Object.keys(porVendedor).length === 0) {
-                containerCards.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 font-medium bg-slate-50 rounded-2xl border border-slate-200">Nenhum pagamento pendente no momento.</div>`;
+                containerCards.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 font-medium bg-slate-50 rounded-2xl border border-slate-200">Nenhum pagamento pendente no momento para este ciclo.</div>`;
             } else {
                 Object.entries(porVendedor).forEach(([vend, data]) => {
                     containerCards.innerHTML += `
                         <div class="bg-gradient-to-br from-emerald-50 to-teal-50/50 p-5 rounded-2xl border border-emerald-300 shadow-sm flex flex-col justify-between">
                             <div>
-                                <span class="text-[10px] font-black uppercase text-emerald-700 tracking-wider">Vendedor (Próx. Ciclo)</span>
+                                <span class="text-[10px] font-black uppercase text-emerald-700 tracking-wider">Vendedor (Ciclo Atual)</span>
                                 <h4 class="text-base font-black text-slate-900 mt-0.5">${vend}</h4>
                             </div>
                             <div class="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
@@ -1202,8 +1243,21 @@
 
         window.renderDashboard = function() {
             const monthFilter = document.getElementById('dash_filterMonth')?.value; 
-            let filtered = window.listaComissoesAzul;
-            if (monthFilter) filtered = filtered.filter(s => s.date && s.date.startsWith(monthFilter));
+            
+            const podeVerTudo = window.userVisaoGlobal || window.userVisaoComissoes;
+            const myEmail = (window.currentUser ? window.currentUser.email : '').toLowerCase();
+            const myName = (window.nomeUsuarioLogado || '').toLowerCase();
+
+            // Aplica filtro de visão global e filtro de mês antes de calcular as métricas
+            let filtered = window.listaComissoesAzul.filter(s => {
+                if (!podeVerTudo) {
+                    const saleAutor = (s.autor || '').toLowerCase();
+                    const saleSeller = (s.sellerName || '').toLowerCase();
+                    if (saleAutor !== myEmail && saleSeller !== myName) return false;
+                }
+                if (monthFilter && !(s.date || '').startsWith(monthFilter)) return false;
+                return true;
+            });
 
             let tSales = 0, tComm = 0, tItens = 0;
             const sellerMap = {};
