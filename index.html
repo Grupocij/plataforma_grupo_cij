@@ -28,7 +28,7 @@
     <!-- CONTEÚDO PRINCIPAL (Exibido após o login pelo core.js) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-3 md:p-5 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- CABEÇALHO INTERNO DA AGENDA (Mais compacto) -->
+        <!-- CABEÇALHO INTERNO DA AGENDA -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-3 w-full lg:w-auto">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20 shrink-0">
@@ -66,7 +66,7 @@
             </div>
         </div>
         
-        <!-- KPIS DA AGENDA (Mais compactos) -->
+        <!-- KPIS DA AGENDA -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <!-- BARRA DE PESQUISA (Mais compacta) -->
+        <!-- BARRA DE PESQUISA -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div class="relative flex-1 sm:w-56">
@@ -123,7 +123,7 @@
             </div>
         </div>
 
-        <!-- VISÃO 1: CALENDÁRIO & MURAL (Ajustado com scroll natural) -->
+        <!-- VISÃO 1: CALENDÁRIO & MURAL -->
         <div id="viewCalendar" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             
             <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
@@ -176,7 +176,7 @@
             </div>
         </div>
 
-        <!-- VISÃO 2: KANBAN (Ajustado para altura generosa e rolagem natural) -->
+        <!-- VISÃO 2: KANBAN -->
         <div id="viewKanban" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 pb-12">
             <div ondragover="window.handleDragOver(event)" ondragleave="window.handleDragLeave(event)" ondrop="window.handleDrop(event, 'PENDING')" class="kanban-col bg-slate-100 rounded-2xl p-3 border border-slate-200 flex flex-col min-h-[750px] transition-all duration-150">
                 <div class="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-300 pointer-events-none shrink-0">
@@ -300,7 +300,7 @@
         </div>
     </div>
 
-    <!-- MODAL: VISUALIZAR DETALHES -->
+    <!-- MODAL: VISUALIZAR DETALHES (Mantido caso clique no Kanban ou Tabela) -->
     <div id="detailsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden my-auto">
             <div class="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
@@ -467,7 +467,7 @@
             else if (currentView === 'table') window.renderTable(filtered);
         };
 
-        // --- CALENDAR VIEW ---
+        // --- CALENDAR VIEW (CORRIGIDO) ---
         window.renderCalendar = function(filteredTasks) {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
@@ -497,7 +497,19 @@
                         <button onclick="window.openTaskModalWithDate('${dateStr}')" class="text-slate-300 hover:text-blue-600 p-1 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
                     </div>`;
 
-                const dayTasks = filteredTasks.filter(t => t.scheduledDate <= dateStr && (t.dueDate >= dateStr || t.dueDate === t.scheduledDate));
+                // NOVO FILTRO BLINDADO PARA EVENTOS DE MÚLTIPLOS DIAS
+                const dayTasks = filteredTasks.filter(task => {
+                    if (!task.scheduledDate) return false;
+                    const start = task.scheduledDate;
+                    let end = task.dueDate;
+                    
+                    // Se não tiver data de fim, ou se a data de fim for acidentalmente menor que a de início, força o fim ser igual ao início.
+                    if (!end || end < start) end = start;
+                    
+                    // O evento só aparece se o dia atual da célula (dateStr) estiver ENTRE a data de início e a data de fim.
+                    return dateStr >= start && dateStr <= end;
+                });
+
                 const tContainer = document.createElement('div');
                 tContainer.className = 'space-y-1.5 overflow-y-auto max-h-[85px] custom-scrollbar pr-0.5';
 
@@ -506,6 +518,7 @@
                     const bgClass = task.status === 'PENDING' ? 'bg-blue-100 text-blue-900 border-l-[3px] border-blue-500 hover:bg-blue-200' : task.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-900 border-l-[3px] border-amber-500 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-900 border-l-[3px] border-emerald-500 line-through opacity-75 hover:bg-emerald-200';
                     const uColor = task.urgency === 'LOW' ? '#10b981' : task.urgency === 'MEDIUM' ? '#f59e0b' : task.urgency === 'HIGH' ? '#f97316' : '#ef4444';
                     
+                    // Lógica segura para determinar a tag "Início", "Fim" ou "Andamento"
                     const isMulti = task.dueDate && task.dueDate > task.scheduledDate;
                     let badge = '';
                     if(isMulti) {
@@ -515,7 +528,13 @@
                     }
 
                     const item = document.createElement('div');
-                    item.onclick = () => window.openDetailsModal(task.id);
+                    
+                    // ATALHO DIRETO PARA O MODAL DE EDIÇÃO (Em vez do Modal de Detalhes)
+                    item.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        window.openTaskModal(task.id); 
+                    };
+
                     item.className = `px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
                     item.innerHTML = `<span class="truncate">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1" style="background-color: ${uColor}"></span>`;
                     tContainer.appendChild(item);
@@ -699,6 +718,14 @@
         window.handleTaskSubmit = async function(e) {
             e.preventDefault();
             const id = document.getElementById('taskId').value || 't_' + Date.now();
+            
+            // TRAVA DE SEGURANÇA PARA A DATA FINAL NA HORA DE SALVAR
+            let dStart = document.getElementById('taskScheduledDate').value;
+            let dEnd = document.getElementById('taskDueDate').value;
+            if (!dEnd || dEnd < dStart) {
+                dEnd = dStart;
+            }
+
             const data = {
                 id: id,
                 osNumber: document.getElementById('taskOsNumber').value.trim(),
@@ -708,8 +735,8 @@
                 location: document.getElementById('taskLocation').value.trim(),
                 techId: document.getElementById('taskTech').value,
                 urgency: document.getElementById('taskUrgency').value,
-                scheduledDate: document.getElementById('taskScheduledDate').value,
-                dueDate: document.getElementById('taskDueDate').value,
+                scheduledDate: dStart, // Usa a data formatada e segura
+                dueDate: dEnd,         // Usa a data formatada e segura
                 status: document.getElementById('taskStatus').value,
                 description: document.getElementById('taskDescription').value.trim()
             };
