@@ -29,7 +29,7 @@
 
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-4 hidden" id="main-content">
 
-        <!-- CABEÇALHO E CONFIGURAÇÕES -->
+        <!-- CABEÇALHO E CONFIGURAÇÕES GLOBAIS DA DIRETORIA -->
         <div class="executive-gradient p-5 rounded-3xl shadow-lg border border-slate-700 flex flex-col xl:flex-row justify-between items-center gap-5 shrink-0 relative overflow-hidden">
             <i class="fa-solid fa-user-secret absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none transform -rotate-12"></i>
             
@@ -49,15 +49,19 @@
             <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto bg-slate-800/50 p-3 rounded-2xl border border-slate-600">
                 <div>
                     <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 text-center sm:text-left">Dólar (R$)</label>
-                    <input type="number" step="0.01" id="cfg_dolar" class="w-20 sm:w-24 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-amber-400 outline-none text-center">
+                    <input type="number" step="0.01" id="cfg_dolar" class="w-16 sm:w-20 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-amber-400 outline-none text-center">
                 </div>
                 <div>
                     <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 text-center sm:text-left" title="Aplica-se APENAS sobre as Máquinas">Nacionalização (%)</label>
-                    <input type="number" step="0.1" id="cfg_nac" class="w-20 sm:w-24 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-rose-400 outline-none text-center">
+                    <input type="number" step="0.1" id="cfg_nac" class="w-16 sm:w-20 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-rose-400 outline-none text-center">
                 </div>
                 <div>
                     <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 text-center sm:text-left" title="Descontado do Faturamento Final">Imp. de Venda (%)</label>
-                    <input type="number" step="0.1" id="cfg_imp" class="w-20 sm:w-24 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-blue-400 outline-none text-center">
+                    <input type="number" step="0.1" id="cfg_imp" class="w-16 sm:w-20 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-blue-400 outline-none text-center">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 text-center sm:text-left" title="Custo Base (%) estimado para Peças e Insumos">Custo Consum. (%)</label>
+                    <input type="number" step="0.1" id="cfg_custo_cons" class="w-16 sm:w-20 px-2 py-1.5 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-emerald-400 outline-none text-center">
                 </div>
                 <button onclick="window.salvarConfigGeral()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-3 rounded-xl transition shadow-md text-[11px] self-end mt-2 sm:mt-0 flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-save"></i> Aplicar
@@ -93,11 +97,17 @@
         </div>
 
         <!-- DRE - RESULTADO CONSOLIDADO -->
-        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 shrink-0">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 shrink-0">
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
-                <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-500"></div>
-                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Faturamento Bruto</p>
-                <p id="dre_faturamento" class="text-base sm:text-lg font-black text-blue-700">R$ 0,00</p>
+                <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-600"></div>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fat. Máquinas</p>
+                <p id="dre_faturamento_maq" class="text-base sm:text-lg font-black text-blue-700">R$ 0,00</p>
+            </div>
+            <!-- NOVO CARD: FATURAMENTO CONSUMÍVEIS ISOLADO -->
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-1 bg-teal-500"></div>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1" title="Peças, Tintas e Serviços">Fat. Consumíveis</p>
+                <p id="dre_faturamento_cons" class="text-base sm:text-lg font-black text-teal-600">R$ 0,00</p>
             </div>
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-300"></div>
@@ -106,7 +116,7 @@
             </div>
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1 bg-rose-500"></div>
-                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1" title="Custo Origem + Taxa Nacionalização">(-) Custo (Nacionaliz.)</p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1" title="Custo Nac. (Máquinas) + Custo % Consumíveis">(-) Custo Mercadorias</p>
                 <p id="dre_custos" class="text-base sm:text-lg font-black text-rose-600">R$ 0,00</p>
             </div>
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
@@ -122,7 +132,7 @@
             <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 shadow-lg flex flex-col justify-center relative overflow-hidden transform hover:scale-105 transition duration-300">
                 <i class="fa-solid fa-sack-dollar absolute -right-2 -bottom-2 text-4xl text-emerald-500/20"></i>
                 <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 z-10">Lucro Líquido Real</p>
-                <p id="dre_lucro" class="text-lg sm:text-xl font-black text-white z-10">R$ 0,00</p>
+                <p id="dre_lucro" class="text-lg sm:text-[19px] font-black text-white z-10">R$ 0,00</p>
             </div>
         </div>
 
@@ -139,12 +149,13 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                    <table class="w-full text-left text-[11px] border-collapse min-w-[700px]">
+                    <table class="w-full text-left text-[11px] border-collapse min-w-[800px]">
                         <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th class="p-3">Vendedor</th>
-                                <th class="p-3 text-right text-blue-700">Faturamento</th>
-                                <th class="p-3 text-right text-rose-500" title="Imposto de Venda + Custo Nacionalizado das Máquinas">Custos Totais</th>
+                                <th class="p-3 text-right text-blue-700" title="Venda de Equipamentos">Fat. Máquinas</th>
+                                <th class="p-3 text-right text-teal-600" title="Venda de Peças, Tintas e Serviços">Fat. Consum.</th>
+                                <th class="p-3 text-right text-rose-500" title="Imposto Venda + Custos Máquinas + Custo Consumíveis">Custos Totais</th>
                                 <th class="p-3 text-right text-orange-600">Comissões</th>
                                 <th class="p-3 text-right text-purple-600">Despesas</th>
                                 <th class="p-3 text-right text-emerald-600">Lucro Líquido</th>
@@ -154,7 +165,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- PAGINAÇÃO DOS VENDEDORES -->
                 <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                     <span class="text-[10px] font-bold text-slate-500" id="info-page-vendedores">Pág. 1 de 1</span>
                     <div class="flex gap-2">
@@ -171,7 +181,7 @@
                         <h3 class="font-bold text-sm flex items-center gap-2">
                             <i class="fa-solid fa-calculator text-amber-500"></i> Simulador & Calculadora de Margem
                         </h3>
-                        <p class="text-[10px] text-slate-300 font-medium">Selecione um produto e insira o preço de venda para simular o lucro.</p>
+                        <p class="text-[10px] text-slate-300 font-medium">Selecione uma MÁQUINA e insira o preço de venda para simular o lucro.</p>
                     </div>
                 </div>
                 
@@ -247,7 +257,6 @@
                     </tbody>
                 </table>
             </div>
-            <!-- PAGINAÇÃO DA MATRIZ -->
             <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <span class="text-[10px] font-bold text-slate-500" id="info-page-produtos">Pág. 1 de 1</span>
                 <div class="flex gap-2">
@@ -262,7 +271,6 @@
     <script type="module" src="core.js"></script>
 
     <script>
-        // Função Extratora de Números Cegos (Remove R$, virgulas erradas, etc)
         window.parseMoney = function(val) {
             if (typeof val === 'number') return val;
             if (!val) return 0;
@@ -326,6 +334,7 @@
         let cfgDolar = 5.20;
         let cfgNac = 60.0;
         let cfgImp = 12.0;
+        let cfgCustoCons = 30.0; 
 
         window.formatarMoeda = (val) => {
             let num = parseFloat(val);
@@ -383,10 +392,12 @@
                         cfgDolar = parseFloat(d.data().dolar) || 5.20;
                         cfgNac = parseFloat(d.data().nacionalizacao) || 60.0;
                         cfgImp = parseFloat(d.data().impostoVenda) || 12.0;
+                        cfgCustoCons = parseFloat(d.data().custoConsumiveis) || 30.0;
                         
                         document.getElementById('cfg_dolar').value = cfgDolar;
                         document.getElementById('cfg_nac').value = cfgNac;
                         document.getElementById('cfg_imp').value = cfgImp;
+                        document.getElementById('cfg_custo_cons').value = cfgCustoCons;
                     }
                 });
                 window.renderTabelaAba();
@@ -424,26 +435,28 @@
             const d = parseFloat(document.getElementById('cfg_dolar').value);
             const n = parseFloat(document.getElementById('cfg_nac').value);
             const i = parseFloat(document.getElementById('cfg_imp').value);
+            const c = parseFloat(document.getElementById('cfg_custo_cons').value);
             
-            if (isNaN(d) || isNaN(n) || isNaN(i)) return alert('Valores inválidos.');
+            if (isNaN(d) || isNaN(n) || isNaN(i) || isNaN(c)) return alert('Valores inválidos.');
 
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_config_financeira', 'geral'), {
-                    dolar: d, nacionalizacao: n, impostoVenda: i
+                    dolar: d, nacionalizacao: n, impostoVenda: i, custoConsumiveis: c
                 });
                 alert('Parâmetros salvos e aplicados no sistema!');
             } catch(e) {}
         };
 
         // =========================================================================
-        // MOTOR DRE E RENTABILIDADE - CÁLCULO SEGURO E DIRETO DA FONTE
+        // MOTOR DRE (MÁQUINAS VS CONSUMÍVEIS)
         // =========================================================================
         window.calcularDRE = function() {
             const dataInicio = document.getElementById('filtroDataInicio').value; 
             const dataFim = document.getElementById('filtroDataFim').value; 
             const prodFiltro = document.getElementById('filtroProdutoDRE').value;
             
-            let totalFaturamento = 0;
+            let totalFatMaquinas = 0;
+            let totalFatConsumiveis = 0;
             let totalComissoes = 0;
             let totalCustoNacionalizado = 0; 
             let totalImpostoVenda = 0;
@@ -454,7 +467,6 @@
             // 1. Processar Vendas
             window.vendasRegistradas.forEach(venda => {
                 
-                // --- Filtro Seguro de Data ---
                 let dataVendaStr = venda.date || venda.dataEntrada || ''; 
                 if (dataVendaStr.includes('/')) {
                     const p = dataVendaStr.split('/');
@@ -467,49 +479,44 @@
                 if (dataFim && dataVendaStr > dataFim) return;
 
                 const vend = venda.sellerName || 'Indefinido';
-                if (!drePorVendedor[vend]) drePorVendedor[vend] = { fat: 0, com: 0, desp: 0, cogs: 0, imp: 0 };
+                if (!drePorVendedor[vend]) drePorVendedor[vend] = { fatMaq: 0, fatCons: 0, com: 0, desp: 0, cogs: 0, imp: 0 };
 
-                let fatVenda = 0;
-                let comVenda = 0;
-                let cogsVenda = 0;
+                let vFatMaq = 0;
+                let vFatCons = 0;
+                let vCom = 0;
+                let vCogs = 0;
 
                 if (prodFiltro) {
-                    // Modo Filtrado por Produto: soma apenas os itens que correspondem
+                    // Filtro Ativo: Ignora consumíveis completamente, busca só a máquina exata
                     if (venda.itens && venda.itens.length > 0) {
                         venda.itens.forEach(item => {
                             const partes = (item.detalhe || '').split(' - ');
                             const nomeMaquina = partes.length > 1 ? partes[1] : item.detalhe;
-                            
                             if (nomeMaquina !== prodFiltro) return;
 
                             const itemFat = window.parseMoney(item.valor) || (window.parseMoney(item.valorUn) * parseInt(item.qtd || 1));
-                            fatVenda += itemFat;
-
+                            
                             if (item.tipo === 'Maquina') {
+                                vFatMaq += itemFat;
                                 const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
                                 if (prodRef) {
                                     const usdReal = window.custosSalvosDb[nomeMaquina] && window.custosSalvosDb[nomeMaquina].usd !== undefined
-                                                    ? window.custosSalvosDb[nomeMaquina].usd
-                                                    : prodRef.usd;
+                                                    ? window.custosSalvosDb[nomeMaquina].usd : prodRef.usd;
 
                                     const custoBRL = usdReal * cfgDolar;
                                     const custoNac = custoBRL * (cfgNac / 100);
-                                    cogsVenda += (custoBRL + custoNac) * parseInt(item.qtd || 1);
+                                    vCogs += (custoBRL + custoNac) * parseInt(item.qtd || 1);
                                     
                                     const precoUn = itemFat / parseInt(item.qtd || 1);
-                                    comVenda += window.getComissaoDaTabela(prodRef.cat, precoUn) * parseInt(item.qtd || 1);
+                                    vCom += window.getComissaoDaTabela(prodRef.cat, precoUn) * parseInt(item.qtd || 1);
                                 } else {
-                                    comVenda += window.parseMoney(item.comissaoValor);
+                                    vCom += window.parseMoney(item.comissaoValor);
                                 }
-                            } else {
-                                comVenda += window.parseMoney(item.comissaoValor);
                             }
                         });
                     }
                 } else {
-                    // MODO GERAL: Puxa o total ABSOLUTO da nota (SaleValue) e recalcula comissão e custo dos itens
-                    fatVenda = window.parseMoney(venda.saleValue);
-                    
+                    // Visão Geral Sem Filtro
                     if (venda.itens && venda.itens.length > 0) {
                         let isComissaoRecalculada = false;
                         let comissaoCalculada = 0;
@@ -517,59 +524,68 @@
                         venda.itens.forEach(item => {
                             const partes = (item.detalhe || '').split(' - ');
                             const nomeMaquina = partes.length > 1 ? partes[1] : item.detalhe;
+                            const itemFat = window.parseMoney(item.valor) || (window.parseMoney(item.valorUn) * parseInt(item.qtd || 1));
 
                             if (item.tipo === 'Maquina') {
+                                vFatMaq += itemFat;
                                 const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
                                 if (prodRef) {
                                     const usdReal = window.custosSalvosDb[nomeMaquina] && window.custosSalvosDb[nomeMaquina].usd !== undefined
-                                                    ? window.custosSalvosDb[nomeMaquina].usd
-                                                    : prodRef.usd;
+                                                    ? window.custosSalvosDb[nomeMaquina].usd : prodRef.usd;
 
                                     const custoBRL = usdReal * cfgDolar;
                                     const custoNac = custoBRL * (cfgNac / 100);
-                                    cogsVenda += (custoBRL + custoNac) * parseInt(item.qtd || 1);
+                                    vCogs += (custoBRL + custoNac) * parseInt(item.qtd || 1);
                                     
-                                    const itemFat = window.parseMoney(item.valor) || (window.parseMoney(item.valorUn) * parseInt(item.qtd || 1));
                                     const precoUn = itemFat / parseInt(item.qtd || 1);
-                                    
                                     comissaoCalculada += window.getComissaoDaTabela(prodRef.cat, precoUn) * parseInt(item.qtd || 1);
                                     isComissaoRecalculada = true;
+                                } else {
+                                    vCogs += itemFat * (cfgCustoCons / 100);
                                 }
                             } else {
+                                // É CONSUMÍVEL / PEÇA / SERVIÇO
+                                vFatCons += itemFat;
                                 comissaoCalculada += window.parseMoney(item.comissaoValor);
+                                vCogs += itemFat * (cfgCustoCons / 100);
                             }
                         });
 
-                        // Se recalculou, atualiza a comissão com a regra. Senão, mantém a registrada
                         if (isComissaoRecalculada) {
-                            comVenda = comissaoCalculada;
+                            vCom = comissaoCalculada;
                         } else {
-                            comVenda = window.parseMoney(venda.commissionValue);
+                            vCom = window.parseMoney(venda.commissionValue);
                         }
 
                     } else {
-                        // Vendas como as do Gabriel que não tem itens, só o valor bruto na raiz
-                        comVenda = window.parseMoney(venda.commissionValue);
-                        cogsVenda = fatVenda * 0.30; // Segurança base para evitar margem 100%
+                        // Vendas cegas antigas (Sem Itens Lançados) -> Joga tudo como "Máquina" e custo padrão
+                        vFatMaq = window.parseMoney(venda.saleValue);
+                        vFatCons = 0;
+                        vCom = window.parseMoney(venda.commissionValue);
+                        vCogs = vFatMaq * (cfgCustoCons / 100); 
                     }
                 }
 
-                if (fatVenda > 0) {
-                    const impostoDestaVenda = fatVenda * (cfgImp / 100);
-                    
-                    totalFaturamento += fatVenda;
-                    totalComissoes += comVenda;
-                    totalCustoNacionalizado += cogsVenda;
-                    totalImpostoVenda += impostoDestaVenda;
+                const vFatTotal = vFatMaq + vFatCons;
 
-                    drePorVendedor[vend].fat += fatVenda;
-                    drePorVendedor[vend].com += comVenda;
-                    drePorVendedor[vend].cogs += cogsVenda;
-                    drePorVendedor[vend].imp += impostoDestaVenda;
+                if (vFatTotal > 0) {
+                    const vImp = vFatTotal * (cfgImp / 100);
+                    
+                    totalFatMaquinas += vFatMaq;
+                    totalFatConsumiveis += vFatCons;
+                    totalComissoes += vCom;
+                    totalCustoNacionalizado += vCogs;
+                    totalImpostoVenda += vImp;
+
+                    drePorVendedor[vend].fatMaq += vFatMaq;
+                    drePorVendedor[vend].fatCons += vFatCons;
+                    drePorVendedor[vend].com += vCom;
+                    drePorVendedor[vend].cogs += vCogs;
+                    drePorVendedor[vend].imp += vImp;
                 }
             });
 
-            // 2. Processar Despesas com Busca Limpa de Datas e Valores
+            // 2. Processar Despesas
             if (!prodFiltro) {
                 window.despesasRegistradas.forEach(desp => {
                     let dataStr = String(desp.data_pagamento || desp.data_vencimento || desp.data || desp.dataDespesa || desp.date || desp.createdAt || desp.timestamp || '');
@@ -595,16 +611,17 @@
                     let vendCorrespondente = Object.keys(drePorVendedor).find(k => responsavelRaw.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(responsavelRaw.toLowerCase()));
                     
                     if (!vendCorrespondente) vendCorrespondente = responsavelRaw; 
-                    if (!drePorVendedor[vendCorrespondente]) drePorVendedor[vendCorrespondente] = { fat: 0, com: 0, desp: 0, cogs: 0, imp: 0 };
+                    if (!drePorVendedor[vendCorrespondente]) drePorVendedor[vendCorrespondente] = { fatMaq: 0, fatCons: 0, com: 0, desp: 0, cogs: 0, imp: 0 };
                     
                     drePorVendedor[vendCorrespondente].desp += valDesp;
                 });
             }
 
             // 3. Atualiza Cards DRE
-            const lucroLiquido = totalFaturamento - totalCustoNacionalizado - totalComissoes - totalDespesas - totalImpostoVenda;
+            const lucroLiquido = (totalFatMaquinas + totalFatConsumiveis) - totalCustoNacionalizado - totalComissoes - totalDespesas - totalImpostoVenda;
             
-            document.getElementById('dre_faturamento').innerText = formatarMoeda(totalFaturamento);
+            document.getElementById('dre_faturamento_maq').innerText = formatarMoeda(totalFatMaquinas);
+            document.getElementById('dre_faturamento_cons').innerText = formatarMoeda(totalFatConsumiveis);
             document.getElementById('dre_impostoVenda').innerText = formatarMoeda(totalImpostoVenda);
             document.getElementById('dre_custos').innerText = formatarMoeda(totalCustoNacionalizado);
             document.getElementById('dre_comissoes').innerText = formatarMoeda(totalComissoes);
@@ -614,21 +631,20 @@
             if (lucroLiquido < 0) document.getElementById('dre_lucro').classList.replace('text-white', 'text-rose-400');
             else document.getElementById('dre_lucro').classList.replace('text-rose-400', 'text-white');
 
-            // Salva array global para paginação
-            objVendedoresGlobal = Object.entries(drePorVendedor).sort((a,b) => b[1].fat - a[1].fat);
+            objVendedoresGlobal = Object.entries(drePorVendedor).sort((a,b) => (b[1].fatMaq + b[1].fatCons) - (a[1].fatMaq + a[1].fatCons));
             vendedoresPage = 1;
             window.renderTabelaVendedoresPaginated();
         };
 
         // =========================================================================
-        // PAGINAÇÃO VENDEDORES
+        // PAGINAÇÃO VENDEDORES (AGORA COM CONSUMÍVEIS)
         // =========================================================================
         window.renderTabelaVendedoresPaginated = function() {
             const tbodyVend = document.getElementById('tabelaVendedores');
             tbodyVend.innerHTML = '';
 
             if (objVendedoresGlobal.length === 0) {
-                tbodyVend.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhuma movimentação neste período.</td></tr>`;
+                tbodyVend.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Nenhuma movimentação neste período.</td></tr>`;
                 document.getElementById('info-page-vendedores').innerText = 'Pág. 1 de 1';
                 return;
             }
@@ -642,14 +658,15 @@
 
             paginatedItems.forEach(([nome, metrics]) => {
                 const totalCustos = metrics.cogs + metrics.imp;
-                const saldo = metrics.fat - totalCustos - metrics.com - metrics.desp; 
+                const saldo = (metrics.fatMaq + metrics.fatCons) - totalCustos - metrics.com - metrics.desp; 
                 const cSaldo = saldo >= 0 ? 'text-emerald-700' : 'text-rose-600';
                 
                 tbodyVend.innerHTML += `
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                         <td class="p-3 font-bold text-slate-800">${nome}</td>
-                        <td class="p-3 text-right font-bold text-blue-700">${formatarMoeda(metrics.fat)}</td>
-                        <td class="p-3 text-right font-medium text-rose-500" title="Imposto de Venda + Custo Nacionalizado das Máquinas">${formatarMoeda(totalCustos)}</td>
+                        <td class="p-3 text-right font-bold text-blue-700">${formatarMoeda(metrics.fatMaq)}</td>
+                        <td class="p-3 text-right font-bold text-teal-600">${formatarMoeda(metrics.fatCons)}</td>
+                        <td class="p-3 text-right font-medium text-rose-500" title="Imposto de Venda + Custo Nacionalizado + Custo Est. Insumos">${formatarMoeda(totalCustos)}</td>
                         <td class="p-3 text-right font-medium text-orange-600">${formatarMoeda(metrics.com)}</td>
                         <td class="p-3 text-right font-medium text-purple-600">${formatarMoeda(metrics.desp)}</td>
                         <td class="p-3 text-right font-black ${cSaldo}">${formatarMoeda(saldo)}</td>
@@ -665,9 +682,6 @@
             window.renderTabelaVendedoresPaginated();
         };
 
-        // =========================================================================
-        // LÓGICA DAS ABAS EXCEL E PAGINAÇÃO E EDIÇÃO INLINE
-        // =========================================================================
         window.selecionarAba = function(catName) {
             if (catName === 'LASER UV (TTO)') catName = 'LASER UV';
             categoriaAtualAtiva = catName;
@@ -688,7 +702,6 @@
             window.renderTabelaAba();
         };
 
-        // FUNÇÃO DE EDIÇÃO INLINE DO PREÇO USD DA FÁBRICA
         window.editarCustoUSD = function(tdElement, nomeMaquina, custoAtual) {
             if (tdElement.querySelector('input')) return;
 
@@ -747,7 +760,6 @@
             const paginatedItems = objProdutosGlobal.slice(start, start + produtosPerPage);
 
             paginatedItems.forEach(prod => {
-                
                 const usdReal = window.custosSalvosDb[prod.mod] && window.custosSalvosDb[prod.mod].usd !== undefined
                                 ? window.custosSalvosDb[prod.mod].usd
                                 : prod.usd;
@@ -766,14 +778,12 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="p-3 font-bold text-slate-800 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${prod.mod}</td>
-                        
                         <td class="p-3 text-right font-bold text-slate-500 cursor-text group" onclick="window.editarCustoUSD(this, '${prod.mod}', ${usdReal})">
                             <span class="border-b border-dashed border-slate-300 pb-0.5 group-hover:border-blue-500 group-hover:text-blue-600 transition" title="Clique para editar custo FOB da fábrica">
                                 US$ ${usdReal.toLocaleString('en-US', {minimumFractionDigits:2})}
                                 <i class="fa-solid fa-pen text-[9px] ml-1 opacity-0 group-hover:opacity-100"></i>
                             </span>
                         </td>
-
                         <td class="p-3 text-right font-medium text-slate-600 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoBRL)}</td>
                         <td class="p-3 text-right font-bold text-rose-500 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoNac)}</td>
                         <td class="p-3 text-right font-black text-blue-800 border-l border-slate-200 bg-slate-50 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(prod.precoTabela)}</td>
@@ -793,9 +803,6 @@
             window.renderTabelaAba();
         };
 
-        // =========================================================================
-        // CALCULADORA / SIMULADOR DE MARGEM
-        // =========================================================================
         window.carregarParaCalculadora = function(mod) {
             document.getElementById('calc_modelo').value = mod;
             window.simularMargem();
