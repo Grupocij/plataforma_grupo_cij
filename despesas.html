@@ -27,7 +27,6 @@
 </head>
 <body class="min-h-screen pb-12 flex flex-col bg-slate-50">
 
-    <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO DE DESPESAS) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -184,6 +183,7 @@
                         <input type="text" id="search-input" onkeyup="window.filterExpenses()" placeholder="Buscar relatório/cliente..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl text-xs font-medium focus:outline-none focus:border-sky-600 transition">
                     </div>
 
+                    <!-- Filtros de Data e Mês Atual -->
                     <div class="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto">
                         <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl p-1 w-full sm:w-auto">
                             <input type="date" id="filtroDataInicio" onchange="window.filterExpenses()" class="bg-transparent px-2 py-1 text-xs font-semibold text-slate-700 outline-none cursor-pointer">
@@ -192,6 +192,9 @@
                         </div>
                         <button onclick="window.setMesAtual()" class="w-full sm:w-auto bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 font-bold py-1.5 px-3 rounded-xl transition text-xs whitespace-nowrap cursor-pointer shadow-sm">
                             <i class="fa-solid fa-calendar-day mr-1"></i> Mês Atual
+                        </button>
+                        <button onclick="window.limparFiltroData()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold py-1.5 px-3 rounded-xl transition text-xs whitespace-nowrap cursor-pointer shadow-sm" title="Limpar Filtro de Data para ver tudo">
+                            <i class="fa-solid fa-eraser"></i>
                         </button>
                     </div>
 
@@ -304,7 +307,7 @@
         }
 
         // =========================================================================
-        // SETAR MÊS ATUAL (Ao carregar ou clicar no botão)
+        // FILTROS DE DATA
         // =========================================================================
         window.setMesAtual = function() {
             const date = new Date();
@@ -317,6 +320,12 @@
             window.filterExpenses();
         };
 
+        window.limparFiltroData = function() {
+            document.getElementById('filtroDataInicio').value = '';
+            document.getElementById('filtroDataFim').value = '';
+            window.filterExpenses();
+        };
+
         // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
@@ -326,17 +335,16 @@
             const dataInput = document.getElementById('data_pagamento');
             if(dataInput) dataInput.value = today;
 
-            window.setMesAtual();
-
             const form = document.getElementById('expense-form');
             if(form) form.addEventListener('submit', window.handleFormSubmit);
 
-            // VOLTANDO PARA A PASTA CORRETA NO BANCO DE DADOS
+            // VOLTANDO PARA A PASTA CORRETA DO BANCO (despesas_relatorio_novo)
             const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
             
             window.fsOnSnapshot(despesasCol, (snap) => {
                 window.expenses = [];
                 snap.forEach(d => window.expenses.push(d.data()));
+                // Ao carregar, não aplica filtro de mês para mostrar tudo por segurança
                 window.renderExpenses();
             });
 
@@ -736,7 +744,7 @@
         window.filterExpenses = function() { window.renderExpenses(); };
 
         window.mostrarNotificacao = function(msg, error=false) {
-            alert(msg); // Placeholder para toasts, mantendo simples
+            alert(msg); 
         };
 
     </script>
