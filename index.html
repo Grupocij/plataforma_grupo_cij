@@ -25,10 +25,10 @@
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
-    <!-- CONTEÚDO PRINCIPAL (Exibido após o login pelo core.js) -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-3 md:p-5 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- CABEÇALHO INTERNO DA AGENDA (Mais compacto) -->
+        <!-- CABEÇALHO INTERNO DA AGENDA -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-3 w-full lg:w-auto">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20 shrink-0">
@@ -66,7 +66,7 @@
             </div>
         </div>
         
-        <!-- KPIS DA AGENDA (Mais compactos) -->
+        <!-- KPIS DA AGENDA -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <!-- BARRA DE PESQUISA (Mais compacta) -->
+        <!-- BARRA DE PESQUISA -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div class="relative flex-1 sm:w-56">
@@ -209,7 +209,7 @@
                         <tr>
                             <th class="p-3">OS / Cliente</th>
                             <th class="p-3">Tipo</th>
-                            <th class="p-3">Responsável</th>
+                            <th class="p-3">Responsáveis</th>
                             <th class="p-3">Urgência</th>
                             <th class="p-3">Data Início</th>
                             <th class="p-3">Data Conclusão</th>
@@ -255,11 +255,16 @@
                         <input type="text" id="taskLocation" required placeholder="Ex: Av. Brasil, Centro" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Responsável *</label>
-                        <select id="taskTech" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer"></select>
+                
+                <!-- MULTI-SELECT DE TÉCNICOS -->
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Responsáveis (Equipe) *</label>
+                    <div id="taskTechContainer" class="grid grid-cols-2 gap-2 p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs max-h-32 overflow-y-auto custom-scrollbar">
+                        <!-- Populated by JS -->
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Grau de Urgência *</label>
                         <select id="taskUrgency" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
@@ -269,8 +274,6 @@
                             <option value="CRITICAL">🔴 Crítica</option>
                         </select>
                     </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Início *</label>
                         <input type="date" id="taskScheduledDate" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
@@ -316,22 +319,24 @@
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">OS</p><p id="detailOsNumber" class="font-bold text-slate-800">--</p></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Cliente</p><p id="detailClientText" class="font-bold text-slate-800 truncate">--</p></div>
                     <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Localização</p><p id="detailLocationText" class="font-bold text-slate-800">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Responsável</p><p id="detailTech" class="font-bold text-slate-800">--</p></div>
+                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Equipe Responsável</p><div id="detailTech" class="font-bold text-slate-800 mt-1 flex flex-wrap gap-2">--</div></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Urgência</p><p id="detailUrgency" class="mt-1">--</p></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Status</p><p id="detailStatus" class="mt-1">--</p></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Início</p><p id="detailScheduled" class="font-bold text-slate-800">--</p></div>
-                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
+                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
                 </div>
                 <div>
                     <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas:</p>
                     <div id="detailDescription" class="p-3 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] sm:text-xs font-medium text-slate-700 min-h-[60px] whitespace-pre-wrap">--</div>
                 </div>
             </div>
-            <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0">
-                <button id="btnDeleteTask" class="text-red-600 hover:bg-red-50 font-bold text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl transition cursor-pointer"><i class="fa-regular fa-trash-can"></i> <span class="hidden sm:inline">Excluir</span></button>
-                <div class="flex gap-2">
+            <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
+                <button id="btnDeleteTask" class="text-red-600 hover:bg-red-50 font-bold text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl transition cursor-pointer self-start sm:self-auto"><i class="fa-regular fa-trash-can"></i> <span class="inline">Excluir Agendamento</span></button>
+                <div class="flex gap-2 w-full sm:w-auto justify-end">
+                    <button id="btnGoogleCalendar" class="bg-[#4285F4] hover:bg-[#3367D6] text-white px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                        <i class="fa-brands fa-google"></i> Salvar no Google
+                    </button>
                     <button id="btnEditTask" class="px-3 sm:px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-pen"></i> Editar</button>
-                    <button onclick="window.closeDetailsModal()" class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-sm">Fechar</button>
                 </div>
             </div>
         </div>
@@ -342,15 +347,16 @@
 
     <!-- LÓGICA DA AGENDA -->
     <script>
+        // Array de Técnicos com E-mails para a Agenda do Google
         const TECHNICIANS = [
-            { id: 'adriano', name: 'Adriano', color: '#3b82f6' },
-            { id: 'anderson', name: 'Anderson', color: '#10b981' },
-            { id: 'filipe', name: 'Filipe', color: '#8b5cf6' },
-            { id: 'sidnei', name: 'Sidnei', color: '#f59e0b' },
-            { id: 'marcos', name: 'Marcos', color: '#ec4899' },
-            { id: 'gabriel', name: 'Gabriel', color: '#06b6d4' },
-            { id: 'rafael', name: 'Rafael', color: '#64748b' },
-            { id: 'juliana', name: 'Juliana', color: '#8b5cf6' }
+            { id: 'adriano', name: 'Adriano', email: 'adriano@grupocij.com.br', color: '#3b82f6' },
+            { id: 'anderson', name: 'Anderson', email: 'anderson@grupocij.com.br', color: '#10b981' },
+            { id: 'filipe', name: 'Filipe', email: 'filipe@grupocij.com.br', color: '#8b5cf6' },
+            { id: 'sidnei', name: 'Sidnei', email: 'sidnei@grupocij.com.br', color: '#f59e0b' },
+            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com.br', color: '#ec4899' },
+            { id: 'gabriel', name: 'Gabriel', email: 'gabriel@grupocij.com.br', color: '#06b6d4' },
+            { id: 'rafael', name: 'Rafael', email: 'rafael@grupocij.com.br', color: '#64748b' },
+            { id: 'juliana', name: 'Juliana', email: 'juliana@grupocij.com.br', color: '#8b5cf6' }
         ];
 
         window.tasks = [];
@@ -386,16 +392,37 @@
             });
         };
 
+        // Helper para lidar com os arrays de técnicos (Compatibilidade retroativa)
+        window.getTaskTechIds = function(task) {
+            if (task.techIds && Array.isArray(task.techIds)) return task.techIds;
+            if (task.techId) return [task.techId];
+            return [];
+        };
+
+        window.getTechsForTask = function(task) {
+            const ids = window.getTaskTechIds(task);
+            const techs = ids.map(id => TECHNICIANS.find(t => t.id === id)).filter(Boolean);
+            return techs.length > 0 ? techs : [TECHNICIANS[0]];
+        };
+
         window.populateTechnicianSelects = function() {
             const filterTech = document.getElementById('filterTech');
-            const taskTech = document.getElementById('taskTech');
+            const taskTechContainer = document.getElementById('taskTechContainer');
+            
             if (filterTech) {
                 filterTech.innerHTML = '<option value="ALL">Todos os Responsáveis</option>';
                 TECHNICIANS.forEach(t => filterTech.innerHTML += `<option value="${t.id}">${t.name}</option>`);
             }
-            if (taskTech) {
-                taskTech.innerHTML = '';
-                TECHNICIANS.forEach(t => taskTech.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+            if (taskTechContainer) {
+                taskTechContainer.innerHTML = '';
+                TECHNICIANS.forEach(t => {
+                    taskTechContainer.innerHTML += `
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-200 p-1.5 rounded-lg transition border border-transparent hover:border-slate-300">
+                            <input type="checkbox" value="${t.id}" class="tech-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer">
+                            <span class="font-bold text-slate-700 truncate select-none">${t.name}</span>
+                        </label>
+                    `;
+                });
             }
         };
 
@@ -429,10 +456,11 @@
                 const os = (task.osNumber || '').toLowerCase();
                 const client = (task.client || '').toLowerCase();
                 const loc = (task.location || '').toLowerCase();
+                const taskTechs = window.getTaskTechIds(task);
 
                 if (searchVal && !os.includes(searchVal) && !client.includes(searchVal) && !loc.includes(searchVal)) return false;
-                if (onlyMineFilter && task.techId !== currentUser) return false;
-                if (!onlyMineFilter && techVal !== 'ALL' && task.techId !== techVal) return false;
+                if (onlyMineFilter && !taskTechs.includes(currentUser)) return false;
+                if (!onlyMineFilter && techVal !== 'ALL' && !taskTechs.includes(techVal)) return false;
                 if (urgencyVal !== 'ALL' && task.urgency !== urgencyVal) return false;
                 return true;
             });
@@ -467,7 +495,7 @@
             else if (currentView === 'table') window.renderTable(filtered);
         };
 
-        // --- CALENDAR VIEW (CORRIGIDO) ---
+        // --- CALENDAR VIEW (CORRIGIDO PARA BLINDAR EVENTOS) ---
         window.renderCalendar = function(filteredTasks) {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
@@ -481,7 +509,6 @@
             const daysInPrevMonth = new Date(year, month, 0).getDate();
             const todayStr = new Date().toISOString().split('T')[0];
 
-            // Inserção blindada com insertAdjacentHTML para preservar os listeners futuros
             for (let i = firstDay - 1; i >= 0; i--) {
                 grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-50/50 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-60"><span>${daysInPrevMonth - i}</span></div>`);
             }
@@ -498,14 +525,11 @@
                         <button onclick="window.openTaskModalWithDate('${dateStr}')" class="text-slate-300 hover:text-blue-600 p-1 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
                     </div>`;
 
-                // Filtro para garantir a pintura correta de eventos de múltiplos dias
                 const dayTasks = filteredTasks.filter(task => {
                     if (!task.scheduledDate) return false;
                     const start = task.scheduledDate;
                     let end = task.dueDate;
-                    
                     if (!end || end < start) end = start;
-                    
                     return dateStr >= start && dateStr <= end;
                 });
 
@@ -527,11 +551,11 @@
 
                     const item = document.createElement('div');
                     
-                    // Evento cravado na tag garantindo que vai chamar a função de Edição 
+                    // ATALHO DIRETO PARA O MODAL DE EDIÇÃO
                     item.setAttribute('onclick', `event.stopPropagation(); window.openTaskModal('${task.id}');`);
                     
                     item.className = `px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
-                    item.innerHTML = `<span class="truncate">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1" style="background-color: ${uColor}"></span>`;
+                    item.innerHTML = `<span class="truncate pointer-events-none">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1 pointer-events-none" style="background-color: ${uColor}"></span>`;
                     tContainer.appendChild(item);
                 });
                 cell.appendChild(tContainer);
@@ -598,7 +622,7 @@
 
             let cP = 0, cI = 0, cD = 0;
             filteredTasks.forEach(task => {
-                const t = TECHNICIANS.find(x => x.id === task.techId) || TECHNICIANS[0];
+                const techs = window.getTechsForTask(task);
                 const isCom = task.type === 'COMMERCIAL';
                 const uColor = task.urgency === 'LOW' ? '#10b981' : task.urgency === 'MEDIUM' ? '#f59e0b' : task.urgency === 'HIGH' ? '#f97316' : '#ef4444';
 
@@ -620,8 +644,10 @@
                         ${task.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-slate-400"></i> ${task.location}</p>` : ''}
                     </div>
                     <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500 pointer-events-none">
-                        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px]" style="background-color:${t.color}">${t.name.substring(0,2).toUpperCase()}</div> <span class="truncate max-w-[80px]">${t.name}</span></div>
-                        <span class="text-[10px] text-slate-400"><i class="fa-regular fa-calendar"></i> ${task.scheduledDate.split('-').reverse().join('/')}</span>
+                        <div class="flex items-center gap-1 flex-wrap max-w-[120px]">
+                            ${techs.map(t => `<div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px]" style="background-color:${t.color}" title="${t.name}">${t.name.substring(0,2).toUpperCase()}</div>`).join('')}
+                        </div>
+                        <span class="text-[10px] text-slate-400 shrink-0"><i class="fa-regular fa-calendar"></i> ${task.scheduledDate.split('-').reverse().join('/')}</span>
                     </div>`;
 
                 if (task.status === 'PENDING') { document.getElementById('kanbanPending').appendChild(card); cP++; }
@@ -651,10 +677,12 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = filteredTasks.map(t => {
                 const isCom = t.type === 'COMMERCIAL';
-                const tech = TECHNICIANS.find(x => x.id === t.techId) || TECHNICIANS[0];
+                const techs = window.getTechsForTask(t);
                 const bgUrg = t.urgency === 'LOW' ? 'bg-emerald-100 text-emerald-800' : t.urgency === 'MEDIUM' ? 'bg-amber-100 text-amber-800' : t.urgency === 'HIGH' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800 pulse-critical';
                 const bgStat = t.status === 'PENDING' ? 'bg-blue-100 text-blue-800' : t.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
                 
+                const techNames = techs.map(tc => `<span class="inline-block px-1.5 py-0.5 bg-slate-100 rounded-md border border-slate-200 m-0.5"><span class="w-2 h-2 rounded-full inline-block mr-1" style="background-color:${tc.color}"></span>${tc.name}</span>`).join('');
+
                 return `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer">
                     <td class="p-3" onclick="window.openDetailsModal('${t.id}')">
@@ -662,7 +690,7 @@
                         ${t.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${t.location}</p>` : ''}
                     </td>
                     <td class="p-3 font-black text-[10px] uppercase tracking-wider ${isCom ? 'text-purple-600' : 'text-blue-600'}" onclick="window.openDetailsModal('${t.id}')">${isCom ? 'Comercial' : 'Técnico'}</td>
-                    <td class="p-3 font-bold text-slate-700" onclick="window.openDetailsModal('${t.id}')"><span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color:${tech.color}"></span>${tech.name}</td>
+                    <td class="p-3 font-bold text-slate-700" onclick="window.openDetailsModal('${t.id}')">${techNames}</td>
                     <td class="p-3" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgUrg}">${t.urgency === 'CRITICAL' ? 'Crítica' : t.urgency === 'HIGH' ? 'Alta' : t.urgency === 'MEDIUM' ? 'Média' : 'Baixa'}</span></td>
                     <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.scheduledDate.split('-').reverse().join('/')}</td>
                     <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.dueDate.split('-').reverse().join('/')}</td>
@@ -678,6 +706,8 @@
         // --- FORMULÁRIOS & MODAIS ---
         window.openTaskModal = function(id = null) {
             document.getElementById('taskForm').reset();
+            document.querySelectorAll('.tech-checkbox').forEach(cb => cb.checked = false);
+
             if (id) {
                 const t = window.tasks.find(x => x.id === id);
                 document.getElementById('taskId').value = t.id;
@@ -685,19 +715,28 @@
                 document.getElementById('taskClient').value = t.client;
                 document.getElementById('taskType').value = t.type;
                 document.getElementById('taskLocation').value = t.location;
-                document.getElementById('taskTech').value = t.techId;
                 document.getElementById('taskUrgency').value = t.urgency;
                 document.getElementById('taskScheduledDate').value = t.scheduledDate;
                 document.getElementById('taskDueDate').value = t.dueDate;
                 document.getElementById('taskStatus').value = t.status;
                 document.getElementById('taskDescription').value = t.description;
                 document.getElementById('modalTitle').innerText = 'Editar Agendamento';
+
+                // Marcar os técnicos que já estão salvos na OS
+                const ids = window.getTaskTechIds(t);
+                ids.forEach(techId => {
+                    const cb = document.querySelector(`.tech-checkbox[value="${techId}"]`);
+                    if(cb) cb.checked = true;
+                });
             } else {
                 document.getElementById('taskId').value = '';
-                document.getElementById('taskTech').value = currentUser;
                 document.getElementById('taskScheduledDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('modalTitle').innerText = 'Novo Agendamento';
+
+                // Marca o técnico que está logado como padrão
+                const cb = document.querySelector(`.tech-checkbox[value="${currentUser}"]`);
+                if(cb) cb.checked = true;
             }
             document.getElementById('taskModal').classList.remove('hidden');
         };
@@ -712,9 +751,16 @@
 
         window.handleTaskSubmit = async function(e) {
             e.preventDefault();
+
+            // Lógica de Coleta dos Múltiplos Técnicos (Equipe)
+            const selectedTechs = Array.from(document.querySelectorAll('.tech-checkbox:checked')).map(cb => cb.value);
+            if (selectedTechs.length === 0) {
+                alert('Selecione ao menos um Responsável para o agendamento.');
+                return;
+            }
+
             const id = document.getElementById('taskId').value || 't_' + Date.now();
             
-            // Tratamento das Datas na hora de Salvar (Evita transbordamento)
             let dStart = document.getElementById('taskScheduledDate').value;
             let dEnd = document.getElementById('taskDueDate').value;
             if (!dEnd || dEnd < dStart) {
@@ -728,17 +774,46 @@
                 title: document.getElementById('taskClient').value.trim(),
                 type: document.getElementById('taskType').value,
                 location: document.getElementById('taskLocation').value.trim(),
-                techId: document.getElementById('taskTech').value,
+                techIds: selectedTechs, // Salva o Array de técnicos
+                techId: selectedTechs[0], // Mantém 1 por compatibilidade retroativa com código velho
                 urgency: document.getElementById('taskUrgency').value,
                 scheduledDate: dStart,
                 dueDate: dEnd,
                 status: document.getElementById('taskStatus').value,
                 description: document.getElementById('taskDescription').value.trim()
             };
+
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', data.id), data);
                 window.closeTaskModal();
             } catch(err) { alert('Erro ao salvar agendamento.'); }
+        };
+
+        // --- SINCRONIZAÇÃO COM GOOGLE CALENDAR ---
+        window.addToGoogleCalendar = function(taskId) {
+            const task = window.tasks.find(t => t.id === taskId);
+            if(!task) return;
+
+            const title = encodeURIComponent((task.osNumber ? task.osNumber + ' - ' : '') + task.client);
+            const location = encodeURIComponent(task.location || '');
+            
+            // Tratamento das datas para o Google Calendar (Evento de Dia Inteiro)
+            const dStart = task.scheduledDate.replace(/-/g, '');
+            const dEndDateObj = new Date(task.dueDate + 'T00:00:00');
+            dEndDateObj.setDate(dEndDateObj.getDate() + 1); // Google exige 1 dia a mais p/ eventos de dia inteiro
+            const dEnd = dEndDateObj.toISOString().split('T')[0].replace(/-/g, '');
+            const dates = `${dStart}/${dEnd}`;
+
+            // Pega os emails de todos os técnicos marcados e adiciona como convidados
+            const techs = window.getTechsForTask(task);
+            const emails = techs.map(t => t.email).filter(Boolean).join(',');
+            const addParam = emails ? `&add=${emails}` : '';
+            
+            const techNames = techs.map(t => t.name).join(', ');
+            const details = encodeURIComponent(`Detalhes: ${task.description || 'Nenhum detalhe'}\nEquipe Responsável: ${techNames}`);
+
+            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}${addParam}`;
+            window.open(url, '_blank');
         };
 
         window.openDetailsModal = function(id) {
@@ -752,7 +827,10 @@
             document.getElementById('detailOsNumber').innerText = t.osNumber || '--';
             document.getElementById('detailClientText').innerText = t.client;
             document.getElementById('detailLocationText').innerText = t.location || '--';
-            document.getElementById('detailTech').innerText = TECHNICIANS.find(x => x.id === t.techId)?.name || '--';
+            
+            const techs = window.getTechsForTask(t);
+            const techHtml = techs.map(tc => `<span class="px-2 py-1 bg-slate-100 rounded-lg border border-slate-200"><span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color:${tc.color}"></span>${tc.name}</span>`).join('');
+            document.getElementById('detailTech').innerHTML = techHtml;
             
             const badgeU = t.urgency === 'CRITICAL' ? '<span class="text-[10px] font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded pulse-critical">🔴 Crítica</span>' : t.urgency === 'HIGH' ? '<span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">🟠 Alta</span>' : t.urgency === 'MEDIUM' ? '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">🟡 Média</span>' : '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">🟢 Baixa</span>';
             const badgeS = t.status === 'PENDING' ? '<span class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">📅 Agendado</span>' : t.status === 'IN_PROGRESS' ? '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">⚡ Em Andamento</span>' : '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">✅ Concluído</span>';
@@ -762,6 +840,8 @@
             document.getElementById('detailScheduled').innerText = t.scheduledDate.split('-').reverse().join('/');
             document.getElementById('detailDue').innerText = t.dueDate.split('-').reverse().join('/');
             document.getElementById('detailDescription').innerText = t.description || 'Nenhuma observação registrada.';
+
+            document.getElementById('btnGoogleCalendar').setAttribute('onclick', `window.addToGoogleCalendar('${t.id}')`);
 
             document.getElementById('btnEditTask').onclick = () => { window.closeDetailsModal(); window.openTaskModal(t.id); };
             document.getElementById('btnDeleteTask').onclick = async () => {
