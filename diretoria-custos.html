@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <!-- FILTROS AVANÇADOS DO DRE (De/Até e Mês Atual) -->
+        <!-- FILTROS AVANÇADOS DO DRE -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-2 mb-2 md:mb-0">
                 <i class="fa-solid fa-filter text-slate-400"></i>
@@ -220,6 +220,7 @@
                 <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-table text-emerald-600"></i> Matriz de Referência e Comissões
                 </h3>
+                <p class="text-[10px] text-slate-500 mb-3">Clique no <strong>Custo USD</strong> na tabela abaixo para atualizar o valor da fábrica.</p>
                 <!-- ABAS -->
                 <div class="flex overflow-x-auto gap-2 border-b border-slate-300 custom-scrollbar pb-0.5" id="abas-container">
                     <button onclick="window.selecionarAba('INKJET')" id="aba-INKJET" class="tab-btn active px-4 py-2 rounded-t-lg text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition border border-b-0 border-transparent cursor-pointer whitespace-nowrap">INKJET</button>
@@ -237,7 +238,7 @@
                     <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0 z-10 shadow-sm">
                         <tr>
                             <th class="p-3">Máquina / Modelo</th>
-                            <th class="p-3 text-right">Custo USD</th>
+                            <th class="p-3 text-right" title="Clique no valor na tabela para editar">Custo USD <i class="fa-solid fa-pen text-[9px] ml-1"></i></th>
                             <th class="p-3 text-right text-slate-700">Custo Base (BRL)</th>
                             <th class="p-3 text-right text-rose-600">Custo Nacionaliz.</th>
                             <th class="p-3 text-right text-blue-700 border-l border-slate-200">Preço Venda Tabela</th>
@@ -269,7 +270,7 @@
 
     <!-- LÓGICA DE ALTA PROTEÇÃO E CUSTOS -->
     <script>
-        // Função blindada para limpar máscaras financeiras (Ex: "R$ 1.500,00" -> 1500)
+        // Função blindada para limpar máscaras financeiras
         window.parseMoney = function(val) {
             if (typeof val === 'number') return val;
             if (!val) return 0;
@@ -286,7 +287,6 @@
             return parseFloat(s) || 0;
         };
 
-        // MATRIZ ORIGINAL - Extraída e Sincronizada do Excel
         const matrizProdutosOriginal = [
             { cat: 'INKJET', mod: 'LEADJET V8820 (3 LINHAS)', precoTabela: 32000.80, usd: 2100 },
             { cat: 'INKJET', mod: 'LEADJET V8910 (4 LINHAS)', precoTabela: 32000.80, usd: 2100 },
@@ -321,6 +321,7 @@
 
         window.vendasRegistradas = [];
         window.despesasRegistradas = [];
+        window.custosSalvosDb = {}; // Salva os preços em USD editados
         let categoriaAtualAtiva = 'INKJET';
 
         // Paginação Variables
@@ -336,15 +337,6 @@
         let cfgNac = 60.0;
         let cfgImp = 12.0;
 
-        window.formatarMoeda = (val) => {
-            let num = parseFloat(val);
-            if (isNaN(num)) return 'R$ 0,00';
-            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        };
-
-        // =========================================================================
-        // SETAR MÊS ATUAL
-        // =========================================================================
         window.setMesAtual = function() {
             const date = new Date();
             const y = date.getFullYear();
@@ -379,7 +371,6 @@
 
             window.setMesAtual();
 
-            // Povoar Filtros
             const selProd = document.getElementById('filtroProdutoDRE');
             matrizProdutosOriginal.forEach(m => selProd.innerHTML += `<option value="${m.mod}">${m.mod}</option>`);
 
@@ -405,6 +396,16 @@
                 window.simularMargem();
             });
 
+            // Firebase: Preços de Fábrica Customizados (USD)
+            const custosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_custos_produtos');
+            window.fsOnSnapshot(custosCol, (snap) => {
+                window.custosSalvosDb = {};
+                snap.forEach(doc => { window.custosSalvosDb[doc.id] = doc.data(); });
+                window.renderTabelaAba();
+                window.calcularDRE();
+                window.simularMargem();
+            });
+
             // Firebase: Vendas
             const comissoesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul');
             window.fsOnSnapshot(comissoesCol, (snap) => {
@@ -413,7 +414,7 @@
                 window.calcularDRE();
             });
 
-            // Firebase: Despesas (AQUI LÊ A PASTA CORRETA REPARADA!)
+            // Firebase: Despesas
             const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
             window.fsOnSnapshot(despesasCol, (snap) => {
                 window.despesasRegistradas = [];
@@ -480,7 +481,12 @@
                         if (item.tipo === 'Maquina') {
                             const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
                             if (prodRef) {
-                                const custoBRL = prodRef.usd * cfgDolar;
+                                // APLICA O CUSTO USD EDITADO SE EXISTIR
+                                const usdReal = window.custosSalvosDb[nomeMaquina] && window.custosSalvosDb[nomeMaquina].usd !== undefined
+                                                ? window.custosSalvosDb[nomeMaquina].usd
+                                                : prodRef.usd;
+
+                                const custoBRL = usdReal * cfgDolar;
                                 const custoNac = custoBRL * (cfgNac / 100);
                                 cogsVenda += (custoBRL + custoNac) * parseInt(item.qtd || 1);
                                 
@@ -516,7 +522,7 @@
                 }
             });
 
-            // 2. Processar Despesas baseadas na estrutura real de despesas.html
+            // 2. Processar Despesas
             if (!prodFiltro) {
                 window.despesasRegistradas.forEach(desp => {
                     const dataDesp = desp.data_pagamento || desp.data_vencimento || '';
@@ -603,7 +609,7 @@
         };
 
         // =========================================================================
-        // LÓGICA DAS ABAS EXCEL E PAGINAÇÃO
+        // LÓGICA DAS ABAS EXCEL E PAGINAÇÃO E EDIÇÃO INLINE
         // =========================================================================
         window.selecionarAba = function(catName) {
             if (catName === 'LASER UV (TTO)') catName = 'LASER UV';
@@ -625,6 +631,47 @@
             window.renderTabelaAba();
         };
 
+        // FUNÇÃO DE EDIÇÃO INLINE DO PREÇO USD DA FÁBRICA
+        window.editarCustoUSD = function(tdElement, nomeMaquina, custoAtual) {
+            // Evita duplicação se já estiver editando
+            if (tdElement.querySelector('input')) return;
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = custoAtual;
+            input.className = "w-24 text-right p-1 text-xs font-bold border-2 border-blue-500 rounded outline-none shadow-md bg-white text-slate-900 absolute right-2 top-1.5 z-20";
+
+            tdElement.style.position = 'relative';
+            tdElement.innerHTML = '';
+            tdElement.appendChild(input);
+            input.focus();
+            input.select();
+
+            input.onblur = async function() {
+                const novoCusto = parseFloat(input.value);
+                if (!isNaN(novoCusto) && novoCusto > 0 && novoCusto !== custoAtual) {
+                    try {
+                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_custos_produtos', nomeMaquina), {
+                            usd: novoCusto,
+                            atualizadoEm: new Date().toISOString(),
+                            atualizadoPor: window.currentUser ? window.currentUser.email : 'Diretoria'
+                        }, { merge: true });
+                    } catch (e) {
+                        alert("Erro ao salvar o custo: " + e.message);
+                        window.renderTabelaAba();
+                    }
+                } else {
+                    window.renderTabelaAba();
+                }
+            };
+
+            input.onkeydown = function(e) {
+                if (e.key === 'Enter') input.blur();
+                if (e.key === 'Escape') { input.value = custoAtual; input.blur(); }
+            };
+        };
+
         window.renderTabelaAba = function() {
             const tbody = document.getElementById('tabelaProdutosAba');
             if(!tbody) return;
@@ -644,7 +691,13 @@
             const paginatedItems = objProdutosGlobal.slice(start, start + produtosPerPage);
 
             paginatedItems.forEach(prod => {
-                const custoBRL = prod.usd * cfgDolar;
+                
+                // PUXA O CUSTO USD EDITADO SE ELE EXISTIR NA NUVEM, CASO CONTRÁRIO USA O ORIGINAL DA PLANILHA
+                const usdReal = window.custosSalvosDb[prod.mod] && window.custosSalvosDb[prod.mod].usd !== undefined
+                                ? window.custosSalvosDb[prod.mod].usd
+                                : prod.usd;
+
+                const custoBRL = usdReal * cfgDolar;
                 const custoNac = custoBRL * (cfgNac / 100);
                 const custoTotal = custoBRL + custoNac;
 
@@ -655,17 +708,25 @@
                 
                 const corMargem = margemPerc > 30 ? 'text-emerald-600 bg-emerald-50' : (margemPerc > 15 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
 
+                // Linha gerada com Custo USD clicável para edição
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">
-                        <td class="p-3 font-bold text-slate-800">${prod.mod}</td>
-                        <td class="p-3 text-right font-bold text-slate-500">US$ ${prod.usd.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-                        <td class="p-3 text-right font-medium text-slate-600">${formatarMoeda(custoBRL)}</td>
-                        <td class="p-3 text-right font-bold text-rose-500">${formatarMoeda(custoNac)}</td>
-                        <td class="p-3 text-right font-black text-blue-800 border-l border-slate-200 bg-slate-50">${formatarMoeda(prod.precoTabela)}</td>
-                        <td class="p-3 text-right font-bold text-blue-500">${formatarMoeda(impVenda)}</td>
-                        <td class="p-3 text-right font-bold text-orange-500">${formatarMoeda(comissaoMax)}</td>
-                        <td class="p-3 text-right font-black text-emerald-600 border-l border-slate-200 bg-slate-50">${formatarMoeda(lucroLiquido)}</td>
-                        <td class="p-3 text-center font-black ${corMargem}">${margemPerc.toFixed(1)}%</td>
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3 font-bold text-slate-800 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${prod.mod}</td>
+                        
+                        <td class="p-3 text-right font-bold text-slate-500 cursor-text group" onclick="window.editarCustoUSD(this, '${prod.mod}', ${usdReal})">
+                            <span class="border-b border-dashed border-slate-300 pb-0.5 group-hover:border-blue-500 group-hover:text-blue-600 transition" title="Clique para editar custo FOB da fábrica">
+                                US$ ${usdReal.toLocaleString('en-US', {minimumFractionDigits:2})}
+                                <i class="fa-solid fa-pen text-[9px] ml-1 opacity-0 group-hover:opacity-100"></i>
+                            </span>
+                        </td>
+
+                        <td class="p-3 text-right font-medium text-slate-600 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoBRL)}</td>
+                        <td class="p-3 text-right font-bold text-rose-500 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoNac)}</td>
+                        <td class="p-3 text-right font-black text-blue-800 border-l border-slate-200 bg-slate-50 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(prod.precoTabela)}</td>
+                        <td class="p-3 text-right font-bold text-blue-500 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(impVenda)}</td>
+                        <td class="p-3 text-right font-bold text-orange-500 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(comissaoMax)}</td>
+                        <td class="p-3 text-right font-black text-emerald-600 border-l border-slate-200 bg-slate-50 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(lucroLiquido)}</td>
+                        <td class="p-3 text-center font-black ${corMargem} cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${margemPerc.toFixed(1)}%</td>
                     </tr>
                 `;
             });
@@ -715,7 +776,11 @@
             let precoVenda = parseFloat(inpPreco.value);
             if (isNaN(precoVenda) || precoVenda === 0) precoVenda = prodRef.precoTabela;
 
-            const custoBRL = prodRef.usd * cfgDolar;
+            const usdReal = window.custosSalvosDb[modNome] && window.custosSalvosDb[modNome].usd !== undefined
+                            ? window.custosSalvosDb[modNome].usd
+                            : prodRef.usd;
+
+            const custoBRL = usdReal * cfgDolar;
             const nacion = custoBRL * (cfgNac / 100);
             const cTotal = custoBRL + nacion; 
             
@@ -725,7 +790,7 @@
             const lucroReal = precoVenda - cTotal - impVenda - comissaoReais;
             const margem = precoVenda > 0 ? (lucroReal / precoVenda) * 100 : 0;
 
-            document.getElementById('res_fob_usd').innerText = `US$ ${prodRef.usd.toFixed(2)}`;
+            document.getElementById('res_fob_usd').innerText = `US$ ${usdReal.toFixed(2)}`;
             document.getElementById('res_fob_brl').innerText = formatarMoeda(custoBRL);
             document.getElementById('res_nacion').innerText = formatarMoeda(nacion);
             document.getElementById('res_custo_total').innerText = formatarMoeda(cTotal);
