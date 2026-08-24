@@ -21,17 +21,14 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- AVISO DE CARREGAMENTO / TRAVA DE SEGURANÇA -->
     <div id="security-lock" class="fixed inset-0 z-[9999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center lock-screen">
         <i class="fa-solid fa-vault text-6xl text-amber-500 mb-4 animate-pulse"></i>
         <h1 class="text-2xl font-black text-white tracking-widest uppercase">Verificando Credenciais</h1>
         <p class="text-slate-400 mt-2 text-sm">Estabelecendo conexão criptografada com o banco de dados...</p>
     </div>
 
-    <!-- ÁREA CENTRAL DO MÓDULO -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-4 hidden" id="main-content">
 
-        <!-- CABEÇALHO E CONFIGURAÇÕES GLOBAIS DA DIRETORIA -->
         <div class="executive-gradient p-5 rounded-3xl shadow-lg border border-slate-700 flex flex-col xl:flex-row justify-between items-center gap-5 shrink-0 relative overflow-hidden">
             <i class="fa-solid fa-user-secret absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none transform -rotate-12"></i>
             
@@ -48,7 +45,6 @@
                 </div>
             </div>
             
-            <!-- PARÂMETROS FISCAIS E DE CUSTO -->
             <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto bg-slate-800/50 p-3 rounded-2xl border border-slate-600">
                 <div>
                     <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 text-center sm:text-left">Dólar (R$)</label>
@@ -68,7 +64,6 @@
             </div>
         </div>
 
-        <!-- FILTROS AVANÇADOS DO DRE -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-2 mb-2 md:mb-0">
                 <i class="fa-solid fa-filter text-slate-400"></i>
@@ -83,9 +78,11 @@
                 <button onclick="window.setMesAtual()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold py-1.5 px-3 rounded-lg transition text-xs whitespace-nowrap cursor-pointer shadow-sm">
                     <i class="fa-solid fa-calendar-day mr-1"></i> Mês Atual
                 </button>
+                <button onclick="window.limparFiltroData()" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold py-1.5 px-3 rounded-lg transition text-xs whitespace-nowrap cursor-pointer shadow-sm" title="Mostrar todo histórico">
+                    <i class="fa-solid fa-eraser"></i> Limpar
+                </button>
                 <select id="filtroProdutoDRE" onchange="window.calcularDRE()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 cursor-pointer w-full sm:w-56">
                     <option value="">Todas as Máquinas</option>
-                    <!-- Populated via JS -->
                 </select>
                 <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-3 rounded-lg border border-slate-300 transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-print"></i>
@@ -93,7 +90,6 @@
             </div>
         </div>
 
-        <!-- DRE - RESULTADO CONSOLIDADO DO PERÍODO -->
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 shrink-0">
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-500"></div>
@@ -129,7 +125,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0">
             
-            <!-- PAINEL 1: RENDIMENTO X DESPESAS POR VENDEDOR -->
             <div class="lg:col-span-6 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col h-[400px] lg:h-full overflow-hidden">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <div>
@@ -152,11 +147,9 @@
                             </tr>
                         </thead>
                         <tbody id="tabelaVendedores" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Inject -->
                         </tbody>
                     </table>
                 </div>
-                <!-- CONTROLE DE PAGINAÇÃO DOS VENDEDORES -->
                 <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                     <span class="text-[10px] font-bold text-slate-500" id="info-page-vendedores">Pág. 1 de 1</span>
                     <div class="flex gap-2">
@@ -166,7 +159,6 @@
                 </div>
             </div>
 
-            <!-- PAINEL 2: CALCULADORA DE PRECIFICAÇÃO -->
             <div class="lg:col-span-6 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col h-auto overflow-hidden">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-800 to-slate-900 text-white">
                     <div>
@@ -183,7 +175,6 @@
                             <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Equipamento para Simulação</label>
                             <select id="calc_modelo" onchange="window.simularMargem()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 cursor-pointer">
                                 <option value="">Selecione a máquina...</option>
-                                <!-- JS Inject -->
                             </select>
                         </div>
                         <div class="col-span-1 sm:col-span-2">
@@ -192,7 +183,6 @@
                         </div>
                     </div>
 
-                    <!-- Resultados Detalhados da Calculadora -->
                     <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 mt-2 space-y-3 shadow-inner">
                         <div class="grid grid-cols-2 gap-y-3 text-xs">
                             <div><span class="font-bold text-slate-500 block text-[9px] uppercase">Custo Origem (US$)</span><strong id="res_fob_usd" class="text-slate-700">US$ 0.00</strong></div>
@@ -214,14 +204,12 @@
             </div>
         </div>
 
-        <!-- PAINEL 3: MATRIZ GERAL COM ABAS -->
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full shrink-0">
             <div class="p-4 border-b border-slate-100 bg-slate-50">
                 <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-table text-emerald-600"></i> Matriz de Referência e Comissões
                 </h3>
                 <p class="text-[10px] text-slate-500 mb-3">Clique no <strong>Custo USD</strong> na tabela abaixo para atualizar o valor da fábrica.</p>
-                <!-- ABAS -->
                 <div class="flex overflow-x-auto gap-2 border-b border-slate-300 custom-scrollbar pb-0.5" id="abas-container">
                     <button onclick="window.selecionarAba('INKJET')" id="aba-INKJET" class="tab-btn active px-4 py-2 rounded-t-lg text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition border border-b-0 border-transparent cursor-pointer whitespace-nowrap">INKJET</button>
                     <button onclick="window.selecionarAba('LASER CO2')" id="aba-LASER CO2" class="tab-btn px-4 py-2 rounded-t-lg text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition border border-b-0 border-transparent cursor-pointer whitespace-nowrap">LASER CO2</button>
@@ -249,11 +237,9 @@
                         </tr>
                     </thead>
                     <tbody id="tabelaProdutosAba" class="divide-y divide-slate-200 font-medium text-slate-700 bg-white">
-                        <!-- JS Inject -->
                     </tbody>
                 </table>
             </div>
-            <!-- CONTROLE DE PAGINAÇÃO DA MATRIZ -->
             <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <span class="text-[10px] font-bold text-slate-500" id="info-page-produtos">Pág. 1 de 1</span>
                 <div class="flex gap-2">
@@ -265,12 +251,9 @@
 
     </main>
 
-    <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA DE ALTA PROTEÇÃO E CUSTOS -->
     <script>
-        // Função blindada para limpar máscaras financeiras
         window.parseMoney = function(val) {
             if (typeof val === 'number') return val;
             if (!val) return 0;
@@ -321,10 +304,9 @@
 
         window.vendasRegistradas = [];
         window.despesasRegistradas = [];
-        window.custosSalvosDb = {}; // Salva os preços em USD editados
+        window.custosSalvosDb = {};
         let categoriaAtualAtiva = 'INKJET';
 
-        // Paginação Variables
         let vendedoresPage = 1;
         const vendedoresPerPage = 10;
         let produtosPage = 1;
@@ -332,10 +314,15 @@
         let objVendedoresGlobal = [];
         let objProdutosGlobal = [];
 
-        // Configurações Fiscais Padrão
         let cfgDolar = 5.20;
         let cfgNac = 60.0;
         let cfgImp = 12.0;
+
+        window.formatarMoeda = (val) => {
+            let num = parseFloat(val);
+            if (isNaN(num)) return 'R$ 0,00';
+            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
 
         window.setMesAtual = function() {
             const date = new Date();
@@ -348,9 +335,12 @@
             window.calcularDRE();
         };
 
-        // =========================================================================
-        // INICIALIZAÇÃO
-        // =========================================================================
+        window.limparFiltroData = function() {
+            document.getElementById('filtroDataInicio').value = '';
+            document.getElementById('filtroDataFim').value = '';
+            window.calcularDRE();
+        };
+
         window.initModule = function(perfil) {
             if (perfil !== 'Admin') {
                 document.getElementById('security-lock').innerHTML = `
@@ -369,15 +359,12 @@
             document.getElementById('security-lock').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
 
-            window.setMesAtual();
-
             const selProd = document.getElementById('filtroProdutoDRE');
             matrizProdutosOriginal.forEach(m => selProd.innerHTML += `<option value="${m.mod}">${m.mod}</option>`);
 
             const selCalc = document.getElementById('calc_modelo');
             matrizProdutosOriginal.forEach(m => selCalc.innerHTML += `<option value="${m.mod}">${m.mod}</option>`);
 
-            // Firebase: Configs Globais
             const confCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_config_financeira');
             window.fsOnSnapshot(confCol, (snap) => {
                 snap.forEach(d => {
@@ -396,7 +383,6 @@
                 window.simularMargem();
             });
 
-            // Firebase: Preços de Fábrica Customizados (USD)
             const custosCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_custos_produtos');
             window.fsOnSnapshot(custosCol, (snap) => {
                 window.custosSalvosDb = {};
@@ -406,7 +392,6 @@
                 window.simularMargem();
             });
 
-            // Firebase: Vendas
             const comissoesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'comissoes_azul');
             window.fsOnSnapshot(comissoesCol, (snap) => {
                 window.vendasRegistradas = [];
@@ -414,7 +399,7 @@
                 window.calcularDRE();
             });
 
-            // Firebase: Despesas
+            // LÊ DA PASTA CORRETA (despesas_relatorio_novo)
             const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
             window.fsOnSnapshot(despesasCol, (snap) => {
                 window.despesasRegistradas = [];
@@ -436,12 +421,10 @@
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_config_financeira', 'geral'), {
                     dolar: d, nacionalizacao: n, impostoVenda: i
                 });
+                alert('Parâmetros salvos e aplicados no sistema!');
             } catch(e) {}
         };
 
-        // =========================================================================
-        // MOTOR DRE E RENTABILIDADE
-        // =========================================================================
         window.calcularDRE = function() {
             const dataInicio = document.getElementById('filtroDataInicio').value; 
             const dataFim = document.getElementById('filtroDataFim').value; 
@@ -455,7 +438,6 @@
 
             const drePorVendedor = {};
 
-            // 1. Processar Vendas
             window.vendasRegistradas.forEach(venda => {
                 const dataVenda = venda.date || venda.dataEntrada || ''; 
                 if (dataInicio && dataVenda < dataInicio) return;
@@ -481,7 +463,6 @@
                         if (item.tipo === 'Maquina') {
                             const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
                             if (prodRef) {
-                                // APLICA O CUSTO USD EDITADO SE EXISTIR
                                 const usdReal = window.custosSalvosDb[nomeMaquina] && window.custosSalvosDb[nomeMaquina].usd !== undefined
                                                 ? window.custosSalvosDb[nomeMaquina].usd
                                                 : prodRef.usd;
@@ -522,19 +503,28 @@
                 }
             });
 
-            // 2. Processar Despesas
             if (!prodFiltro) {
                 window.despesasRegistradas.forEach(desp => {
-                    const dataDesp = desp.data_pagamento || desp.data_vencimento || '';
-                    if (dataInicio && dataDesp < dataInicio) return;
-                    if (dataFim && dataDesp > dataFim) return;
+                    let dataStr = String(desp.data_pagamento || desp.data_vencimento || desp.data || desp.dataDespesa || desp.date || desp.createdAt || desp.timestamp || '');
                     
-                    const valDesp = parseFloat(desp.valor) || 0;
+                    if (dataStr.includes('/')) {
+                        const p = dataStr.split('/');
+                        if (p.length === 3) dataStr = `${p[2]}-${p[1]}-${p[0]}`; 
+                    } else if (!isNaN(Number(dataStr)) && dataStr.length > 10) {
+                        dataStr = new Date(Number(dataStr)).toISOString().split('T')[0];
+                    }
+
+                    if (dataInicio && dataStr < dataInicio) return;
+                    if (dataFim && dataStr > dataFim) return;
+                    
+                    const valRaw = desp.valor || desp.value || desp.valorDespesa || desp.amount || 0;
+                    const valDesp = window.parseMoney(valRaw);
+                    
                     if (valDesp <= 0) return; 
 
                     totalDespesas += valDesp;
 
-                    const responsavelRaw = desp.tecnico || desp.responsavel || desp.autor || 'Geral/Empresa';
+                    const responsavelRaw = desp.tecnico || desp.responsavel || desp.funcionario || desp.autor_nome || desp.nome || desp.autor || 'Geral/Empresa';
                     let vendCorrespondente = Object.keys(drePorVendedor).find(k => responsavelRaw.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(responsavelRaw.toLowerCase()));
                     
                     if (!vendCorrespondente) vendCorrespondente = responsavelRaw; 
@@ -544,7 +534,6 @@
                 });
             }
 
-            // 3. Atualiza Cards DRE
             const lucroLiquido = totalFaturamento - totalCustoNacionalizado - totalComissoes - totalDespesas - totalImpostoVenda;
             
             document.getElementById('dre_faturamento').innerText = formatarMoeda(totalFaturamento);
@@ -557,15 +546,11 @@
             if (lucroLiquido < 0) document.getElementById('dre_lucro').classList.replace('text-white', 'text-rose-400');
             else document.getElementById('dre_lucro').classList.replace('text-rose-400', 'text-white');
 
-            // Salva array global para paginação
             objVendedoresGlobal = Object.entries(drePorVendedor).sort((a,b) => b[1].fat - a[1].fat);
             vendedoresPage = 1;
             window.renderTabelaVendedoresPaginated();
         };
 
-        // =========================================================================
-        // PAGINAÇÃO VENDEDORES
-        // =========================================================================
         window.renderTabelaVendedoresPaginated = function() {
             const tbodyVend = document.getElementById('tabelaVendedores');
             tbodyVend.innerHTML = '';
@@ -608,9 +593,6 @@
             window.renderTabelaVendedoresPaginated();
         };
 
-        // =========================================================================
-        // LÓGICA DAS ABAS EXCEL E PAGINAÇÃO E EDIÇÃO INLINE
-        // =========================================================================
         window.selecionarAba = function(catName) {
             if (catName === 'LASER UV (TTO)') catName = 'LASER UV';
             categoriaAtualAtiva = catName;
@@ -631,9 +613,7 @@
             window.renderTabelaAba();
         };
 
-        // FUNÇÃO DE EDIÇÃO INLINE DO PREÇO USD DA FÁBRICA
         window.editarCustoUSD = function(tdElement, nomeMaquina, custoAtual) {
-            // Evita duplicação se já estiver editando
             if (tdElement.querySelector('input')) return;
 
             const input = document.createElement('input');
@@ -691,8 +671,6 @@
             const paginatedItems = objProdutosGlobal.slice(start, start + produtosPerPage);
 
             paginatedItems.forEach(prod => {
-                
-                // PUXA O CUSTO USD EDITADO SE ELE EXISTIR NA NUVEM, CASO CONTRÁRIO USA O ORIGINAL DA PLANILHA
                 const usdReal = window.custosSalvosDb[prod.mod] && window.custosSalvosDb[prod.mod].usd !== undefined
                                 ? window.custosSalvosDb[prod.mod].usd
                                 : prod.usd;
@@ -708,18 +686,15 @@
                 
                 const corMargem = margemPerc > 30 ? 'text-emerald-600 bg-emerald-50' : (margemPerc > 15 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
 
-                // Linha gerada com Custo USD clicável para edição
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="p-3 font-bold text-slate-800 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${prod.mod}</td>
-                        
                         <td class="p-3 text-right font-bold text-slate-500 cursor-text group" onclick="window.editarCustoUSD(this, '${prod.mod}', ${usdReal})">
                             <span class="border-b border-dashed border-slate-300 pb-0.5 group-hover:border-blue-500 group-hover:text-blue-600 transition" title="Clique para editar custo FOB da fábrica">
                                 US$ ${usdReal.toLocaleString('en-US', {minimumFractionDigits:2})}
                                 <i class="fa-solid fa-pen text-[9px] ml-1 opacity-0 group-hover:opacity-100"></i>
                             </span>
                         </td>
-
                         <td class="p-3 text-right font-medium text-slate-600 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoBRL)}</td>
                         <td class="p-3 text-right font-bold text-rose-500 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(custoNac)}</td>
                         <td class="p-3 text-right font-black text-blue-800 border-l border-slate-200 bg-slate-50 cursor-pointer" onclick="window.carregarParaCalculadora('${prod.mod}')">${formatarMoeda(prod.precoTabela)}</td>
@@ -739,9 +714,6 @@
             window.renderTabelaAba();
         };
 
-        // =========================================================================
-        // CALCULADORA / SIMULADOR DE MARGEM
-        // =========================================================================
         window.carregarParaCalculadora = function(mod) {
             document.getElementById('calc_modelo').value = mod;
             window.simularMargem();
