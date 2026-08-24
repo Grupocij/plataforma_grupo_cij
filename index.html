@@ -25,7 +25,7 @@
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
-    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- CONTEÚDO PRINCIPAL (Exibido após o login pelo core.js) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-3 md:p-5 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO INTERNO DA AGENDA -->
@@ -295,9 +295,18 @@
                     <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas</label>
                     <textarea id="taskDescription" rows="3" placeholder="Detalhes..." class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-600 transition resize-none"></textarea>
                 </div>
+                
+                <!-- CHECKBOX GOOGLE CALENDAR -->
+                <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                    <input type="checkbox" id="syncGoogle" class="w-4 h-4 text-blue-600 rounded cursor-pointer">
+                    <label for="syncGoogle" class="text-[11px] font-bold text-slate-700 cursor-pointer flex items-center gap-1">
+                        <i class="fa-brands fa-google text-[#4285F4]"></i> Abrir no Google Agenda ao salvar
+                    </label>
+                </div>
+
                 <div class="pt-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
                     <button type="button" onclick="window.closeTaskModal()" class="px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md cursor-pointer">Salvar</button>
+                    <button type="submit" class="px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md cursor-pointer">Salvar Agendamento</button>
                 </div>
             </form>
         </div>
@@ -323,7 +332,7 @@
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Urgência</p><p id="detailUrgency" class="mt-1">--</p></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Status</p><p id="detailStatus" class="mt-1">--</p></div>
                     <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Início</p><p id="detailScheduled" class="font-bold text-slate-800">--</p></div>
-                    <div><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
+                    <div class="col-span-2"><p class="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase">Data Conclusão</p><p id="detailDue" class="font-bold text-slate-800">--</p></div>
                 </div>
                 <div>
                     <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Observações Técnicas:</p>
@@ -347,16 +356,18 @@
 
     <!-- LÓGICA DA AGENDA -->
     <script>
-        // Array de Técnicos com E-mails para a Agenda do Google
+        // =========================================================================
+        // ATENÇÃO: EDITE OS E-MAILS ABAIXO PARA OS E-MAILS REAIS DA SUA EQUIPE!
+        // =========================================================================
         const TECHNICIANS = [
-            { id: 'adriano', name: 'Adriano', email: 'adriano@grupocij.com.br', color: '#3b82f6' },
-            { id: 'anderson', name: 'Anderson', email: 'anderson@grupocij.com.br', color: '#10b981' },
-            { id: 'filipe', name: 'Filipe', email: 'filipe@grupocij.com.br', color: '#8b5cf6' },
-            { id: 'sidnei', name: 'Sidnei', email: 'sidnei@grupocij.com.br', color: '#f59e0b' },
-            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com.br', color: '#ec4899' },
-            { id: 'gabriel', name: 'Gabriel', email: 'gabriel@grupocij.com.br', color: '#06b6d4' },
-            { id: 'rafael', name: 'Rafael', email: 'rafael@grupocij.com.br', color: '#64748b' },
-            { id: 'juliana', name: 'Juliana', email: 'juliana@grupocij.com.br', color: '#8b5cf6' }
+            { id: 'adriano', name: 'Adriano', email: 'tecnico.cij1@gmail.com', color: '#3b82f6' },
+            { id: 'anderson', name: 'Anderson', email: 'tecnico.cij3@gmail.com', color: '#10b981' },
+            { id: 'filipe', name: 'Filipe', email: 'engenharia@grupocij.com', color: '#8b5cf6' },
+            { id: 'sidnei', name: 'Sidnei', email: 'tecnico.cijrs@gmail.com', color: '#f59e0b' },
+            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com', color: '#ec4899' },
+            { id: 'gabriel', name: 'Gabriel', email: 'comercial02.sc@grupocij.com', color: '#06b6d4' },
+            { id: 'rafael', name: 'Rafael', email: 'comercial.sc@grupocij.com', color: '#64748b' },
+            { id: 'juliana', name: 'Juliana', email: 'comercial.rs@grupocij.com', color: '#8b5cf6' }
         ];
 
         window.tasks = [];
@@ -392,7 +403,6 @@
             });
         };
 
-        // Helper para lidar com os arrays de técnicos (Compatibilidade retroativa)
         window.getTaskTechIds = function(task) {
             if (task.techIds && Array.isArray(task.techIds)) return task.techIds;
             if (task.techId) return [task.techId];
@@ -495,7 +505,6 @@
             else if (currentView === 'table') window.renderTable(filtered);
         };
 
-        // --- CALENDAR VIEW (CORRIGIDO PARA BLINDAR EVENTOS) ---
         window.renderCalendar = function(filteredTasks) {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
@@ -550,10 +559,7 @@
                     }
 
                     const item = document.createElement('div');
-                    
-                    // ATALHO DIRETO PARA O MODAL DE EDIÇÃO
                     item.setAttribute('onclick', `event.stopPropagation(); window.openTaskModal('${task.id}');`);
-                    
                     item.className = `px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
                     item.innerHTML = `<span class="truncate pointer-events-none">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1 pointer-events-none" style="background-color: ${uColor}"></span>`;
                     tContainer.appendChild(item);
@@ -722,7 +728,6 @@
                 document.getElementById('taskDescription').value = t.description;
                 document.getElementById('modalTitle').innerText = 'Editar Agendamento';
 
-                // Marcar os técnicos que já estão salvos na OS
                 const ids = window.getTaskTechIds(t);
                 ids.forEach(techId => {
                     const cb = document.querySelector(`.tech-checkbox[value="${techId}"]`);
@@ -734,7 +739,6 @@
                 document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('modalTitle').innerText = 'Novo Agendamento';
 
-                // Marca o técnico que está logado como padrão
                 const cb = document.querySelector(`.tech-checkbox[value="${currentUser}"]`);
                 if(cb) cb.checked = true;
             }
@@ -749,10 +753,10 @@
 
         window.closeTaskModal = () => document.getElementById('taskModal').classList.add('hidden');
 
+        // --- FUNÇÃO PARA SALVAR TAREFA E (OPCIONALMENTE) ABRIR NO GOOGLE ---
         window.handleTaskSubmit = async function(e) {
             e.preventDefault();
 
-            // Lógica de Coleta dos Múltiplos Técnicos (Equipe)
             const selectedTechs = Array.from(document.querySelectorAll('.tech-checkbox:checked')).map(cb => cb.value);
             if (selectedTechs.length === 0) {
                 alert('Selecione ao menos um Responsável para o agendamento.');
@@ -774,8 +778,8 @@
                 title: document.getElementById('taskClient').value.trim(),
                 type: document.getElementById('taskType').value,
                 location: document.getElementById('taskLocation').value.trim(),
-                techIds: selectedTechs, // Salva o Array de técnicos
-                techId: selectedTechs[0], // Mantém 1 por compatibilidade retroativa com código velho
+                techIds: selectedTechs, 
+                techId: selectedTechs[0], 
                 urgency: document.getElementById('taskUrgency').value,
                 scheduledDate: dStart,
                 dueDate: dEnd,
@@ -783,9 +787,22 @@
                 description: document.getElementById('taskDescription').value.trim()
             };
 
+            const sendToGoogle = document.getElementById('syncGoogle').checked;
+
             try {
+                // 1. Salva no banco de dados do sistema
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', data.id), data);
+                
+                // 2. Se for novo e enviarmos pro google, precisamos do dado local rapidamente
+                if (!window.tasks.find(t => t.id === data.id)) window.tasks.push(data);
+                
                 window.closeTaskModal();
+
+                // 3. Verifica se o usuário pediu para abrir no Google Calendar
+                if (sendToGoogle) {
+                    window.addToGoogleCalendar(data.id);
+                }
+
             } catch(err) { alert('Erro ao salvar agendamento.'); }
         };
 
@@ -797,14 +814,12 @@
             const title = encodeURIComponent((task.osNumber ? task.osNumber + ' - ' : '') + task.client);
             const location = encodeURIComponent(task.location || '');
             
-            // Tratamento das datas para o Google Calendar (Evento de Dia Inteiro)
             const dStart = task.scheduledDate.replace(/-/g, '');
             const dEndDateObj = new Date(task.dueDate + 'T00:00:00');
-            dEndDateObj.setDate(dEndDateObj.getDate() + 1); // Google exige 1 dia a mais p/ eventos de dia inteiro
+            dEndDateObj.setDate(dEndDateObj.getDate() + 1); 
             const dEnd = dEndDateObj.toISOString().split('T')[0].replace(/-/g, '');
             const dates = `${dStart}/${dEnd}`;
 
-            // Pega os emails de todos os técnicos marcados e adiciona como convidados
             const techs = window.getTechsForTask(task);
             const emails = techs.map(t => t.email).filter(Boolean).join(',');
             const addParam = emails ? `&add=${emails}` : '';
