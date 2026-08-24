@@ -184,7 +184,6 @@
                         <input type="text" id="search-input" onkeyup="window.filterExpenses()" placeholder="Buscar relatório/cliente..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl text-xs font-medium focus:outline-none focus:border-sky-600 transition">
                     </div>
 
-                    <!-- NOVO: Filtros de Data e Mês Atual -->
                     <div class="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto">
                         <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl p-1 w-full sm:w-auto">
                             <input type="date" id="filtroDataInicio" onchange="window.filterExpenses()" class="bg-transparent px-2 py-1 text-xs font-semibold text-slate-700 outline-none cursor-pointer">
@@ -327,13 +326,13 @@
             const dataInput = document.getElementById('data_pagamento');
             if(dataInput) dataInput.value = today;
 
-            // Carrega com o filtro do mês atual habilitado para não pesar a tela
             window.setMesAtual();
 
             const form = document.getElementById('expense-form');
             if(form) form.addEventListener('submit', window.handleFormSubmit);
 
-            const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas');
+            // VOLTANDO PARA A PASTA CORRETA NO BANCO DE DADOS
+            const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
             
             window.fsOnSnapshot(despesasCol, (snap) => {
                 window.expenses = [];
@@ -376,7 +375,7 @@
 
             pendentes.forEach(item => {
                 item.num_relatorio = novoNumero;
-                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas', item.id), item); } catch(e){}
+                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', item.id), item); } catch(e){}
             });
 
             document.getElementById('num_relatorio').value = 'Rascunho';
@@ -435,7 +434,7 @@
                         data_pagamento, categoria, categoria_outros, pagamento, cartao, observacoes, autor: window.expenses[index].autor || autorEmail
                     };
                     window.mostrarNotificacao(`Despesa atualizada com sucesso!`);
-                    try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas', idInput), window.expenses[index]); } catch(e){}
+                    try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', idInput), window.expenses[index]); } catch(e){}
                 }
             } else {
                 const newExpense = {
@@ -447,7 +446,7 @@
                 };
                 window.expenses.unshift(newExpense);
                 window.mostrarNotificacao(`Despesa adicionada ao relatório! Lembre-se de FINALIZAR.`);
-                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas', newExpense.id), newExpense); } catch(e){}
+                try { window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', newExpense.id), newExpense); } catch(e){}
             }
 
             window.renderExpenses();
@@ -491,7 +490,6 @@
                 const matchesTecnico = filterTecnico === 'Todos' || item.tecnico === filterTecnico;
                 const matchesCat = filterCat === 'Todas' || item.categoria === filterCat;
                 
-                // Trata a data para formato comparável (YYYY-MM-DD)
                 let matchesDate = true;
                 if (dataInicio || dataFim) {
                     let d = item.data_pagamento || item.data_vencimento || item.data || '';
@@ -527,7 +525,7 @@
 
             window.updateSummary(filtered);
 
-            // Ordena (Rascunho sempre no topo, depois REL-1002, REL-1001...)
+            // Ordenação (Rascunho sempre no topo, depois REL-1002, REL-1001...)
             const chaves = Object.keys(grupos).sort((a,b) => {
                 if (a === 'Rascunho') return -1;
                 if (b === 'Rascunho') return 1;
@@ -652,12 +650,12 @@
         window.toggleExpandirRelatorio = function(num) {
             if (relatoriosExpandidos.has(num)) relatoriosExpandidos.delete(num);
             else relatoriosExpandidos.add(num);
-            window.renderPaginaAtual(); // Só atualiza a visão da página sem re-filtrar
+            window.renderPaginaAtual(); 
         };
 
         window.excluirItemDespesa = function(id) {
             window.expenses = window.expenses.filter(i => i.id !== id);
-            try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas', id)); } catch(e){}
+            try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', id)); } catch(e){}
             window.renderExpenses();
             window.mostrarNotificacao('Item removido com sucesso!');
         };
@@ -667,7 +665,7 @@
                 const itensExcluir = window.expenses.filter(i => i.num_relatorio === num);
                 window.expenses = window.expenses.filter(i => i.num_relatorio !== num);
                 itensExcluir.forEach(it => {
-                    try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas', it.id)); } catch(e){}
+                    try { window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo', it.id)); } catch(e){}
                 });
                 window.renderExpenses();
                 window.mostrarNotificacao(`Relatório ${num} excluído!`);
