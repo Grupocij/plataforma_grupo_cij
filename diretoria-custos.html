@@ -68,14 +68,21 @@
             </div>
         </div>
 
-        <!-- FILTROS DE ANÁLISE DO DRE -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-            <div class="flex items-center gap-2">
+        <!-- FILTROS AVANÇADOS DO DRE (De/Até e Mês Atual) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 shrink-0">
+            <div class="flex items-center gap-2 mb-2 md:mb-0">
                 <i class="fa-solid fa-filter text-slate-400"></i>
                 <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filtros do DRE:</span>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <input type="month" id="filtroMesDRE" onchange="window.calcularDRE()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div class="flex items-center bg-slate-50 border border-slate-300 rounded-lg p-1 w-full sm:w-auto">
+                    <input type="date" id="filtroDataInicio" onchange="window.calcularDRE()" class="bg-transparent px-2 py-1 text-xs font-bold text-slate-700 outline-none cursor-pointer">
+                    <span class="text-[10px] text-slate-400 font-bold px-1">ATÉ</span>
+                    <input type="date" id="filtroDataFim" onchange="window.calcularDRE()" class="bg-transparent px-2 py-1 text-xs font-bold text-slate-700 outline-none cursor-pointer border-l border-slate-200 pl-2">
+                </div>
+                <button onclick="window.setMesAtual()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold py-1.5 px-3 rounded-lg transition text-xs whitespace-nowrap cursor-pointer shadow-sm">
+                    <i class="fa-solid fa-calendar-day mr-1"></i> Mês Atual
+                </button>
                 <select id="filtroProdutoDRE" onchange="window.calcularDRE()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 cursor-pointer w-full sm:w-56">
                     <option value="">Todas as Máquinas</option>
                     <!-- Populated via JS -->
@@ -149,6 +156,14 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- CONTROLE DE PAGINAÇÃO DOS VENDEDORES -->
+                <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                    <span class="text-[10px] font-bold text-slate-500" id="info-page-vendedores">Pág. 1 de 1</span>
+                    <div class="flex gap-2">
+                        <button onclick="window.mudarPaginaVendedores(-1)" class="w-7 h-7 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                        <button onclick="window.mudarPaginaVendedores(1)" class="w-7 h-7 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                    </div>
+                </div>
             </div>
 
             <!-- PAINEL 2: CALCULADORA DE PRECIFICAÇÃO -->
@@ -162,7 +177,7 @@
                     </div>
                 </div>
                 
-                <div class="p-5 space-y-4">
+                <div class="p-5 space-y-4 flex-1">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="col-span-1 sm:col-span-2">
                             <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Equipamento para Simulação</label>
@@ -178,7 +193,7 @@
                     </div>
 
                     <!-- Resultados Detalhados da Calculadora -->
-                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 mt-2 space-y-3">
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 mt-2 space-y-3 shadow-inner">
                         <div class="grid grid-cols-2 gap-y-3 text-xs">
                             <div><span class="font-bold text-slate-500 block text-[9px] uppercase">Custo Origem (US$)</span><strong id="res_fob_usd" class="text-slate-700">US$ 0.00</strong></div>
                             <div><span class="font-bold text-slate-500 block text-[9px] uppercase">Custo Convertido (R$)</span><strong id="res_fob_brl" class="text-slate-700">R$ 0,00</strong></div>
@@ -217,7 +232,7 @@
                 </div>
             </div>
             
-            <div class="overflow-x-auto overflow-y-auto custom-scrollbar h-[400px]">
+            <div class="overflow-x-auto overflow-y-auto custom-scrollbar h-[350px]">
                 <table class="w-full text-left text-[11px] border-collapse min-w-[1000px]">
                     <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -236,6 +251,14 @@
                         <!-- JS Inject -->
                     </tbody>
                 </table>
+            </div>
+            <!-- CONTROLE DE PAGINAÇÃO DA MATRIZ -->
+            <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <span class="text-[10px] font-bold text-slate-500" id="info-page-produtos">Pág. 1 de 1</span>
+                <div class="flex gap-2">
+                    <button onclick="window.mudarPaginaProdutos(-1)" class="w-7 h-7 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                    <button onclick="window.mudarPaginaProdutos(1)" class="w-7 h-7 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                </div>
             </div>
         </div>
 
@@ -267,7 +290,7 @@
         const matrizProdutosOriginal = [
             { cat: 'INKJET', mod: 'LEADJET V8820 (3 LINHAS)', precoTabela: 32000.80, usd: 2100 },
             { cat: 'INKJET', mod: 'LEADJET V8910 (4 LINHAS)', precoTabela: 32000.80, usd: 2100 },
-            { cat: 'INKJET', mod: 'LEADJET V8820P (PIGMENTADA)', precoTabela: 49400.00, usd: 2900 },
+            { cat: 'INKJET', mod: 'LEADJET V8860P (PIGMENTADA)', precoTabela: 49400.00, usd: 2900 },
             { cat: 'LASER CO2', mod: 'C-T 35 / 30W', precoTabela: 58813.77, usd: 2050 },
             { cat: 'LASER CO2', mod: '60W', precoTabela: 164965.53, usd: 5750 },
             { cat: 'LASER FIBER', mod: 'F 30R-FLY 30W', precoTabela: 57379.30, usd: 1950 },
@@ -300,6 +323,14 @@
         window.despesasRegistradas = [];
         let categoriaAtualAtiva = 'INKJET';
 
+        // Paginação Variables
+        let vendedoresPage = 1;
+        const vendedoresPerPage = 10;
+        let produtosPage = 1;
+        const produtosPerPage = 10;
+        let objVendedoresGlobal = [];
+        let objProdutosGlobal = [];
+
         // Configurações Fiscais Padrão
         let cfgDolar = 5.20;
         let cfgNac = 60.0;
@@ -312,7 +343,21 @@
         };
 
         // =========================================================================
-        // TRAVA HARDLOCK & INICIALIZAÇÃO
+        // SETAR MÊS ATUAL
+        // =========================================================================
+        window.setMesAtual = function() {
+            const date = new Date();
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const lastDay = new Date(y, date.getMonth() + 1, 0).getDate();
+            
+            document.getElementById('filtroDataInicio').value = `${y}-${m}-01`;
+            document.getElementById('filtroDataFim').value = `${y}-${m}-${lastDay}`;
+            window.calcularDRE();
+        };
+
+        // =========================================================================
+        // INICIALIZAÇÃO
         // =========================================================================
         window.initModule = function(perfil) {
             if (perfil !== 'Admin') {
@@ -332,8 +377,7 @@
             document.getElementById('security-lock').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
 
-            const d = new Date();
-            document.getElementById('filtroMesDRE').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+            window.setMesAtual();
 
             // Povoar Filtros
             const selProd = document.getElementById('filtroProdutoDRE');
@@ -342,7 +386,7 @@
             const selCalc = document.getElementById('calc_modelo');
             matrizProdutosOriginal.forEach(m => selCalc.innerHTML += `<option value="${m.mod}">${m.mod}</option>`);
 
-            // Firebase: Configurações Globais
+            // Firebase: Configs Globais
             const confCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'diretoria_config_financeira');
             window.fsOnSnapshot(confCol, (snap) => {
                 snap.forEach(d => {
@@ -369,8 +413,8 @@
                 window.calcularDRE();
             });
 
-            // Firebase: Despesas (Leitura Limpa e Blindada)
-            const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'controle_despesas');
+            // Firebase: Despesas (AQUI LÊ A PASTA CORRETA REPARADA!)
+            const despesasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo');
             window.fsOnSnapshot(despesasCol, (snap) => {
                 window.despesasRegistradas = [];
                 snap.forEach(doc => window.despesasRegistradas.push(doc.data()));
@@ -398,7 +442,8 @@
         // MOTOR DRE E RENTABILIDADE
         // =========================================================================
         window.calcularDRE = function() {
-            const mesAlvo = document.getElementById('filtroMesDRE').value; 
+            const dataInicio = document.getElementById('filtroDataInicio').value; 
+            const dataFim = document.getElementById('filtroDataFim').value; 
             const prodFiltro = document.getElementById('filtroProdutoDRE').value;
             
             let totalFaturamento = 0;
@@ -412,7 +457,8 @@
             // 1. Processar Vendas
             window.vendasRegistradas.forEach(venda => {
                 const dataVenda = venda.date || venda.dataEntrada || ''; 
-                if (mesAlvo && !dataVenda.includes(mesAlvo)) return;
+                if (dataInicio && dataVenda < dataInicio) return;
+                if (dataFim && dataVenda > dataFim) return;
 
                 const vend = venda.sellerName || 'Indefinido';
                 if (!drePorVendedor[vend]) drePorVendedor[vend] = { fat: 0, com: 0, desp: 0, cogs: 0, imp: 0 };
@@ -431,7 +477,6 @@
                         const itemFat = parseFloat(item.valor) || ((parseFloat(item.valorUn) || 0) * parseInt(item.qtd || 1));
                         fatVenda += itemFat;
 
-                        // APLICAÇÃO EXCLUSIVA DE NACIONALIZAÇÃO E COMISSÃO MATRIZ PARA MÁQUINAS
                         if (item.tipo === 'Maquina') {
                             const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
                             if (prodRef) {
@@ -446,12 +491,10 @@
                                 comVenda += parseFloat(item.comissaoValor) || 0;
                             }
                         } else {
-                            // Consumíveis e outros: Nacionalização = 0, Puxa a comissão bruta já gravada
                             comVenda += parseFloat(item.comissaoValor) || 0;
                         }
                     });
                 } else {
-                    // Sem itens (Vendas retroativas antigas ou cadastro em branco como o Gabriel Fernandes)
                     if (!prodFiltro) {
                         fatVenda = parseFloat(venda.saleValue) || 0;
                         comVenda = parseFloat(venda.commissionValue) || 0;
@@ -473,28 +516,19 @@
                 }
             });
 
-            // 2. Processar Despesas com Busca Limpa de Datas e Valores
+            // 2. Processar Despesas baseadas na estrutura real de despesas.html
             if (!prodFiltro) {
                 window.despesasRegistradas.forEach(desp => {
-                    let dataStr = String(desp.data_vencimento || desp.data || desp.dataDespesa || desp.date || desp.createdAt || desp.timestamp || '');
+                    const dataDesp = desp.data_pagamento || desp.data_vencimento || '';
+                    if (dataInicio && dataDesp < dataInicio) return;
+                    if (dataFim && dataDesp > dataFim) return;
                     
-                    if (dataStr.includes('/')) {
-                        const p = dataStr.split('/');
-                        if (p.length === 3) dataStr = `${p[2]}-${p[1]}-${p[0]}`; 
-                    } else if (!isNaN(Number(dataStr)) && dataStr.length > 10) {
-                        dataStr = new Date(Number(dataStr)).toISOString().split('T')[0];
-                    }
-
-                    if (mesAlvo && !dataStr.includes(mesAlvo)) return;
-                    
-                    const valRaw = desp.valor || desp.value || desp.valorDespesa || desp.amount || 0;
-                    const valDesp = window.parseMoney(valRaw);
-                    
+                    const valDesp = parseFloat(desp.valor) || 0;
                     if (valDesp <= 0) return; 
 
                     totalDespesas += valDesp;
 
-                    const responsavelRaw = desp.responsavel || desp.funcionario || desp.autor_nome || desp.nome || desp.autor || 'Geral/Empresa';
+                    const responsavelRaw = desp.tecnico || desp.responsavel || desp.autor || 'Geral/Empresa';
                     let vendCorrespondente = Object.keys(drePorVendedor).find(k => responsavelRaw.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(responsavelRaw.toLowerCase()));
                     
                     if (!vendCorrespondente) vendCorrespondente = responsavelRaw; 
@@ -517,36 +551,59 @@
             if (lucroLiquido < 0) document.getElementById('dre_lucro').classList.replace('text-white', 'text-rose-400');
             else document.getElementById('dre_lucro').classList.replace('text-rose-400', 'text-white');
 
-            // 4. Renderiza Tabela de Vendedores
-            const tbodyVend = document.getElementById('tabelaVendedores');
-            tbodyVend.innerHTML = '';
-
-            const listaVend = Object.entries(drePorVendedor).sort((a,b) => b[1].fat - a[1].fat);
-            
-            if (listaVend.length === 0) {
-                tbodyVend.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhuma movimentação neste período.</td></tr>`;
-            } else {
-                listaVend.forEach(([nome, metrics]) => {
-                    const totalCustos = metrics.cogs + metrics.imp;
-                    const saldo = metrics.fat - totalCustos - metrics.com - metrics.desp; 
-                    const cSaldo = saldo >= 0 ? 'text-emerald-700' : 'text-rose-600';
-                    
-                    tbodyVend.innerHTML += `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                            <td class="p-3 font-bold text-slate-800">${nome}</td>
-                            <td class="p-3 text-right font-bold text-blue-700">${formatarMoeda(metrics.fat)}</td>
-                            <td class="p-3 text-right font-medium text-rose-500" title="Imposto de Venda + Custo Nacionalizado das Máquinas">${formatarMoeda(totalCustos)}</td>
-                            <td class="p-3 text-right font-medium text-orange-600">${formatarMoeda(metrics.com)}</td>
-                            <td class="p-3 text-right font-medium text-purple-600">${formatarMoeda(metrics.desp)}</td>
-                            <td class="p-3 text-right font-black ${cSaldo}">${formatarMoeda(saldo)}</td>
-                        </tr>
-                    `;
-                });
-            }
+            // Salva array global para paginação
+            objVendedoresGlobal = Object.entries(drePorVendedor).sort((a,b) => b[1].fat - a[1].fat);
+            vendedoresPage = 1;
+            window.renderTabelaVendedoresPaginated();
         };
 
         // =========================================================================
-        // LÓGICA DAS ABAS EXCEL
+        // PAGINAÇÃO VENDEDORES
+        // =========================================================================
+        window.renderTabelaVendedoresPaginated = function() {
+            const tbodyVend = document.getElementById('tabelaVendedores');
+            tbodyVend.innerHTML = '';
+
+            if (objVendedoresGlobal.length === 0) {
+                tbodyVend.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhuma movimentação neste período.</td></tr>`;
+                document.getElementById('info-page-vendedores').innerText = 'Pág. 1 de 1';
+                return;
+            }
+
+            const totalPages = Math.ceil(objVendedoresGlobal.length / vendedoresPerPage);
+            if (vendedoresPage > totalPages) vendedoresPage = totalPages;
+            if (vendedoresPage < 1) vendedoresPage = 1;
+
+            const start = (vendedoresPage - 1) * vendedoresPerPage;
+            const paginatedItems = objVendedoresGlobal.slice(start, start + vendedoresPerPage);
+
+            paginatedItems.forEach(([nome, metrics]) => {
+                const totalCustos = metrics.cogs + metrics.imp;
+                const saldo = metrics.fat - totalCustos - metrics.com - metrics.desp; 
+                const cSaldo = saldo >= 0 ? 'text-emerald-700' : 'text-rose-600';
+                
+                tbodyVend.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                        <td class="p-3 font-bold text-slate-800">${nome}</td>
+                        <td class="p-3 text-right font-bold text-blue-700">${formatarMoeda(metrics.fat)}</td>
+                        <td class="p-3 text-right font-medium text-rose-500" title="Imposto de Venda + Custo Nacionalizado das Máquinas">${formatarMoeda(totalCustos)}</td>
+                        <td class="p-3 text-right font-medium text-orange-600">${formatarMoeda(metrics.com)}</td>
+                        <td class="p-3 text-right font-medium text-purple-600">${formatarMoeda(metrics.desp)}</td>
+                        <td class="p-3 text-right font-black ${cSaldo}">${formatarMoeda(saldo)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('info-page-vendedores').innerText = `Pág. ${vendedoresPage} de ${totalPages}`;
+        };
+
+        window.mudarPaginaVendedores = function(dir) {
+            vendedoresPage += dir;
+            window.renderTabelaVendedoresPaginated();
+        };
+
+        // =========================================================================
+        // LÓGICA DAS ABAS EXCEL E PAGINAÇÃO
         // =========================================================================
         window.selecionarAba = function(catName) {
             if (catName === 'LASER UV (TTO)') catName = 'LASER UV';
@@ -562,6 +619,9 @@
                 btn.classList.remove('text-slate-600', 'hover:bg-slate-200', 'border-transparent');
                 btn.classList.add('bg-slate-800', 'text-white', 'border-slate-800');
             }
+            
+            objProdutosGlobal = matrizProdutosOriginal.filter(p => p.cat === categoriaAtualAtiva || (categoriaAtualAtiva === 'LASER UV' && p.cat === 'LASER UV (TTO)'));
+            produtosPage = 1;
             window.renderTabelaAba();
         };
 
@@ -570,9 +630,20 @@
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            const produtosDaAba = matrizProdutosOriginal.filter(p => p.cat === categoriaAtualAtiva || (categoriaAtualAtiva === 'LASER UV' && p.cat === 'LASER UV (TTO)'));
+            if (objProdutosGlobal.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Nenhum produto nesta categoria.</td></tr>`;
+                document.getElementById('info-page-produtos').innerText = 'Pág. 1 de 1';
+                return;
+            }
 
-            produtosDaAba.forEach(prod => {
+            const totalPages = Math.ceil(objProdutosGlobal.length / produtosPerPage);
+            if (produtosPage > totalPages) produtosPage = totalPages;
+            if (produtosPage < 1) produtosPage = 1;
+
+            const start = (produtosPage - 1) * produtosPerPage;
+            const paginatedItems = objProdutosGlobal.slice(start, start + produtosPerPage);
+
+            paginatedItems.forEach(prod => {
                 const custoBRL = prod.usd * cfgDolar;
                 const custoNac = custoBRL * (cfgNac / 100);
                 const custoTotal = custoBRL + custoNac;
@@ -598,6 +669,13 @@
                     </tr>
                 `;
             });
+
+            document.getElementById('info-page-produtos').innerText = `Pág. ${produtosPage} de ${totalPages}`;
+        };
+
+        window.mudarPaginaProdutos = function(dir) {
+            produtosPage += dir;
+            window.renderTabelaAba();
         };
 
         // =========================================================================
