@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-50">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,16 +14,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
     </style>
 </head>
-<body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
+<body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- TELA DE LOGIN / BLOQUEIO INJETADA PELO CORE -->
+    <!-- TELA DE LOGIN / TRAVA DE SEGURANÇA -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
             <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
@@ -175,7 +174,7 @@
             </div>
         </div>
         
-        <!-- TABELA DETALHADA -->
+        <!-- TABELA DETALHADA COM PAGINAÇÃO -->
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-10 shrink-0">
             <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
                 <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -211,6 +210,15 @@
                     <tbody id="data-table-body" class="divide-y divide-slate-100 font-medium text-slate-700 bg-white"></tbody>
                 </table>
             </div>
+
+            <!-- CONTROLES DE PAGINAÇÃO DA TABELA -->
+            <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <span class="text-[10px] font-bold text-slate-500" id="info-page-table">Pág. 1 de 1</span>
+                <div class="flex gap-2">
+                    <button onclick="window.mudarPaginaTabela(-1)" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                    <button onclick="window.mudarPaginaTabela(1)" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-sm disabled:opacity-50"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -225,8 +233,14 @@
         let categoryChartInstance = null;
         let cardChartInstance = null;
         let timelineChartInstance = null;
+        
         let currentExpenses = [];
         let rawExpensesMaster = [];
+        
+        // Paginação State
+        window.tablePage = 1;
+        window.tablePerPage = 10;
+        window.filteredTableData = [];
 
         // EXTRATORES BLINDADOS DO PADRÃO CORE
         window.parseMoney = function(val) {
@@ -301,7 +315,6 @@
                     return null;
                 }
 
-                // Normalização Blindada
                 const dateRaw = item.data_pagamento || item.data_vencimento || item.data || item.createdAt || new Date().toISOString();
 
                 return {
@@ -373,6 +386,7 @@
             });
 
             renderDashboard(currentExpenses);
+            window.filterTable(); // Atualiza a tabela com paginação
         };
 
         window.limparFiltrosDashboard = function() {
@@ -451,23 +465,51 @@
                 topListEl.appendChild(li);
             });
 
-            renderTableRows(data);
             renderCharts(categoryTotals, cardTotals, dateTotals);
         }
 
-        function renderTableRows(data) {
+        // ==========================================
+        // LÓGICA DE PAGINAÇÃO DA TABELA DETALHADA
+        // ==========================================
+        window.filterTable = function() {
+            const query = document.getElementById('table-search').value.toLowerCase();
+            window.filteredTableData = currentExpenses.filter(item => 
+                (item.technician || '').toLowerCase().includes(query) ||
+                (item.client || '').toLowerCase().includes(query) ||
+                (item.description || '').toLowerCase().includes(query) ||
+                (item.category || '').toLowerCase().includes(query) ||
+                (item.card || '').toLowerCase().includes(query) ||
+                (item.num_relatorio || '').toLowerCase().includes(query)
+            );
+            
+            // Ordena os dados mais recentes primeiro
+            window.filteredTableData.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            
+            window.tablePage = 1; // Reseta para a primeira página ao pesquisar
+            window.renderPaginatedTable();
+        };
+
+        window.renderPaginatedTable = function() {
             const tableBody = document.getElementById('data-table-body');
             if(!tableBody) return;
             tableBody.innerHTML = '';
 
+            const data = window.filteredTableData;
+
             if(data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="8" class="px-5 py-6 text-center text-slate-400 font-medium">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-5 py-6 text-center text-slate-400 font-medium">Nenhum registro encontrado.</td></tr>`;
+                document.getElementById('info-page-table').innerText = 'Pág. 1 de 1';
                 return;
             }
 
-            data.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            const totalPages = Math.ceil(data.length / window.tablePerPage) || 1;
+            if (window.tablePage > totalPages) window.tablePage = totalPages;
+            if (window.tablePage < 1) window.tablePage = 1;
 
-            data.forEach((item) => {
+            const start = (window.tablePage - 1) * window.tablePerPage;
+            const paginatedItems = data.slice(start, start + window.tablePerPage);
+
+            paginatedItems.forEach((item) => {
                 const tr = document.createElement('tr');
                 tr.className = "bg-white hover:bg-slate-50 transition border-b border-slate-100";
 
@@ -488,21 +530,18 @@
                 `;
                 tableBody.appendChild(tr);
             });
-        }
 
-        window.filterTable = function() {
-            const query = document.getElementById('table-search').value.toLowerCase();
-            const filtered = currentExpenses.filter(item => 
-                (item.technician || '').toLowerCase().includes(query) ||
-                (item.client || '').toLowerCase().includes(query) ||
-                (item.description || '').toLowerCase().includes(query) ||
-                (item.category || '').toLowerCase().includes(query) ||
-                (item.card || '').toLowerCase().includes(query) ||
-                (item.num_relatorio || '').toLowerCase().includes(query)
-            );
-            renderTableRows(filtered);
+            document.getElementById('info-page-table').innerText = `Pág. ${window.tablePage} de ${totalPages}`;
         };
 
+        window.mudarPaginaTabela = function(dir) {
+            window.tablePage += dir;
+            window.renderPaginatedTable();
+        };
+
+        // ==========================================
+        // GRÁFICOS
+        // ==========================================
         function renderCharts(categoryTotals, cardTotals, dateTotals) {
             const palette = ['#059669', '#0284c7', '#4f46e5', '#d97706', '#dc2626', '#0891b2', '#7c3aed'];
 
@@ -690,7 +729,7 @@
             tRow.font = { name: 'Inter', size: 10, bold: true, color: { argb: '0F172A' } };
             tRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F1F5F9' } };
             tRow.eachCell((cell, colNumber) => {
-                cell.border = { top: { style: 'thin', color: { argb: '0F172A' } }, bottom: { style: 'double', color: { argb: '0F172A' } }, left: { style: 'thin', color: { argb: 'CBD5E1' } }, right: { style: 'thin', color: { argb: 'CBD5E1' } } };
+                cell.border = { top: { style: 'thin', color: { argb: '0F172A' } }, bottom: { style: 'double', color: { argb: '0F172A' } }, left: { style: 'thin', color: { argb: 'CBD5E1' } }, right: { style: 'CBD5E1' } };
                 if (colNumber === 8) { cell.numFmt = '"R$ "#,##0.00'; cell.alignment = { horizontal: 'right', vertical: 'middle' }; } 
                 else { cell.alignment = { horizontal: 'left', vertical: 'middle' }; }
             });
