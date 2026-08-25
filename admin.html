@@ -23,6 +23,14 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
+    <!-- AVISO DE CARREGAMENTO / TRAVA DE SEGURANÇA -->
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
+            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO RESTRITO</h1>
+            <p id="login-message" class="text-sm font-semibold text-slate-500">Autenticando permissões de Administrador...</p>
+        </div>
+    </div>
+
     <!-- ÁREA CENTRAL DE CONTEÚDO (MÓDULO ADMIN) -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
@@ -60,7 +68,7 @@
             </div>
         </div>
 
-        <!-- CONTROLES -->
+        <!-- CONTROLES E FILTROS -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex flex-wrap gap-4 items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex flex-wrap gap-2 items-center">
@@ -90,7 +98,7 @@
             </div>
         </div>
 
-        <!-- TABELAS -->
+        <!-- TABELAS DINÂMICAS -->
         <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 mb-10">
             
             <div id="tab-content-despesas" class="space-y-4">
@@ -216,20 +224,47 @@
     <script>
         window.adminData = { despesas: [], vendas: [], comissoes: [], estoque: [], solicitacoes: [] };
 
+        // 1. FUNÇÕES EXTRATORAS BLINDADAS (Datas e Moedas)
+        window.parseMoney = function(val) {
+            if (typeof val === 'number') return val;
+            if (!val) return 0;
+            let s = String(val).trim();
+            s = s.replace(/[^\d.,-]/g, '');
+            if (s.includes(',') && s.includes('.')) {
+                const lastComma = s.lastIndexOf(',');
+                const lastDot = s.lastIndexOf('.');
+                if (lastComma > lastDot) s = s.replace(/\./g, '').replace(',', '.');
+                else s = s.replace(/,/g, '');
+            } else if (s.includes(',')) {
+                s = s.replace(',', '.');
+            }
+            return parseFloat(s) || 0;
+        };
+
         window.formatarMoeda = (val) => {
-            if (val === undefined || val === null || val === '') return 'R$ 0,00';
-            let numero = val;
-            if (typeof val === 'string') numero = parseFloat(val.replace(',', '.'));
+            let numero = parseFloat(val);
             if (isNaN(numero)) return 'R$ 0,00';
             return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         };
 
-        // 1. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
+        const normalizeDate = (d) => {
+            if (!d) return '';
+            let s = String(d).trim();
+            if (s.includes('/')) {
+                const p = s.split('/');
+                if (p.length === 3) return `${p[2]}-${p[1]}-${p[0]}`;
+            }
+            if (!isNaN(Number(s)) && s.length > 10) {
+                return new Date(Number(s)).toISOString().split('T')[0];
+            }
+            return s.substring(0, 10);
+        };
+
+        // 2. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
         window.initModule = function(perfil) {
             if (perfil !== 'Admin') {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito: Apenas Administradores podem acessar este painel.</span>';
-                document.getElementById('auth-form').classList.add('hidden');
                 window.fazerLogout();
                 return;
             }
@@ -241,7 +276,7 @@
                 window.setFiltroMesAtual();
             }
 
-            // Conexões em tempo real via core.js
+            // Conexões em tempo real via core.js (Apontando para as pastas corretas)
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'despesas_relatorio_novo'), (snap) => {
                 window.adminData.despesas = [];
                 snap.forEach(d => window.adminData.despesas.push(d.data()));
@@ -260,7 +295,8 @@
                 window.renderAdminDashboard();
             });
 
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_equipamentos'), (snap) => {
+            // GAVETA CORRETA DO ESTOQUE
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_novos'), (snap) => {
                 window.adminData.estoque = [];
                 snap.forEach(d => window.adminData.estoque.push(d.data()));
                 window.renderAdminDashboard();
@@ -307,41 +343,41 @@
             const dateFrom = document.getElementById('filter-date-from')?.value || '';
             const dateTo = document.getElementById('filter-date-to')?.value || '';
 
-            const filtrarPorData = (itemDate) => {
+            const filtrarPorData = (itemDateRaw) => {
+                const itemDate = normalizeDate(itemDateRaw);
                 if (!itemDate) return true;
                 if (dateFrom && itemDate < dateFrom) return false;
                 if (dateTo && itemDate > dateTo) return false;
                 return true;
             };
 
-            const despesasFilt = window.adminData.despesas.filter(i => filtrarPorData(i.data_pagamento));
-            const vendasFilt = window.adminData.vendas.filter(i => filtrarPorData(i.data));
-            const comissoesFilt = window.adminData.comissoes.filter(i => filtrarPorData(i.date));
+            // Filtragem Aplicando Normalizador de Data
+            const despesasFilt = window.adminData.despesas.filter(i => filtrarPorData(i.data_pagamento || i.data_vencimento || i.data || i.createdAt));
+            const vendasFilt = window.adminData.vendas.filter(i => filtrarPorData(i.data || i.date));
+            const comissoesFilt = window.adminData.comissoes.filter(i => filtrarPorData(i.date || i.dataEntrada));
             const estoqueFilt = window.adminData.estoque.filter(i => filtrarPorData(i.data));
-            const solicitacoesFilt = window.adminData.solicitacoes.filter(i => {
-                if (!i.data_registro) return true;
-                const dStr = new Date(i.data_registro).toISOString().slice(0, 10);
-                return filtrarPorData(dStr);
-            });
+            const solicitacoesFilt = window.adminData.solicitacoes.filter(i => filtrarPorData(i.data_registro));
 
-            let totalVendasVal = vendasFilt.reduce((acc, i) => acc + (parseFloat(i.valor) || 0), 0);
+            // Somas c/ ParseMoney
+            let totalVendasVal = vendasFilt.reduce((acc, i) => acc + window.parseMoney(i.valor), 0);
+            let totalComissoesVal = comissoesFilt.reduce((acc, i) => acc + window.parseMoney(i.commissionValue), 0);
             
             let despesasGrupos = {};
             despesasFilt.forEach(item => {
                 const key = item.num_relatorio || 'REL-1001';
                 if (!despesasGrupos[key]) despesasGrupos[key] = 0;
-                despesasGrupos[key] += parseFloat(item.valor) || 0;
+                despesasGrupos[key] += window.parseMoney(item.valor);
             });
             let totalDespesasVal = Object.values(despesasGrupos).reduce((a, b) => a + b, 0);
 
-            let totalComissoesVal = comissoesFilt.reduce((acc, i) => acc + (parseFloat(i.commissionValue) || 0), 0);
+            // Atualiza KPIs
+            document.getElementById('kpiTotalVendas').innerText = window.formatarMoeda(totalVendasVal);
+            document.getElementById('kpiTotalDespesas').innerText = window.formatarMoeda(totalDespesasVal);
+            document.getElementById('kpiTotalComissoes').innerText = window.formatarMoeda(totalComissoesVal);
+            document.getElementById('kpiTotalEstoque').innerText = estoqueFilt.length;
+            document.getElementById('kpiTotalSolicitacoes').innerText = solicitacoesFilt.length;
 
-            safeSetText('kpiTotalVendas', window.formatarMoeda(totalVendasVal));
-            safeSetText('kpiTotalDespesas', window.formatarMoeda(totalDespesasVal));
-            safeSetText('kpiTotalComissoes', window.formatarMoeda(totalComissoesVal));
-            safeSetText('kpiTotalEstoque', estoqueFilt.length);
-            safeSetText('kpiTotalSolicitacoes', solicitacoesFilt.length);
-
+            // Render Tabs
             const tbDespesas = document.getElementById('tableBodyDespesas');
             if(tbDespesas) {
                 tbDespesas.innerHTML = '';
@@ -351,19 +387,19 @@
                 despesasFilt.forEach(item => {
                     const key = item.num_relatorio || 'REL-1001';
                     if(!gruposObj[key]) {
-                        gruposObj[key] = { num: key, tecnico: item.tecnico, cliente: item.cliente, cidade: item.cidade, data: item.data_pagamento, total: 0, count: 0, autor: item.autor || '-' };
+                        gruposObj[key] = { num: key, tecnico: item.tecnico, cliente: item.cliente, cidade: item.cidade, data: (item.data_pagamento || item.data_vencimento), total: 0, count: 0, autor: item.autor || '-' };
                     }
-                    gruposObj[key].total += parseFloat(item.valor) || 0;
+                    gruposObj[key].total += window.parseMoney(item.valor);
                     gruposObj[key].count++;
                 });
 
                 Object.values(gruposObj).forEach(g => {
                     tbDespesas.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-200">
-                            <td class="p-3"><span class="px-2 py-0.5 bg-purple-100 text-purple-900 rounded font-bold">${g.num}</span> <span class="font-bold text-slate-800 ml-1">${g.tecnico}</span></td>
-                            <td class="p-3 text-slate-700">${g.cliente} (${g.cidade})</td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-purple-100 text-purple-900 rounded font-bold">${g.num}</span> <span class="font-bold text-slate-800 ml-1">${g.tecnico || '-'}</span></td>
+                            <td class="p-3 text-slate-700">${g.cliente || '-'} ${g.cidade ? '('+g.cidade+')' : ''}</td>
                             <td class="p-3 text-slate-600">${g.count} item(s)</td>
-                            <td class="p-3 text-slate-600">${g.data ? g.data.split('-').reverse().join('/') : '-'}</td>
+                            <td class="p-3 text-slate-600">${normalizeDate(g.data).split('-').reverse().join('/') || '-'}</td>
                             <td class="p-3 text-right font-black text-purple-900">${window.formatarMoeda(g.total)}</td>
                             <td class="p-3 text-slate-500 text-[11px]">${g.autor}</td>
                         </tr>
@@ -378,13 +414,13 @@
                 vendasFilt.forEach(i => {
                     tbVendas.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-200">
-                            <td class="p-3 font-bold text-slate-900">${i.cliente}</td>
-                            <td class="p-3 font-bold text-rose-900">${i.modelo}</td>
-                            <td class="p-3 font-mono text-slate-700">${i.serial}</td>
-                            <td class="p-3 text-right font-black text-rose-700">${window.formatarMoeda(i.valor)}</td>
-                            <td class="p-3 text-slate-600">${i.data ? i.data.split('-').reverse().join('/') : '-'}</td>
-                            <td class="p-3 text-slate-700">${i.vendedor}</td>
-                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border">${i.status}</span></td>
+                            <td class="p-3 font-bold text-slate-900">${i.cliente || '-'}</td>
+                            <td class="p-3 font-bold text-rose-900">${i.modelo || '-'}</td>
+                            <td class="p-3 font-mono text-slate-700">${i.serial || '-'}</td>
+                            <td class="p-3 text-right font-black text-rose-700">${window.formatarMoeda(window.parseMoney(i.valor))}</td>
+                            <td class="p-3 text-slate-600">${normalizeDate(i.data || i.date).split('-').reverse().join('/') || '-'}</td>
+                            <td class="p-3 text-slate-700">${i.vendedor || '-'}</td>
+                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border">${i.status || '-'}</span></td>
                         </tr>
                     `;
                 });
@@ -395,25 +431,16 @@
                 tbComissoes.innerHTML = '';
                 document.getElementById('count-comissoes').innerText = `${comissoesFilt.length} registro(s)`;
                 comissoesFilt.forEach(i => {
-                    let valPrevisaoBanco = i.previsao_liberacao || i.previsaoLiberacao || i.previsao_pagamento || i.previsaoPagamento;
-                    let previsaoFinal = '-';
-
-                    if (valPrevisaoBanco) {
-                        if (valPrevisaoBanco.includes('-') && valPrevisaoBanco.length === 10) {
-                            previsaoFinal = valPrevisaoBanco.split('-').reverse().join('/');
-                        } else {
-                            previsaoFinal = valPrevisaoBanco;
-                        }
-                    }
+                    let previsaoFinal = normalizeDate(i.previsao_liberacao || i.previsaoLiberacao || i.previsao_pagamento || i.previsaoPagamento).split('-').reverse().join('/') || '-';
 
                     tbComissoes.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-200">
-                            <td class="p-3 font-bold text-slate-900">${i.sellerName}</td>
-                            <td class="p-3 font-bold text-blue-900">${i.nf}</td>
-                            <td class="p-3 text-slate-600">${i.date ? i.date.split('-').reverse().join('/') : '-'}</td>
-                            <td class="p-3 text-slate-800">${i.client}</td>
-                            <td class="p-3 text-right font-bold">${window.formatarMoeda(i.saleValue)}</td>
-                            <td class="p-3 text-right font-black text-blue-700">${window.formatarMoeda(i.commissionValue)}</td>
+                            <td class="p-3 font-bold text-slate-900">${i.sellerName || '-'}</td>
+                            <td class="p-3 font-bold text-blue-900">${i.nf || '-'}</td>
+                            <td class="p-3 text-slate-600">${normalizeDate(i.date || i.dataEntrada).split('-').reverse().join('/') || '-'}</td>
+                            <td class="p-3 text-slate-800">${i.client || '-'}</td>
+                            <td class="p-3 text-right font-bold">${window.formatarMoeda(window.parseMoney(i.saleValue))}</td>
+                            <td class="p-3 text-right font-black text-blue-700">${window.formatarMoeda(window.parseMoney(i.commissionValue))}</td>
                             <td class="p-3 font-semibold text-emerald-800"><i class="fa-regular fa-calendar-days mr-1 text-emerald-600"></i>${previsaoFinal}</td>
                             <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Pago' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${i.status || 'Pendente'}</span></td>
                         </tr>
@@ -428,12 +455,12 @@
                 estoqueFilt.forEach(i => {
                     tbEstoque.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-200">
-                            <td class="p-3 font-bold text-slate-900">${i.modelo}</td>
-                            <td class="p-3 font-mono text-cyan-900 font-bold">${i.serial}</td>
-                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border">${i.status}</span></td>
-                            <td class="p-3 text-slate-700">${i.local}</td>
+                            <td class="p-3 font-bold text-slate-900">${i.modelo || '-'}</td>
+                            <td class="p-3 font-mono text-cyan-900 font-bold">${i.serial || '-'}</td>
+                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border">${i.status || '-'}</span></td>
+                            <td class="p-3 text-slate-700">${i.local || '-'}</td>
                             <td class="p-3 text-slate-500">${i.reservadoPor || '-'}</td>
-                            <td class="p-3 text-slate-600">${i.data ? i.data.split('-').reverse().join('/') : '-'}</td>
+                            <td class="p-3 text-slate-600">${normalizeDate(i.data).split('-').reverse().join('/') || '-'}</td>
                         </tr>
                     `;
                 });
@@ -451,7 +478,7 @@
                             <td class="p-3 text-slate-700">${i.comercial?.pedido || '-'}</td>
                             <td class="p-3 text-slate-700">${i.comercial?.vendedor || '-'}</td>
                             <td class="p-3 font-bold text-emerald-700">${i.totais?.valor_geral || '-'}</td>
-                            <td class="p-3 text-slate-600">${i.data_registro ? new Date(i.data_registro).toLocaleDateString('pt-BR') : '-'}</td>
+                            <td class="p-3 text-slate-600">${normalizeDate(i.data_registro).split('-').reverse().join('/') || '-'}</td>
                         </tr>
                     `;
                 });
@@ -459,26 +486,23 @@
         };
 
         window.exportarDadosGlobaisExcel = async function() {
-            if (typeof ExcelJS === 'undefined') { alert('Carregando ExcelJS...'); return; }
+            if (typeof ExcelJS === 'undefined') { alert('Carregando biblioteca do Excel...'); return; }
             const wb = new ExcelJS.Workbook();
             
             const dateFrom = document.getElementById('filter-date-from').value;
             const dateTo = document.getElementById('filter-date-to').value;
-            const filtrarPorData = (itemDate) => {
+            const filtrarPorData = (itemDateRaw) => {
+                const itemDate = normalizeDate(itemDateRaw);
                 if (!itemDate) return true;
                 if (dateFrom && itemDate < dateFrom) return false;
                 if (dateTo && itemDate > dateTo) return false;
                 return true;
             };
 
-            const vendasFilt = window.adminData.vendas.filter(i => filtrarPorData(i.data));
-            const comissoesFilt = window.adminData.comissoes.filter(i => filtrarPorData(i.date));
+            const vendasFilt = window.adminData.vendas.filter(i => filtrarPorData(i.data || i.date));
+            const comissoesFilt = window.adminData.comissoes.filter(i => filtrarPorData(i.date || i.dataEntrada));
             const estoqueFilt = window.adminData.estoque.filter(i => filtrarPorData(i.data));
-            const solicitacoesFilt = window.adminData.solicitacoes.filter(i => {
-                if (!i.data_registro) return true;
-                const dStr = new Date(i.data_registro).toISOString().slice(0, 10);
-                return filtrarPorData(dStr);
-            });
+            const solicitacoesFilt = window.adminData.solicitacoes.filter(i => filtrarPorData(i.data_registro));
 
             function getColumnLetter(colIndex) {
                 let letter = '';
@@ -553,27 +577,22 @@
             }
 
             const wsVendas = wb.addWorksheet('Vendas');
-            const vendasRows = vendasFilt.map(i => [i.cliente, i.modelo, i.serial, parseFloat(i.valor) || 0, i.data ? i.data.split('-').reverse().join('/') : '', i.vendedor, i.status]);
+            const vendasRows = vendasFilt.map(i => [i.cliente || '-', i.modelo || '-', i.serial || '-', window.parseMoney(i.valor), normalizeDate(i.data || i.date).split('-').reverse().join('/') || '-', i.vendedor || '-', i.status || '-']);
             styleWorksheet(wsVendas, 'Relatório de Vendas', [{ header: 'Cliente', key: 'c1', width: 25 }, { header: 'Modelo', key: 'c2', width: 18 }, { header: 'Nº de Série', key: 'c3', width: 18 }, { header: 'Valor (R$)', key: 'c4', width: 16 }, { header: 'Data', key: 'c5', width: 12 }, { header: 'Vendedor', key: 'c6', width: 20 }, { header: 'Status', key: 'c7', width: 18 }], vendasRows, [4], [4]);
 
             const wsComissoes = wb.addWorksheet('Comissões Azul');
             const comissoesRows = comissoesFilt.map(i => {
-                let valPrevisaoBanco = i.previsao_liberacao || i.previsaoLiberacao || i.previsao_pagamento || i.previsaoPagamento;
-                let previsaoFinal = '-';
-                if (valPrevisaoBanco) {
-                    if (valPrevisaoBanco.includes('-') && valPrevisaoBanco.length === 10) { previsaoFinal = valPrevisaoBanco.split('-').reverse().join('/'); } 
-                    else { previsaoFinal = valPrevisaoBanco; }
-                }
-                return [i.sellerName, i.nf, i.date ? i.date.split('-').reverse().join('/') : '', i.client, parseFloat(i.saleValue) || 0, parseFloat(i.commissionValue) || 0, previsaoFinal, i.status || 'Pendente'];
+                let previsaoFinal = normalizeDate(i.previsao_liberacao || i.previsaoLiberacao || i.previsao_pagamento || i.previsaoPagamento).split('-').reverse().join('/') || '-';
+                return [i.sellerName || '-', i.nf || '-', normalizeDate(i.date || i.dataEntrada).split('-').reverse().join('/') || '-', i.client || '-', window.parseMoney(i.saleValue), window.parseMoney(i.commissionValue), previsaoFinal, i.status || 'Pendente'];
             });
             styleWorksheet(wsComissoes, 'Comissões Azul', [{ header: 'Vendedor', key: 'c1', width: 20 }, { header: 'NF', key: 'c2', width: 12 }, { header: 'Data Venda', key: 'c3', width: 12 }, { header: 'Cliente', key: 'c4', width: 25 }, { header: 'Valor Venda', key: 'c5', width: 16 }, { header: 'Comissão (R$)', key: 'c6', width: 16 }, { header: 'Previsão Liberação', key: 'c7', width: 18 }, { header: 'Status', key: 'c8', width: 12 }], comissoesRows, [5, 6], [5, 6]);
 
             const wsEstoque = wb.addWorksheet('Estoque');
-            const estoqueRows = estoqueFilt.map(i => [i.modelo, i.serial, i.status, i.local, i.reservadoPor || '-', i.data ? i.data.split('-').reverse().join('/') : '']);
+            const estoqueRows = estoqueFilt.map(i => [i.modelo || '-', i.serial || '-', i.status || '-', i.local || '-', i.reservadoPor || '-', normalizeDate(i.data).split('-').reverse().join('/') || '-']);
             styleWorksheet(wsEstoque, 'Estoque de Equipamentos', [{ header: 'Modelo', key: 'c1', width: 20 }, { header: 'Nº de Série', key: 'c2', width: 18 }, { header: 'Status', key: 'c3', width: 15 }, { header: 'Localização', key: 'c4', width: 22 }, { header: 'Reservado Por', key: 'c5', width: 22 }, { header: 'Data Entrada', key: 'c6', width: 14 }], estoqueRows, [], []);
 
             const wsSolicitacoes = wb.addWorksheet('Solicitações CIJ');
-            const solicitacoesRows = solicitacoesFilt.map(i => [i.numero_solicitacao || '-', i.cliente?.razao_social || '-', i.comercial?.pedido || '-', i.comercial?.vendedor || '-', i.totais?.valor_geral || '-', i.data_registro ? new Date(i.data_registro).toLocaleDateString('pt-BR') : '']);
+            const solicitacoesRows = solicitacoesFilt.map(i => [i.numero_solicitacao || '-', i.cliente?.razao_social || '-', i.comercial?.pedido || '-', i.comercial?.vendedor || '-', i.totais?.valor_geral || '-', normalizeDate(i.data_registro).split('-').reverse().join('/') || '-']);
             styleWorksheet(wsSolicitacoes, 'Solicitações CIJ', [{ header: 'Nº Solicitação', key: 'c1', width: 16 }, { header: 'Cliente', key: 'c2', width: 28 }, { header: 'Pedido', key: 'c3', width: 15 }, { header: 'Vendedor', key: 'c4', width: 20 }, { header: 'Valor Total', key: 'c5', width: 16 }, { header: 'Data', key: 'c6', width: 12 }], solicitacoesRows, [], []);
 
             const buffer = await wb.xlsx.writeBuffer();
