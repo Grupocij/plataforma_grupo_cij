@@ -46,14 +46,13 @@
             <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                 <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 shadow-inner w-full sm:w-auto">
                     <label class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Vendido:</label>
-                    <!-- Opções de Consumíveis e Alternativo totalmente removidas do select -->
                     <select id="ranking_filterItemType" onchange="window.renderRanking()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-amber-500 cursor-pointer shadow-sm w-full sm:w-auto">
                         <option value="">Todos os Itens</option>
-                        <option value="Maquina">Maquina</option>
+                        <option value="Maquina">Máquinas</option>
+                        <option value="Consumíveis">Consumíveis / Peças</option>
                         <option value="Locação">Locação</option>
-                        <option value="Corpo de Prova">Corpo de Prova</option>
-                        <option value="Certificação">Certificação</option>
-                        <option value="Contrato">Contrato</option>
+                        <option value="Servico">Serviços</option>
+                        <option value="Alternativo">Alternativos</option>
                     </select>
                 </div>
                 <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 shadow-inner w-full sm:w-auto">
@@ -99,9 +98,9 @@
                 </div>
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Melhor Negociador</h4>
                 <h3 id="podium_neg_name" class="text-xl font-black text-slate-900 truncate w-full px-2">-</h3>
-                <p class="text-[10px] text-slate-500 mb-2 leading-tight">Maior % média retida</p>
+                <p class="text-[10px] text-slate-500 mb-2 leading-tight">Menor desconto médio p/ Máquinas</p>
                 <div class="mt-auto inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-sm font-bold border border-emerald-200">
-                    Média de <span id="podium_neg_val">0%</span> comissão
+                    Média de <span id="podium_neg_val">0%</span> desconto
                 </div>
             </div>
         </div>
@@ -122,7 +121,7 @@
                             <th class="p-3.5">Vendedor</th>
                             <th class="p-3.5 text-center">Qtd. Itens</th>
                             <th class="p-3.5 text-right">Faturamento Total</th>
-                            <th class="p-3.5 text-center text-emerald-300">Comissão Média %</th>
+                            <th class="p-3.5 text-center text-emerald-300">Desconto Médio %</th>
                             <th class="p-3.5">Itens / Modelos Vendidos</th>
                         </tr>
                     </thead>
@@ -133,8 +132,8 @@
             </div>
         </div>
         
-        <div class="mt-2 text-center text-xs text-slate-400 font-medium pb-8">
-            * O "Melhor Negociador" é determinado pela maior média de percentual de comissão, o que indica que o vendedor concedeu menos descontos em relação ao preço de tabela base.
+        <div class="mt-2 text-center text-xs text-slate-400 font-medium pb-8 px-4">
+            * O "Melhor Negociador" é determinado pela <strong>menor média de desconto concedida nas vendas de Máquinas</strong>, comparando o valor negociado com o Preço Base Oficial de Tabela da matriz.
         </div>
 
     </main>
@@ -146,14 +145,52 @@
     <script>
         window.listaComissoesAzul = JSON.parse(localStorage.getItem('banco_comissoes_azul_cij') || '[]');
 
+        // MATRIZ DE PREÇOS OFICIAL DE FÁBRICA
+        const matrizProdutosOriginal = [
+            { cat: 'INKJET', mod: 'LEADJET V8820 (3 LINHAS)', precoTabela: 32000.80 },
+            { cat: 'INKJET', mod: 'LEADJET V8910 (4 LINHAS)', precoTabela: 32000.80 },
+            { cat: 'INKJET', mod: 'LEADJET V8860P (PIGMENTADA)', precoTabela: 49400.00 },
+            { cat: 'LASER CO2', mod: 'C-T 35 / 30W', precoTabela: 58813.77 },
+            { cat: 'LASER CO2', mod: '60W', precoTabela: 164965.53 },
+            { cat: 'LASER FIBER', mod: 'F 30R-FLY 30W', precoTabela: 57379.30 },
+            { cat: 'LASER FIBER', mod: 'F 50R-FLY 50W', precoTabela: 93241.36 },
+            { cat: 'LASER FIBER MANUAL', mod: '20W', precoTabela: 55944.82 },
+            { cat: 'LASER UV', mod: '9305 3W', precoTabela: 80331.06 },
+            { cat: 'LASER UV', mod: '9305 5W', precoTabela: 87503.47 },
+            { cat: 'LASER UV (TTO)', mod: '9305M 5W', precoTabela: 58813.77 },
+            { cat: 'TIJ', mod: 'TIJ - T110H (MANUAL)', precoTabela: 8320.00 },
+            { cat: 'TIJ', mod: 'TIJ - T110M (MINI)', precoTabela: 10400.00 },
+            { cat: 'TIJ', mod: 'TIJ - GT291 (CONVENCIONAL)', precoTabela: 15600.00 },
+            { cat: 'TIJ', mod: 'TIJ - GT280 (IP65)', precoTabela: 18720.00 },
+            { cat: 'TTO', mod: 'R32 (32mm)', precoTabela: 24960.00 },
+            { cat: 'TTO', mod: 'R53 (53mm)', precoTabela: 28080.00 },
+            { cat: 'TTO', mod: 'Suporte para TTO', precoTabela: 5200.00 }
+        ];
+
+        // Função Blindada para Converter Moedas
+        window.parseMoney = function(val) {
+            if (typeof val === 'number') return val;
+            if (!val) return 0;
+            let s = String(val).trim();
+            s = s.replace(/[^\d.,-]/g, '');
+            if (s.includes(',') && s.includes('.')) {
+                const lastComma = s.lastIndexOf(',');
+                const lastDot = s.lastIndexOf('.');
+                if (lastComma > lastDot) s = s.replace(/\./g, '').replace(',', '.');
+                else s = s.replace(/,/g, '');
+            } else if (s.includes(',')) {
+                s = s.replace(',', '.');
+            }
+            return parseFloat(s) || 0;
+        };
+
         window.formatarMoeda = (val) => {
-            if (val === undefined || val === null || val === '') return '';
-            let numero = val;
-            if (typeof val === 'string') numero = parseFloat(val.replace(',', '.'));
-            if (isNaN(numero)) return '';
+            let numero = parseFloat(val);
+            if (isNaN(numero)) return 'R$ 0,00';
             return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         };
 
+        // 1. INICIALIZAÇÃO DO MÓDULO
         window.initModule = function(perfil) {
             if (perfil === 'Técnico') {
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito: Técnicos não possuem permissão para este módulo.</span>';
@@ -185,41 +222,97 @@
             const monthFilter = document.getElementById('ranking_filterMonth').value;
             const itemFilter = document.getElementById('ranking_filterItemType').value;
             
-            let sales = window.listaComissoesAzul;
-
-            // Filtro de Mês de Venda
-            if (monthFilter) {
-                sales = sales.filter(s => s.date && s.date.startsWith(monthFilter));
-            }
-
-            // Oculta obrigatoriamente e de forma definitiva Consumíveis e Alternativo
-            sales = sales.filter(s => s.itemType !== 'Consumíveis' && s.itemType !== 'Alternativo');
-
-            // Filtro específico do usuário, caso tenha selecionado algum dos itens restantes
-            if (itemFilter) {
-                sales = sales.filter(s => s.itemType === itemFilter);
-            }
-
+            let sales = window.listaComissoesAzul || [];
             const sellersObj = {};
-            sales.forEach(s => {
-                const seller = s.sellerName ? s.sellerName.trim() : 'Desconhecido';
-                if (!sellersObj[seller]) {
-                    sellersObj[seller] = { name: seller, qtd: 0, val: 0, commSum: 0, models: [] };
-                }
-                sellersObj[seller].qtd += 1;
-                sellersObj[seller].val += parseFloat(s.saleValue) || 0;
-                sellersObj[seller].commSum += parseFloat(s.commissionPercent) || 0;
+
+            // 2. Agrupamento Avançado (Leitura de Itens Múltiplos)
+            sales.forEach(venda => {
                 
-                let modelLabel = s.itemType;
-                if (s.itemType === 'Maquina' && s.machineModel) {
-                    modelLabel = `${s.machineCategory} - ${s.machineModel}`;
+                // Tratamento blindado de data
+                let dataVendaStr = venda.date || venda.dataEntrada || ''; 
+                if (dataVendaStr.includes('/')) {
+                    const p = dataVendaStr.split('/');
+                    if (p.length === 3) dataVendaStr = `${p[2]}-${p[1]}-${p[0]}`; 
+                } else if (!isNaN(Number(dataVendaStr)) && dataVendaStr.length > 10) {
+                    dataVendaStr = new Date(Number(dataVendaStr)).toISOString().split('T')[0];
                 }
-                sellersObj[seller].models.push(modelLabel);
+
+                if (monthFilter && !dataVendaStr.startsWith(monthFilter)) return;
+
+                const seller = venda.sellerName ? venda.sellerName.trim() : 'Desconhecido';
+                if (!sellersObj[seller]) {
+                    sellersObj[seller] = { name: seller, qtd: 0, val: 0, valTabela: 0, valNegociado: 0, models: [] };
+                }
+
+                if (venda.itens && venda.itens.length > 0) {
+                    venda.itens.forEach(item => {
+                        let tipoItem = item.tipo || 'Outros';
+                        if (tipoItem.toLowerCase().includes('consum')) tipoItem = 'Consumíveis';
+                        
+                        if (itemFilter && tipoItem !== itemFilter) return;
+
+                        const itemQtd = parseInt(item.qtd) || 1;
+                        const itemFat = window.parseMoney(item.valor) || (window.parseMoney(item.valorUn) * itemQtd);
+
+                        sellersObj[seller].qtd += itemQtd;
+                        sellersObj[seller].val += itemFat;
+
+                        // Captura da Máquina para ver o Desconto
+                        if (tipoItem === 'Maquina') {
+                            const partes = (item.detalhe || '').split(' - ');
+                            const nomeMaquina = partes.length > 1 ? partes[1].trim() : item.detalhe.trim();
+                            
+                            const prodRef = matrizProdutosOriginal.find(m => m.mod === nomeMaquina);
+                            if (prodRef) {
+                                sellersObj[seller].valTabela += (prodRef.precoTabela * itemQtd);
+                                sellersObj[seller].valNegociado += itemFat;
+                            }
+                        }
+
+                        const detalhe = item.detalhe || tipoItem;
+                        sellersObj[seller].models.push(detalhe);
+                    });
+                } else {
+                    // Estrutura Antiga (Sem Array)
+                    let tipoItem = venda.itemType || 'Outros';
+                    if (tipoItem.toLowerCase().includes('consum')) tipoItem = 'Consumíveis';
+
+                    if (itemFilter && tipoItem !== itemFilter) return;
+
+                    const fat = window.parseMoney(venda.saleValue);
+
+                    sellersObj[seller].qtd += 1;
+                    sellersObj[seller].val += fat;
+
+                    let modelLabel = tipoItem;
+                    if (tipoItem === 'Maquina' && venda.machineModel) {
+                        modelLabel = `${venda.machineCategory || ''} - ${venda.machineModel}`;
+                        
+                        // Captura Desconto Estrutura Velha
+                        const prodRef = matrizProdutosOriginal.find(m => m.mod === venda.machineModel);
+                        if (prodRef) {
+                            sellersObj[seller].valTabela += prodRef.precoTabela;
+                            sellersObj[seller].valNegociado += fat;
+                        }
+                    }
+                    sellersObj[seller].models.push(modelLabel);
+                }
             });
 
-            const rankingArray = Object.values(sellersObj).map(s => {
-                s.avgComm = s.qtd > 0 ? (s.commSum / s.qtd) : 0;
+            // 3. Converte, Filtra e Calcula a Média de Desconto Correta
+            let rankingArray = Object.values(sellersObj).filter(s => s.qtd > 0 || s.val > 0);
+
+            rankingArray = rankingArray.map(s => {
                 
+                // Métrica de Negociação: Compara o que ele vendeu com a Tabela Oficial
+                if (s.valTabela > 0) {
+                    s.avgDiscount = 100 - ((s.valNegociado / s.valTabela) * 100);
+                    // Opcional: Se ele vendeu acima da tabela, o desconto fica negativo (o que é ótimo), mas a gente trava no 0 por estética ou deixa negativo pra coroar ele. Vamos deixar natural.
+                } else {
+                    s.avgDiscount = null; // Ele não vendeu máquinas (só consumível), não tem como calcular desconto
+                }
+                
+                // Agrupa os modelos
                 const mCounts = {};
                 s.models.forEach(m => { mCounts[m] = (mCounts[m] || 0) + 1; });
                 s.modelText = Object.entries(mCounts).map(([m, c]) => `<span class="bg-slate-100 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap inline-block mr-1 mb-1">${c}x ${m}</span>`).join('');
@@ -227,16 +320,23 @@
                 return s;
             });
 
+            // 4. Determina os Vencedores
             let winnerQtd = { name: '-', qtd: 0 };
             let winnerVal = { name: '-', val: 0 };
-            let winnerNeg = { name: '-', avgComm: 0 };
+            let winnerNeg = { name: '-', avgDiscount: 0 };
 
             if (rankingArray.length > 0) {
                 winnerQtd = [...rankingArray].sort((a,b) => b.qtd - a.qtd)[0];
                 winnerVal = [...rankingArray].sort((a,b) => b.val - a.val)[0];
-                winnerNeg = [...rankingArray].sort((a,b) => b.avgComm - a.avgComm)[0];
+                
+                // Melhor Negociador é quem tem o MENOR desconto médio (logo, o array sort Crescente, ignorando Nulls)
+                const validNegociators = rankingArray.filter(s => s.avgDiscount !== null);
+                if (validNegociators.length > 0) {
+                    winnerNeg = [...validNegociators].sort((a,b) => a.avgDiscount - b.avgDiscount)[0];
+                }
             }
 
+            // Atualiza Pódios no Topo
             document.getElementById('podium_vol_name').innerText = winnerQtd.name;
             document.getElementById('podium_vol_val').innerText = winnerQtd.qtd;
 
@@ -244,19 +344,27 @@
             document.getElementById('podium_fat_val').innerText = window.formatarMoeda(winnerVal.val);
 
             document.getElementById('podium_neg_name').innerText = winnerNeg.name;
-            document.getElementById('podium_neg_val').innerText = winnerNeg.avgComm.toFixed(1).replace('.', ',') + '%';
+            document.getElementById('podium_neg_val').innerText = winnerNeg.avgDiscount !== null ? winnerNeg.avgDiscount.toFixed(1).replace('.', ',') + '%' : '-';
 
+            // 5. Preenche a Tabela (Ordenado por Faturamento)
             rankingArray.sort((a,b) => b.val - a.val);
             
             const tbody = document.getElementById('tableBodyRanking');
             if (rankingArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Nenhum item válido vendido no período ou filtro selecionado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Nenhum item vendido no período ou filtro selecionado.</td></tr>`;
             } else {
                 tbody.innerHTML = rankingArray.map((s, index) => {
                     let posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 font-bold mx-auto text-[10px]">${index + 1}º</span>`;
                     if (index === 0) posBadge = `<span class="w-7 h-7 flex items-center justify-center rounded-full bg-amber-100 text-amber-600 font-black mx-auto text-xs shadow-sm ring-1 ring-amber-300"><i class="fa-solid fa-trophy"></i></span>`;
                     else if (index === 1) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 text-slate-600 font-black mx-auto text-[10px] shadow-sm">2º</span>`;
-                    else if (index === 2) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-700 font-black mx-auto text-xs shadow-sm">3º</span>`;
+                    else if (index === 2) posBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-700 font-black mx-auto text-[10px] shadow-sm">3º</span>`;
+
+                    // Dinâmica de Cor do Desconto
+                    let discountClass = 'text-emerald-600';
+                    if (s.avgDiscount > 10) discountClass = 'text-amber-500';
+                    if (s.avgDiscount > 20) discountClass = 'text-rose-600';
+                    
+                    let discountStr = s.avgDiscount !== null ? s.avgDiscount.toFixed(1).replace('.', ',') + '%' : 'N/A';
 
                     return `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-100 group">
@@ -264,7 +372,7 @@
                             <td class="p-3.5 font-bold text-slate-900">${s.name}</td>
                             <td class="p-3.5 text-center font-bold text-blue-700">${s.qtd}</td>
                             <td class="p-3.5 text-right font-black text-slate-800">${window.formatarMoeda(s.val)}</td>
-                            <td class="p-3.5 text-center font-bold text-emerald-700">${s.avgComm.toFixed(1).replace('.', ',')}%</td>
+                            <td class="p-3.5 text-center font-bold ${discountClass}">${discountStr}</td>
                             <td class="p-3.5 w-[35%]"><div class="flex flex-wrap gap-1">${s.modelText}</div></td>
                         </tr>
                     `;
