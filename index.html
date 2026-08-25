@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Grupo CIJ - Início</title>
     
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -256,7 +257,6 @@
                     </div>
                 </div>
                 
-                <!-- MULTI-SELECT DE TÉCNICOS -->
                 <div>
                     <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Responsáveis (Equipe) *</label>
                     <div id="taskTechContainer" class="grid grid-cols-2 gap-2 p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs max-h-32 overflow-y-auto custom-scrollbar">
@@ -296,7 +296,6 @@
                     <textarea id="taskDescription" rows="3" placeholder="Detalhes..." class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-600 transition resize-none"></textarea>
                 </div>
                 
-                <!-- CHECKBOX GOOGLE CALENDAR -->
                 <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
                     <input type="checkbox" id="syncGoogle" class="w-4 h-4 text-blue-600 rounded cursor-pointer">
                     <label for="syncGoogle" class="text-[11px] font-bold text-slate-700 cursor-pointer flex items-center gap-1">
@@ -356,18 +355,15 @@
 
     <!-- LÓGICA DA AGENDA -->
     <script>
-        // =========================================================================
-        // ATENÇÃO: EDITE OS E-MAILS ABAIXO PARA OS E-MAILS REAIS DA SUA EQUIPE!
-        // =========================================================================
         const TECHNICIANS = [
-            { id: 'adriano', name: 'Adriano', email: 'tecnico.cij1@gmail.com', color: '#3b82f6' },
-            { id: 'anderson', name: 'Anderson', email: 'tecnico.cij3@gmail.com', color: '#10b981' },
-            { id: 'filipe', name: 'Filipe', email: 'engenharia@grupocij.com', color: '#8b5cf6' },
-            { id: 'sidnei', name: 'Sidnei', email: 'tecnico.cijrs@gmail.com', color: '#f59e0b' },
-            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com', color: '#ec4899' },
-            { id: 'gabriel', name: 'Gabriel', email: 'comercial02.sc@grupocij.com', color: '#06b6d4' },
-            { id: 'rafael', name: 'Rafael', email: 'comercial.sc@grupocij.com', color: '#64748b' },
-            { id: 'juliana', name: 'Juliana', email: 'comercial.rs@grupocij.com', color: '#8b5cf6' }
+            { id: 'adriano', name: 'Adriano', email: 'adriano@grupocij.com.br', color: '#3b82f6' },
+            { id: 'anderson', name: 'Anderson', email: 'anderson@grupocij.com.br', color: '#10b981' },
+            { id: 'filipe', name: 'Filipe', email: 'filipe@grupocij.com.br', color: '#8b5cf6' },
+            { id: 'sidnei', name: 'Sidnei', email: 'sidnei@grupocij.com.br', color: '#f59e0b' },
+            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com.br', color: '#ec4899' },
+            { id: 'gabriel', name: 'Gabriel', email: 'gabriel@grupocij.com.br', color: '#06b6d4' },
+            { id: 'rafael', name: 'Rafael', email: 'rafael@grupocij.com.br', color: '#64748b' },
+            { id: 'juliana', name: 'Juliana', email: 'juliana@grupocij.com.br', color: '#8b5cf6' }
         ];
 
         window.tasks = [];
@@ -578,7 +574,6 @@
         window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); window.renderApp(); };
         window.goToday = () => { currentDate = new Date(); window.renderApp(); };
 
-        // --- MURAL DE RECADOS FIREBASE ---
         window.renderNotices = function() {
             const list = document.getElementById('noticeList');
             if(!list) return;
@@ -619,7 +614,6 @@
             try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1', id)); } catch(err){}
         };
 
-        // --- KANBAN ---
         window.renderKanban = function(filteredTasks) {
             ['Pending', 'Progress', 'Done'].forEach(s => {
                 const el = document.getElementById(`kanban${s}`);
@@ -678,7 +672,6 @@
             }
         };
 
-        // --- TABELA ---
         window.renderTable = function(filteredTasks) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = filteredTasks.map(t => {
@@ -709,7 +702,6 @@
             }).join('');
         };
 
-        // --- FORMULÁRIOS & MODAIS ---
         window.openTaskModal = function(id = null) {
             document.getElementById('taskForm').reset();
             document.querySelectorAll('.tech-checkbox').forEach(cb => cb.checked = false);
@@ -753,7 +745,6 @@
 
         window.closeTaskModal = () => document.getElementById('taskModal').classList.add('hidden');
 
-        // --- FUNÇÃO PARA SALVAR TAREFA E (OPCIONALMENTE) ABRIR NO GOOGLE ---
         window.handleTaskSubmit = async function(e) {
             e.preventDefault();
 
@@ -790,23 +781,15 @@
             const sendToGoogle = document.getElementById('syncGoogle').checked;
 
             try {
-                // 1. Salva no banco de dados do sistema
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', data.id), data);
-                
-                // 2. Se for novo e enviarmos pro google, precisamos do dado local rapidamente
                 if (!window.tasks.find(t => t.id === data.id)) window.tasks.push(data);
-                
                 window.closeTaskModal();
-
-                // 3. Verifica se o usuário pediu para abrir no Google Calendar
                 if (sendToGoogle) {
                     window.addToGoogleCalendar(data.id);
                 }
-
             } catch(err) { alert('Erro ao salvar agendamento.'); }
         };
 
-        // --- SINCRONIZAÇÃO COM GOOGLE CALENDAR ---
         window.addToGoogleCalendar = function(taskId) {
             const task = window.tasks.find(t => t.id === taskId);
             if(!task) return;

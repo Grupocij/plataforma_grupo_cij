@@ -59,7 +59,6 @@
 
             <form id="userForm" onsubmit="window.salvarUsuario(event)" class="p-6 space-y-6">
                 
-                <!-- Informações Básicas -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nome Completo *</label>
@@ -80,7 +79,6 @@
                     </div>
                 </div>
 
-                <!-- Matriz de Módulos com Checkbox de Acesso + Botão de Visão Global Lado a Lado -->
                 <div class="space-y-4 border-t border-slate-200 pt-4">
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">Controle de Módulos e Visão Global de Dados:</h4>
@@ -88,7 +86,7 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="matriz-modulos-container">
-                        <!-- Gerado dinamicamente via JS para incluir todos os módulos da lista -->
+                        <!-- Gerado dinamicamente via JS -->
                     </div>
                 </div>
 
@@ -109,10 +107,10 @@
         window.listaDeUsuarios = [];
         let editingUserId = null;
 
-        // Lista completa de todos os módulos reais da aplicação
         const TODOS_MODULOS = [
             { id: 'index.html', nome: 'Agenda (Página Inicial)', cat: 'Geral' },
             { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
+            { id: 'servicos_osr.html', nome: 'Gestão de OSR (Painel)', cat: 'Serviços' },
             { id: 'veiculos_mobile.html', nome: 'Veículos Mobile', cat: 'Serviços' },
             { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
             { id: 'simulador.html', nome: 'Simulador Financeiro', cat: 'Comercial' },
@@ -129,344 +127,8 @@
             { id: 'dashboard_despesas.html', nome: 'Dashboard Gerencial', cat: 'Financeiro' },
             { id: 'comissoes-azul.html', nome: 'Comissões Azul', cat: 'Financeiro' },
             { id: 'comissoes-consumiveis.html', nome: 'Com. Consumíveis', cat: 'Financeiro' },
-            { id: 'comissoes-representantes.html', nome: 'Com. Representantes', cat: 'Financeiro' }
-        ];
-
-        window.initModule = function(perfil) {
-            if (perfil !== 'Admin') {
-                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas Administradores podem gerenciar acessos.</span>';
-                window.fazerLogout();
-                return;
-            }
-            
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-
-            window.construirMatrizModulos();
-
-            const usersCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes');
-            
-            window.fsOnSnapshot(usersCol, (snap) => {
-                window.listaDeUsuarios = [];
-                snap.forEach(d => window.listaDeUsuarios.push({ id: d.id, ...d.data() }));
-                window.renderTabelaUsuarios();
-            });
-        };
-
-        window.construirMatrizModulos = function() {
-            const container = document.getElementById('matriz-modulos-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            TODOS_MODULOS.forEach(m => {
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-col justify-between space-y-2 hover:bg-slate-100/60 transition";
-                card.innerHTML = `
-                    <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
-                        <input type="checkbox" value="${m.id}" onchange="window.toggleModuloCheck(this)" class="mod-checkbox w-4 h-4 text-blue-600 rounded"> 
-                        <span class="truncate">${m.nome}</span>
-                    </label>
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">Visão Global:</span>
-                        <button type="button" id="btn_vg_${m.id.replace('.html', '')}" data-mod="${m.id}" onclick="window.toggleVisaoGlobalBtn(this)" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer">
-                            Desativada
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        };
-
-        window.toggleModuloCheck = function(checkbox) {
-            const card = checkbox.closest('div.bg-slate-50');
-            const btn = card.querySelector('button');
-            if (!checkbox.checked) {
-                btn.setAttribute('data-global', 'false');
-                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
-                btn.textContent = "Desativada";
-            }
-        };
-
-        window.toggleVisaoGlobalBtn = function(btn) {
-            const card = btn.closest('div.bg-slate-50');
-            const checkbox = card.querySelector('.mod-checkbox');
-            
-            if (!checkbox.checked) {
-                checkbox.checked = true;
-            }
-
-            const currentState = btn.getAttribute('data-global') === 'true';
-            const newState = !currentState;
-            btn.setAttribute('data-global', newState ? 'true' : 'false');
-
-            if (newState) {
-                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-emerald-100 text-emerald-800 border-emerald-400 cursor-pointer shadow-sm";
-                btn.textContent = "Habilitada";
-            } else {
-                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
-                btn.textContent = "Desativada";
-            }
-        };
-
-        window.renderTabelaUsuarios = function() {
-            const tbody = document.getElementById('tabelaUsuarios');
-            tbody.innerHTML = window.listaDeUsuarios.map(u => {
-                const vg = u.visaoGlobalPorTela || {};
-                let globaisAtivas = Object.keys(vg).filter(k => vg[k] === true).length;
-
-                const badgeVg = globaisAtivas > 0 ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">${globaisAtivas} Globais Ativas</span>` : `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">Apenas Próprios</span>`;
-                const modulosQtd = (u.modulos || []).length;
-                
-                return `
-                <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
-                    <td class="p-4 font-bold text-slate-800">${u.nome}</td>
-                    <td class="p-4 font-bold text-blue-600">${u.email}</td>
-                    <td class="p-4 text-center font-bold text-slate-600">${u.perfil}</td>
-                    <td class="p-4 text-center">
-                        <div class="font-semibold text-slate-700">${modulosQtd} de ${TODOS_MODULOS.length} Módulos</div>
-                        <div class="mt-0.5">${badgeVg}</div>
-                    </td>
-                    <td class="p-4 text-center space-x-2">
-                        <button onclick="window.editarUsuario('${u.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Editar</button>
-                        <button onclick="window.excluirUsuario('${u.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-                `;
-            }).join('');
-        };
-
-        window.abrirModalUsuario = function() {
-            editingUserId = null;
-            document.getElementById('userForm').reset();
-            document.getElementById('u_email').readOnly = false;
-            
-            document.querySelectorAll('.mod-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('#matriz-modulos-container button').forEach(btn => {
-                btn.setAttribute('data-global', 'false');
-                btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
-                btn.textContent = "Desativada";
-            });
-
-            document.getElementById('modalUser').classList.remove('hidden');
-        };
-
-        window.fecharModalUsuario = function() {
-            document.getElementById('modalUser').classList.add('hidden');
-        };
-
-        window.editarUsuario = function(id) {
-            const u = window.listaDeUsuarios.find(x => x.id === id);
-            if (!u) return;
-
-            editingUserId = u.id;
-            document.getElementById('u_nome').value = u.nome;
-            document.getElementById('u_email').value = u.email;
-            document.getElementById('u_email').readOnly = true; 
-            document.getElementById('u_perfil').value = u.perfil;
-
-            const vg = u.visaoGlobalPorTela || {};
-            const modulosUser = u.modulos || [];
-
-            document.querySelectorAll('.mod-checkbox').forEach(cb => {
-                const modId = cb.value;
-                cb.checked = modulosUser.includes(modId);
-
-                const card = cb.closest('div.bg-slate-50');
-                const btn = card.querySelector('button');
-                const isGlobal = vg[modId] === true;
-
-                btn.setAttribute('data-global', isGlobal ? 'true' : 'false');
-                if (isGlobal) {
-                    btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-emerald-100 text-emerald-800 border-emerald-400 cursor-pointer shadow-sm";
-                    btn.textContent = "Habilitada";
-                } else {
-                    btn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition bg-slate-200 text-slate-600 border-slate-300 cursor-pointer";
-                    btn.textContent = "Desativada";
-                }
-            });
-
-            document.getElementById('modalUser').classList.remove('hidden');
-        };
-
-        window.salvarUsuario = async function(e) {
-            e.preventDefault();
-
-            const emailFormatado = document.getElementById('u_email').value.toLowerCase().trim();
-            const modulosSelecionados = [];
-            const visaoGlobalObj = {};
-
-            document.querySelectorAll('.mod-checkbox').forEach(cb => {
-                if (cb.checked) {
-                    modulosSelecionados.push(cb.value);
-                    const card = cb.closest('div.bg-slate-50');
-                    const btn = card.querySelector('button');
-                    const isGlobal = btn.getAttribute('data-global') === 'true';
-                    visaoGlobalObj[cb.value] = isGlobal;
-                } else {
-                    visaoGlobalObj[cb.value] = false;
-                }
-            });
-
-            const data = {
-                email: emailFormatado,
-                nome: document.getElementById('u_nome').value,
-                perfil: document.getElementById('u_perfil').value,
-                visaoGlobalPorTela: visaoGlobalObj,
-                modulos: modulosSelecionados
-            };
-
-            const docId = editingUserId ? editingUserId : emailFormatado;
-
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', docId), data);
-                editingUserId = null;
-                window.fecharModalUsuario();
-            } catch (err) {
-                alert("Erro ao salvar permissões: " + err.message);
-            }
-        };
-
-        window.excluirUsuario = async function(id) {
-            if(confirm('Tem certeza que deseja remover as permissões deste usuário?')) {
-                try {
-                    await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', id));
-                } catch(e) { console.error(e); }
-            }
-        };
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Usuários - Portal CIJ</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col bg-slate-50">
-
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
-        
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3"><i class="fa-solid fa-users-gear text-slate-800"></i> Gestão de Usuários & Acessos</h2>
-                <p class="text-sm text-slate-500 mt-1">Defina o acesso aos módulos e configure individualmente a Visão Global de cada tela.</p>
-            </div>
-            <button onclick="window.abrirModalUsuario()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-xs flex items-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-user-plus"></i> Novo Acesso
-            </button>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-900 text-white font-bold">
-                            <th class="p-4">Nome do Usuário</th>
-                            <th class="p-4">E-mail</th>
-                            <th class="p-4 text-center">Perfil</th>
-                            <th class="p-4 text-center">Acesso a Módulos</th>
-                            <th class="p-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaUsuarios" class="divide-y divide-slate-200 font-medium bg-white text-slate-700">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- MODAL DE CADASTRO/EDIÇÃO DE USUÁRIO -->
-    <div id="modalUser" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl border border-slate-200 my-auto transform transition-all">
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-lg tracking-tight flex items-center gap-2"><i class="fa-solid fa-user-shield text-blue-400"></i> Configurar Permissões e Visão Global por Módulo</h3>
-                <button onclick="window.fecharModalUsuario()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <form id="userForm" onsubmit="window.salvarUsuario(event)" class="p-6 space-y-6">
-                
-                <!-- Informações Básicas -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nome Completo *</label>
-                        <input type="text" id="u_nome" required placeholder="Ex: João Silva" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">E-mail (Login) *</label>
-                        <input type="email" id="u_email" required placeholder="joao@grupocij.com.br" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Perfil Base</label>
-                        <select id="u_perfil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
-                            <option value="Vendedor">Vendedor</option>
-                            <option value="Técnico">Técnico</option>
-                            <option value="Financeiro">Financeiro</option>
-                            <option value="Admin">Administrador Master</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Matriz de Módulos com Checkbox de Acesso + Botão de Visão Global Lado a Lado -->
-                <div class="space-y-4 border-t border-slate-200 pt-4">
-                    <div>
-                        <h4 class="font-bold text-slate-800 text-sm">Controle de Módulos e Visão Global de Dados:</h4>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Marque a caixa para dar acesso à tela e use o botão ao lado para habilitar ou não a Visão Global (ver dados de toda a equipe).</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="matriz-modulos-container">
-                        <!-- Gerado dinamicamente via JS para incluir todos os módulos da lista -->
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-4 mt-2 border-t border-slate-200">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-save"></i> Salvar Acessos
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPT MOTOR -->
-    <script type="module" src="core.js"></script>
-
-    <!-- LÓGICA DE USUÁRIOS -->
-    <script>
-        window.listaDeUsuarios = [];
-        let editingUserId = null;
-
-        // Lista completa de todos os módulos reais da aplicação
-        const TODOS_MODULOS = [
-            { id: 'index.html', nome: 'Agenda (Página Inicial)', cat: 'Geral' },
-            { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
-            { id: 'veiculos_mobile.html', nome: 'Veículos Mobile', cat: 'Serviços' },
-            { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
-            { id: 'simulador.html', nome: 'Simulador Financeiro', cat: 'Comercial' },
-            { id: 'solicitacao.html', nome: 'Solicitação CIJ', cat: 'Comercial' },
-            { id: 'solicitacoes-lista.html', nome: 'Lista de Solicitações', cat: 'Administrativo' },
-            { id: 'tabelas.html', nome: 'Documentos Oficiais', cat: 'Comercial' },
-            { id: 'ranking.html', nome: 'Ranking de Vendas', cat: 'Comercial' },
-            { id: 'estoque.html', nome: 'Estoque Usados/Geral', cat: 'Estoque' },
-            { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Estoque' },
-            { id: 'vendas.html', nome: 'Vendas (Saídas)', cat: 'Administrativo' },
-            { id: 'usuarios.html', nome: 'Gerenciar Usuários', cat: 'Administrativo' },
-            { id: 'admin.html', nome: 'Painel Diretoria', cat: 'Administrativo' },
-            { id: 'despesas.html', nome: 'Controle de Despesas', cat: 'Financeiro' },
-            { id: 'dashboard_despesas.html', nome: 'Dashboard Gerencial', cat: 'Financeiro' },
-            { id: 'comissoes-azul.html', nome: 'Comissões Azul', cat: 'Financeiro' },
-            { id: 'comissoes-consumiveis.html', nome: 'Com. Consumíveis', cat: 'Financeiro' },
-            { id: 'comissoes-representantes.html', nome: 'Com. Representantes', cat: 'Financeiro' }
+            { id: 'comissoes-representantes.html', nome: 'Com. Representantes', cat: 'Financeiro' },
+            { id: 'diretoria-custos.html', nome: 'Custos & Margens', cat: 'Diretoria' }
         ];
 
         window.initModule = function(perfil) {
