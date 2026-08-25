@@ -44,6 +44,16 @@ window.installPWA = async () => {
 const injectLayout = () => {
     if (document.querySelector('header')) return;
 
+    // ESTILOS DO MENU SECRETO DA DIRETORIA
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #cat-diretoria { display: none !important; }
+        body.diretoria-unlocked #cat-diretoria { display: flex !important; }
+        .mobile-secret { display: none !important; }
+        body.diretoria-unlocked .mobile-secret { display: flex !important; }
+    `;
+    document.head.appendChild(style);
+
     const layoutHTML = `
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
@@ -95,8 +105,9 @@ const injectLayout = () => {
                             </svg>
                         </div>
                         <div class="flex flex-col justify-center hidden sm:flex">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-300">Portal CIJ</span>
-                            <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400">Verificando...</span>
+                            <!-- BOTÃO SECRETO AQUI (id="secret-trigger-btn") -->
+                            <span id="secret-trigger-btn" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 cursor-pointer select-none transition hover:bg-amber-900">COMERCIAL & GESTÃO</span>
+                            <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Verificando...</span>
                         </div>
                     </div>
 
@@ -153,7 +164,7 @@ const injectLayout = () => {
                                 <a href="solicitacoes-lista.html" data-module="solicitacoes-lista.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-list-check"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Lista Solicitações</h4></div></a>
                                 <a href="veiculos.html" data-module="veiculos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center shrink-0"><i class="fa-solid fa-car-tunnel"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Gerencial</h4></div></a>
                                 <a href="vendas.html" data-module="vendas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-cart-shopping"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Vendas (Saídas)</h4></div></a>
-                                <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Administrativo</h4></div></a>
+                                <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Diretoria</h4></div></a>
                                 <a href="usuarios.html" data-module="usuarios.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid fa-users-gear"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gerenciar Usuários</h4></div></a>
                             </div>
                         </div>
@@ -173,7 +184,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- DIRETORIA -->
+                    <!-- DIRETORIA (SECRETO) -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-diretoria">
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-vault text-amber-500"></i> Diretoria <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 right-0 mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
@@ -214,6 +225,29 @@ const injectLayout = () => {
     `;
 
     document.body.insertAdjacentHTML('afterbegin', layoutHTML);
+
+    // ==========================================
+    // LÓGICA DO BOTÃO SECRETO (KONAMI CODE)
+    // ==========================================
+    let secretClicks = 0;
+    let secretTimeout;
+    const secretBtn = document.getElementById('secret-trigger-btn');
+    
+    if (secretBtn) {
+        secretBtn.addEventListener('click', () => {
+            secretClicks++;
+            clearTimeout(secretTimeout);
+            
+            // Reseta a contagem se demorar mais que 1 segundo
+            secretTimeout = setTimeout(() => { secretClicks = 0; }, 1000);
+            
+            // Se clicar 3 vezes rápidas
+            if (secretClicks >= 3) {
+                document.body.classList.toggle('diretoria-unlocked');
+                secretClicks = 0; // zera para próxima tentativa
+            }
+        });
+    }
 };
 
 injectLayout();
@@ -281,6 +315,11 @@ window.filterGlobalModules = function() {
     const allowedUrls = Array.from(document.querySelectorAll('#desktop-nav-menu a.nav-item'))
                              .filter(a => a.style.display !== 'none')
                              .map(a => a.getAttribute('href'));
+
+    // Inclui sempre o módulo secreto de diretoria na busca SE ele estiver destrancado na tela
+    if (document.body.classList.contains('diretoria-unlocked')) {
+        allowedUrls.push('diretoria-custos.html');
+    }
 
     const filtered = globalModulesMap.filter(m => m.name.toLowerCase().includes(input) && allowedUrls.includes(m.url));
 
@@ -367,8 +406,10 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     categories.forEach(cat => {
         const linksInside = Array.from(cat.querySelectorAll('a.nav-item'));
         const hasVisibleLink = linksInside.some(l => l.style.display !== 'none');
-        if (hasVisibleLink) cat.style.display = 'flex';
-        else cat.style.display = 'none';
+        
+        // Mantém a categoria sempre visível SE ela tiver um link visível (e que não seja o menu diretoria)
+        if (hasVisibleLink && cat.id !== 'cat-diretoria') cat.style.display = 'flex';
+        else if (cat.id !== 'cat-diretoria') cat.style.display = 'none';
     });
 
     const mobContainer = document.getElementById('mobile-menu-container');
@@ -377,7 +418,8 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
         
         globalModulesMap.forEach(m => {
             if (isAdminTotal || modulosPermitidos.includes(m.url)) {
-                mobContainer.innerHTML += `<a href="${m.url}" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
+                const isSecret = m.url === 'diretoria-custos.html' ? 'mobile-secret' : '';
+                mobContainer.innerHTML += `<a href="${m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
             }
         });
     }
