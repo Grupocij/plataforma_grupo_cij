@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requisição de Material - Portal CIJ</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+        .pulse-alert { animation: pulse-orange 2s infinite; }
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
+
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
+            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
+            <p id="login-message" class="text-sm font-semibold text-slate-500">Sincronizando com o banco de dados...</p>
+        </div>
+    </div>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
+        
+        <!-- CABEÇALHO -->
+        <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl shrink-0 shadow-inner">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">Logística & Estoque</span>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Requisição de Material</h1>
+                    <p class="text-slate-500 text-sm mt-1">Solicitação, aprovação de peças e controle de baixas com Ordem de Serviço.</p>
+                </div>
+            </div>
+            <button onclick="window.abrirModalNovaReq()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-plus"></i> Fazer Solicitação
+            </button>
+        </header>
+
+        <!-- NAVEGAÇÃO DE ABAS -->
+        <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-2 shrink-0">
+            <button onclick="window.mudarAba('minhas')" id="tab-btn-minhas" class="relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-amber-500 text-white shadow-sm cursor-pointer">
+                Minhas Requisições
+            </button>
+            <button onclick="window.mudarAba('comigo')" id="tab-btn-comigo" class="relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                Materiais Comigo 
+                <span id="badge-comigo" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-5 h-5 flex items-center justify-center rounded-full hidden pulse-alert">0</span>
+            </button>
+            <button onclick="window.mudarAba('rs')" id="tab-btn-rs" class="relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                Estoque Filial RS
+            </button>
+            <button onclick="window.mudarAba('gestor')" id="tab-btn-gestor" class="relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer hidden">
+                <i class="fa-solid fa-shield-halved text-purple-600 mr-1"></i> Painel do Gestor
+                <span id="badge-gestor" class="absolute -top-1 -right-1 bg-purple-600 text-white text-[9px] w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+            </button>
+        </div>
+
+        <!-- CONTEÚDO DAS ABAS -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-10 flex-1 flex flex-col min-h-[400px]">
+            
+            <!-- ABA: MINHAS REQUISIÇÕES -->
+            <div id="tab-content-minhas" class="flex-1 flex flex-col">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i> Status dos Meus Pedidos</h3>
+                </div>
+                <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1 p-2">
+                    <table class="w-full text-left text-xs min-w-[800px]">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 font-bold sticky top-0">
+                            <tr>
+                                <th class="p-4 rounded-tl-lg">Data</th>
+                                <th class="p-4">Material / Peça</th>
+                                <th class="p-4 text-center">Qtd</th>
+                                <th class="p-4">Destino (Cliente/Máquina)</th>
+                                <th class="p-4 text-center rounded-tr-lg">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-minhas" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ABA: MATERIAIS COMIGO (BAIXA DE OS) -->
+            <div id="tab-content-comigo" class="flex-1 flex flex-col hidden">
+                <div class="p-5 border-b border-slate-100 bg-amber-50/30 flex justify-between items-center shrink-0">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-toolbox text-amber-600 mr-2"></i> Materiais sob minha responsabilidade</h3>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Após o uso, clique em "Utilizado" e informe a OS. Se não usar, clique em "Devolver".</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5 overflow-y-auto custom-scrollbar flex-1" id="grid-comigo">
+                    <!-- Cards injetados via JS -->
+                </div>
+            </div>
+
+            <!-- ABA: ESTOQUE RS -->
+            <div id="tab-content-rs" class="flex-1 flex flex-col hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i> Estoque Local - Filial RS</h3>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Retirada direta de material. Obrigatório informar a Ordem de Serviço (OS).</p>
+                    </div>
+                    <button id="btn-add-rs" onclick="window.abrirModalAddRS()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition text-xs hidden cursor-pointer">
+                        <i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Abastecer Estoque RS
+                    </button>
+                </div>
+                <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1 p-2">
+                    <table class="w-full text-left text-xs min-w-[700px]">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 font-bold sticky top-0">
+                            <tr>
+                                <th class="p-4 rounded-tl-lg">Material / Insumo</th>
+                                <th class="p-4 text-center">Quantidade Disponível</th>
+                                <th class="p-4 text-slate-400">Última Atualização</th>
+                                <th class="p-4 text-center rounded-tr-lg">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-rs" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ABA: PAINEL DO GESTOR -->
+            <div id="tab-content-gestor" class="flex-1 flex flex-col hidden bg-slate-50">
+                <div class="p-5 border-b border-slate-200 bg-white flex justify-between items-center shrink-0">
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900"><i class="fa-solid fa-list-check text-purple-600 mr-2"></i> Central de Aprovações e Estornos</h3>
+                    </div>
+                    <button onclick="window.exportarHistorico()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition text-xs cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Relatório Geral
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+                    <!-- Sessão 1: Aprovações Pendentes -->
+                    <div class="bg-white border border-amber-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-amber-50 p-3 border-b border-amber-200 font-bold text-amber-900 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-hourglass-half"></i> Requisições Aguardando Aprovação
+                        </div>
+                        <div class="p-2 overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[800px]">
+                                <thead class="text-[10px] text-slate-400 uppercase font-bold">
+                                    <tr><th class="p-3">Data</th><th class="p-3">Técnico</th><th class="p-3">Material</th><th class="p-3 text-center">Qtd</th><th class="p-3">Destino</th><th class="p-3 text-center">Ações</th></tr>
+                                </thead>
+                                <tbody id="tb-gestor-pendentes" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sessão 2: Devoluções Pendentes -->
+                    <div class="bg-white border border-purple-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-purple-50 p-3 border-b border-purple-200 font-bold text-purple-900 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> Aguardando Confirmação de Devolução (Estorno)
+                        </div>
+                        <div class="p-2 overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[800px]">
+                                <thead class="text-[10px] text-slate-400 uppercase font-bold">
+                                    <tr><th class="p-3">Data Retirada</th><th class="p-3">Técnico</th><th class="p-3">Material</th><th class="p-3 text-center">Qtd</th><th class="p-3 text-center">Ação</th></tr>
+                                </thead>
+                                <tbody id="tb-gestor-devolucoes" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sessão 3: Histórico Global (Utilizados) -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-slate-100 p-3 border-b border-slate-200 font-bold text-slate-700 text-xs flex items-center justify-between gap-2">
+                            <span><i class="fa-solid fa-history"></i> Últimas Baixas (Materiais Utilizados)</span>
+                        </div>
+                        <div class="p-2 overflow-x-auto max-h-[300px] custom-scrollbar">
+                            <table class="w-full text-left text-xs min-w-[900px]">
+                                <thead class="text-[10px] text-slate-400 uppercase font-bold sticky top-0 bg-white shadow-sm">
+                                    <tr><th class="p-3">Data Baixa</th><th class="p-3">Técnico/Filial</th><th class="p-3">Material</th><th class="p-3 text-center">Qtd</th><th class="p-3">Destino</th><th class="p-3 font-black text-blue-700">OS Vinculada</th></tr>
+                                </thead>
+                                <tbody id="tb-gestor-historico" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: NOVA REQUISIÇÃO -->
+    <div id="modalNovaReq" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-box text-amber-400"></i> Solicitar Material</h3>
+                <button onclick="window.fecharModais()" class="text-slate-400 hover:text-white p-1 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form onsubmit="window.enviarRequisicao(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Material / Peça *</label>
+                    <input type="text" id="req_material" required placeholder="Ex: Filtro Principal V8820" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Quantidade *</label>
+                    <input type="number" id="req_qtd" required min="1" value="1" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Destino Previsto (Cliente ou Finalidade) *</label>
+                    <input type="text" id="req_destino" required placeholder="Ex: Manutenção Preventiva Cliente X" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-amber-500">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="window.fecharModais()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shadow-md transition">Enviar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DAR BAIXA (UTILIZADO) -->
+    <div id="modalBaixaOS" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+            <div class="bg-emerald-600 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-check-double text-emerald-200"></i> Confirmar Uso de Material</h3>
+                <button onclick="window.fecharModais()" class="text-emerald-200 hover:text-white p-1 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form onsubmit="window.confirmarUso(event)" class="p-6 space-y-4">
+                <input type="hidden" id="baixa_id">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs mb-2">
+                    <p class="text-slate-500 font-bold uppercase tracking-wider text-[9px] mb-1">Material Selecionado:</p>
+                    <p id="baixa_resumo" class="font-black text-slate-800"></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-700 mb-1">Nº da Ordem de Serviço (OS) OBRIGATÓRIO *</label>
+                    <input type="text" id="baixa_os" required placeholder="Ex: OSR-2026-1045" class="w-full px-3.5 py-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl text-sm font-black text-emerald-900 outline-none focus:border-emerald-600 shadow-inner">
+                    <p class="text-[10px] text-slate-500 mt-1.5"><i class="fa-solid fa-circle-info text-amber-500"></i> Para baixar a peça, ela deve estar vinculada ao chamado do cliente.</p>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="window.fecharModais()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md transition">Baixar Peça</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RETIRADA DIRETA RS -->
+    <div id="modalRetiradaRS" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+            <div class="bg-blue-700 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-hand-holding-box text-blue-300"></i> Retirada Estoque RS</h3>
+                <button onclick="window.fecharModais()" class="text-blue-300 hover:text-white p-1 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form onsubmit="window.confirmarRetiradaRS(event)" class="p-6 space-y-4">
+                <input type="hidden" id="rs_id">
+                <input type="hidden" id="rs_nome">
+                <input type="hidden" id="rs_max">
+                
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 text-xs mb-2">
+                    <p class="text-blue-600 font-bold uppercase tracking-wider text-[9px] mb-1">Material Selecionado:</p>
+                    <p id="rs_resumo" class="font-black text-blue-900"></p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Qtd Retirada *</label>
+                        <input type="number" id="rs_qtd" required min="1" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-black outline-none focus:border-blue-600 text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">OS Vinculada *</label>
+                        <input type="text" id="rs_os" required placeholder="Nº OS" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Destino (Cliente) *</label>
+                    <input type="text" id="rs_destino" required placeholder="Nome do Cliente" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
+                </div>
+                
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="window.fecharModais()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition">Confirmar Retirada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADICIONAR AO ESTOQUE RS (SÓ ADMIN) -->
+    <div id="modalAddRS" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+            <div class="bg-slate-800 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-emerald-400"></i> Abastecer Estoque RS</h3>
+                <button onclick="window.fecharModais()" class="text-slate-400 hover:text-white p-1 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form onsubmit="window.salvarEstoqueRS(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nome do Material/Peça *</label>
+                    <input type="text" id="add_rs_nome" required placeholder="Ex: Solvente V801" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-slate-800">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Quantidade Adicionada *</label>
+                    <input type="number" id="add_rs_qtd" required min="1" value="1" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-slate-800">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="window.fecharModais()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-md transition">Salvar no Estoque</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 transition-opacity">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
+    </div>
+
+    <script type="module" src="core.js"></script>
+
+    <script>
+        window.reqData = [];
+        window.rsStockData = [];
+        window.userEmailLogado = '';
+        window.userNameLogado = '';
+        let abaAtiva = 'minhas';
+
+        window.mostrarNotificacao = function(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
+            toast.classList.remove('hidden'); 
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        };
+
+        window.formatarDataBr = function(isoStr) {
+            if(!isoStr) return '-';
+            const p = isoStr.split('T')[0].split('-');
+            if(p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`;
+            return isoStr;
+        };
+
+        // INICIALIZAÇÃO
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content')?.classList.remove('hidden');
+
+            window.userEmailLogado = window.currentUser ? window.currentUser.email : '';
+            window.userNameLogado = window.nomeUsuarioLogado || window.userEmailLogado.split('@')[0];
+
+            if (window.userVisaoGlobal) {
+                document.getElementById('tab-btn-gestor').classList.remove('hidden');
+                document.getElementById('btn-add-rs').classList.remove('hidden');
+            }
+
+            // Banco de Requisições
+            const reqCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material');
+            window.fsOnSnapshot(reqCol, (snap) => {
+                window.reqData = [];
+                snap.forEach(d => window.reqData.push(d.data()));
+                window.reqData.sort((a,b) => b.timestamp - a.timestamp);
+                window.atualizarInterface();
+            });
+
+            // Banco Estoque RS
+            const rsCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_rs');
+            window.fsOnSnapshot(rsCol, (snap) => {
+                window.rsStockData = [];
+                snap.forEach(d => window.rsStockData.push(d.data()));
+                window.rsStockData.sort((a,b) => a.material.localeCompare(b.material));
+                window.renderAbaRS();
+            });
+        };
+
+        window.mudarAba = function(aba) {
+            abaAtiva = aba;
+            ['minhas', 'comigo', 'rs', 'gestor'].forEach(a => {
+                const btn = document.getElementById(`tab-btn-${a}`);
+                const div = document.getElementById(`tab-content-${a}`);
+                if(!btn || !div) return;
+
+                div.classList.add('hidden');
+                
+                if (a === 'minhas') btn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer";
+                else if (a === 'comigo') btn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer";
+                else if (a === 'rs') btn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer";
+                else btn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer hidden";
+                
+                // Keep the hidden rules for gestor
+                if (a === 'gestor' && !window.userVisaoGlobal) btn.classList.add('hidden');
+            });
+
+            const activeBtn = document.getElementById(`tab-btn-${aba}`);
+            document.getElementById(`tab-content-${aba}`).classList.remove('hidden');
+
+            if (aba === 'minhas') activeBtn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-amber-500 text-white shadow-sm cursor-pointer";
+            if (aba === 'comigo') activeBtn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-amber-600 text-white shadow-sm cursor-pointer";
+            if (aba === 'rs') activeBtn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-blue-600 text-white shadow-sm cursor-pointer";
+            if (aba === 'gestor') activeBtn.className = "relative px-5 py-2.5 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-sm cursor-pointer";
+
+            window.atualizarInterface();
+        };
+
+        window.atualizarInterface = function() {
+            // Badges e Alertas
+            const meuEmail = window.userEmailLogado;
+            const itensComigo = window.reqData.filter(i => i.autor_email === meuEmail && i.status === 'COM_TECNICO').length;
+            
+            const badgeComigo = document.getElementById('badge-comigo');
+            if(itensComigo > 0) { badgeComigo.innerText = itensComigo; badgeComigo.classList.remove('hidden'); }
+            else { badgeComigo.classList.add('hidden'); }
+
+            if (window.userVisaoGlobal) {
+                const pendentesGestor = window.reqData.filter(i => i.status === 'PENDENTE' || i.status === 'AGUARDANDO_DEVOLUCAO').length;
+                const badgeGestor = document.getElementById('badge-gestor');
+                if(pendentesGestor > 0) { badgeGestor.innerText = pendentesGestor; badgeGestor.classList.remove('hidden'); }
+                else { badgeGestor.classList.add('hidden'); }
+            }
+
+            if (abaAtiva === 'minhas') renderAbaMinhas();
+            if (abaAtiva === 'comigo') renderAbaComigo();
+            if (abaAtiva === 'gestor' && window.userVisaoGlobal) renderAbaGestor();
+            if (abaAtiva === 'rs') renderAbaRS();
+        };
+
+        // --- ABA: MINHAS REQUISIÇÕES ---
+        function renderAbaMinhas() {
+            const tb = document.getElementById('tb-minhas');
+            const meusPedidos = window.reqData.filter(i => i.autor_email === window.userEmailLogado && (i.status === 'PENDENTE' || i.status === 'REJEITADO' || i.filial === 'Matriz'));
+            
+            if (meusPedidos.length === 0) {
+                tb.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium">Você não possui pedidos recentes.</td></tr>`;
+                return;
+            }
+
+            tb.innerHTML = meusPedidos.map(i => {
+                let sClass = 'bg-slate-100 text-slate-600';
+                if(i.status === 'PENDENTE') sClass = 'bg-amber-100 text-amber-800';
+                if(i.status === 'COM_TECNICO') sClass = 'bg-blue-100 text-blue-800';
+                if(i.status === 'AGUARDANDO_DEVOLUCAO') sClass = 'bg-purple-100 text-purple-800';
+                if(i.status === 'UTILIZADO' || i.status === 'UTILIZADO_RS' || i.status === 'DEVOLVIDO') sClass = 'bg-emerald-100 text-emerald-800';
+                if(i.status === 'REJEITADO') sClass = 'bg-red-100 text-red-800 line-through opacity-70';
+
+                return `
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="p-4 text-slate-500">${window.formatarDataBr(i.data_solicitacao)}</td>
+                    <td class="p-4 font-bold text-slate-800">${i.material}</td>
+                    <td class="p-4 text-center font-black text-slate-700">${i.qtd}</td>
+                    <td class="p-4 text-slate-600">${i.destino}</td>
+                    <td class="p-4 text-center"><span class="px-2.5 py-1 text-[10px] font-bold rounded border border-white/20 ${sClass}">${i.status.replace('_', ' ')}</span></td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        // --- ABA: COMIGO (TÉCNICO) ---
+        function renderAbaComigo() {
+            const grid = document.getElementById('grid-comigo');
+            const itensComigo = window.reqData.filter(i => i.autor_email === window.userEmailLogado && i.status === 'COM_TECNICO');
+
+            if (itensComigo.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10 font-bold"><i class="fa-solid fa-box-open text-3xl mb-2 opacity-50 block"></i> Você não possui materiais pendentes de baixa.</div>`;
+                return;
+            }
+
+            grid.innerHTML = itensComigo.map(i => `
+                <div class="bg-white border-2 border-amber-300 rounded-2xl shadow-sm p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-200">Aprovado p/ Uso</span>
+                            <span class="text-xs font-black text-slate-400">${window.formatarDataBr(i.data_solicitacao)}</span>
+                        </div>
+                        <h4 class="text-base font-black text-slate-900">${i.material}</h4>
+                        <p class="text-[11px] text-slate-500 mt-1">Destino: <strong>${i.destino}</strong></p>
+                        <p class="text-xs font-black text-blue-700 mt-2 bg-blue-50 inline-block px-2 py-1 rounded">Qtd Autorizada: ${i.qtd}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                        <button onclick="window.abrirModalUso('${i.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow-sm">Utilizado (Baixa)</button>
+                        <button onclick="window.devolverMatriz('${i.id}')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-[11px] transition">Não usei (Devolver)</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- ABA: GESTOR ---
+        function renderAbaGestor() {
+            const tbPendentes = document.getElementById('tb-gestor-pendentes');
+            const tbDevolucoes = document.getElementById('tb-gestor-devolucoes');
+            const tbHistorico = document.getElementById('tb-gestor-historico');
+
+            const pendentes = window.reqData.filter(i => i.status === 'PENDENTE');
+            tbPendentes.innerHTML = pendentes.length ? pendentes.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-3 text-slate-500">${window.formatarDataBr(i.data_solicitacao)}</td>
+                    <td class="p-3 font-bold text-slate-800">${i.tecnico}</td>
+                    <td class="p-3 font-bold text-blue-700">${i.material}</td>
+                    <td class="p-3 text-center font-black">${i.qtd}</td>
+                    <td class="p-3 text-slate-600">${i.destino}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="window.alterarStatus('${i.id}', 'COM_TECNICO')" title="Aprovar e Liberar" class="bg-emerald-100 hover:bg-emerald-500 text-emerald-700 hover:text-white px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition"><i class="fa-solid fa-check"></i></button>
+                        <button onclick="window.alterarStatus('${i.id}', 'REJEITADO')" title="Rejeitar" class="bg-red-100 hover:bg-red-500 text-red-700 hover:text-white px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition"><i class="fa-solid fa-xmark"></i></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma requisição pendente.</td></tr>`;
+
+            const devolucoes = window.reqData.filter(i => i.status === 'AGUARDANDO_DEVOLUCAO');
+            tbDevolucoes.innerHTML = devolucoes.length ? devolucoes.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-3 text-slate-500">${window.formatarDataBr(i.data_solicitacao)}</td>
+                    <td class="p-3 font-bold text-slate-800">${i.tecnico}</td>
+                    <td class="p-3 font-bold text-purple-700">${i.material}</td>
+                    <td class="p-3 text-center font-black">${i.qtd}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="window.alterarStatus('${i.id}', 'DEVOLVIDO')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-sm">Confirmar Estorno</button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhum material aguardando devolução.</td></tr>`;
+
+            const historico = window.reqData.filter(i => i.status === 'UTILIZADO' || i.status === 'UTILIZADO_RS').slice(0, 50); // ultimos 50
+            tbHistorico.innerHTML = historico.length ? historico.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-3 text-slate-500">${window.formatarDataBr(i.data_atualizacao || i.data_solicitacao)}</td>
+                    <td class="p-3 font-bold text-slate-800">${i.tecnico} <span class="text-[9px] font-normal text-slate-400 block">${i.filial}</span></td>
+                    <td class="p-3 font-bold text-slate-700">${i.material}</td>
+                    <td class="p-3 text-center font-black">${i.qtd}</td>
+                    <td class="p-3 text-slate-600 truncate max-w-[150px]" title="${i.destino}">${i.destino}</td>
+                    <td class="p-3 font-black text-blue-700 bg-blue-50/30">${i.os || 'N/I'}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhum histórico recente.</td></tr>`;
+        }
+
+        // --- ABA: ESTOQUE RS ---
+        function renderAbaRS() {
+            const tb = document.getElementById('tb-rs');
+            
+            if (window.rsStockData.length === 0) {
+                tb.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium">Estoque RS vazio.</td></tr>`;
+                return;
+            }
+
+            tb.innerHTML = window.rsStockData.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="p-4 font-bold text-slate-800">${i.material}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-3 py-1 rounded-lg font-black text-sm ${i.qtd > 0 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-red-100 text-red-800 border border-red-200'}">${i.qtd}</span>
+                    </td>
+                    <td class="p-4 text-slate-500 text-[10px]">${i.atualizadoPor} em ${window.formatarDataBr(i.data_atualizacao)}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="window.abrirModalRetiradaRS('${i.id}')" ${i.qtd <= 0 ? 'disabled' : ''} class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm transition text-[10px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-hand-holding"></i> Retirar e Utilizar
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+
+        // ================= FUNÇÕES DE AÇÃO E MODAIS =================
+
+        window.fecharModais = function() {
+            document.getElementById('modalNovaReq').classList.add('hidden');
+            document.getElementById('modalBaixaOS').classList.add('hidden');
+            document.getElementById('modalAddRS').classList.add('hidden');
+            document.getElementById('modalRetiradaRS').classList.add('hidden');
+        };
+
+        // Solicitação Normal (Matriz)
+        window.abrirModalNovaReq = function() {
+            document.getElementById('req_material').value = '';
+            document.getElementById('req_qtd').value = '1';
+            document.getElementById('req_destino').value = '';
+            document.getElementById('modalNovaReq').classList.remove('hidden');
+        };
+
+        window.enviarRequisicao = async function(e) {
+            e.preventDefault();
+            const btn = e.submitter;
+            const original = btn.innerText;
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            const docId = 'req_' + Date.now();
+            const data = {
+                id: docId,
+                tecnico: window.userNameLogado,
+                autor_email: window.userEmailLogado,
+                filial: 'Matriz',
+                material: document.getElementById('req_material').value.trim(),
+                qtd: parseInt(document.getElementById('req_qtd').value),
+                destino: document.getElementById('req_destino').value.trim(),
+                status: 'PENDENTE',
+                data_solicitacao: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', docId), data);
+                window.mostrarNotificacao('Solicitação enviada para o Gestor!');
+                window.fecharModais();
+            } catch (err) { alert('Erro ao solicitar.'); }
+            
+            btn.innerText = original;
+            btn.disabled = false;
+        };
+
+        // Gestor Actions
+        window.alterarStatus = async function(id, novoStatus) {
+            const req = window.reqData.find(i => i.id === id);
+            if(!req) return;
+
+            const txtAlert = novoStatus === 'COM_TECNICO' ? 'Aprovar envio do material ao técnico?' : 
+                             novoStatus === 'DEVOLVIDO' ? 'Confirmar que o material retornou ao estoque matriz?' : 'Rejeitar solicitação?';
+
+            if(confirm(txtAlert)) {
+                req.status = novoStatus;
+                req.data_atualizacao = new Date().toISOString();
+                try {
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id), req);
+                    window.mostrarNotificacao('Status atualizado!');
+                } catch(e) {}
+            }
+        };
+
+        // Técnico Actions (Comigo)
+        window.devolverMatriz = async function(id) {
+            if(confirm('Tem certeza que não utilizou este material e vai devolvê-lo fisicamente ao gestor?')) {
+                const req = window.reqData.find(i => i.id === id);
+                req.status = 'AGUARDANDO_DEVOLUCAO';
+                req.data_atualizacao = new Date().toISOString();
+                try {
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id), req);
+                    window.mostrarNotificacao('Devolução solicitada. Entregue a peça ao Gestor.');
+                } catch(e) {}
+            }
+        };
+
+        window.abrirModalUso = function(id) {
+            const req = window.reqData.find(i => i.id === id);
+            if(!req) return;
+
+            document.getElementById('baixa_id').value = id;
+            document.getElementById('baixa_resumo').innerText = `${req.qtd}x ${req.material}`;
+            document.getElementById('baixa_os').value = '';
+            document.getElementById('modalBaixaOS').classList.remove('hidden');
+        };
+
+        window.confirmarUso = async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('baixa_id').value;
+            const osVal = document.getElementById('baixa_os').value.trim();
+
+            const req = window.reqData.find(i => i.id === id);
+            req.status = 'UTILIZADO';
+            req.os = osVal;
+            req.data_atualizacao = new Date().toISOString();
+
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id), req);
+                window.mostrarNotificacao('Baixa efetuada com sucesso!');
+                window.fecharModais();
+            } catch(err) { alert('Erro ao salvar.'); }
+        };
+
+        // RS Actions
+        window.abrirModalAddRS = function() {
+            document.getElementById('add_rs_nome').value = '';
+            document.getElementById('add_rs_qtd').value = '1';
+            document.getElementById('modalAddRS').classList.remove('hidden');
+        };
+
+        window.salvarEstoqueRS = async function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('add_rs_nome').value.trim();
+            const qtd = parseInt(document.getElementById('add_rs_qtd').value);
+
+            // Verifica se ja tem o item, senao cria
+            const itemExistente = window.rsStockData.find(i => i.material.toLowerCase() === nome.toLowerCase());
+            
+            const docId = itemExistente ? itemExistente.id : 'rs_' + Date.now();
+            const novaQtd = itemExistente ? (itemExistente.qtd + qtd) : qtd;
+
+            const data = {
+                id: docId,
+                material: nome,
+                qtd: novaQtd,
+                atualizadoPor: window.userNameLogado,
+                data_atualizacao: new Date().toISOString()
+            };
+
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_rs', docId), data);
+                window.mostrarNotificacao('Estoque RS atualizado!');
+                window.fecharModais();
+            } catch(e) {}
+        };
+
+        window.abrirModalRetiradaRS = function(id) {
+            const item = window.rsStockData.find(i => i.id === id);
+            if(!item || item.qtd <= 0) return;
+
+            document.getElementById('rs_id').value = item.id;
+            document.getElementById('rs_nome').value = item.material;
+            document.getElementById('rs_max').value = item.qtd;
+            
+            document.getElementById('rs_resumo').innerText = `Estoque Atual: ${item.qtd}x ${item.material}`;
+            document.getElementById('rs_qtd').value = '1';
+            document.getElementById('rs_qtd').max = item.qtd;
+            document.getElementById('rs_os').value = '';
+            document.getElementById('rs_destino').value = '';
+            
+            document.getElementById('modalRetiradaRS').classList.remove('hidden');
+        };
+
+        window.confirmarRetiradaRS = async function(e) {
+            e.preventDefault();
+            const idItemRS = document.getElementById('rs_id').value;
+            const nomeMat = document.getElementById('rs_nome').value;
+            const qtdRetirar = parseInt(document.getElementById('rs_qtd').value);
+            const osVal = document.getElementById('rs_os').value.trim();
+            const destinoVal = document.getElementById('rs_destino').value.trim();
+            
+            const maxPermitido = parseInt(document.getElementById('rs_max').value);
+
+            if(qtdRetirar > maxPermitido) { alert('Quantidade maior do que a disponível no estoque local!'); return; }
+
+            try {
+                // 1. Desconta do Estoque RS
+                const itemAtt = window.rsStockData.find(i => i.id === idItemRS);
+                itemAtt.qtd = itemAtt.qtd - qtdRetirar;
+                itemAtt.atualizadoPor = window.userNameLogado;
+                itemAtt.data_atualizacao = new Date().toISOString();
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_rs', idItemRS), itemAtt);
+
+                // 2. Cria log de requisição já finalizado (UTILIZADO_RS)
+                const logId = 'req_' + Date.now();
+                const logData = {
+                    id: logId,
+                    tecnico: window.userNameLogado,
+                    autor_email: window.userEmailLogado,
+                    filial: 'Filial RS',
+                    material: nomeMat,
+                    qtd: qtdRetirar,
+                    destino: destinoVal,
+                    os: osVal,
+                    status: 'UTILIZADO_RS',
+                    data_solicitacao: new Date().toISOString(),
+                    data_atualizacao: new Date().toISOString(),
+                    timestamp: Date.now()
+                };
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', logId), logData);
+
+                window.mostrarNotificacao('Retirada registrada com sucesso!');
+                window.fecharModais();
+            } catch(err) { alert('Erro ao processar retirada.'); }
+        };
+
+        window.exportarHistorico = async function() {
+            if (typeof ExcelJS === 'undefined') { alert('Carregando Excel...'); return; }
+            const dados = window.reqData;
+            if(dados.length === 0) { alert('Sem dados.'); return; }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Logística');
+
+            ws.columns = [
+                { header: 'Data Solicitação', key: 'd', width: 15 },
+                { header: 'Técnico', key: 't', width: 20 },
+                { header: 'Filial', key: 'f', width: 15 },
+                { header: 'Material', key: 'm', width: 25 },
+                { header: 'Qtd', key: 'q', width: 10 },
+                { header: 'Destino', key: 'dest', width: 30 },
+                { header: 'OS (Baixa)', key: 'os', width: 20 },
+                { header: 'Status Final', key: 's', width: 20 }
+            ];
+
+            ws.getRow(1).font = { bold: true };
+
+            dados.forEach(i => {
+                ws.addRow({
+                    d: window.formatarDataBr(i.data_solicitacao),
+                    t: i.tecnico,
+                    f: i.filial,
+                    m: i.material,
+                    q: i.qtd,
+                    dest: i.destino,
+                    os: i.os || '-',
+                    s: i.status
+                });
+            });
+
+            const buf = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buf]), `Logistica_Material_${Date.now()}.xlsx`);
+        };
+    </script>
+</body>
+</html>
