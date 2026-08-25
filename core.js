@@ -44,13 +44,20 @@ window.installPWA = async () => {
 const injectLayout = () => {
     if (document.querySelector('header')) return;
 
-    // ESTILOS DO MENU SECRETO DA DIRETORIA
+    // ESTILOS GLOBAIS (DIRETORIA SECRETA + ANIMAÇÃO DE ALERTA)
     const style = document.createElement('style');
     style.innerHTML = `
         #cat-diretoria { display: none !important; }
         body.diretoria-unlocked #cat-diretoria { display: flex !important; }
         .mobile-secret { display: none !important; }
         body.diretoria-unlocked .mobile-secret { display: flex !important; }
+        
+        .pulse-alert-global { animation: pulse-yellow-global 1.5s infinite; }
+        @keyframes pulse-yellow-global {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
     `;
     document.head.appendChild(style);
 
@@ -91,6 +98,19 @@ const injectLayout = () => {
         </div>
     </div>
 
+    <!-- ALERTA GLOBAL AMARELO (NOVA SOLICITAÇÃO DE MAQUINAS) -->
+    <div id="global-yellow-alert" class="hidden fixed top-0 inset-x-0 z-[99999] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 px-4 py-3 font-extrabold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-between shadow-2xl pulse-alert-global border-b-4 border-amber-600 gap-3">
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+            <div class="w-8 h-8 bg-amber-900 text-amber-400 rounded-full flex items-center justify-center shrink-0 animate-bounce">
+                <i class="fa-solid fa-bell text-lg"></i>
+            </div>
+            <span id="global-yellow-alert-text">Nova solicitação recebida!</span>
+        </div>
+        <button onclick="window.marcarAlertaCiente()" class="w-full sm:w-auto px-6 py-2 bg-amber-900 text-amber-100 rounded-xl text-xs font-black shadow-md hover:bg-amber-950 transition cursor-pointer shrink-0 uppercase tracking-widest">
+            OK, Ciente
+        </button>
+    </div>
+
     <!-- CABEÇALHO SUPERIOR FIXO -->
     <header class="bg-[#0f172a] text-white shadow-md border-b border-slate-800 sticky top-0 z-[9990] h-16 shrink-0 w-full no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
@@ -105,7 +125,6 @@ const injectLayout = () => {
                             </svg>
                         </div>
                         <div class="flex flex-col justify-center hidden sm:flex">
-                            <!-- BOTÃO SECRETO AQUI (id="secret-trigger-btn") -->
                             <span id="secret-trigger-btn" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 cursor-pointer select-none transition hover:bg-amber-900">COMERCIAL & GESTÃO</span>
                             <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Verificando...</span>
                         </div>
@@ -145,13 +164,14 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- ESTOQUE -->
+                    <!-- ESTOQUE E LOGÍSTICA -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-estoque">
-                        <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-cyan-400"></i> Estoque <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
-                        <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
-                            <div class="p-2 flex flex-col gap-1 text-slate-800">
-                                <a href="estoque-novos.html" data-module="estoque-novos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Novos</h4></div></a>
-                                <a href="estoque.html" data-module="estoque.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Usados/Geral</h4></div></a>
+                        <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-cyan-400"></i> Logística <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
+                        <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
+                            <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
+                                <a href="requisicao_material.html" data-module="requisicao_material.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-toolbox"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Req. de Material</h4><p class="text-[10px] text-slate-500">Aprovação/Baixas</p></div></a>
+                                <a href="estoque-novos.html" data-module="estoque-novos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Novos</h4><p class="text-[10px] text-slate-500">Máquinas Faturamento</p></div></a>
+                                <a href="estoque.html" data-module="estoque.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Geral</h4><p class="text-[10px] text-slate-500">Usados e Demonstração</p></div></a>
                             </div>
                         </div>
                     </div>
@@ -184,7 +204,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- DIRETORIA (SECRETO) -->
+                    <!-- DIRETORIA SECRETO -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-diretoria">
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-vault text-amber-500"></i> Diretoria <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 right-0 mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
@@ -226,9 +246,7 @@ const injectLayout = () => {
 
     document.body.insertAdjacentHTML('afterbegin', layoutHTML);
 
-    // ==========================================
     // LÓGICA DO BOTÃO SECRETO (KONAMI CODE)
-    // ==========================================
     let secretClicks = 0;
     let secretTimeout;
     const secretBtn = document.getElementById('secret-trigger-btn');
@@ -237,14 +255,10 @@ const injectLayout = () => {
         secretBtn.addEventListener('click', () => {
             secretClicks++;
             clearTimeout(secretTimeout);
-            
-            // Reseta a contagem se demorar mais que 1 segundo
             secretTimeout = setTimeout(() => { secretClicks = 0; }, 1000);
-            
-            // Se clicar 3 vezes rápidas
             if (secretClicks >= 3) {
                 document.body.classList.toggle('diretoria-unlocked');
-                secretClicks = 0; // zera para próxima tentativa
+                secretClicks = 0;
             }
         });
     }
@@ -264,7 +278,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Ativando a Persistência de Dados Offline no Firebase V11
 let db;
 try {
     db = initializeFirestore(app, {
@@ -291,6 +304,7 @@ const globalModulesMap = [
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
     { name: 'Documentos Oficiais', url: 'tabelas.html', icon: 'fa-file-pdf text-amber-600' },
     { name: 'Ranking de Vendas', url: 'ranking.html', icon: 'fa-trophy text-orange-500' },
+    { name: 'Req. de Material', url: 'requisicao_material.html', icon: 'fa-toolbox text-amber-600' },
     { name: 'Estoque Novos', url: 'estoque-novos.html', icon: 'fa-boxes-stacked text-cyan-600' },
     { name: 'Estoque Usados/Geral', url: 'estoque.html', icon: 'fa-box-open text-slate-600' },
     { name: 'Lista de Solicitações', url: 'solicitacoes-lista.html', icon: 'fa-list-check text-orange-600' },
@@ -316,7 +330,6 @@ window.filterGlobalModules = function() {
                              .filter(a => a.style.display !== 'none')
                              .map(a => a.getAttribute('href'));
 
-    // Inclui sempre o módulo secreto de diretoria na busca SE ele estiver destrancado na tela
     if (document.body.classList.contains('diretoria-unlocked')) {
         allowedUrls.push('diretoria-custos.html');
     }
@@ -407,7 +420,6 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
         const linksInside = Array.from(cat.querySelectorAll('a.nav-item'));
         const hasVisibleLink = linksInside.some(l => l.style.display !== 'none');
         
-        // Mantém a categoria sempre visível SE ela tiver um link visível (e que não seja o menu diretoria)
         if (hasVisibleLink && cat.id !== 'cat-diretoria') cat.style.display = 'flex';
         else if (cat.id !== 'cat-diretoria') cat.style.display = 'none';
     });
@@ -426,6 +438,76 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
 
     const badgeTop = document.getElementById('user-role-badge-top');
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
+};
+
+// ==========================================
+// RADAR GLOBAL: ALERTA DE SOLICITAÇÃO NOVA
+// ==========================================
+window.tocarSomAlerta = function() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); // Efeito "Ding-Ding"
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    } catch(e) { console.warn("Áudio bloqueado pelo navegador."); }
+};
+
+window.dispararAlertaGlobal = function(msg, tocarSom) {
+    if (tocarSom) window.tocarSomAlerta();
+    const banner = document.getElementById('global-yellow-alert');
+    const txt = document.getElementById('global-yellow-alert-text');
+    if(banner && txt) {
+        txt.innerText = msg;
+        banner.classList.remove('hidden');
+    }
+};
+
+window.marcarAlertaCiente = function() {
+    if (window.pendingSolicTime) {
+        localStorage.setItem('cij_last_solic_time', window.pendingSolicTime.toString());
+    }
+    document.getElementById('global-yellow-alert').classList.add('hidden');
+};
+
+window.iniciarMonitoramentoAlertas = function() {
+    const colSolic = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes');
+    let lastSeenSolic = parseInt(localStorage.getItem('cij_last_solic_time') || '0');
+    let initialLoad = true;
+    
+    window.fsOnSnapshot(colSolic, (snap) => {
+        let maxTime = lastSeenSolic;
+        let hasNew = false;
+        let qtdNew = 0;
+        let latestMsg = "";
+
+        snap.docChanges().forEach(change => {
+            const d = change.doc.data();
+            const ts = d.timestamp || (d.data_registro ? new Date(d.data_registro).getTime() : 0);
+            
+            if (ts > lastSeenSolic) {
+                hasNew = true;
+                qtdNew++;
+                if (ts > maxTime) maxTime = ts;
+                latestMsg = `Nova solicitação de máquina enviada por ${d.comercial?.vendedor || 'Vendedor'}!`;
+            }
+        });
+
+        if (hasNew) {
+            window.pendingSolicTime = maxTime;
+            const finalMsg = qtdNew > 1 ? `${qtdNew} Novas Solicitações de Máquinas!` : latestMsg;
+            window.dispararAlertaGlobal(finalMsg, !initialLoad); 
+        }
+        initialLoad = false;
+    });
 };
 
 onAuthStateChanged(auth, async (user) => {
@@ -452,7 +534,8 @@ onAuthStateChanged(auth, async (user) => {
                 'ranking.html': true, 
                 'solicitacoes-lista.html': true,
                 'vendas.html': true,
-                'servicos_osr.html': true
+                'servicos_osr.html': true,
+                'requisicao_material.html': true
             };
         }
 
@@ -469,6 +552,7 @@ onAuthStateChanged(auth, async (user) => {
         window.nomeUsuarioLogado = dbUser.nome;
         
         const isAdminTotal = dbUser.perfil === 'Admin';
+        const isFinanceiro = dbUser.perfil === 'Financeiro';
         const vg = dbUser.visaoGlobalPorTela || {};
         
         window.userVisaoDespesas = isAdminTotal || vg['despesas.html'] === true || vg.despesas === true;
@@ -476,10 +560,15 @@ onAuthStateChanged(auth, async (user) => {
         window.userVisaoVeiculos = isAdminTotal || vg['veiculos.html'] === true || vg['veiculos_mobile.html'] === true || vg.veiculos === true;
         window.userVisaoRanking = isAdminTotal || vg['ranking.html'] === true || vg.ranking === true;
         window.userVisaoSolicitacoes = isAdminTotal || vg['solicitacoes-lista.html'] === true || vg.solicitacoes === true;
-        window.userVisaoGlobal = isAdminTotal || vg['servicos_osr.html'] === true;
+        window.userVisaoGlobal = isAdminTotal || vg['servicos_osr.html'] === true || vg['requisicao_material.html'] === true;
 
         window.aplicarPermissoesDeModulos(dbUser);
         
+        // Ativa o Radar de Alertas para Admin e Financeiro
+        if (isAdminTotal || isFinanceiro) {
+            window.iniciarMonitoramentoAlertas();
+        }
+
         if (typeof window.initModule === 'function') window.initModule(dbUser.perfil);
     } else {
         if(loginScreen) loginScreen.classList.remove('hidden');

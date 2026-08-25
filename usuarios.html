@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Usuários - Portal CIJ</title>
     
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -99,10 +100,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT MOTOR -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA DE USUÁRIOS -->
     <script>
         window.listaDeUsuarios = [];
         let editingUserId = null;
@@ -118,6 +117,7 @@
             { id: 'solicitacoes-lista.html', nome: 'Lista de Solicitações', cat: 'Administrativo' },
             { id: 'tabelas.html', nome: 'Documentos Oficiais', cat: 'Comercial' },
             { id: 'ranking.html', nome: 'Ranking de Vendas', cat: 'Comercial' },
+            { id: 'requisicao_material.html', nome: 'Req. de Material (Logística)', cat: 'Estoque' },
             { id: 'estoque.html', nome: 'Estoque Usados/Geral', cat: 'Estoque' },
             { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Estoque' },
             { id: 'vendas.html', nome: 'Vendas (Saídas)', cat: 'Administrativo' },
