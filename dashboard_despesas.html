@@ -37,7 +37,6 @@
                 <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">PORTAL GRUPO CIJ</h1>
                 <p id="login-message" class="text-xs font-semibold text-slate-500">Sincronizando com o banco de dados...</p>
             </div>
-            <!-- Auth Form mantido para estrutura do core, se necessário -->
             <form id="auth-form" class="space-y-4 text-left hidden" onsubmit="handleLogin(event)">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail Corporativo</label>
@@ -431,6 +430,28 @@
                 icon.classList.remove('rotate-180');
             }
         };
+
+        // FUNÇÃO DE PERMISSÕES PARA DESTRAVAR O MENU (Requisito do Core)
+        window.verificarPermissoesUsuario = function(isAdmin, isTecnico, isVendedor, nomeUsuario) {
+            const badgeTop = document.getElementById('user-role-badge-top');
+            const txt = (isAdmin ? 'Admin / Financeiro' : (isTecnico ? 'Técnico' : (isVendedor ? 'Vendedor' : 'Acesso Restrito')));
+            if(badgeTop) badgeTop.innerText = txt + ' • ' + nomeUsuario;
+            
+            const showTecnica = isAdmin || isTecnico;
+            const showVendas = isAdmin || isVendedor;
+            const showAdmin = isAdmin;
+            const showFin = isAdmin;
+
+            document.getElementById('top-nav-tecnica')?.classList.toggle('hidden', !showTecnica);
+            document.getElementById('top-nav-vendas')?.classList.toggle('hidden', !showVendas);
+            document.getElementById('top-nav-admin')?.classList.toggle('hidden', !showAdmin);
+            document.getElementById('top-nav-financeiro')?.classList.toggle('hidden', !showFin);
+
+            document.getElementById('mob-tecnica')?.classList.toggle('hidden', !showTecnica);
+            document.getElementById('mob-vendas')?.classList.toggle('hidden', !showVendas);
+            document.getElementById('mob-admin')?.classList.toggle('hidden', !showAdmin);
+            document.getElementById('mob-financeiro')?.classList.toggle('hidden', !showFin);
+        };
     </script>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
@@ -452,7 +473,7 @@
         window.tablePerPage = 10;
         window.filteredTableData = [];
 
-        // EXTRATORES BLINDADOS
+        // EXTRATORES BLINDADOS DO PADRÃO CORE
         window.parseMoney = function(val) {
             if (typeof val === 'number') return val;
             if (!val) return 0;
