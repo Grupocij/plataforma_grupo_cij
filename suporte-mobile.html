@@ -98,6 +98,12 @@
                 <textarea id="osr_solucao" required rows="2" placeholder="Parecer e procedimento realizado pelo técnico..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-2xl text-xs font-medium text-slate-900 outline-none focus:border-blue-600 transition resize-none"></textarea>
             </div>
 
+            <!-- NOVO CAMPO: Peças Necessárias -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Peças Necessárias / Utilizadas (Opcional)</label>
+                <textarea id="osr_pecas" rows="2" placeholder="Ex: Filtro principal, Válvula de 3 vias..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-2xl text-xs font-medium text-slate-900 outline-none focus:border-blue-600 transition resize-none"></textarea>
+            </div>
+
             <!-- BOTÃO DE CONCLUSÃO COM AS 3 OPÇÕES -->
             <div class="pt-2">
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Conclusão / Status do Atendimento *</label>
@@ -245,6 +251,7 @@
                         <p class="text-xs font-bold text-slate-800"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${item.maquina}</p>
                         <p class="text-[11px] text-slate-600"><strong>Defeito:</strong> ${item.defeito}</p>
                         <p class="text-[11px] text-slate-600"><strong>Parecer Técnico:</strong> ${item.solucao}</p>
+                        ${item.pecas ? `<p class="text-[11px] text-slate-600"><strong>Peças:</strong> ${item.pecas}</p>` : ''}
                         <div class="pt-1 flex items-center justify-between text-[10px]">
                             <span class="text-slate-500">Técnico: ${item.tecnico}</span>
                             <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">${item.conclusao}</span>
@@ -282,6 +289,7 @@
                 maquina: document.getElementById('osr_maquina').value,
                 defeito: document.getElementById('osr_defeito').value,
                 solucao: document.getElementById('osr_solucao').value,
+                pecas: document.getElementById('osr_pecas').value.trim(),
                 conclusao: document.getElementById('osr_conclusao').value,
                 data_formatada: new Date().toLocaleString('pt-BR'),
                 autor_email: window.currentUser ? window.currentUser.email : ''
@@ -310,15 +318,21 @@
                 });
 
                 if (enviarWhatsApp) {
-                    const msgWhatsApp = `*RELATÓRIO DE SUPORTE - OSR* %0A` +
+                    let msgWhatsApp = `*RELATÓRIO DE SUPORTE - OSR* %0A` +
                                         `*OSR:* ${dados.osr} %0A` +
                                         `*Técnico:* ${dados.tecnico} %0A` +
                                         `*Cliente:* ${dados.cliente} %0A` +
                                         `*Contato:* ${dados.contato} %0A` +
                                         `*Máquina:* ${dados.maquina} %0A` +
                                         `*Defeito:* ${dados.defeito} %0A` +
-                                        `*Parecer Técnico:* ${dados.solucao} %0A` +
-                                        `*Status:* ${dados.conclusao}`;
+                                        `*Parecer Técnico:* ${dados.solucao} %0A`;
+                    
+                    if (dados.pecas) {
+                        msgWhatsApp += `*Peças Utilizadas/Necessárias:* ${dados.pecas} %0A`;
+                    }
+                    
+                    msgWhatsApp += `*Status:* ${dados.conclusao}`;
+                    
                     window.open(`https://api.whatsapp.com/send?text=${msgWhatsApp}`, '_blank');
                 } else {
                     alert(`Atendimento ${dados.osr} salvo com sucesso no sistema!`);
