@@ -4,7 +4,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// REGISTRO DO SERVICE WORKER E MANIFESTO (PWA / OFFLINE)
 if (!document.querySelector('link[rel="manifest"]')) {
     const manifestLink = document.createElement('link');
     manifestLink.rel = 'manifest';
@@ -18,7 +17,6 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// LÓGICA DO BOTÃO "INSTALAR APP"
 window.deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -44,7 +42,6 @@ window.installPWA = async () => {
 const injectLayout = () => {
     if (document.querySelector('header')) return;
 
-    // ESTILOS GLOBAIS (DIRETORIA SECRETA + ANIMAÇÃO DE ALERTA)
     const style = document.createElement('style');
     style.innerHTML = `
         #cat-diretoria { display: none !important; }
@@ -125,6 +122,7 @@ const injectLayout = () => {
                             </svg>
                         </div>
                         <div class="flex flex-col justify-center hidden sm:flex">
+                            <!-- BOTÃO SECRETO AQUI -->
                             <span id="secret-trigger-btn" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 cursor-pointer select-none transition hover:bg-amber-900">COMERCIAL & GESTÃO</span>
                             <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Verificando...</span>
                         </div>
@@ -186,6 +184,7 @@ const injectLayout = () => {
                                 <a href="vendas.html" data-module="vendas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-cart-shopping"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Vendas (Saídas)</h4></div></a>
                                 <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Diretoria</h4></div></a>
                                 <a href="usuarios.html" data-module="usuarios.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid fa-users-gear"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gerenciar Usuários</h4></div></a>
+                                <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central de Cadastros</h4></div></a>
                             </div>
                         </div>
                     </div>
@@ -278,6 +277,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Persistência de Dados Offline (Nativo)
 let db;
 try {
     db = initializeFirestore(app, {
@@ -312,6 +312,7 @@ const globalModulesMap = [
     { name: 'Vendas (Saídas)', url: 'vendas.html', icon: 'fa-cart-shopping text-rose-600' },
     { name: 'Painel Diretoria', url: 'admin.html', icon: 'fa-shield-halved text-purple-600' },
     { name: 'Gerenciar Usuários', url: 'usuarios.html', icon: 'fa-users-gear text-slate-800' },
+    { name: 'Central de Cadastros', url: 'central_cadastros.html', icon: 'fa-database text-blue-600' },
     { name: 'Controle de Despesas', url: 'despesas.html', icon: 'fa-receipt text-sky-600' },
     { name: 'Dashboard Gerencial', url: 'dashboard_despesas.html', icon: 'fa-chart-pie text-emerald-700' },
     { name: 'Comissões Azul', url: 'comissoes-azul.html', icon: 'fa-chart-line text-indigo-600' },
@@ -453,7 +454,7 @@ window.tocarSomAlerta = function() {
         gain.connect(ctx.destination);
         osc.type = 'sine';
         osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); // Efeito "Ding-Ding"
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); 
         gain.gain.setValueAtTime(0.5, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
         osc.start();
@@ -535,7 +536,8 @@ onAuthStateChanged(auth, async (user) => {
                 'solicitacoes-lista.html': true,
                 'vendas.html': true,
                 'servicos_osr.html': true,
-                'requisicao_material.html': true
+                'requisicao_material.html': true,
+                'central_cadastros.html': true
             };
         }
 
@@ -564,7 +566,6 @@ onAuthStateChanged(auth, async (user) => {
 
         window.aplicarPermissoesDeModulos(dbUser);
         
-        // Ativa o Radar de Alertas para Admin e Financeiro
         if (isAdminTotal || isFinanceiro) {
             window.iniciarMonitoramentoAlertas();
         }
