@@ -95,13 +95,13 @@ const injectLayout = () => {
         </div>
     </div>
 
-    <!-- ALERTA GLOBAL AMARELO (NOVA SOLICITAÇÃO DE MAQUINAS) -->
+    <!-- ALERTA GLOBAL (DIRECIONADO) -->
     <div id="global-yellow-alert" class="hidden fixed top-0 inset-x-0 z-[99999] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 px-4 py-3 font-extrabold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-between shadow-2xl pulse-alert-global border-b-4 border-amber-600 gap-3">
         <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
             <div class="w-8 h-8 bg-amber-900 text-amber-400 rounded-full flex items-center justify-center shrink-0 animate-bounce">
                 <i class="fa-solid fa-bell text-lg"></i>
             </div>
-            <span id="global-yellow-alert-text">Nova solicitação recebida!</span>
+            <span id="global-yellow-alert-text">Nova notificação!</span>
         </div>
         <button onclick="window.marcarAlertaCiente()" class="w-full sm:w-auto px-6 py-2 bg-amber-900 text-amber-100 rounded-xl text-xs font-black shadow-md hover:bg-amber-950 transition cursor-pointer shrink-0 uppercase tracking-widest">
             OK, Ciente
@@ -122,7 +122,6 @@ const injectLayout = () => {
                             </svg>
                         </div>
                         <div class="flex flex-col justify-center hidden sm:flex">
-                            <!-- BOTÃO SECRETO AQUI -->
                             <span id="secret-trigger-btn" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 cursor-pointer select-none transition hover:bg-amber-900">COMERCIAL & GESTÃO</span>
                             <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Verificando...</span>
                         </div>
@@ -143,7 +142,7 @@ const injectLayout = () => {
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
                                 <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo Chamado Mobile</p></div></a>
-                                <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de Atendimentos</p></div></a>
+                                <a href="serviceflow_app.html" data-module="serviceflow_app.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-columns"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">ServiceFlow Kanban</h4><p class="text-[10px] text-slate-500">Gestão Integrada OSR</p></div></a>
                                 <a href="veiculos_mobile.html" data-module="veiculos_mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-car"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Mobile</h4><p class="text-[10px] text-slate-500">Retirada da frota</p></div></a>
                             </div>
                         </div>
@@ -184,7 +183,7 @@ const injectLayout = () => {
                                 <a href="vendas.html" data-module="vendas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-cart-shopping"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Vendas (Saídas)</h4></div></a>
                                 <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Diretoria</h4></div></a>
                                 <a href="usuarios.html" data-module="usuarios.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid fa-users-gear"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gerenciar Usuários</h4></div></a>
-                                <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central de Cadastros</h4></div></a>
+                                <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central Cadastros</h4></div></a>
                             </div>
                         </div>
                     </div>
@@ -245,7 +244,6 @@ const injectLayout = () => {
 
     document.body.insertAdjacentHTML('afterbegin', layoutHTML);
 
-    // LÓGICA DO BOTÃO SECRETO (KONAMI CODE)
     let secretClicks = 0;
     let secretTimeout;
     const secretBtn = document.getElementById('secret-trigger-btn');
@@ -277,7 +275,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Persistência de Dados Offline (Nativo)
 let db;
 try {
     db = initializeFirestore(app, {
@@ -298,7 +295,7 @@ window.fsGetDocs = getDocs;
 
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
-    { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
+    { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-indigo-500' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -441,9 +438,11 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
 };
 
-// ==========================================
-// RADAR GLOBAL: ALERTA DE SOLICITAÇÃO NOVA
-// ==========================================
+
+// ==============================================================
+// RADAR GLOBAL: SISTEMA DE NOTIFICAÇÕES DIRECIONADAS (NOVO)
+// ==============================================================
+
 window.tocarSomAlerta = function() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -473,41 +472,70 @@ window.dispararAlertaGlobal = function(msg, tocarSom) {
 };
 
 window.marcarAlertaCiente = function() {
-    if (window.pendingSolicTime) {
-        localStorage.setItem('cij_last_solic_time', window.pendingSolicTime.toString());
+    if (window.pendingNotifTime) {
+        localStorage.setItem('cij_last_notif_time', window.pendingNotifTime.toString());
     }
     document.getElementById('global-yellow-alert').classList.add('hidden');
 };
 
-window.iniciarMonitoramentoAlertas = function() {
-    const colSolic = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'solicitacoes');
-    let lastSeenSolic = parseInt(localStorage.getItem('cij_last_solic_time') || '0');
-    let initialLoad = true;
+/**
+ * Função Universal para enviar uma notificação para um Usuário ou Grupo.
+ * @param {string} mensagem - Texto do alerta
+ * @param {Array} alvo_usuarios - Array com os e-mails exatos de quem deve receber (Ex: ['anderson@grupocij.com.br'])
+ * @param {Array} alvo_perfis - Array com os perfis de quem deve receber (Ex: ['Comercial', 'Admin'])
+ */
+window.enviarNotificacaoApp = async function(mensagem, alvo_usuarios = [], alvo_perfis = [], tipo = 'info') {
+    try {
+        const docId = 'notif_' + Date.now() + Math.floor(Math.random() * 1000);
+        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app', docId), {
+            id: docId,
+            mensagem: mensagem,
+            alvo_usuarios: alvo_usuarios,
+            alvo_perfis: alvo_perfis,
+            lida_por: [],
+            timestamp: Date.now(),
+            tipo: tipo
+        });
+    } catch(e) { console.error("Erro ao enviar notificação", e); }
+};
+
+window.iniciarRadarNotificacoes = function(dbUser) {
+    const colRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app');
     
-    window.fsOnSnapshot(colSolic, (snap) => {
-        let maxTime = lastSeenSolic;
+    let isInitialLoad = true;
+    let lastNotifTime = parseInt(localStorage.getItem('cij_last_notif_time') || (Date.now() - 86400000).toString());
+
+    window.fsOnSnapshot(colRef, (snap) => {
         let hasNew = false;
-        let qtdNew = 0;
         let latestMsg = "";
+        let maxTime = lastNotifTime;
 
         snap.docChanges().forEach(change => {
-            const d = change.doc.data();
-            const ts = d.timestamp || (d.data_registro ? new Date(d.data_registro).getTime() : 0);
-            
-            if (ts > lastSeenSolic) {
-                hasNew = true;
-                qtdNew++;
-                if (ts > maxTime) maxTime = ts;
-                latestMsg = `Nova solicitação de máquina enviada por ${d.comercial?.vendedor || 'Vendedor'}!`;
+            if (change.type === 'added' || change.type === 'modified') {
+                const d = change.doc.data();
+                
+                // Ignora se for antiga ou se este usuário já tiver marcado como lida no banco (futuro)
+                if (d.timestamp <= lastNotifTime) return;
+                if (d.lida_por && d.lida_por.includes(dbUser.email)) return;
+
+                // Verifica a inteligência de alvos
+                const isTargetUser = d.alvo_usuarios && d.alvo_usuarios.includes(dbUser.email);
+                const isTargetProfile = d.alvo_perfis && d.alvo_perfis.includes(dbUser.perfil);
+                const isGlobal = (!d.alvo_usuarios || d.alvo_usuarios.length === 0) && (!d.alvo_perfis || d.alvo_perfis.length === 0);
+
+                if (isTargetUser || isTargetProfile || isGlobal) {
+                    hasNew = true;
+                    if (d.timestamp > maxTime) maxTime = d.timestamp;
+                    latestMsg = d.mensagem;
+                }
             }
         });
 
-        if (hasNew) {
-            window.pendingSolicTime = maxTime;
-            const finalMsg = qtdNew > 1 ? `${qtdNew} Novas Solicitações de Máquinas!` : latestMsg;
-            window.dispararAlertaGlobal(finalMsg, !initialLoad); 
+        if (hasNew && !isInitialLoad) {
+            window.dispararAlertaGlobal(latestMsg, true);
+            window.pendingNotifTime = maxTime;
         }
-        initialLoad = false;
+        isInitialLoad = false;
     });
 };
 
@@ -536,6 +564,7 @@ onAuthStateChanged(auth, async (user) => {
                 'solicitacoes-lista.html': true,
                 'vendas.html': true,
                 'servicos_osr.html': true,
+                'serviceflow_app.html': true,
                 'requisicao_material.html': true,
                 'central_cadastros.html': true
             };
@@ -554,7 +583,6 @@ onAuthStateChanged(auth, async (user) => {
         window.nomeUsuarioLogado = dbUser.nome;
         
         const isAdminTotal = dbUser.perfil === 'Admin';
-        const isFinanceiro = dbUser.perfil === 'Financeiro';
         const vg = dbUser.visaoGlobalPorTela || {};
         
         window.userVisaoDespesas = isAdminTotal || vg['despesas.html'] === true || vg.despesas === true;
@@ -562,13 +590,12 @@ onAuthStateChanged(auth, async (user) => {
         window.userVisaoVeiculos = isAdminTotal || vg['veiculos.html'] === true || vg['veiculos_mobile.html'] === true || vg.veiculos === true;
         window.userVisaoRanking = isAdminTotal || vg['ranking.html'] === true || vg.ranking === true;
         window.userVisaoSolicitacoes = isAdminTotal || vg['solicitacoes-lista.html'] === true || vg.solicitacoes === true;
-        window.userVisaoGlobal = isAdminTotal || vg['servicos_osr.html'] === true || vg['requisicao_material.html'] === true;
+        window.userVisaoGlobal = isAdminTotal || vg['servicos_osr.html'] === true || vg['serviceflow_app.html'] === true || vg['requisicao_material.html'] === true;
 
         window.aplicarPermissoesDeModulos(dbUser);
         
-        if (isAdminTotal || isFinanceiro) {
-            window.iniciarMonitoramentoAlertas();
-        }
+        // Ativa o Radar de Notificações Inteligentes
+        window.iniciarRadarNotificacoes(dbUser);
 
         if (typeof window.initModule === 'function') window.initModule(dbUser.perfil);
     } else {
