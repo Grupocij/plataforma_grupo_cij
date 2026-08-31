@@ -578,21 +578,6 @@
                 <p class="text-xs text-slate-600 font-medium">Selecione equipes inteiras ou indivíduos específicos para receber alertas na tela em cada etapa da jornada de um chamado.</p>
                 
                 <div class="space-y-4">
-                    <!-- Bloco: Novo Chamado -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando um <span class="text-blue-600">Novo Chamado</span> for aberto:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
-                                <div id="cfg_novo_chamado_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
-                                <div id="cfg_novo_chamado_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Bloco: Triagem -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-amber-600">Triagem Técnica</span>:</label>
@@ -675,7 +660,6 @@
 
         // Configurações de Alerta (Nova Estrutura Dinâmica)
         window.alertConfigs = {
-            novo_chamado: { perfis: [], usuarios: [] },
             triagem: { perfis: [], usuarios: [] },
             orcamento: { perfis: [], usuarios: [] }
         };
@@ -733,7 +717,7 @@
             window.fsOnSnapshot(window.fsDoc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
-                    ['novo_chamado', 'triagem', 'orcamento'].forEach(evt => {
+                    ['triagem', 'orcamento'].forEach(evt => {
                         if (Array.isArray(data[evt])) {
                             // Legado: migra array antigo para o novo formato de objeto
                             window.alertConfigs[evt] = { perfis: data[evt], usuarios: [] };
@@ -790,7 +774,7 @@
 
         // RENDERS DE ALERTA DINÂMICOS
         window.renderAlertasConfigUI = function() {
-            const events = ['novo_chamado', 'triagem', 'orcamento'];
+            const events = ['triagem', 'orcamento'];
             const perfis = Array.from(window.allProfilesDB).sort();
             
             events.forEach(evt => {
@@ -846,7 +830,7 @@
         };
 
         window.saveConfigModal = async function() {
-            const events = ['novo_chamado', 'triagem', 'orcamento'];
+            const events = ['triagem', 'orcamento'];
             const newConfig = {};
 
             events.forEach(evt => {
@@ -1390,10 +1374,19 @@
             const newTicket = {
                 id: newId, osr: newId,
                 status_kanban: 'ENTRADA', conclusao: 'Pendente',
-                cliente: { name: cliName, city: document.getElementById('new-cli-city').value.trim(), contact: document.getElementById('new-cli-contato').value.trim(), phone: document.getElementById('new-cli-tel').value.trim() },
-                equipment: { model: eqModelo, serial: eqSerial },
-                request: { problem: problem, procedures: document.getElementById('new-procedures').value.trim(), materiais: document.getElementById('new-materials').value.trim(), isPresencial: false },
-                assignee: window.currentUserStr, nextAction: 'Triagem Inicial',
+                cliente: cliName,
+                cidade: document.getElementById('new-cli-city').value.trim(),
+                contato: document.getElementById('new-cli-contato').value.trim(),
+                telefone: document.getElementById('new-cli-tel').value.trim(),
+                maquina: eqModelo,
+                serial: eqSerial,
+                defeito: problem,
+                solucao: document.getElementById('new-procedures').value.trim(),
+                pecas: document.getElementById('new-materials').value.trim(),
+                isPresencial: false,
+                tecnico_kanban: window.currentUserStr,
+                tecnico: window.currentUserStr,
+                nextAction: 'Triagem Inicial',
                 history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado aberto via ServiceFlow.' }],
                 timestamp: Date.now(), data_formatada: new Date().toLocaleDateString('pt-BR')
             };
@@ -1403,9 +1396,6 @@
                 document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
                 window.closeNewTicketModal();
                 window.showToast(`Chamado ${newId} cadastrado!`, 'success');
-                
-                // Dispara alerta usando as Novas Configurações
-                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Chamado OSR registrado: ${cliName}`, window.alertConfigs.novo_chamado.usuarios, window.alertConfigs.novo_chamado.perfis, 'info');
             } catch(e) { window.showToast('Erro ao salvar.', 'warning'); }
         };
 
