@@ -75,7 +75,7 @@
                             <option value="Vendedor">Vendedor</option>
                             <option value="Técnico">Técnico</option>
                             <option value="Financeiro">Financeiro</option>
-                            <option value="Admin">Administrador Master</option>
+                            <option value="Administrativo">Administrativo</option>
                         </select>
                     </div>
                 </div>
@@ -134,8 +134,9 @@
         ];
 
         window.initModule = function(perfil) {
-            if (perfil !== 'Admin') {
-                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas Administradores podem gerenciar acessos.</span>';
+            // Master e Administrativo podem acessar a tela de Usuários
+            if (perfil !== 'Master' && perfil !== 'Administrativo') {
+                document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas a Administração pode gerenciar acessos.</span>';
                 window.fazerLogout();
                 return;
             }

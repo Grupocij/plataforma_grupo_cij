@@ -74,19 +74,6 @@ const injectLayout = () => {
         </div>
     </div>
 
-    <!-- ALERTA GLOBAL DIRECIONADO -->
-    <div id="global-yellow-alert" class="hidden fixed top-0 inset-x-0 z-[99999] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 px-4 py-3 font-extrabold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-between shadow-2xl pulse-alert-global border-b-4 border-amber-600 gap-3">
-        <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
-            <div class="w-8 h-8 bg-amber-900 text-amber-400 rounded-full flex items-center justify-center shrink-0 animate-bounce">
-                <i class="fa-solid fa-bell text-lg"></i>
-            </div>
-            <span id="global-yellow-alert-text">Nova notificação!</span>
-        </div>
-        <button onclick="window.marcarAlertaCiente()" class="w-full sm:w-auto px-6 py-2 bg-amber-900 text-amber-100 rounded-xl text-xs font-black shadow-md hover:bg-amber-950 transition cursor-pointer shrink-0 uppercase tracking-widest">
-            OK, Ciente
-        </button>
-    </div>
-
     <!-- CABEÇALHO SUPERIOR FIXO -->
     <header class="bg-[#0f172a] text-white shadow-md border-b border-slate-800 sticky top-0 z-[9990] h-16 shrink-0 w-full no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
@@ -106,7 +93,7 @@ const injectLayout = () => {
                         </div>
                     </div>
 
-                    <!-- Caixa de Pesquisa Global (Ajustada para o Mobile) -->
+                    <!-- Caixa de Pesquisa Global Flexível Mobile -->
                     <div class="relative flex-1 sm:w-64 sm:flex-none ml-0 sm:ml-2">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="text" id="global-search-input" onkeyup="window.filterGlobalModules()" placeholder="Buscar módulo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-800 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-slate-700 transition-all placeholder-slate-500">
@@ -332,7 +319,7 @@ window.filterGlobalModules = function() {
 
 document.addEventListener('click', function(e) {
     const searchBox = document.getElementById('global-search-results');
-    if (searchBox && !e.target.closest('.relative.flex-1.max-w-\\[200px\\]')) {
+    if (searchBox && !e.target.closest('.relative.flex-1.sm\\:w-64')) {
         searchBox.classList.add('hidden');
     }
 });
@@ -384,12 +371,23 @@ window.esqueciMinhaSenha = async () => {
 
 window.aplicarPermissoesDeModulos = function(dbUser) {
     const modulosPermitidos = dbUser.modulos || []; 
-    const isAdminTotal = dbUser.perfil === 'Admin';
+    const isMaster = dbUser.perfil === 'Master';
+    const isAdministrativo = dbUser.perfil === 'Administrativo';
 
     const allLinks = document.querySelectorAll('a.nav-item');
     allLinks.forEach(link => {
         const url = link.getAttribute('data-module');
-        if (isAdminTotal || modulosPermitidos.includes(url)) link.style.display = 'flex';
+        let temAcesso = false;
+        
+        if (isMaster) {
+            temAcesso = true;
+        } else if (isAdministrativo) {
+            if (url !== 'admin.html' && url !== 'diretoria-custos.html') temAcesso = true;
+        } else {
+            if (modulosPermitidos.includes(url)) temAcesso = true;
+        }
+
+        if (temAcesso) link.style.display = 'flex';
         else link.style.display = 'none';
     });
 
@@ -407,7 +405,16 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
         mobContainer.innerHTML = '<a href="index.html" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid fa-house text-blue-400"></i> Home</a>';
         
         globalModulesMap.forEach(m => {
-            if (isAdminTotal || modulosPermitidos.includes(m.url)) {
+            let addNoMobile = false;
+            if (isMaster) {
+                addNoMobile = true;
+            } else if (isAdministrativo) {
+                if (m.url !== 'admin.html' && m.url !== 'diretoria-custos.html') addNoMobile = true;
+            } else {
+                if (modulosPermitidos.includes(m.url)) addNoMobile = true;
+            }
+
+            if (addNoMobile) {
                 const isSecret = m.url === 'diretoria-custos.html' ? 'mobile-secret' : '';
                 mobContainer.innerHTML += `<a href="${m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
             }
@@ -418,6 +425,9 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
 };
 
+// ==========================================
+// CENTRAL UNIVERSAL DE NOTIFICAÇÕES & ALERTAS
+// ==========================================
 window.tocarSomAlerta = function() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -428,7 +438,7 @@ window.tocarSomAlerta = function() {
         gain.connect(ctx.destination);
         osc.type = 'sine';
         osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); 
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); // Efeito "Ding-Ding"
         gain.gain.setValueAtTime(0.5, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
         osc.start();
@@ -447,65 +457,56 @@ window.dispararAlertaGlobal = function(msg, tocarSom) {
 };
 
 window.marcarAlertaCiente = function() {
-    if (window.pendingNotifTime) {
-        localStorage.setItem('cij_last_notif_time', window.pendingNotifTime.toString());
-    }
+    if (window.pendingSolicTime) localStorage.setItem('cij_last_alert_time', window.pendingSolicTime.toString());
     document.getElementById('global-yellow-alert').classList.add('hidden');
 };
 
-/**
- * Função Universal para enviar uma notificação para um Usuário ou Grupo.
- */
-window.enviarNotificacaoApp = async function(mensagem, alvo_usuarios = [], alvo_perfis = [], tipo = 'info') {
+window.enviarNotificacaoApp = async function(mensagem, targetEmails = [], targetProfiles = [], tipo = 'info') {
+    if(!mensagem) return;
+    const id = 'notif_' + Date.now();
     try {
-        const docId = 'notif_' + Date.now() + Math.floor(Math.random() * 1000);
-        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app', docId), {
-            id: docId,
+        await setDoc(doc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app', id), {
+            id: id,
             mensagem: mensagem,
-            alvo_usuarios: alvo_usuarios,
-            alvo_perfis: alvo_perfis,
-            lida_por: [],
-            timestamp: Date.now(),
-            tipo: tipo
+            targetEmails: targetEmails, 
+            targetProfiles: targetProfiles,
+            tipo: tipo,
+            timestamp: Date.now()
         });
-    } catch(e) { console.error("Erro ao enviar notificação", e); }
+    } catch(e) {}
 };
 
 window.iniciarRadarNotificacoes = function(dbUser) {
-    const colRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app');
+    const colNotif = collection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app');
+    let lastSeenTime = parseInt(localStorage.getItem('cij_last_alert_time') || Date.now().toString());
+    let initialLoad = true;
     
-    let isInitialLoad = true;
-    let lastNotifTime = parseInt(localStorage.getItem('cij_last_notif_time') || (Date.now() - 86400000).toString());
-
-    window.fsOnSnapshot(colRef, (snap) => {
+    onSnapshot(colNotif, (snap) => {
+        let maxTime = lastSeenTime;
         let hasNew = false;
         let latestMsg = "";
-        let maxTime = lastNotifTime;
 
         snap.docChanges().forEach(change => {
-            if (change.type === 'added' || change.type === 'modified') {
-                const d = change.doc.data();
+            const n = change.doc.data();
+            const ts = n.timestamp;
+            
+            if (ts > lastSeenTime) {
+                const imTargetEmail = n.targetEmails && n.targetEmails.includes(dbUser.email);
+                const imTargetProfile = n.targetProfiles && n.targetProfiles.includes(dbUser.perfil);
                 
-                if (d.timestamp <= lastNotifTime) return;
-                if (d.lida_por && d.lida_por.includes(dbUser.email)) return;
-
-                const isTargetUser = d.alvo_usuarios && d.alvo_usuarios.includes(dbUser.email);
-                const isTargetProfile = d.alvo_perfis && d.alvo_perfis.includes(dbUser.perfil);
-                const isGlobal = (!d.alvo_usuarios || d.alvo_usuarios.length === 0) && (!d.alvo_perfis || d.alvo_perfis.length === 0);
-
-                if (isTargetUser || isTargetProfile || isGlobal) {
+                if (imTargetEmail || imTargetProfile || (dbUser.perfil === 'Master')) {
                     hasNew = true;
-                    if (d.timestamp > maxTime) maxTime = d.timestamp;
-                    latestMsg = d.mensagem;
+                    if (ts > maxTime) maxTime = ts;
+                    latestMsg = n.mensagem;
                 }
             }
         });
 
-        if (hasNew && !isInitialLoad) {
-            window.dispararAlertaGlobal(latestMsg, true);
-            window.pendingNotifTime = maxTime;
+        if (hasNew) {
+            window.pendingSolicTime = maxTime;
+            window.dispararAlertaGlobal(latestMsg, !initialLoad); 
         }
-        isInitialLoad = false;
+        initialLoad = false;
     });
 };
 
@@ -529,9 +530,9 @@ onAuthStateChanged(auth, async (user) => {
         // NOVA REGRA DE SEGURANÇA: Bloqueio Total (Leão de Chácara)
         if (!dbUser) {
             if (cleanEmail === 'marcos@grupocij.com') {
-                // Salva-vidas Admin
+                // Salva-vidas Master
                 dbUser = { 
-                    email: cleanEmail, nome: 'Administrador Master', perfil: 'Admin', 
+                    email: cleanEmail, nome: 'Marcos (Master)', perfil: 'Master', 
                     visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
                 };
             } else {
@@ -541,25 +542,41 @@ onAuthStateChanged(auth, async (user) => {
             }
         }
 
+        // SEGREDO DE ESTADO: Garante que o Marcos sempre será Master, mesmo que editem o banco.
+        if (cleanEmail === 'marcos@grupocij.com') {
+            dbUser.perfil = 'Master';
+        }
+
         window.currentUser = user;
         window.nomeUsuarioLogado = dbUser.nome || cleanEmail.split('@')[0].toUpperCase();
         window.userProfile = dbUser; 
         
-        const isAdminTotal = dbUser.perfil === 'Admin';
+        const isMaster = dbUser.perfil === 'Master';
+        const isAdministrativo = dbUser.perfil === 'Administrativo';
         const vg = dbUser.visaoGlobalPorTela || {};
         
         let currentPath = window.location.pathname.split('/').pop();
         if (!currentPath) currentPath = 'index.html';
 
-        // VISÃO GLOBAL INTELIGENTE LENDO A URL
-        window.userVisaoGlobal = isAdminTotal || (vg[currentPath] === true);
+        // VISÃO GLOBAL INTELIGENTE (Master e Administrativo veem tudo por padrão)
+        window.userVisaoGlobal = isMaster || isAdministrativo || (vg[currentPath] === true);
 
         // Anti-Fraude de Links
-        if (!isAdminTotal && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
-            if (!dbUser.modulos || !dbUser.modulos.includes(currentPath)) {
-                alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
-                window.location.href = 'index.html';
-                return;
+        if (!isMaster && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
+            if (isAdministrativo) {
+                // O Administrativo entra em tudo, EXCETO na diretoria. Se tentar, bloqueia.
+                if (currentPath === 'admin.html' || currentPath === 'diretoria-custos.html') {
+                    alert("Acesso Negado: Área restrita à Diretoria (Master).");
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } else {
+                // Se for vendedor, técnico, etc., checa a lista.
+                if (!dbUser.modulos || !dbUser.modulos.includes(currentPath)) {
+                    alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
+                    window.location.href = 'index.html';
+                    return;
+                }
             }
         }
 

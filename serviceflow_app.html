@@ -111,7 +111,7 @@
                 </nav>
 
                 <div class="flex items-center gap-2 ml-auto">
-                    <!-- Configurações Dinâmicas (Admin) -->
+                    <!-- Configurações Dinâmicas (Master e Administrativo) -->
                     <button id="btnConfigAlertas" onclick="window.openConfigModal()" class="hidden bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
                         <i class="fa-solid fa-gear text-slate-500"></i> <span class="hidden xl:inline">Config. Alertas</span>
                     </button>
@@ -704,7 +704,8 @@
 
             window.currentUserStr = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
 
-            if (perfil === 'Admin') {
+            // Libera a Engrenagem para Master e Administrativo
+            if (perfil === 'Master' || perfil === 'Administrativo') {
                 document.getElementById('btnConfigAlertas').classList.remove('hidden');
             }
 
@@ -1400,7 +1401,6 @@
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', newId), newTicket);
                 document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
                 window.closeNewTicketModal();
-                window.triggerPhaseAlert('entrada', newId, cliName);
                 window.showToast(`Chamado ${newId} cadastrado!`, 'success');
             } catch(e) { window.showToast('Erro ao salvar.', 'warning'); }
         };
