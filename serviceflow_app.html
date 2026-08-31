@@ -77,8 +77,8 @@
     <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full bg-slate-100 relative hidden" id="main-content">
         
-        <!-- Header da View -->
-        <header class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
+        <!-- Substituído 'header' por 'div' para o core.js não esconder o menu superior -->
+        <div class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
             <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow">S</div>
@@ -182,7 +182,7 @@
                     </div>
                 </div>
             </div>
-        </header>
+        </div>
 
         <div class="flex-1 flex flex-col h-full min-h-0 bg-slate-100 relative">
             <div class="px-4 py-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
@@ -553,7 +553,6 @@
                         <textarea id="new-procedures" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                     </div>
                     <div>
-                        <!-- Nova caixa de peças para sincronizar no detalhe -->
                         <label class="block text-xs font-bold text-slate-700 mb-1">Peças / Materiais (Opcional)</label>
                         <input type="text" id="new-materials" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
@@ -569,42 +568,57 @@
 
     <!-- MODAL: Configurações de Alertas -->
     <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
                 <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-gear"></i> Configurações de Automação e Alertas</h3>
                 <button onclick="window.closeConfigModal()" class="text-slate-300 hover:text-white transition-colors p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-6 bg-slate-50 flex-1 overflow-y-auto custom-scrollbar space-y-5">
-                <p class="text-xs text-slate-600 font-medium">Selecione equipes inteiras ou indivíduos específicos para receber alertas na tela em cada etapa da jornada de um chamado.</p>
+            <div class="p-6 bg-slate-50 flex-1 overflow-y-auto custom-scrollbar space-y-4">
+                <p class="text-xs text-slate-600 font-medium mb-2">Selecione equipes inteiras ou indivíduos específicos para receber alertas em cada etapa do Kanban.</p>
                 
-                <div class="space-y-4">
-                    <!-- Bloco: Triagem -->
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- ENTRADA -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-amber-600">Triagem Técnica</span>:</label>
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando entrar em <span class="text-blue-600">Suporte Remoto (Novo)</span>:</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
-                                <div id="cfg_triagem_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
-                                <div id="cfg_triagem_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_entrada_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_entrada_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
                         </div>
                     </div>
 
-                    <!-- Bloco: Orçamento -->
+                    <!-- TRIAGEM -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-amber-600">Triagem Técnica</span>:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_triagem_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_triagem_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- ORÇAMENTO -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-purple-600">Orçamento Comercial</span>:</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
-                                <div id="cfg_orcamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
-                                <div id="cfg_orcamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-                            </div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_orcamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_orcamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- AGENDAMENTO -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-cyan-600">Agendamento de OS</span>:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_agendamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_agendamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- CONCLUÍDO -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando <span class="text-emerald-600">Finalizar / Concluir</span> o Chamado:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_concluido_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_concluido_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
                         </div>
                     </div>
                 </div>
@@ -647,7 +661,6 @@
     <script type="module" src="core.js"></script>
 
     <script>
-        // Memória Real-time do Sistema
         window.allUsersDB = [];
         window.allProfilesDB = new Set();
         
@@ -658,11 +671,16 @@
         window.draggedTicketId = null;
         window.currentUserStr = 'U';
 
-        // Configurações de Alerta (Nova Estrutura Dinâmica)
+        // Configurações Globais das 5 fases
         window.alertConfigs = {
+            entrada: { perfis: [], usuarios: [] },
             triagem: { perfis: [], usuarios: [] },
-            orcamento: { perfis: [], usuarios: [] }
+            orcamento: { perfis: [], usuarios: [] },
+            agendamento: { perfis: [], usuarios: [] },
+            concluido: { perfis: [], usuarios: [] }
         };
+
+        const EVENTS = ['entrada', 'triagem', 'orcamento', 'agendamento', 'concluido'];
 
         let filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
@@ -672,6 +690,10 @@
             'ORCAMENTO': { label: 'Orçamentos', color: 'bg-purple-50 text-purple-900 border-purple-200', badgeDot: 'bg-purple-600' },
             'AGENDAMENTO': { label: 'Agendamento / Execução', color: 'bg-cyan-50 text-cyan-900 border-cyan-200', badgeDot: 'bg-cyan-600' },
             'CONCLUIDO': { label: 'Finalizados', color: 'bg-emerald-50 text-emerald-900 border-emerald-200', badgeDot: 'bg-emerald-600' }
+        };
+
+        const STATUS_TO_PHASE = {
+            'ENTRADA': 'entrada', 'TRIAGEM': 'triagem', 'ORCAMENTO': 'orcamento', 'AGENDAMENTO': 'agendamento', 'CONCLUIDO': 'concluido'
         };
 
         const COLUMNS = Object.keys(STATUSES);
@@ -688,7 +710,6 @@
 
             const db = window.AppDB;
 
-            // 1. CARREGA USUÁRIOS E PERFIS DA BASE (Para Filtros e Alertas)
             window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), (snap) => {
                 window.allUsersDB = [];
                 window.allProfilesDB = new Set();
@@ -713,23 +734,16 @@
                 window.renderAlertaManualUI();
             });
 
-            // 2. CARREGA CONFIGURAÇÕES DE ALERTAS (Migrando estrutura antiga se necessário)
             window.fsOnSnapshot(window.fsDoc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), snap => {
                 if (snap.exists()) {
                     const data = snap.data();
-                    ['triagem', 'orcamento'].forEach(evt => {
-                        if (Array.isArray(data[evt])) {
-                            // Legado: migra array antigo para o novo formato de objeto
-                            window.alertConfigs[evt] = { perfis: data[evt], usuarios: [] };
-                        } else if (data[evt]) {
-                            window.alertConfigs[evt] = data[evt];
-                        }
+                    EVENTS.forEach(evt => {
+                        if (data[evt]) window.alertConfigs[evt] = data[evt];
                     });
                     window.renderAlertasConfigUI();
                 }
             });
 
-            // 3. CARREGA CATÁLOGOS (Autocompletes)
             window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.clientesCatalogo = [];
                 const dl = document.getElementById('clientes-catalogo'); dl.innerHTML = '';
@@ -745,7 +759,6 @@
                 snap.forEach(d => dl.innerHTML += `<option value="${d.data().modelo}">`);
             });
 
-            // 4. CARREGA CHAMADOS OSR
             window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), (snap) => {
                 window.tickets = [];
                 snap.forEach(doc => {
@@ -772,12 +785,26 @@
             });
         };
 
-        // RENDERS DE ALERTA DINÂMICOS
+        window.triggerPhaseAlert = function(phase, ticketId, clientName) {
+            if (!window.enviarNotificacaoApp) return;
+            const conf = window.alertConfigs[phase];
+            if (!conf) return;
+            if (conf.perfis.length === 0 && conf.usuarios.length === 0) return;
+
+            let msg = '';
+            if (phase === 'entrada') msg = `Novo Chamado Suporte Remoto: ${ticketId} - ${clientName}`;
+            if (phase === 'triagem') msg = `O chamado ${ticketId} (${clientName}) foi para Triagem Técnica.`;
+            if (phase === 'orcamento') msg = `O chamado ${ticketId} (${clientName}) precisa de Orçamento Comercial.`;
+            if (phase === 'agendamento') msg = `O chamado ${ticketId} (${clientName}) está pronto para Agendamento.`;
+            if (phase === 'concluido') msg = `O chamado ${ticketId} (${clientName}) foi Finalizado!`;
+
+            window.enviarNotificacaoApp(msg, conf.usuarios, conf.perfis, 'info');
+        };
+
         window.renderAlertasConfigUI = function() {
-            const events = ['triagem', 'orcamento'];
             const perfis = Array.from(window.allProfilesDB).sort();
             
-            events.forEach(evt => {
+            EVENTS.forEach(evt => {
                 const containerPerfis = document.getElementById(`cfg_${evt}_perfis`);
                 const containerUsers = document.getElementById(`cfg_${evt}_usuarios`);
                 if(!containerPerfis || !containerUsers) return;
@@ -805,35 +832,25 @@
             if(!select) return;
             
             let html = '<option value="" disabled selected>Selecione quem receberá o alerta...</option>';
-            
             html += '<optgroup label="--- Equipes (Perfis) ---">';
             Array.from(window.allProfilesDB).sort().forEach(p => {
                 html += `<option value="PERFIL|${p}">Equipe de ${p}s</option>`;
             });
             html += '</optgroup>';
-
             html += '<optgroup label="--- Usuários Individuais ---">';
             window.allUsersDB.forEach(u => {
                 html += `<option value="USER|${u.email}">${u.nome} (${u.email})</option>`;
             });
             html += '</optgroup>';
-
             select.innerHTML = html;
         };
 
-        window.openConfigModal = function() {
-            document.getElementById('modal-config-alertas').classList.remove('hidden');
-        };
-
-        window.closeConfigModal = function() {
-            document.getElementById('modal-config-alertas').classList.add('hidden');
-        };
+        window.openConfigModal = function() { document.getElementById('modal-config-alertas').classList.remove('hidden'); };
+        window.closeConfigModal = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
 
         window.saveConfigModal = async function() {
-            const events = ['triagem', 'orcamento'];
             const newConfig = {};
-
-            events.forEach(evt => {
+            EVENTS.forEach(evt => {
                 const perfis = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-perfil:checked`)).map(cb => cb.value);
                 const usuarios = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-user:checked`)).map(cb => cb.value);
                 newConfig[evt] = { perfis, usuarios };
@@ -855,16 +872,13 @@
             document.getElementById('modal-alerta-manual').classList.remove('hidden');
         };
         
-        window.closeManualAlertModal = function() {
-            document.getElementById('modal-alerta-manual').classList.add('hidden');
-        };
+        window.closeManualAlertModal = function() { document.getElementById('modal-alerta-manual').classList.add('hidden'); };
         
         window.sendManualAlert = function() {
             const target = document.getElementById('alerta_manual_target').value;
             const msg = document.getElementById('alerta_manual_msg').value.trim();
             if(msg && target) {
-                let arrUsers = [];
-                let arrPerfis = [];
+                let arrUsers = []; let arrPerfis = [];
                 if(target.startsWith('PERFIL|')) arrPerfis.push(target.split('|')[1]);
                 else if(target.startsWith('USER|')) arrUsers.push(target.split('|')[1]);
 
@@ -876,7 +890,6 @@
             }
         };
 
-        // AUTO-PREENCHIMENTO MAGICO DO CLIENTE
         window.autoFillClient = function(val) {
             if(!val) return;
             const c = window.clientesCatalogo.find(x => x.fantasia === val || x.razao_social === val);
@@ -983,7 +996,6 @@
             if(viewName === 'indicadores') window.updateIndicadores();
         };
 
-        /* --- DRAG AND DROP HANDLERS --- */
         window.handleDragStart = function(e, id) { window.draggedTicketId = id; e.dataTransfer.setData('text/plain', id); e.currentTarget.classList.add('dragging'); };
         window.handleDragEnd = function(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over')); };
         window.handleDragOver = function(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
@@ -997,6 +1009,8 @@
                 t.status = targetStatus;
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Movido via Kanban de "${oL}" para "${nL}".` });
                 await window.saveSingleTicket(t);
+                
+                window.triggerPhaseAlert(STATUS_TO_PHASE[targetStatus], t.id, t.client.name);
                 window.showToast(`Chamado ${t.id} movido para ${nL}!`, 'info');
             }
             window.draggedTicketId = null;
@@ -1074,17 +1088,6 @@
             grid.innerHTML = `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block mb-1">Total Filtrado</span><span class="text-3xl font-extrabold text-slate-900">${total}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block mb-1">Em Triagem</span><span class="text-3xl font-extrabold text-amber-600">${triagem}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-purple-600 uppercase tracking-wider block mb-1">Em Orçamento</span><span class="text-3xl font-extrabold text-purple-600">${orcamento}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block mb-1">Finalizados</span><span class="text-3xl font-extrabold text-emerald-600">${concluidos}</span></div>`;
             const getPct = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
             barList.innerHTML = `<div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-blue-700">Suporte Remoto</span><span>${filtered.filter(t => t.status==='ENTRADA').length} (${getPct(filtered.filter(t => t.status==='ENTRADA').length)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${getPct(filtered.filter(t => t.status==='ENTRADA').length)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-amber-700">Triagem Técnica</span><span>${triagem} (${getPct(triagem)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width: ${getPct(triagem)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-purple-700">Orçamento Comercial</span><span>${orcamento} (${getPct(orcamento)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width: ${getPct(orcamento)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyan-700">Agendamento & Execução</span><span>${agendados} (${getPct(agendados)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-cyan-600 h-2 rounded-full" style="width: ${getPct(agendados)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-emerald-700">Finalizados</span><span>${concluidos} (${getPct(concluidos)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-600 h-2 rounded-full" style="width: ${getPct(concluidos)}%"></div></div></div>`;
-        };
-
-        window.sendWhatsAppUpdate = function() {
-            if(!window.currentTicketId) return;
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            let phone = (t.client.phone || '').replace(/\D/g, '');
-            if(phone.length < 10) { window.showToast('Telefone do cliente não cadastrado/inválido.', 'warning'); return; }
-            if(!phone.startsWith('55')) phone = '55' + phone;
-            const text = encodeURIComponent(`Olá, *${t.client.contact || t.client.name}*!\n\nAtualização referente ao chamado *${t.id}*:\n• *Equipamento:* ${t.equipment.model} (Série: ${t.equipment.serial})\n• *Status Atual:* ${STATUSES[t.status].label}\n• *Ação / Observação:* ${t.nextAction || 'Em atendimento'}\n\nPermanecemos à disposição se tiver qualquer dúvida!`);
-            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, '_blank');
         };
 
         window.openTicketModal = function(ticketId) {
@@ -1215,6 +1218,7 @@
             t.status = 'CONCLUIDO'; t.nextAction = 'Concluído via Remoto';
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via suporte remoto.' });
             await window.saveSingleTicket(t);
+            window.triggerPhaseAlert('concluido', t.id, t.client.name);
             window.showToast(`Chamado finalizado!`, 'success');
         };
 
@@ -1226,7 +1230,7 @@
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem Técnica.' });
             await window.saveSingleTicket(t);
             
-            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`O chamado ${t.id} foi enviado para a Triagem!`, window.alertConfigs.triagem.usuarios, window.alertConfigs.triagem.perfis, 'warning');
+            window.triggerPhaseAlert('triagem', t.id, t.client.name);
             window.showToast(`Enviado para Triagem!`, 'warning');
         };
 
@@ -1236,6 +1240,7 @@
             t.status = 'TRIAGEM'; t.nextAction = 'Reaberto';
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto e enviado para Triagem.' });
             await window.saveSingleTicket(t);
+            window.triggerPhaseAlert('triagem', t.id, t.client.name);
             window.showToast(`Chamado reaberto.`, 'info');
         };
 
@@ -1254,7 +1259,7 @@
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Triagem concluída: Enviado para Orçamentos.` });
             await window.saveSingleTicket(t);
             
-            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Orçamento Pendente gerado pela Triagem Técnica: ${t.client.name}`, window.alertConfigs.orcamento.usuarios, window.alertConfigs.orcamento.perfis, 'info');
+            window.triggerPhaseAlert('orcamento', t.id, t.client.name);
             window.showToast('Triagem salva! Enviado para Orçamentos.', 'success');
             window.closeTicketModal();
         };
@@ -1266,6 +1271,7 @@
             t.status = 'CONCLUIDO'; t.nextAction = 'Resolvido na Triagem';
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Encerrado na Triagem. Solução: ${document.getElementById('triage-solution').value.trim()}` });
             await window.saveSingleTicket(t);
+            window.triggerPhaseAlert('concluido', t.id, t.client.name);
             window.showToast('Encerrado na triagem!', 'success');
             window.closeTicketModal();
         };
@@ -1291,17 +1297,18 @@
             if(approved) {
                 t.status = 'AGENDAMENTO'; t.nextAction = 'Programar OS';
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento APROVADO.' });
+                window.triggerPhaseAlert('agendamento', t.id, t.client.name);
                 window.showToast('Orçamento aprovado!', 'success');
             } else {
                 t.status = 'CONCLUIDO'; t.nextAction = 'Reprovado';
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento REPROVADO.' });
+                window.triggerPhaseAlert('concluido', t.id, t.client.name);
                 window.showToast('Orçamento reprovado.', 'info');
             }
             await window.saveSingleTicket(t);
             window.closeTicketModal();
         };
 
-        // AUTOMAÇÃO COM A AGENDA V2
         window.saveSchedule = async function(complete) {
             if(!window.currentTicketId) return;
             const t = window.tickets.find(x => x.id === window.currentTicketId);
@@ -1323,13 +1330,13 @@
             if(complete) {
                 t.status = 'CONCLUIDO'; t.nextAction = 'Visita Concluída';
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `OS ${os} concluída pelo técnico ${techName}.` });
+                window.triggerPhaseAlert('concluido', t.id, t.client.name);
                 window.showToast('Chamado e visita finalizados!', 'success');
             } else {
                 t.nextAction = `Agendado para ${date}`;
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Visita agendada para ${date} (${techName}).` });
                 window.showToast('Agendamento salvo e Tarefa Criada na Agenda!', 'info');
                 
-                // CRIA TAREFA OFICIAL NA AGENDA
                 const agendaId = 't_' + Date.now();
                 const agendaData = {
                     id: agendaId,
@@ -1348,8 +1355,6 @@
                 };
                 try {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', agendaId), agendaData);
-                    
-                    // ALERTA ESPECÍFICO PARA O TÉCNICO ESCOLHIDO
                     if (window.enviarNotificacaoApp && techEmail) {
                         window.enviarNotificacaoApp(`Nova OS Agendada para você: ${t.client.name} (Dia ${date.split('-').reverse().join('/')})`, [techEmail], [], 'info');
                     }
@@ -1395,6 +1400,7 @@
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', newId), newTicket);
                 document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
                 window.closeNewTicketModal();
+                window.triggerPhaseAlert('entrada', newId, cliName);
                 window.showToast(`Chamado ${newId} cadastrado!`, 'success');
             } catch(e) { window.showToast('Erro ao salvar.', 'warning'); }
         };
