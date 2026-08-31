@@ -4,6 +4,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+// REGISTRO DO SERVICE WORKER E MANIFESTO (PWA / OFFLINE)
 if (!document.querySelector('link[rel="manifest"]')) {
     const manifestLink = document.createElement('link');
     manifestLink.rel = 'manifest';
@@ -16,28 +17,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
     });
 }
-
-window.deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    window.deferredPrompt = e;
-    const btnDesktop = document.getElementById('btn-install-pwa');
-    const btnMobile = document.getElementById('btn-install-pwa-mobile');
-    if(btnDesktop) btnDesktop.classList.remove('hidden');
-    if(btnMobile) btnMobile.classList.remove('hidden');
-});
-
-window.installPWA = async () => {
-    if (window.deferredPrompt) {
-        window.deferredPrompt.prompt();
-        const { outcome } = await window.deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            document.getElementById('btn-install-pwa')?.classList.add('hidden');
-            document.getElementById('btn-install-pwa-mobile')?.classList.add('hidden');
-        }
-        window.deferredPrompt = null;
-    }
-};
 
 const injectLayout = () => {
     if (document.querySelector('header')) return;
@@ -95,7 +74,7 @@ const injectLayout = () => {
         </div>
     </div>
 
-    <!-- ALERTA GLOBAL (DIRECIONADO) -->
+    <!-- ALERTA GLOBAL DIRECIONADO -->
     <div id="global-yellow-alert" class="hidden fixed top-0 inset-x-0 z-[99999] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 px-4 py-3 font-extrabold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-between shadow-2xl pulse-alert-global border-b-4 border-amber-600 gap-3">
         <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
             <div class="w-8 h-8 bg-amber-900 text-amber-400 rounded-full flex items-center justify-center shrink-0 animate-bounce">
@@ -111,10 +90,10 @@ const injectLayout = () => {
     <!-- CABEÇALHO SUPERIOR FIXO -->
     <header class="bg-[#0f172a] text-white shadow-md border-b border-slate-800 sticky top-0 z-[9990] h-16 shrink-0 w-full no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="flex items-center justify-between h-full gap-4">
+            <div class="flex items-center justify-between h-full gap-2 sm:gap-4">
                 
-                <div class="flex items-center gap-4 shrink-0 w-full lg:w-auto">
-                    <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                    <div class="flex items-center gap-3 shrink-0">
                         <div class="p-1.5 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 hidden sm:flex">
                             <svg style="width: 28px; height: 28px; display: inline-block;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M50 10 L85 45 L50 80 L15 45 Z" fill="#0077C8"/>
@@ -123,11 +102,12 @@ const injectLayout = () => {
                         </div>
                         <div class="flex flex-col justify-center hidden sm:flex">
                             <span id="secret-trigger-btn" class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 cursor-pointer select-none transition hover:bg-amber-900">COMERCIAL & GESTÃO</span>
-                            <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Verificando...</span>
+                            <span id="user-role-badge-top" class="text-[9px] font-bold text-slate-400 mt-0.5">Carregando...</span>
                         </div>
                     </div>
 
-                    <div class="relative w-full sm:w-64 ml-2">
+                    <!-- Caixa de Pesquisa Global (Ajustada para o Mobile) -->
+                    <div class="relative flex-1 sm:w-64 sm:flex-none ml-0 sm:ml-2">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="text" id="global-search-input" onkeyup="window.filterGlobalModules()" placeholder="Buscar módulo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-800 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-slate-700 transition-all placeholder-slate-500">
                         <ul id="global-search-results" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl overflow-hidden z-[9999] hidden max-h-60 overflow-y-auto custom-scrollbar"></ul>
@@ -142,7 +122,8 @@ const injectLayout = () => {
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
                                 <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo Chamado Mobile</p></div></a>
-                                <a href="serviceflow_app.html" data-module="serviceflow_app.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-columns"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">ServiceFlow Kanban</h4><p class="text-[10px] text-slate-500">Gestão Integrada OSR</p></div></a>
+                                <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de Atendimentos</p></div></a>
+                                <a href="serviceflow_app.html" data-module="serviceflow_app.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-columns"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">ServiceFlow Kanban</h4><p class="text-[10px] text-slate-500">Fluxo Integrado</p></div></a>
                                 <a href="veiculos_mobile.html" data-module="veiculos_mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-car"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Mobile</h4><p class="text-[10px] text-slate-500">Retirada da frota</p></div></a>
                             </div>
                         </div>
@@ -214,12 +195,10 @@ const injectLayout = () => {
 
                 </nav>
 
-                <div class="flex items-center gap-2 shrink-0">
-                    <button id="btn-install-pwa" onclick="window.installPWA()" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition items-center gap-1.5 cursor-pointer border border-blue-400/50">
-                        <i class="fa-solid fa-download"></i> Instalar App
-                    </button>
+                <div class="flex items-center gap-2 shrink-0 ml-2">
                     <a href="index.html" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition items-center gap-1.5 hover:bg-slate-800"><i class="fa-solid fa-house"></i> Home</a>
                     <button onclick="window.fazerLogout()" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 transition items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+                    <!-- Botão Menu Mobile Corrigido -->
                     <button onclick="window.toggleMobileMenu()" class="lg:hidden text-slate-300 hover:text-white text-xl p-1 px-2 border border-slate-700 rounded-lg bg-slate-800 cursor-pointer">
                         <i class="fa-solid fa-bars"></i>
                     </button>
@@ -228,6 +207,7 @@ const injectLayout = () => {
         </div>
     </header>
 
+    <!-- Sidebar Mobile -->
     <div id="mobile-overlay" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-black/60 z-[105] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm lg:hidden"></div>
     <div id="mobile-sidebar" class="fixed inset-y-0 right-0 w-[280px] bg-[#0f172a] shadow-2xl z-[110] transform translate-x-full transition-transform duration-300 border-l border-slate-700 flex flex-col lg:hidden">
         <div class="p-5 flex justify-between items-center border-b border-slate-800 bg-[#0b1120]">
@@ -236,7 +216,6 @@ const injectLayout = () => {
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="mobile-menu-container"></div>
         <div class="p-4 border-t border-slate-800 bg-[#0b1120] space-y-2">
-            <button id="btn-install-pwa-mobile" onclick="window.installPWA()" class="hidden w-full py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white transition flex items-center justify-center gap-2 cursor-pointer shadow-md"><i class="fa-solid fa-download"></i> Instalar Aplicativo</button>
             <button onclick="window.fazerLogout()" class="w-full py-2.5 rounded-xl text-xs font-bold bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
         </div>
     </div>
@@ -295,7 +274,8 @@ window.fsGetDocs = getDocs;
 
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
-    { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-indigo-500' },
+    { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
+    { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -352,7 +332,7 @@ window.filterGlobalModules = function() {
 
 document.addEventListener('click', function(e) {
     const searchBox = document.getElementById('global-search-results');
-    if (searchBox && !e.target.closest('.relative.w-full.sm\\:w-64')) {
+    if (searchBox && !e.target.closest('.relative.flex-1.max-w-\\[200px\\]')) {
         searchBox.classList.add('hidden');
     }
 });
@@ -438,11 +418,6 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
 };
 
-
-// ==============================================================
-// RADAR GLOBAL: SISTEMA DE NOTIFICAÇÕES DIRECIONADAS (NOVO)
-// ==============================================================
-
 window.tocarSomAlerta = function() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -480,9 +455,6 @@ window.marcarAlertaCiente = function() {
 
 /**
  * Função Universal para enviar uma notificação para um Usuário ou Grupo.
- * @param {string} mensagem - Texto do alerta
- * @param {Array} alvo_usuarios - Array com os e-mails exatos de quem deve receber (Ex: ['anderson@grupocij.com.br'])
- * @param {Array} alvo_perfis - Array com os perfis de quem deve receber (Ex: ['Comercial', 'Admin'])
  */
 window.enviarNotificacaoApp = async function(mensagem, alvo_usuarios = [], alvo_perfis = [], tipo = 'info') {
     try {
@@ -514,11 +486,9 @@ window.iniciarRadarNotificacoes = function(dbUser) {
             if (change.type === 'added' || change.type === 'modified') {
                 const d = change.doc.data();
                 
-                // Ignora se for antiga ou se este usuário já tiver marcado como lida no banco (futuro)
                 if (d.timestamp <= lastNotifTime) return;
                 if (d.lida_por && d.lida_por.includes(dbUser.email)) return;
 
-                // Verifica a inteligência de alvos
                 const isTargetUser = d.alvo_usuarios && d.alvo_usuarios.includes(dbUser.email);
                 const isTargetProfile = d.alvo_perfis && d.alvo_perfis.includes(dbUser.perfil);
                 const isGlobal = (!d.alvo_usuarios || d.alvo_usuarios.length === 0) && (!d.alvo_perfis || d.alvo_perfis.length === 0);
@@ -545,30 +515,7 @@ onAuthStateChanged(auth, async (user) => {
         if(loginScreen) loginScreen.classList.add('hidden');
         
         const cleanEmail = (user.email || '').toLowerCase().trim();
-        let dbUser = { 
-            email: cleanEmail, 
-            nome: cleanEmail.split('@')[0].toUpperCase(), 
-            perfil: 'Vendedor', 
-            visaoGlobalPorTela: {},
-            modulos: [] 
-        };
-        
-        const masterAdmins = ['adm@grupocij.com', 'marcos@grupocij.com'];
-        if (masterAdmins.includes(cleanEmail)) {
-            dbUser.perfil = 'Admin';
-            dbUser.visaoGlobalPorTela = { 
-                'despesas.html': true, 
-                'comissoes-azul.html': true, 
-                'veiculos.html': true, 
-                'ranking.html': true, 
-                'solicitacoes-lista.html': true,
-                'vendas.html': true,
-                'servicos_osr.html': true,
-                'serviceflow_app.html': true,
-                'requisicao_material.html': true,
-                'central_cadastros.html': true
-            };
-        }
+        let dbUser = null;
 
         try {
             const snap = await getDocs(collection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'));
@@ -577,25 +524,50 @@ onAuthStateChanged(auth, async (user) => {
                     dbUser = d.data();
                 }
             });
-        } catch (e) {}
+        } catch (e) { console.error("Erro ao ler permissões", e); }
+
+        // NOVA REGRA DE SEGURANÇA: Bloqueio Total (Leão de Chácara)
+        if (!dbUser) {
+            if (cleanEmail === 'marcos@grupocij.com') {
+                // Salva-vidas Admin
+                dbUser = { 
+                    email: cleanEmail, nome: 'Administrador Master', perfil: 'Admin', 
+                    visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
+                };
+            } else {
+                alert("⚠️ ACESSO BLOQUEADO!\nSeu e-mail (" + cleanEmail + ") não possui permissão de acesso ao Portal. Procure a administração.");
+                signOut(auth);
+                return;
+            }
+        }
 
         window.currentUser = user;
-        window.nomeUsuarioLogado = dbUser.nome;
+        window.nomeUsuarioLogado = dbUser.nome || cleanEmail.split('@')[0].toUpperCase();
+        window.userProfile = dbUser; 
         
         const isAdminTotal = dbUser.perfil === 'Admin';
         const vg = dbUser.visaoGlobalPorTela || {};
         
-        window.userVisaoDespesas = isAdminTotal || vg['despesas.html'] === true || vg.despesas === true;
-        window.userVisaoComissoes = isAdminTotal || vg['comissoes-azul.html'] === true || vg.comissoes === true;
-        window.userVisaoVeiculos = isAdminTotal || vg['veiculos.html'] === true || vg['veiculos_mobile.html'] === true || vg.veiculos === true;
-        window.userVisaoRanking = isAdminTotal || vg['ranking.html'] === true || vg.ranking === true;
-        window.userVisaoSolicitacoes = isAdminTotal || vg['solicitacoes-lista.html'] === true || vg.solicitacoes === true;
-        window.userVisaoGlobal = isAdminTotal || vg['servicos_osr.html'] === true || vg['serviceflow_app.html'] === true || vg['requisicao_material.html'] === true;
+        let currentPath = window.location.pathname.split('/').pop();
+        if (!currentPath) currentPath = 'index.html';
+
+        // VISÃO GLOBAL INTELIGENTE LENDO A URL
+        window.userVisaoGlobal = isAdminTotal || (vg[currentPath] === true);
+
+        // Anti-Fraude de Links
+        if (!isAdminTotal && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
+            if (!dbUser.modulos || !dbUser.modulos.includes(currentPath)) {
+                alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
+                window.location.href = 'index.html';
+                return;
+            }
+        }
 
         window.aplicarPermissoesDeModulos(dbUser);
-        
-        // Ativa o Radar de Notificações Inteligentes
-        window.iniciarRadarNotificacoes(dbUser);
+
+        if (typeof window.iniciarRadarNotificacoes === 'function') {
+            window.iniciarRadarNotificacoes(dbUser);
+        }
 
         if (typeof window.initModule === 'function') window.initModule(dbUser.perfil);
     } else {
