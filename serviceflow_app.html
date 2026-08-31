@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ServiceFlow - Gestão Integrada OSR</title>
+    <title>ServiceFlow - Gestão Integrada de Atendimentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,6 +34,12 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
+        .glass-header {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
         .modal-overlay { background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(5px); }
 
         .timeline-item { position: relative; padding-left: 1.5rem; }
@@ -60,9 +66,7 @@
     <!-- DATALISTS PARA AUTOCOMPLETE (Conectados à Central) -->
     <datalist id="clientes-catalogo"></datalist>
     <datalist id="maquinas-catalogo"></datalist>
-    <datalist id="pecas-catalogo"></datalist>
 
-    <!-- TELA DE LOGIN INJETADA PELO CORE -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
             <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
@@ -71,16 +75,13 @@
     </div>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 w-full max-w-full flex flex-col relative h-[calc(100vh-64px)] hidden" id="main-content">
+    <main class="flex-1 flex flex-col h-full bg-slate-100 relative hidden" id="main-content">
         
         <!-- Header da View -->
-        <div class="bg-white border-b border-slate-200 flex-shrink-0 z-30 shadow-xs">
+        <header class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
             <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-                
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow">
-                        S
-                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow">S</div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h1 class="text-base font-extrabold tracking-tight text-slate-900">ServiceFlow</h1>
@@ -98,30 +99,30 @@
 
                 <nav class="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/60">
                     <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-600/20" id="nav-kanban">
-                        <i class="fa-solid fa-table-columns text-xs"></i>
-                        <span>Kanban</span>
+                        <i class="fa-solid fa-table-columns text-xs"></i><span>Kanban</span>
                     </button>
                     <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80" id="nav-pendencias">
-                        <i class="fa-solid fa-inbox text-xs"></i>
-                        <span>Pendências</span>
+                        <i class="fa-solid fa-inbox text-xs"></i><span>Pendências</span>
                         <span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span>
                     </button>
                     <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80" id="nav-indicadores">
-                        <i class="fa-solid fa-chart-line text-xs"></i>
-                        <span>Indicadores</span>
+                        <i class="fa-solid fa-chart-line text-xs"></i><span>Indicadores</span>
                     </button>
                 </nav>
 
                 <div class="flex items-center gap-2 ml-auto">
+                    <!-- Configurações Dinâmicas (Admin) -->
+                    <button id="btnConfigAlertas" onclick="window.openConfigModal()" class="hidden bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
+                        <i class="fa-solid fa-gear text-slate-500"></i> <span class="hidden xl:inline">Config. Alertas</span>
+                    </button>
+
                     <button onclick="window.toggleFilterPanel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
-                        <i class="fa-solid fa-filter text-blue-600 text-xs"></i>
-                        <span>Filtros</span>
+                        <i class="fa-solid fa-filter text-blue-600 text-xs"></i><span>Filtros</span>
                         <span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
                     </button>
 
                     <button onclick="window.openNewTicketModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-blue-600/25 transition-all flex items-center gap-2 active:scale-95 cursor-pointer">
-                        <i class="fa-solid fa-plus text-xs"></i>
-                        <span class="hidden sm:inline">Novo Chamado</span>
+                        <i class="fa-solid fa-plus text-xs"></i><span class="hidden sm:inline">Novo Chamado</span>
                         <span class="hidden lg:inline-block text-[9px] bg-blue-700 text-blue-200 px-1 rounded font-mono">N</span>
                     </button>
                 </div>
@@ -176,14 +177,14 @@
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Técnico / Atribuído</label>
                         <select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer">
                             <option value="ALL">Todos os Responsáveis</option>
+                            <!-- Injetado dinamicamente -->
                         </select>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
         <div class="flex-1 flex flex-col h-full min-h-0 bg-slate-100 relative">
-            
             <div class="px-4 py-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
                 <span class="hidden sm:inline-flex items-center gap-1 font-medium">
                     <i class="fa-solid fa-lightbulb text-amber-500"></i> Dica: Arraste os cartões no Kanban para mudar o status rapidamente.
@@ -239,6 +240,9 @@
                     <span id="tm-status-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold">STATUS</span>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="window.openManualAlertModal()" class="text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-bell text-sm"></i><span class="hidden sm:inline">Notificar Equipe</span>
+                    </button>
                     <button onclick="window.sendWhatsAppUpdate()" class="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-brands fa-whatsapp text-sm"></i><span class="hidden sm:inline">WhatsApp</span>
                     </button>
@@ -417,7 +421,7 @@
                     </div>
                 </div>
 
-                <!-- ABA 4: AGENDAMENTO (GERA TAREFA NA AGENDA V2) -->
+                <!-- ABA 4: AGENDAMENTO -->
                 <div id="tab-agendamento" class="tab-content hidden space-y-4">
                     <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-2xl text-xs text-cyan-950 flex gap-3">
                         <i class="fa-solid fa-calendar-check text-cyan-600 text-base mt-0.5"></i>
@@ -513,7 +517,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Cliente / Razão Social *</label>
-                            <input type="text" id="new-cli-name" list="clientes-catalogo" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: TecnoLog S/A">
+                            <input type="text" id="new-cli-name" list="clientes-catalogo" onchange="window.autoFillClient(this.value)" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: TecnoLog S/A">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label>
@@ -549,8 +553,9 @@
                         <textarea id="new-procedures" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                     </div>
                     <div>
+                        <!-- Nova caixa de peças para sincronizar no detalhe -->
                         <label class="block text-xs font-bold text-slate-700 mb-1">Peças / Materiais (Opcional)</label>
-                        <input type="text" id="new-materials" list="pecas-catalogo" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="new-materials" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                 </div>
             </div>
@@ -562,28 +567,118 @@
         </div>
     </div>
 
+    <!-- MODAL: Configurações de Alertas -->
+    <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-gear"></i> Configurações de Automação e Alertas</h3>
+                <button onclick="window.closeConfigModal()" class="text-slate-300 hover:text-white transition-colors p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 bg-slate-50 flex-1 overflow-y-auto custom-scrollbar space-y-5">
+                <p class="text-xs text-slate-600 font-medium">Selecione equipes inteiras ou indivíduos específicos para receber alertas na tela em cada etapa da jornada de um chamado.</p>
+                
+                <div class="space-y-4">
+                    <!-- Bloco: Novo Chamado -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando um <span class="text-blue-600">Novo Chamado</span> for aberto:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
+                                <div id="cfg_novo_chamado_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
+                                <div id="cfg_novo_chamado_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bloco: Triagem -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-amber-600">Triagem Técnica</span>:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
+                                <div id="cfg_triagem_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
+                                <div id="cfg_triagem_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco: Orçamento -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-purple-600">Orçamento Comercial</span>:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span>
+                                <div id="cfg_orcamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span>
+                                <div id="cfg_orcamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+                <button onclick="window.closeConfigModal()" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">Cancelar</button>
+                <button onclick="window.saveConfigModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-save"></i> Salvar Regras</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Alerta Manual Direcionado -->
+    <div id="modal-alerta-manual" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Enviar Alerta Direcionado</h3>
+                <button onclick="window.closeManualAlertModal()" class="text-white hover:text-amber-100 transition-colors p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 bg-slate-50 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Destinatário do Alerta *</label>
+                    <select id="alerta_manual_target" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 cursor-pointer">
+                        <!-- Renderizado por JS via Central de Usuários -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mensagem do Alerta *</label>
+                    <textarea id="alerta_manual_msg" rows="3" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 resize-none" placeholder="Ex: Favor verificar o chamado com urgência..."></textarea>
+                </div>
+            </div>
+            <div class="bg-white px-6 py-3 border-t border-slate-200 flex gap-2">
+                <button onclick="window.closeManualAlertModal()" class="flex-1 py-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">Cancelar</button>
+                <button onclick="window.sendManualAlert()" class="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-paper-plane"></i> Enviar Alerta</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script type="module" src="core.js"></script>
 
     <script>
-        // TÉCNICOS OFICIAIS DO SISTEMA (Igual ao da Agenda)
-        const TECHNICIANS = [
-            { id: 'adriano', name: 'Adriano', email: 'adriano@grupocij.com.br', color: '#3b82f6' },
-            { id: 'anderson', name: 'Anderson', email: 'anderson@grupocij.com.br', color: '#10b981' },
-            { id: 'filipe', name: 'Filipe', email: 'filipe@grupocij.com.br', color: '#8b5cf6' },
-            { id: 'sidnei', name: 'Sidnei', email: 'sidnei@grupocij.com.br', color: '#f59e0b' },
-            { id: 'marcos', name: 'Marcos', email: 'marcos@grupocij.com.br', color: '#ec4899' },
-            { id: 'gabriel', name: 'Gabriel', email: 'gabriel@grupocij.com.br', color: '#06b6d4' },
-            { id: 'rafael', name: 'Rafael', email: 'rafael@grupocij.com.br', color: '#64748b' },
-            { id: 'juliana', name: 'Juliana', email: 'juliana@grupocij.com.br', color: '#8b5cf6' }
-        ];
-
+        // Memória Real-time do Sistema
+        window.allUsersDB = [];
+        window.allProfilesDB = new Set();
+        
         window.tickets = [];
+        window.clientesCatalogo = [];
         window.currentTicketId = null;
         window.pendingDeleteTicketId = null;
         window.draggedTicketId = null;
         window.currentUserStr = 'U';
+
+        // Configurações de Alerta (Nova Estrutura Dinâmica)
+        window.alertConfigs = {
+            novo_chamado: { perfis: [], usuarios: [] },
+            triagem: { perfis: [], usuarios: [] },
+            orcamento: { perfis: [], usuarios: [] }
+        };
 
         let filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
@@ -603,57 +698,216 @@
 
             window.currentUserStr = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
 
-            // Preenche selects de Técnicos
-            const selTechFilter = document.getElementById('filterTech');
-            const selTechSch = document.getElementById('sch-tech');
-            TECHNICIANS.forEach(t => {
-                selTechFilter.innerHTML += `<option value="${t.name}">${t.name}</option>`;
-                selTechSch.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+            if (perfil === 'Admin') {
+                document.getElementById('btnConfigAlertas').classList.remove('hidden');
+            }
+
+            const db = window.AppDB;
+
+            // 1. CARREGA USUÁRIOS E PERFIS DA BASE (Para Filtros e Alertas)
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), (snap) => {
+                window.allUsersDB = [];
+                window.allProfilesDB = new Set();
+                
+                const selTechFilter = document.getElementById('filterTech');
+                const selTechSch = document.getElementById('sch-tech');
+                let htmlUsers = '';
+                
+                snap.forEach(doc => {
+                    const u = doc.data();
+                    window.allUsersDB.push(u);
+                    if (u.perfil) window.allProfilesDB.add(u.perfil);
+                    htmlUsers += `<option value="${u.nome}">${u.nome}</option>`;
+                });
+                
+                window.allUsersDB.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+                
+                if(selTechFilter) selTechFilter.innerHTML = `<option value="ALL">Todos os Responsáveis</option>` + htmlUsers;
+                if(selTechSch) selTechSch.innerHTML = htmlUsers;
+
+                window.renderAlertasConfigUI();
+                window.renderAlertaManualUI();
             });
 
-            // 1. CARREGA CATÁLOGOS (Autocompletes)
-            const db = window.AppDB;
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
-                const dl = document.getElementById('clientes-catalogo'); dl.innerHTML = '';
-                snap.forEach(d => dl.innerHTML += `<option value="${d.data().fantasia || d.data().razao_social}">`);
+            // 2. CARREGA CONFIGURAÇÕES DE ALERTAS (Migrando estrutura antiga se necessário)
+            window.fsOnSnapshot(window.fsDoc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    ['novo_chamado', 'triagem', 'orcamento'].forEach(evt => {
+                        if (Array.isArray(data[evt])) {
+                            // Legado: migra array antigo para o novo formato de objeto
+                            window.alertConfigs[evt] = { perfis: data[evt], usuarios: [] };
+                        } else if (data[evt]) {
+                            window.alertConfigs[evt] = data[evt];
+                        }
+                    });
+                    window.renderAlertasConfigUI();
+                }
             });
+
+            // 3. CARREGA CATÁLOGOS (Autocompletes)
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
+                window.clientesCatalogo = [];
+                const dl = document.getElementById('clientes-catalogo'); dl.innerHTML = '';
+                snap.forEach(d => {
+                    const c = d.data();
+                    window.clientesCatalogo.push(c);
+                    dl.innerHTML += `<option value="${c.fantasia || c.razao_social}">`;
+                });
+            });
+
             window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
                 const dl = document.getElementById('maquinas-catalogo'); dl.innerHTML = '';
                 snap.forEach(d => dl.innerHTML += `<option value="${d.data().modelo}">`);
             });
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_pecas'), snap => {
-                const dl = document.getElementById('pecas-catalogo'); dl.innerHTML = '';
-                snap.forEach(d => dl.innerHTML += `<option value="${d.data().sku} - ${d.data().nome}">`);
-            });
 
-            // 2. CARREGA CHAMADOS (Firebase)
+            // 4. CARREGA CHAMADOS OSR
             window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), (snap) => {
                 window.tickets = [];
                 snap.forEach(doc => {
                     const d = doc.data();
-                    window.tickets.push({
-                        id: d.osr || d.id,
-                        createdAt: d.data_formatada ? new Date(d.data_formatada.split('/').reverse().join('-')).toISOString() : new Date(d.timestamp).toISOString(),
-                        status: d.status_kanban || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA'),
-                        client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
-                        equipment: { model: d.maquina || '', serial: d.serial || '' },
-                        request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.isPresencial || false },
-                        assignee: d.tecnico_kanban || d.tecnico || window.currentUserStr,
-                        nextAction: d.nextAction || 'Triagem / Atendimento',
-                        history: d.history || [{ date: new Date(d.timestamp).toISOString(), user: d.tecnico, type: 'system', text: 'Atendimento registrado.' }],
-                        triage: d.triage || null,
-                        quote: d.quote || null,
-                        schedule: d.schedule || null
-                    });
+                    if(d) {
+                        window.tickets.push({
+                            id: d.osr || d.id,
+                            createdAt: d.data_formatada ? new Date(d.data_formatada.split('/').reverse().join('-')).toISOString() : new Date(d.timestamp).toISOString(),
+                            status: d.status_kanban || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA'),
+                            client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
+                            equipment: { model: d.maquina || '', serial: d.serial || '' },
+                            request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.isPresencial || false },
+                            assignee: d.tecnico_kanban || d.tecnico || window.currentUserStr,
+                            nextAction: d.nextAction || 'Triagem / Atendimento',
+                            history: d.history || [{ date: new Date(d.timestamp).toISOString(), user: d.tecnico, type: 'system', text: 'Atendimento registrado.' }],
+                            triage: d.triage || null,
+                            quote: d.quote || null,
+                            schedule: d.schedule || null
+                        });
+                    }
                 });
                 window.tickets.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
                 window.applyFilters();
             });
         };
 
-        window.saveTicketsToFirebase = async function() {
-            // Em vez de salvar todos, salva apenas o ticket modificado (buscado pelo currentTicketId ou dragged)
-            // Como este app era localStorage baseado, a função de atualizar status vai salvar o ticket unitário
+        // RENDERS DE ALERTA DINÂMICOS
+        window.renderAlertasConfigUI = function() {
+            const events = ['novo_chamado', 'triagem', 'orcamento'];
+            const perfis = Array.from(window.allProfilesDB).sort();
+            
+            events.forEach(evt => {
+                const containerPerfis = document.getElementById(`cfg_${evt}_perfis`);
+                const containerUsers = document.getElementById(`cfg_${evt}_usuarios`);
+                if(!containerPerfis || !containerUsers) return;
+
+                const savedConfig = window.alertConfigs[evt] || { perfis: [], usuarios: [] };
+
+                containerPerfis.innerHTML = perfis.map(p => `
+                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 cursor-pointer p-1 hover:bg-white rounded">
+                        <input type="checkbox" value="${p}" class="w-3.5 h-3.5 rounded text-blue-600 chk-cfg-${evt}-perfil" ${savedConfig.perfis.includes(p) ? 'checked' : ''}>
+                        ${p}
+                    </label>
+                `).join('');
+
+                containerUsers.innerHTML = window.allUsersDB.map(u => `
+                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 cursor-pointer p-1 hover:bg-white rounded">
+                        <input type="checkbox" value="${u.email}" class="w-3.5 h-3.5 rounded text-blue-600 chk-cfg-${evt}-user" ${savedConfig.usuarios.includes(u.email) ? 'checked' : ''}>
+                        ${u.nome} <span class="text-[9px] text-slate-400">(${u.perfil})</span>
+                    </label>
+                `).join('');
+            });
+        };
+
+        window.renderAlertaManualUI = function() {
+            const select = document.getElementById('alerta_manual_target');
+            if(!select) return;
+            
+            let html = '<option value="" disabled selected>Selecione quem receberá o alerta...</option>';
+            
+            html += '<optgroup label="--- Equipes (Perfis) ---">';
+            Array.from(window.allProfilesDB).sort().forEach(p => {
+                html += `<option value="PERFIL|${p}">Equipe de ${p}s</option>`;
+            });
+            html += '</optgroup>';
+
+            html += '<optgroup label="--- Usuários Individuais ---">';
+            window.allUsersDB.forEach(u => {
+                html += `<option value="USER|${u.email}">${u.nome} (${u.email})</option>`;
+            });
+            html += '</optgroup>';
+
+            select.innerHTML = html;
+        };
+
+        window.openConfigModal = function() {
+            document.getElementById('modal-config-alertas').classList.remove('hidden');
+        };
+
+        window.closeConfigModal = function() {
+            document.getElementById('modal-config-alertas').classList.add('hidden');
+        };
+
+        window.saveConfigModal = async function() {
+            const events = ['novo_chamado', 'triagem', 'orcamento'];
+            const newConfig = {};
+
+            events.forEach(evt => {
+                const perfis = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-perfil:checked`)).map(cb => cb.value);
+                const usuarios = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-user:checked`)).map(cb => cb.value);
+                newConfig[evt] = { perfis, usuarios };
+            });
+
+            window.alertConfigs = newConfig;
+
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), window.alertConfigs);
+                window.showToast('Regras de notificação salvas!', 'success');
+                window.closeConfigModal();
+            } catch(e) { window.showToast('Erro ao salvar as configurações.', 'warning'); }
+        };
+
+        window.openManualAlertModal = function() {
+            if(!window.currentTicketId) return;
+            document.getElementById('alerta_manual_msg').value = `Favor verificar com urgência o chamado ${window.currentTicketId}.`;
+            document.getElementById('alerta_manual_target').value = "";
+            document.getElementById('modal-alerta-manual').classList.remove('hidden');
+        };
+        
+        window.closeManualAlertModal = function() {
+            document.getElementById('modal-alerta-manual').classList.add('hidden');
+        };
+        
+        window.sendManualAlert = function() {
+            const target = document.getElementById('alerta_manual_target').value;
+            const msg = document.getElementById('alerta_manual_msg').value.trim();
+            if(msg && target) {
+                let arrUsers = [];
+                let arrPerfis = [];
+                if(target.startsWith('PERFIL|')) arrPerfis.push(target.split('|')[1]);
+                else if(target.startsWith('USER|')) arrUsers.push(target.split('|')[1]);
+
+                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(msg, arrUsers, arrPerfis, 'warning');
+                window.showToast('Notificação disparada com sucesso.', 'success');
+                window.closeManualAlertModal();
+            } else {
+                window.showToast('Selecione o destinatário e a mensagem.', 'warning');
+            }
+        };
+
+        // AUTO-PREENCHIMENTO MAGICO DO CLIENTE
+        window.autoFillClient = function(val) {
+            if(!val) return;
+            const c = window.clientesCatalogo.find(x => x.fantasia === val || x.razao_social === val);
+            if(c) {
+                const cityStr = c.cidade ? c.cidade + (c.estado ? '/' + c.estado : '') : '';
+                document.getElementById('new-cli-city').value = cityStr;
+                
+                if(c.contatos && c.contatos.length > 0) {
+                    document.getElementById('new-cli-contato').value = c.contatos[0].nome || '';
+                    document.getElementById('new-cli-tel').value = c.contatos[0].telefone || '';
+                } else {
+                    document.getElementById('new-cli-contato').value = c.contato || '';
+                    document.getElementById('new-cli-tel').value = c.telefone || '';
+                }
+            }
         };
 
         window.saveSingleTicket = async function(t) {
@@ -681,7 +935,6 @@
             filters.dateStart = document.getElementById('filterDateStart')?.value || '';
             filters.dateEnd = document.getElementById('filterDateEnd')?.value || '';
             filters.status = document.getElementById('filterStatus')?.value || 'ALL';
-            filters.type = document.getElementById('filterType')?.value || 'ALL';
             filters.tech = document.getElementById('filterTech')?.value || 'ALL';
 
             const headerQuick = document.getElementById('headerQuickSearch');
@@ -697,8 +950,8 @@
         };
 
         window.resetFilters = function() {
-            ['filterSearch','headerQuickSearch','filterClient','filterSerial','filterDateStart','filterDateEnd'].forEach(id => document.getElementById(id).value = '');
-            ['filterStatus','filterType','filterTech'].forEach(id => document.getElementById(id).value = 'ALL');
+            ['filterSearch','headerQuickSearch','filterClient','filterSerial','filterDateStart','filterDateEnd'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
+            ['filterStatus','filterTech'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = 'ALL'; });
             window.applyFilters();
         };
 
@@ -711,9 +964,6 @@
             if (filters.dateEnd && new Date(t.createdAt).setHours(23,59,59,999) > new Date(filters.dateEnd).setHours(23,59,59,999)) return false;
             
             if (filters.status !== 'ALL' && t.status !== filters.status) return false;
-            if (filters.type === 'REMOTO' && t.request.isPresencial) return false;
-            if (filters.type === 'PRESENCIAL' && !t.request.isPresencial) return false;
-            
             if (filters.tech !== 'ALL' && t.assignee !== filters.tech && (!t.schedule || t.schedule.tech !== filters.tech)) return false;
             return true;
         }
@@ -991,8 +1241,8 @@
             t.triage = { reason: 'Encaminhado diretamente do Suporte Remoto.' };
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem Técnica.' });
             await window.saveSingleTicket(t);
-            // ALERTA PARA GESTORES/TÉCNICOS
-            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`O chamado ${t.id} foi enviado para a Triagem!`, [], ['Admin', 'Técnico'], 'warning');
+            
+            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`O chamado ${t.id} foi enviado para a Triagem!`, window.alertConfigs.triagem.usuarios, window.alertConfigs.triagem.perfis, 'warning');
             window.showToast(`Enviado para Triagem!`, 'warning');
         };
 
@@ -1019,8 +1269,8 @@
             t.triage = { reason: 'Aprovado na triagem.', needs: selectedNeeds, desc: document.getElementById('triage-desc').value.trim() };
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Triagem concluída: Enviado para Orçamentos.` });
             await window.saveSingleTicket(t);
-            // ALERTA PARA COMERCIAL/FINANCEIRO
-            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Orçamento Pendente gerado pela Triagem Técnica: ${t.client.name}`, [], ['Admin', 'Comercial', 'Financeiro'], 'info');
+            
+            if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Orçamento Pendente gerado pela Triagem Técnica: ${t.client.name}`, window.alertConfigs.orcamento.usuarios, window.alertConfigs.orcamento.perfis, 'info');
             window.showToast('Triagem salva! Enviado para Orçamentos.', 'success');
             window.closeTicketModal();
         };
@@ -1067,7 +1317,7 @@
             window.closeTicketModal();
         };
 
-        // AUTOMAÇÃO COM A AGENDA 
+        // AUTOMAÇÃO COM A AGENDA V2
         window.saveSchedule = async function(complete) {
             if(!window.currentTicketId) return;
             const t = window.tickets.find(x => x.id === window.currentTicketId);
@@ -1080,7 +1330,9 @@
 
             if(!os || !date || !techName) { window.showToast('Preencha OS, data e técnico.', 'warning'); return; }
 
-            const techObj = TECHNICIANS.find(x => x.name === techName) || TECHNICIANS[0];
+            const userFound = window.allUsersDB.find(x => x.nome === techName);
+            const techEmail = userFound ? userFound.email : '';
+            const techId = userFound ? userFound.id : techName;
 
             t.schedule = { os, date, tech: techName, type };
 
@@ -1093,7 +1345,7 @@
                 t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Visita agendada para ${date} (${techName}).` });
                 window.showToast('Agendamento salvo e Tarefa Criada na Agenda!', 'info');
                 
-                // AUTOMAÇÃO: CRIA TAREFA NA AGENDA
+                // CRIA TAREFA OFICIAL NA AGENDA
                 const agendaId = 't_' + Date.now();
                 const agendaData = {
                     id: agendaId,
@@ -1102,8 +1354,8 @@
                     title: t.client.name,
                     type: 'TECHNICAL',
                     location: t.client.city || '',
-                    techIds: [techObj.id],
-                    techId: techObj.id,
+                    techIds: [techId],
+                    techId: techId,
                     urgency: (t.request.problem||'').toLowerCase().includes('parada') ? 'HIGH' : 'MEDIUM',
                     scheduledDate: date,
                     dueDate: date,
@@ -1112,9 +1364,10 @@
                 };
                 try {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', agendaId), agendaData);
-                    // DISPARA ALERTA DIRETO PARA O TÉCNICO ESCOLHIDO
-                    if (window.enviarNotificacaoApp && techObj.email) {
-                        window.enviarNotificacaoApp(`Nova OS Agendada para você: ${t.client.name} (Dia ${date.split('-').reverse().join('/')})`, [techObj.email], [], 'info');
+                    
+                    // ALERTA ESPECÍFICO PARA O TÉCNICO ESCOLHIDO
+                    if (window.enviarNotificacaoApp && techEmail) {
+                        window.enviarNotificacaoApp(`Nova OS Agendada para você: ${t.client.name} (Dia ${date.split('-').reverse().join('/')})`, [techEmail], [], 'info');
                     }
                 } catch(e) {}
             }
@@ -1150,13 +1403,14 @@
                 document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
                 window.closeNewTicketModal();
                 window.showToast(`Chamado ${newId} cadastrado!`, 'success');
-                // Alerta para todos os técnicos
-                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Chamado OSR registrado: ${cliName}`, [], ['Admin', 'Técnico'], 'info');
+                
+                // Dispara alerta usando as Novas Configurações
+                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(`Novo Chamado OSR registrado: ${cliName}`, window.alertConfigs.novo_chamado.usuarios, window.alertConfigs.novo_chamado.perfis, 'info');
             } catch(e) { window.showToast('Erro ao salvar.', 'warning'); }
         };
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); document.getElementById('filterPanel').classList.add('hidden'); }
+            if (e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.closeManualAlertModal(); document.getElementById('filterPanel').classList.add('hidden'); }
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 if (e.key.toLowerCase() === 'n') { e.preventDefault(); window.openNewTicketModal(); }
                 if (e.key.toLowerCase() === 'f') { e.preventDefault(); window.toggleFilterPanel(); }
