@@ -165,8 +165,7 @@
         ];
 
         window.initModule = function(perfil) {
-            // Regra herdada do Core
-            if (perfil !== 'Master' && perfil !== 'Admin' && perfil !== 'Administrativo') {
+            if (perfil !== 'Master' && perfil !== 'Administrativo') {
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Negado: Apenas a Administração pode gerenciar acessos.</span>';
                 window.fazerLogout();
                 return;

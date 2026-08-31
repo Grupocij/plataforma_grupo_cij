@@ -527,12 +527,15 @@ onAuthStateChanged(auth, async (user) => {
             });
         } catch (e) { console.error("Erro ao ler permissões", e); }
 
+        // LISTA VIP MASTER (Cobre as variações do seu e-mail corporativo)
+        const emailsMaster = ['marcos@grupocij.com', 'marcos@grupocij.com.br', 'marcos.bazacas@grupocij.com', 'marcos.bazacas@grupocij.com.br', 'adm@grupocij.com', 'adm@grupocij.com.br'];
+
         // NOVA REGRA DE SEGURANÇA: Bloqueio Total (Leão de Chácara)
         if (!dbUser) {
-            if (cleanEmail === 'marcos@grupocij.com') {
+            if (emailsMaster.includes(cleanEmail)) {
                 // Salva-vidas Master
                 dbUser = { 
-                    email: cleanEmail, nome: 'Marcos (Master)', perfil: 'Master', 
+                    email: cleanEmail, nome: 'Marcos Bazacas', perfil: 'Master', 
                     visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
                 };
             } else {
@@ -543,8 +546,10 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         // SEGREDO DE ESTADO: Garante que o Marcos sempre será Master, mesmo que editem o banco.
-        if (cleanEmail === 'marcos@grupocij.com') {
+        if (emailsMaster.includes(cleanEmail)) {
             dbUser.perfil = 'Master';
+            dbUser.nome = 'Marcos Bazacas'; // Garante o seu nome oficial
+            if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url); // Força acesso a tudo
         }
 
         window.currentUser = user;
