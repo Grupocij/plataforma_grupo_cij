@@ -860,60 +860,67 @@
 
             document.getElementById('tm-id').innerText = t.id;
             const badge = document.getElementById('tm-status-badge');
-            badge.innerText = STATUSES[t.status].label;
-            badge.className = `px-3 py-0.5 rounded-full text-[11px] font-bold ${STATUSES[t.status].color}`;
+            if(badge) {
+                badge.innerText = STATUSES[t.status].label;
+                badge.className = `px-3 py-0.5 rounded-full text-[11px] font-bold ${STATUSES[t.status].color}`;
+            }
 
-            document.getElementById('tm-assignee').innerHTML = `<i class="fa-regular fa-user text-blue-600 text-xs"></i> ${t.assignee}`;
-            document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock text-slate-400"></i> Aberto há ${formatElapsedTime(t.createdAt)}`;
+            if(document.getElementById('tm-assignee')) document.getElementById('tm-assignee').innerHTML = `<i class="fa-regular fa-user text-blue-600 text-xs"></i> ${t.assignee}`;
+            if(document.getElementById('tm-created-time')) document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock text-slate-400"></i> Aberto há ${formatElapsedTime(t.createdAt)}`;
 
-            document.getElementById('td-client').innerText = t.client.name;
-            document.getElementById('td-city').innerText = t.client.city || '-';
-            document.getElementById('td-contact').innerText = t.client.contact || '-';
-            document.getElementById('td-phone').innerText = t.client.phone || '-';
-            document.getElementById('td-equip').innerText = t.equipment.model;
-            document.getElementById('td-serial').innerText = t.equipment.serial;
-            document.getElementById('td-problem').innerText = t.request.problem;
-            document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum registrado.';
+            if(document.getElementById('td-client')) document.getElementById('td-client').innerText = t.client?.name || '';
+            if(document.getElementById('td-city')) document.getElementById('td-city').innerText = t.client?.city || '-';
+            if(document.getElementById('td-contact')) document.getElementById('td-contact').innerText = t.client?.contact || '-';
+            if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client?.phone || '-';
+            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = t.equipment?.model || '';
+            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = t.equipment?.serial || '';
+            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request?.problem || '';
+            if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request?.procedures || 'Nenhum registrado.';
 
             const matBox = document.getElementById('td-materials-box');
-            if(t.request.materiais) { document.getElementById('td-materials').innerText = t.request.materiais; matBox.classList.remove('hidden'); } else matBox.classList.add('hidden');
+            if (matBox) {
+                if(t.request && t.request.materiais) { 
+                    document.getElementById('td-materials').innerText = t.request.materiais; 
+                    matBox.classList.remove('hidden'); 
+                } else matBox.classList.add('hidden');
+            }
 
-            document.getElementById('remote-actions-bar').classList.toggle('hidden', t.status !== 'ENTRADA');
-            document.getElementById('reopen-actions-bar').classList.toggle('hidden', t.status !== 'CONCLUIDO');
+            if(document.getElementById('remote-actions-bar')) document.getElementById('remote-actions-bar').classList.toggle('hidden', t.status !== 'ENTRADA');
+            if(document.getElementById('reopen-actions-bar')) document.getElementById('reopen-actions-bar').classList.toggle('hidden', t.status !== 'CONCLUIDO');
 
-            document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
-            document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
-            document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-triagem')) document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-orcamento')) document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-agendamento')) document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
 
             if(t.triage) {
-                document.getElementById('triagem-motivo').innerText = t.triage.reason || 'Necessidade de avaliação presencial/peças.';
-                document.getElementById('orcamento-triage-needs').innerText = t.triage.needs && t.triage.needs.length>0 ? `Itens: ${t.triage.needs.join(', ')}` : 'Nenhum item específico.';
-                document.getElementById('orcamento-triage-desc').innerText = t.triage.desc ? `Parecer do Técnico: "${t.triage.desc}"` : 'Sem parecer técnico.';
+                if(document.getElementById('triagem-motivo')) document.getElementById('triagem-motivo').innerText = t.triage.reason || 'Necessidade de avaliação presencial/peças.';
+                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = t.triage.needs && t.triage.needs.length>0 ? `Itens: ${t.triage.needs.join(', ')}` : 'Nenhum item específico.';
+                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = t.triage.desc ? `Parecer do Técnico: "${t.triage.desc}"` : 'Sem parecer técnico.';
                 if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = t.triage.desc || '';
                 document.querySelectorAll('.triage-need').forEach(cb => cb.checked = t.triage.needs ? t.triage.needs.includes(cb.value) : false);
             } else {
-                document.getElementById('triagem-motivo').innerText = 'Necessidade de avaliação.';
-                document.getElementById('orcamento-triage-needs').innerText = 'Aguardando preenchimento da triagem.';
-                document.getElementById('orcamento-triage-desc').innerText = '';
+                if(document.getElementById('triagem-motivo')) document.getElementById('triagem-motivo').innerText = 'Necessidade de avaliação.';
+                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = 'Aguardando preenchimento da triagem.';
+                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = '';
                 if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = '';
                 document.querySelectorAll('.triage-need').forEach(cb => cb.checked = false);
             }
 
             if(t.quote) {
-                document.getElementById('orc-numero').value = t.quote.number || '';
-                document.getElementById('orc-valor').value = t.quote.amount || '';
-                document.getElementById('orc-desc').value = t.quote.desc || '';
+                if(document.getElementById('orc-numero')) document.getElementById('orc-numero').value = t.quote.number || '';
+                if(document.getElementById('orc-valor')) document.getElementById('orc-valor').value = t.quote.amount || '';
+                if(document.getElementById('orc-desc')) document.getElementById('orc-desc').value = t.quote.desc || '';
             } else {
-                ['orc-numero','orc-valor','orc-desc'].forEach(id => document.getElementById(id).value = '');
+                ['orc-numero','orc-valor','orc-desc'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
             }
 
             if(t.schedule) {
-                document.getElementById('sch-os').value = t.schedule.os || '';
-                document.getElementById('sch-date').value = t.schedule.date || '';
-                document.getElementById('sch-tech').value = t.schedule.tech || '';
-                document.getElementById('sch-type').value = t.schedule.type || '';
+                if(document.getElementById('sch-os')) document.getElementById('sch-os').value = t.schedule.os || '';
+                if(document.getElementById('sch-date')) document.getElementById('sch-date').value = t.schedule.date || '';
+                if(document.getElementById('sch-tech')) document.getElementById('sch-tech').value = t.schedule.tech || '';
+                if(document.getElementById('sch-type')) document.getElementById('sch-type').value = t.schedule.type || '';
             } else {
-                ['sch-os','sch-date','sch-tech','sch-type'].forEach(id => document.getElementById(id).value = '');
+                ['sch-os','sch-date','sch-tech','sch-type'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
             }
 
             window.renderTimeline(t);
@@ -961,7 +968,7 @@
             if (!window.pendingDeleteTicketId) return;
             const deletedId = window.pendingDeleteTicketId;
             try {
-                await window.FsDeleteDoc(window.FsDoc(window.FirebaseDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', deletedId));
+                await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', deletedId));
                 window.closeDeleteModal();
                 if (window.currentTicketId === deletedId) window.closeTicketModal();
                 window.showToast(`Chamado ${deletedId} excluído.`, 'warning');
@@ -1104,7 +1111,7 @@
                     description: `OS gerada via Kanban (Chamado: ${t.id}).\nProblema Relatado: ${t.request.problem}`
                 };
                 try {
-                    await window.FsSetDoc(window.FsDoc(window.FirebaseDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', agendaId), agendaData);
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', agendaId), agendaData);
                     // DISPARA ALERTA DIRETO PARA O TÉCNICO ESCOLHIDO
                     if (window.enviarNotificacaoApp && techObj.email) {
                         window.enviarNotificacaoApp(`Nova OS Agendada para você: ${t.client.name} (Dia ${date.split('-').reverse().join('/')})`, [techObj.email], [], 'info');
@@ -1130,16 +1137,16 @@
             const newTicket = {
                 id: newId, osr: newId,
                 status_kanban: 'ENTRADA', conclusao: 'Pendente',
-                cliente: cliName, cidade: document.getElementById('new-cli-city').value.trim(), contato: document.getElementById('new-cli-contato').value.trim(), telefone: document.getElementById('new-cli-tel').value.trim(),
-                maquina: eqModelo, serial: eqSerial,
-                defeito: problem, solucao: document.getElementById('new-procedures').value.trim(), pecas: document.getElementById('new-materials').value.trim(), isPresencial: false,
-                tecnico_kanban: window.currentUserStr, tecnico: window.currentUserStr, nextAction: 'Triagem Inicial',
+                cliente: { name: cliName, city: document.getElementById('new-cli-city').value.trim(), contact: document.getElementById('new-cli-contato').value.trim(), phone: document.getElementById('new-cli-tel').value.trim() },
+                equipment: { model: eqModelo, serial: eqSerial },
+                request: { problem: problem, procedures: document.getElementById('new-procedures').value.trim(), materiais: document.getElementById('new-materials').value.trim(), isPresencial: false },
+                assignee: window.currentUserStr, nextAction: 'Triagem Inicial',
                 history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado aberto via ServiceFlow.' }],
                 timestamp: Date.now(), data_formatada: new Date().toLocaleDateString('pt-BR')
             };
 
             try {
-                await window.FsSetDoc(window.FsDoc(window.FirebaseDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', newId), newTicket);
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', newId), newTicket);
                 document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
                 window.closeNewTicketModal();
                 window.showToast(`Chamado ${newId} cadastrado!`, 'success');
