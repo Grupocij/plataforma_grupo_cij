@@ -74,8 +74,17 @@ const injectLayout = () => {
         </div>
     </div>
 
+    <!-- ALERTA GLOBAL (Notificações) -->
+    <div id="global-yellow-alert" class="hidden bg-amber-500 text-slate-900 px-4 py-2 text-xs font-bold flex items-center justify-between z-[9999] shadow-md border-b border-amber-600 pulse-alert-global relative">
+        <div class="flex items-center gap-2 max-w-7xl mx-auto w-full">
+            <i class="fa-solid fa-bell animate-bounce text-sm"></i>
+            <span id="global-yellow-alert-text" class="flex-1 truncate">Nova notificação!</span>
+            <button onclick="window.marcarAlertaCiente()" class="ml-auto bg-amber-700 text-white hover:bg-amber-800 px-3 py-1 rounded-lg transition shadow-sm cursor-pointer whitespace-nowrap">Estou Ciente</button>
+        </div>
+    </div>
+
     <!-- CABEÇALHO SUPERIOR FIXO -->
-    <header class="bg-[#0f172a] text-white shadow-md border-b border-slate-800 sticky top-0 z-[9990] h-16 shrink-0 w-full no-print">
+    <div class="bg-[#0f172a] text-white shadow-md border-b border-slate-800 sticky top-0 z-[9990] h-16 shrink-0 w-full no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex items-center justify-between h-full gap-2 sm:gap-4">
                 
@@ -94,14 +103,14 @@ const injectLayout = () => {
                     </div>
 
                     <!-- Caixa de Pesquisa Global Flexível Mobile -->
-                    <div class="relative flex-1 sm:w-64 sm:flex-none ml-0 sm:ml-2">
+                    <div class="relative flex-1 min-w-0 max-w-sm">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="text" id="global-search-input" onkeyup="window.filterGlobalModules()" placeholder="Buscar módulo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-800 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-slate-700 transition-all placeholder-slate-500">
                         <ul id="global-search-results" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl overflow-hidden z-[9999] hidden max-h-60 overflow-y-auto custom-scrollbar"></ul>
                     </div>
                 </div>
 
-                <nav class="hidden lg:flex items-center gap-1 flex-1 justify-center h-full" id="desktop-nav-menu">
+                <nav class="hidden lg:flex items-center gap-1 flex-none justify-center h-full" id="desktop-nav-menu">
                     
                     <!-- SERVIÇOS -->
                     <div class="relative group h-full flex items-center nav-category" id="cat-servicos">
@@ -146,12 +155,12 @@ const injectLayout = () => {
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-shield-halved text-purple-400"></i> Administrativo <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[32rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
+                                <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central Cadastros</h4></div></a>
                                 <a href="solicitacoes-lista.html" data-module="solicitacoes-lista.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-list-check"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Lista Solicitações</h4></div></a>
                                 <a href="veiculos.html" data-module="veiculos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center shrink-0"><i class="fa-solid fa-car-tunnel"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Gerencial</h4></div></a>
                                 <a href="vendas.html" data-module="vendas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-cart-shopping"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Vendas (Saídas)</h4></div></a>
                                 <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Diretoria</h4></div></a>
                                 <a href="usuarios.html" data-module="usuarios.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid fa-users-gear"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gerenciar Usuários</h4></div></a>
-                                <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central Cadastros</h4></div></a>
                             </div>
                         </div>
                     </div>
@@ -182,17 +191,17 @@ const injectLayout = () => {
 
                 </nav>
 
-                <div class="flex items-center gap-2 shrink-0 ml-2">
+                <div class="flex items-center gap-2 shrink-0 ml-auto sm:ml-2">
                     <a href="index.html" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition items-center gap-1.5 hover:bg-slate-800"><i class="fa-solid fa-house"></i> Home</a>
                     <button onclick="window.fazerLogout()" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 transition items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
-                    <!-- Botão Menu Mobile Corrigido -->
+                    <!-- Botão Menu Mobile -->
                     <button onclick="window.toggleMobileMenu()" class="lg:hidden text-slate-300 hover:text-white text-xl p-1 px-2 border border-slate-700 rounded-lg bg-slate-800 cursor-pointer">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- Sidebar Mobile -->
     <div id="mobile-overlay" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-black/60 z-[105] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm lg:hidden"></div>
@@ -319,7 +328,7 @@ window.filterGlobalModules = function() {
 
 document.addEventListener('click', function(e) {
     const searchBox = document.getElementById('global-search-results');
-    if (searchBox && !e.target.closest('.relative.flex-1.sm\\:w-64')) {
+    if (searchBox && !e.target.closest('.relative.flex-1.min-w-0')) {
         searchBox.classList.add('hidden');
     }
 });
@@ -425,9 +434,6 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     if(badgeTop) badgeTop.innerText = dbUser.perfil + ' • ' + (dbUser.nome || window.currentUser.email.split('@')[0].toUpperCase());
 };
 
-// ==========================================
-// CENTRAL UNIVERSAL DE NOTIFICAÇÕES & ALERTAS
-// ==========================================
 window.tocarSomAlerta = function() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -438,12 +444,12 @@ window.tocarSomAlerta = function() {
         gain.connect(ctx.destination);
         osc.type = 'sine';
         osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); // Efeito "Ding-Ding"
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.5, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
         osc.start();
         osc.stop(ctx.currentTime + 0.5);
-    } catch(e) { console.warn("Áudio bloqueado pelo navegador."); }
+    } catch(e) {}
 };
 
 window.dispararAlertaGlobal = function(msg, tocarSom) {
@@ -527,13 +533,10 @@ onAuthStateChanged(auth, async (user) => {
             });
         } catch (e) { console.error("Erro ao ler permissões", e); }
 
-        // LISTA VIP MASTER (Cobre as variações do seu e-mail corporativo)
         const emailsMaster = ['marcos@grupocij.com', 'marcos@grupocij.com.br', 'marcos.bazacas@grupocij.com', 'marcos.bazacas@grupocij.com.br', 'adm@grupocij.com', 'adm@grupocij.com.br'];
 
-        // NOVA REGRA DE SEGURANÇA: Bloqueio Total (Leão de Chácara)
         if (!dbUser) {
             if (emailsMaster.includes(cleanEmail)) {
-                // Salva-vidas Master
                 dbUser = { 
                     email: cleanEmail, nome: 'Marcos Bazacas', perfil: 'Master', 
                     visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
@@ -545,11 +548,10 @@ onAuthStateChanged(auth, async (user) => {
             }
         }
 
-        // SEGREDO DE ESTADO: Garante que o Marcos sempre será Master, mesmo que editem o banco.
         if (emailsMaster.includes(cleanEmail)) {
             dbUser.perfil = 'Master';
-            dbUser.nome = 'Marcos Bazacas'; // Garante o seu nome oficial
-            if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url); // Força acesso a tudo
+            dbUser.nome = 'Marcos Bazacas'; 
+            if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url); 
         }
 
         window.currentUser = user;
@@ -563,20 +565,16 @@ onAuthStateChanged(auth, async (user) => {
         let currentPath = window.location.pathname.split('/').pop();
         if (!currentPath) currentPath = 'index.html';
 
-        // VISÃO GLOBAL INTELIGENTE (Master e Administrativo veem tudo por padrão)
         window.userVisaoGlobal = isMaster || isAdministrativo || (vg[currentPath] === true);
 
-        // Anti-Fraude de Links
         if (!isMaster && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
             if (isAdministrativo) {
-                // O Administrativo entra em tudo, EXCETO na diretoria. Se tentar, bloqueia.
                 if (currentPath === 'admin.html' || currentPath === 'diretoria-custos.html') {
                     alert("Acesso Negado: Área restrita à Diretoria (Master).");
                     window.location.href = 'index.html';
                     return;
                 }
             } else {
-                // Se for vendedor, técnico, etc., checa a lista.
                 if (!dbUser.modulos || !dbUser.modulos.includes(currentPath)) {
                     alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
                     window.location.href = 'index.html';
