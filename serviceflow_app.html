@@ -103,7 +103,7 @@
             </nav>
 
             <div class="flex items-center gap-2 ml-auto">
-                <!-- Botão de Configuração de Alertas (Exclusivo Master/Admin) -->
+                <!-- Botão de Configuração de Alertas (Exclusivo Master/Admin/Administrativo) -->
                 <button onclick="window.abrirModalConfigAlertas()" id="btnConfigAlertas" title="Configurar Automações de Alerta" class="hidden bg-slate-800 hover:bg-slate-900 text-amber-400 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all items-center gap-1.5 shadow-xs cursor-pointer">
                     <i class="fa-solid fa-gear"></i><span class="hidden xl:inline">Alertas</span>
                 </button>
@@ -179,7 +179,7 @@
     </main>
 
     <!-- DRAWER: DETALHES DO CHAMADO -->
-    <div id="ticketModal" class="fixed inset-0 modal-overlay z-50 hidden flex justify-end">
+    <div id="ticketModal" class="fixed inset-0 modal-overlay z-[9999] hidden flex justify-end">
         <div class="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl drawer-animate" id="ticketDrawer">
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white text-slate-900 shrink-0">
                 <div class="flex items-center gap-3">
@@ -356,13 +356,13 @@
 
     <!-- MODAL: Configurações de Alertas -->
     <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 flex flex-col">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col my-auto">
             <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-amber-400"></i> Automação de Alertas do Funil</h3>
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-amber-400"></i> Automação de Alertas do Kanban</h3>
                 <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar bg-slate-50 space-y-5">
-                <p class="text-xs text-slate-600">Determine quem deve ser notificado automaticamente (computador e celular) quando um chamado entrar em cada fase do Kanban.</p>
+            <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50 space-y-5">
+                <p class="text-xs text-slate-600">Determine quem deve ser notificado automaticamente (computador e celular) quando um chamado entrar em cada fase.</p>
                 <div id="config-alertas-container" class="space-y-4">
                     <!-- Injetado dinamicamente -->
                 </div>
@@ -376,7 +376,7 @@
 
     <!-- MODAL: Notificar Manual -->
     <div id="modal-notificar" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col my-auto">
             <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center shrink-0">
                 <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Disparar Alerta / Cobrança</h3>
                 <button onclick="window.fecharModalNotificar()" class="text-amber-100 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -391,7 +391,7 @@
                             <option value="perfil_Financeiro">Equipe: Financeiro</option>
                             <option value="perfil_Administrativo">Equipe: Administrativo</option>
                         </optgroup>
-                        <optgroup label="Por Usuário" id="notif-group-usuarios"></optgroup>
+                        <optgroup label="Por Usuário Individual" id="notif-group-usuarios"></optgroup>
                     </select>
                 </div>
                 <div>
@@ -404,28 +404,52 @@
     </div>
 
     <!-- MODAL: Novo Chamado (Criação Manual) -->
-    <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+    <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
             <div class="px-6 py-4 bg-white border-b border-slate-200 text-slate-900 flex justify-between items-center shrink-0">
                 <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-headset text-blue-600"></i> Registro de Atendimento Manual</h3>
                 <button onclick="window.closeNewTicketModal()" class="text-slate-400 hover:text-slate-700 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-slate-50">
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-slate-50 custom-scrollbar">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
                     <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Cliente & Equipamento</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Cliente *</label><input type="text" id="new-cli-name" list="list-clientes" oninput="window.autoFillCliente(this.value)" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label><input type="text" id="new-cli-city" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Contato</label><input type="text" id="new-cli-contato" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Telefone / Whats</label><input type="text" id="new-cli-tel" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label><input type="text" id="new-eq-modelo" list="list-maquinas" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label><input type="text" id="new-eq-serial" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cliente *</label>
+                            <input type="text" id="new-cli-name" list="list-clientes" required oninput="window.autoFillCliente(this.value)" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label>
+                            <input type="text" id="new-cli-city" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Contato</label>
+                            <input type="text" id="new-cli-contato" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Telefone / Whats</label>
+                            <input type="text" id="new-cli-tel" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label>
+                            <input type="text" id="new-eq-modelo" list="list-maquinas" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label>
+                            <input type="text" id="new-eq-serial" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                        </div>
                     </div>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
                     <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Problema e Relato</h4>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Problema *</label><textarea id="new-problem" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Procedimentos Iniciais</label><textarea id="new-procedures" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Problema *</label>
+                        <textarea id="new-problem" required rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Procedimentos Iniciais</label>
+                        <textarea id="new-procedures" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                    </div>
                 </div>
             </div>
             <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
@@ -436,8 +460,8 @@
     </div>
 
     <!-- MODAL DELETAR -->
-    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center">
+    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center my-auto">
             <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <div>
                 <h3 class="text-base font-bold text-slate-900">Excluir Atendimento?</h3>
@@ -450,7 +474,7 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toastContainer" class="fixed top-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script type="module" src="core.js"></script>
     <script type="module">
@@ -467,7 +491,7 @@
         window.currentUserStr = '';
         
         window.alertSettings = {
-            'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': []
+            'ENTRADA': [], 'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': []
         };
 
         window.dbClientes = [];
@@ -489,8 +513,9 @@
 
             window.currentUserStr = window.nomeUsuarioLogado || window.currentUser?.email || 'Técnico';
 
-            if (perfil === 'Admin' || perfil === 'Master' || perfil === 'Administrativo') {
-                document.getElementById('btnConfigAlertas').classList.remove('hidden');
+            if (perfil === 'Master' || perfil === 'Administrativo' || perfil === 'Admin') {
+                const btnConfig = document.getElementById('btnConfigAlertas');
+                if (btnConfig) btnConfig.classList.remove('hidden');
             }
 
             // Sync Usuários Reais
@@ -538,7 +563,7 @@
                         client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
                         equipment: { model: d.maquina || '', serial: d.serial || '' },
                         request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.conclusao === 'Marcar atendimento' },
-                        urgency: d.urgencia === 'CRITICA' || d.urgencia === 'CRITICAL' ? 'CRITICAL' : 'MEDIUM',
+                        urgency: d.urgencia === 'CRITICA' || d.urgencia === 'CRITICAL' ? 'CRITICAL' : 'NORMAL',
                         fotoBase64: d.fotoBase64 || null,
                         assignee: d.tecnico_kanban || d.tecnico || window.currentUserStr,
                         nextAction: d.nextAction || 'Triagem / Atendimento',
@@ -557,7 +582,9 @@
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
                 if(snap.exists()) {
                     const r = snap.data();
-                    window.alertSettings = r;
+                    window.alertSettings = {
+                        'ENTRADA': r.ENTRADA || [], 'TRIAGEM': r.TRIAGEM || [], 'ORCAMENTO': r.ORCAMENTO || [], 'AGENDAMENTO': r.AGENDAMENTO || [], 'CONCLUIDO': r.CONCLUIDO || []
+                    };
                 }
             });
         };
@@ -632,6 +659,7 @@
         };
 
         window.formatElapsedTime = function(msOriginal) {
+            if(!msOriginal) return '';
             const diffHours = Math.floor((Date.now() - msOriginal) / (1000 * 60 * 60));
             if (diffHours < 1) return 'Hoje';
             if (diffHours < 24) return `${diffHours}h atrás`;
@@ -684,7 +712,7 @@
 
         window.filterTicketByCriteria = function(t) {
             const f = window.filters;
-            if(f.search && !(t.id.toLowerCase().includes(f.search) || t.client.name.toLowerCase().includes(f.search) || t.equipment.model.toLowerCase().includes(f.search) || t.equipment.serial.toLowerCase().includes(f.search) || t.request.problem.toLowerCase().includes(f.search))) return false;
+            if(f.search && !(t.id.toLowerCase().includes(f.search) || t.client.name.toLowerCase().includes(f.search) || t.equipment.model.toLowerCase().includes(f.search) || t.equipment.serial.toLowerCase().includes(f.search) || (t.request.problem && t.request.problem.toLowerCase().includes(f.search)))) return false;
             if(f.client && !t.client.name.toLowerCase().includes(f.client)) return false;
             if(f.serial && !t.equipment.serial.toLowerCase().includes(f.serial)) return false;
             if(f.dateStart && new Date(t.createdAt).setHours(0,0,0,0) < new Date(f.dateStart).setHours(0,0,0,0)) return false;
@@ -740,7 +768,7 @@
 
                     const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-1.5 py-0.5 rounded border border-red-200 ml-2"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
 
-                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span>${urgBadge}</div><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate"><i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i>${t.equipment.model}</span><span class="font-mono text-slate-400 ml-1 shrink-0">${t.equipment.serial}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${t.request.problem}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${t.assignee.substring(0,1).toUpperCase()}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${t.assignee}</span></div></div>${qA}</div>`;
+                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span>${urgBadge}</div><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate"><i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i>${t.equipment.model}</span><span class="font-mono text-slate-400 ml-1 shrink-0">${t.equipment.serial}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${t.request.problem || ''}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${t.assignee.substring(0,1).toUpperCase()}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${t.assignee}</span></div></div>${qA}</div>`;
                     cardsCont.appendChild(card);
                 });
                 cDiv.appendChild(cardsCont);
@@ -757,7 +785,7 @@
             document.getElementById('pendenciasCountTag').innerText = `${myT.length} itens`;
 
             if(myT.length === 0) { list.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">Nenhum atendimento pendente.</div>`; return; }
-            list.innerHTML = myT.map(t => `<div class="bg-white hover:bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between cursor-pointer shadow-xs" onclick="window.openTicketModal('${t.id}')"><div class="space-y-1"><div class="flex items-center gap-2"><span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">${t.id}</span><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${STATUSES[t.status].color}">${STATUSES[t.status].label}</span></div><h4 class="text-xs font-bold text-slate-900">${t.client.name}</h4><p class="text-[11px] text-slate-600">${t.request.problem}</p></div><button class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">Abrir</button></div>`).join('');
+            list.innerHTML = myT.map(t => `<div class="bg-white hover:bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between cursor-pointer shadow-xs" onclick="window.openTicketModal('${t.id}')"><div class="space-y-1"><div class="flex items-center gap-2"><span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">${t.id}</span><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${STATUSES[t.status].color}">${STATUSES[t.status].label}</span></div><h4 class="text-xs font-bold text-slate-900">${t.client.name}</h4><p class="text-[11px] text-slate-600">${t.request.problem || ''}</p></div><button class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">Abrir</button></div>`).join('');
         };
 
         window.updateIndicadores = function() {
@@ -792,7 +820,7 @@
             if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client.phone || '-';
             if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = t.equipment.model;
             if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = t.equipment.serial;
-            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request.problem;
+            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request.problem || '';
             if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum.';
 
             const matBox = document.getElementById('td-materials-box');
@@ -892,6 +920,7 @@
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via remoto.' });
             window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Resolvido!', 'success');
+            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado (Remoto).`);
         };
 
         window.quickTriageTicket = function(id) {
@@ -911,6 +940,7 @@
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto para Triagem.' });
             window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Reaberto!', 'info');
+            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} REABERTO para Triagem.`);
         };
 
         window.toggleTriageFields = function(np) {
@@ -937,6 +967,7 @@
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encerrado na Triagem: ' + document.getElementById('triage-solution').value });
             window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Encerrado na Triagem!', 'success');
+            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Encerrado na Triagem.`);
         };
 
         window.sendQuoteToClient = function() {
@@ -955,7 +986,11 @@
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: apv ? 'Orçamento Aprovado. Liberado para Agendamento.' : 'Reprovado. Encerrado.' });
             window.saveTicketToDB(t); window.closeTicketModal(); window.showToast(apv ? 'Aprovado!' : 'Reprovado e Encerrado.', 'info');
-            if(apv) window.dispararAlertaAutomatico('AGENDAMENTO', `Orçamento Aprovado (${t.id}). Necessário Agendar OS.`);
+            if(apv) {
+                window.dispararAlertaAutomatico('AGENDAMENTO', `Orçamento Aprovado (${t.id}). Necessário Agendar OS.`);
+            } else {
+                window.dispararAlertaAutomatico('CONCLUIDO', `Orçamento Reprovado (${t.id}). Chamado Encerrado.`);
+            }
         };
 
         window.saveSchedule = async function(complete) {
@@ -1001,7 +1036,7 @@
         window.exportToCSV = function() {
             const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
             let csv = "\uFEFFID;Data;Status;Cliente;Maquina;Problema;Responsavel\n";
-            f.forEach(t => { csv += `${t.id};${new Date(t.timestampOriginal).toLocaleDateString('pt-BR')};${STATUSES[t.status].label};"${t.client.name}";"${t.equipment.model}";"${t.request.problem}";${t.assignee}\n`; });
+            f.forEach(t => { csv += `${t.id};${new Date(t.timestampOriginal).toLocaleDateString('pt-BR')};${STATUSES[t.status].label};"${t.client.name}";"${t.equipment.model}";"${t.request.problem || ''}";${t.assignee}\n`; });
             const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'export.csv'; link.click();
         };
 
@@ -1030,9 +1065,6 @@
             };
 
             await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', numFmt), data);
-            
-            // REMOVIDO ALERTA AUTOMÁTICO DE NOVO CHAMADO COMO SOLICITADO
-            
             window.closeNewTicketModal();
             document.getElementById('new-cli-name').value = ''; document.getElementById('new-eq-modelo').value = ''; document.getElementById('new-eq-serial').value = ''; document.getElementById('new-problem').value = ''; document.getElementById('new-procedures').value = '';
             window.showToast('Chamado criado com sucesso!', 'success');
@@ -1058,7 +1090,7 @@
         // --- CONFIGURAÇÃO DE ALERTAS ---
         window.abrirModalConfigAlertas = function() {
             const cont = document.getElementById('config-alertas-container');
-            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin'];
+            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
             let html = '';
             ['ENTRADA','TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].forEach(fase => {
                 const faseNome = STATUSES[fase]?.label || fase;
@@ -1093,7 +1125,7 @@
             } catch(e) {}
         };
 
-        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); } });
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); document.getElementById('modal-foto-full').classList.add('hidden'); } });
     </script>
 </body>
 </html>
