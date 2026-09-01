@@ -12,9 +12,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                     boxShadow: {
                         'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.04)',
                         'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)',
@@ -34,14 +32,15 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
+        /* Menu e Elementos Glass */
         .glass-header {
             background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        
         .modal-overlay { background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(5px); }
 
+        /* Timeline do Histórico */
         .timeline-item { position: relative; padding-left: 1.5rem; }
         .timeline-item::before {
             content: ''; position: absolute; left: 4px; top: 6px; bottom: -1.25rem; border-left: 2px solid #e2e8f0;
@@ -52,8 +51,17 @@
             background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
         }
 
+        /* Drag and Drop visual cues */
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
         .dragging { opacity: 0.4; transform: scale(0.98); }
+
+        /* Alarme de Urgência */
+        .pulse-critical { animation: pulseRed 2s infinite; }
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
@@ -63,266 +71,177 @@
 </head>
 <body class="h-full flex flex-col overflow-hidden text-slate-800 bg-slate-100 antialiased selection:bg-blue-600 selection:text-white">
 
-    <!-- DATALISTS PARA AUTOCOMPLETE (Conectados à Central) -->
-    <datalist id="clientes-catalogo"></datalist>
-    <datalist id="maquinas-catalogo"></datalist>
+    <!-- DATALISTS PARA AUTOCOMPLETE (Puxados do Firebase) -->
+    <datalist id="list-clientes"></datalist>
+    <datalist id="list-maquinas"></datalist>
 
-    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
-            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
-            <p id="login-message" class="text-sm font-semibold text-slate-500">Sincronizando com o banco de dados...</p>
+    <!-- ATENÇÃO: Mantido como <div> para não bloquear a injeção do menu do core.js -->
+    <div class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
+        <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow shrink-0">S</div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base font-extrabold tracking-tight text-slate-900">ServiceFlow</h1>
+                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">v3.0</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-medium">Gestão Integrada de Triagem e Suporte</p>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center relative flex-1 max-w-xs mx-2">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="headerQuickSearch" oninput="window.syncHeaderSearch(this.value)" placeholder="Busca rápida..." class="w-full pl-8 pr-8 py-1.5 text-xs bg-slate-100/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">F</span>
+            </div>
+
+            <nav class="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/60 overflow-x-auto">
+                <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap" id="nav-kanban"><i class="fa-solid fa-table-columns text-xs"></i><span>Kanban</span></button>
+                <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox text-xs"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span></button>
+                <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 whitespace-nowrap" id="nav-indicadores"><i class="fa-solid fa-chart-line text-xs"></i><span>Indicadores</span></button>
+            </nav>
+
+            <div class="flex items-center gap-2 ml-auto">
+                <!-- Botão de Configuração de Alertas (Exclusivo Master/Admin) -->
+                <button onclick="window.abrirModalConfigAlertas()" id="btnConfigAlertas" title="Configurar Automações de Alerta" class="hidden bg-slate-800 hover:bg-slate-900 text-amber-400 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all items-center gap-1.5 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-gear"></i><span class="hidden xl:inline">Alertas</span>
+                </button>
+
+                <button onclick="window.exportToCSV()" title="Exportar CSV" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-file-excel text-emerald-600 text-xs"></i><span class="hidden xl:inline">Exportar</span>
+                </button>
+
+                <button onclick="window.toggleFilterPanel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-filter text-blue-600 text-xs"></i><span>Filtros</span><span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
+                </button>
+
+                <button onclick="window.openNewTicketModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i><span class="hidden sm:inline">Novo Chamado</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Painel de Filtros -->
+        <div id="filterPanel" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 shadow-xs hidden transition-all">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Geral</label>
+                    <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="filterSearch" oninput="window.applyFilters()" placeholder="Pesquisar..." class="w-full pl-7 pr-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                </div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente</label><input type="text" id="filterClient" oninput="window.applyFilters()" placeholder="Nome..." class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nº Série</label><input type="text" id="filterSerial" oninput="window.applyFilters()" placeholder="SN-..." class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Inicial</label><input type="date" id="filterDateStart" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Final</label><input type="date" id="filterDateEnd" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                <div class="flex gap-2">
+                    <button onclick="window.resetFilters()" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300/70 transition-all flex items-center justify-center gap-1 cursor-pointer"><i class="fa-solid fa-eraser text-slate-500"></i> Limpar</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2.5 pt-2.5 border-t border-slate-100">
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Status</label><select id="filterStatus" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos</option><option value="ENTRADA">Suporte Remoto</option><option value="TRIAGEM">Triagem Técnica</option><option value="ORCAMENTO">Orçamentos</option><option value="AGENDAMENTO">Agendamento / Execução</option><option value="CONCLUIDO">Finalizados</option></select></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Modalidade</label><select id="filterType" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todas</option><option value="REMOTO">Somente Remoto</option><option value="PRESENCIAL">Requer Visita Presencial</option></select></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Responsável</label><select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos os Responsáveis</option></select></div>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 flex flex-col h-full bg-slate-100 relative hidden" id="main-content">
-        
-        <!-- Substituído 'header' por 'div' para o core.js não esconder o menu superior -->
-        <div class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
-            <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow">S</div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-base font-extrabold tracking-tight text-slate-900">ServiceFlow</h1>
-                            <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Gestão OSR</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 font-medium">Gestão Integrada de Triagem e Suporte</p>
-                    </div>
-                </div>
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 relative">
+        <div class="px-4 pt-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
+            <span class="hidden sm:inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status.</span>
+            <div class="flex items-center gap-3 ml-auto text-[10px] font-mono"><span>[N] Novo</span><span>[F] Filtros</span><span>[ESC] Fechar Modais</span></div>
+        </div>
 
-                <div class="hidden md:flex items-center relative flex-1 max-w-xs mx-2">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="headerQuickSearch" oninput="window.syncHeaderSearch(this.value)" placeholder="Busca rápida (Cliente, Nº, Série)..." class="w-full pl-8 pr-8 py-1.5 text-xs bg-slate-100/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">F</span>
-                </div>
-
-                <nav class="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/60">
-                    <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-600/20" id="nav-kanban">
-                        <i class="fa-solid fa-table-columns text-xs"></i><span>Kanban</span>
-                    </button>
-                    <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80" id="nav-pendencias">
-                        <i class="fa-solid fa-inbox text-xs"></i><span>Pendências</span>
-                        <span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span>
-                    </button>
-                    <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80" id="nav-indicadores">
-                        <i class="fa-solid fa-chart-line text-xs"></i><span>Indicadores</span>
-                    </button>
-                </nav>
-
-                <div class="flex items-center gap-2 ml-auto">
-                    <!-- Configurações Dinâmicas (Master e Administrativo) -->
-                    <button id="btnConfigAlertas" onclick="window.openConfigModal()" class="hidden bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
-                        <i class="fa-solid fa-gear text-slate-500"></i> <span class="hidden xl:inline">Config. Alertas</span>
-                    </button>
-
-                    <button onclick="window.toggleFilterPanel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
-                        <i class="fa-solid fa-filter text-blue-600 text-xs"></i><span>Filtros</span>
-                        <span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
-                    </button>
-
-                    <button onclick="window.openNewTicketModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-blue-600/25 transition-all flex items-center gap-2 active:scale-95 cursor-pointer">
-                        <i class="fa-solid fa-plus text-xs"></i><span class="hidden sm:inline">Novo Chamado</span>
-                        <span class="hidden lg:inline-block text-[9px] bg-blue-700 text-blue-200 px-1 rounded font-mono">N</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Painel de Filtros Retrátil -->
-            <div id="filterPanel" class="bg-white border-t border-slate-200 px-4 lg:px-6 py-3 shadow-xs hidden transition-all">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Geral</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="filterSearch" oninput="window.applyFilters()" placeholder="Nº Chamado, problema..." class="w-full pl-7 pr-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente</label>
-                        <input type="text" id="filterClient" oninput="window.applyFilters()" placeholder="Nome do cliente..." class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nº de Série</label>
-                        <input type="text" id="filterSerial" oninput="window.applyFilters()" placeholder="Ex: SN-HP98231" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Inicial</label>
-                        <input type="date" id="filterDateStart" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Final</label>
-                        <input type="date" id="filterDateEnd" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="window.resetFilters()" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300/70 transition-all flex items-center justify-center gap-1 cursor-pointer">
-                            <i class="fa-solid fa-xmark text-slate-500"></i> Limpar
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2.5 pt-2.5 border-t border-slate-100">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Etapa / Status</label>
-                        <select id="filterStatus" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer">
-                            <option value="ALL">Todas as Etapas</option>
-                            <option value="ENTRADA">Suporte Remoto</option>
-                            <option value="TRIAGEM">Triagem Técnica</option>
-                            <option value="ORCAMENTO">Orçamentos</option>
-                            <option value="AGENDAMENTO">Agendamento / Execução</option>
-                            <option value="CONCLUIDO">Finalizados</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Técnico / Atribuído</label>
-                        <select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer">
-                            <option value="ALL">Todos os Responsáveis</option>
-                            <!-- Injetado dinamicamente -->
-                        </select>
-                    </div>
-                </div>
+        <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col">
+            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4">
+                <!-- Colunas Kanban Injetadas via JS -->
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col h-full min-h-0 bg-slate-100 relative">
-            <div class="px-4 py-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
-                <span class="hidden sm:inline-flex items-center gap-1 font-medium">
-                    <i class="fa-solid fa-lightbulb text-amber-500"></i> Dica: Arraste os cartões no Kanban para mudar o status rapidamente.
-                </span>
-                <div class="flex items-center gap-3 ml-auto text-[10px] font-mono">
-                    <span>[N] Novo Chamado</span>
-                    <span>[F] Filtros</span>
-                    <span>[ESC] Fechar</span>
+        <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+            <div class="max-w-4xl mx-auto space-y-4">
+                <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
+                    <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
+                    <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">0 itens</span>
                 </div>
+                <div id="pendenciasList" class="space-y-3"></div>
             </div>
+        </div>
 
-            <!-- View 1: Kanban -->
-            <div id="view-kanban" class="flex-1 overflow-hidden p-3 md:p-4 view-section h-full flex flex-col">
-                <div id="kanban-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 h-full min-h-0 w-full">
-                    <!-- Injetados via JS -->
-                </div>
-            </div>
-
-            <!-- View 2: Pendências Ativas -->
-            <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
-                <div class="max-w-4xl mx-auto space-y-4">
-                    <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3>
-                            <p class="text-xs text-slate-500">Chamados em andamento aguardando ação, aprovação ou execução.</p>
-                        </div>
-                        <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">0 itens</span>
-                    </div>
-                    <div id="pendenciasList" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <!-- View 3: Indicadores -->
-            <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
-                <div class="max-w-6xl mx-auto space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Distribuição Operacional dos Chamados</h3>
-                        <div id="indicadoresBarList" class="space-y-3"></div>
-                    </div>
+        <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+            <div class="max-w-6xl mx-auto space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                    <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Distribuição Operacional</h3>
+                    <div id="indicadoresBarList" class="space-y-3"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- DRAWER / MODAL DE DETALHES -->
-    <div id="ticketModal" class="fixed inset-0 modal-overlay z-[9999] hidden flex justify-end">
+    <!-- DRAWER: DETALHES DO CHAMADO -->
+    <div id="ticketModal" class="fixed inset-0 modal-overlay z-50 hidden flex justify-end">
         <div class="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl drawer-animate" id="ticketDrawer">
-            
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white text-slate-900 shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-mono font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-lg border border-blue-200" id="tm-id">ATD-#00000</span>
                     <span id="tm-status-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold">STATUS</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="window.openManualAlertModal()" class="text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-bell text-sm"></i><span class="hidden sm:inline">Notificar Equipe</span>
+                    <button onclick="window.abrirModalNotificar()" title="Cobrar/Avisar Equipe" class="text-amber-600 hover:bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-bell text-sm"></i><span class="hidden sm:inline">Notificar</span>
                     </button>
-                    <button onclick="window.sendWhatsAppUpdate()" class="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-brands fa-whatsapp text-sm"></i><span class="hidden sm:inline">WhatsApp</span>
-                    </button>
-                    <button onclick="window.confirmDeleteTicket(window.currentTicketId)" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors p-1.5 rounded-lg border border-transparent hover:border-rose-200 cursor-pointer">
-                        <i class="fa-solid fa-trash-can text-sm"></i>
-                    </button>
-                    <button onclick="window.closeTicketModal()" class="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
+                    <button onclick="window.confirmDeleteTicket(window.currentTicketId)" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors p-1.5 rounded-lg border border-transparent hover:border-rose-200 cursor-pointer"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                    <button onclick="window.closeTicketModal()" class="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
             </div>
 
             <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-2 text-xs">
                     <span class="text-slate-500 font-medium">Responsável:</span>
-                    <span class="font-bold text-slate-800 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5" id="tm-assignee">
-                        <i class="fa-regular fa-user text-blue-600 text-xs"></i> Nome
-                    </span>
+                    <span class="font-bold text-slate-800 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs" id="tm-assignee">Nome</span>
                 </div>
-                <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1" id="tm-created-time">
-                    <i class="fa-regular fa-clock text-slate-400"></i> Aberto há...
-                </div>
+                <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1" id="tm-created-time"></div>
             </div>
 
             <div class="px-6 border-b border-slate-200 shrink-0 bg-white">
                 <nav class="flex gap-6 text-xs font-semibold text-slate-500 overflow-x-auto">
-                    <button onclick="window.switchTab('tab-dados')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors tab-active" data-target="tab-dados">
-                        <i class="fa-solid fa-file-lines mr-1.5"></i>Dados Gerais
-                    </button>
-                    <button onclick="window.switchTab('tab-triagem')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-triagem" data-target="tab-triagem">
-                        <i class="fa-solid fa-stethoscope mr-1.5"></i>Análise de Triagem
-                    </button>
-                    <button onclick="window.switchTab('tab-orcamento')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-orcamento" data-target="tab-orcamento">
-                        <i class="fa-solid fa-calculator mr-1.5"></i>Orçamento
-                    </button>
-                    <button onclick="window.switchTab('tab-agendamento')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-agendamento" data-target="tab-agendamento">
-                        <i class="fa-solid fa-calendar-days mr-1.5"></i>Agendamento / OS
-                    </button>
-                    <button onclick="window.switchTab('tab-historico')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors" data-target="tab-historico">
-                        <i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Histórico & Notas
-                    </button>
+                    <button onclick="window.switchTab('tab-dados')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors tab-active" data-target="tab-dados"><i class="fa-solid fa-file-lines mr-1.5"></i>Dados</button>
+                    <button onclick="window.switchTab('tab-triagem')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-triagem" data-target="tab-triagem"><i class="fa-solid fa-stethoscope mr-1.5"></i>Triagem</button>
+                    <button onclick="window.switchTab('tab-orcamento')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-orcamento" data-target="tab-orcamento"><i class="fa-solid fa-calculator mr-1.5"></i>Orçamento</button>
+                    <button onclick="window.switchTab('tab-agendamento')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors hidden" id="tab-nav-agendamento" data-target="tab-agendamento"><i class="fa-solid fa-calendar-days mr-1.5"></i>Agendamento</button>
+                    <button onclick="window.switchTab('tab-historico')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors" data-target="tab-historico"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Histórico</button>
                 </nav>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 bg-slate-50 custom-scrollbar">
-                
-                <!-- ABA 1: DADOS -->
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
                 <div id="tab-dados" class="tab-content space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-building"></i> Informações do Cliente</h3>
+                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-building text-blue-600"></i> Cliente</h3>
                             <div class="space-y-1.5 text-xs">
-                                <div><span class="text-slate-400 block text-[10px]">Razão Social</span> <span id="td-client" class="font-bold text-slate-900 text-sm"></span></div>
-                                <div><span class="text-slate-400 block text-[10px]">Cidade / Estado</span> <span id="td-city" class="font-semibold text-slate-700"></span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Nome</span> <span id="td-client" class="font-bold text-slate-900 text-sm"></span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Cidade</span> <span id="td-city" class="font-semibold text-slate-700"></span></div>
                                 <div><span class="text-slate-400 block text-[10px]">Contato</span> <span id="td-contact" class="font-semibold text-slate-700"></span> • <span id="td-phone" class="font-semibold text-slate-700 font-mono"></span></div>
                             </div>
                         </div>
-
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-print"></i> Equipamento & ID</h3>
+                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-print text-blue-600"></i> Equipamento</h3>
                             <div class="space-y-1.5 text-xs">
-                                <div><span class="text-slate-400 block text-[10px]">Modelo / Fabricante</span> <span id="td-equip" class="font-bold text-slate-900 text-sm"></span></div>
-                                <div><span class="text-slate-400 block text-[10px]">Número de Série</span> <span id="td-serial" class="font-mono font-semibold text-slate-700"></span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Modelo</span> <span id="td-equip" class="font-bold text-slate-900 text-sm"></span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Série</span> <span id="td-serial" class="font-mono font-semibold text-slate-700"></span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-wrench"></i> Diagnóstico</h3>
-                            <span id="td-presencial-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 hidden">Atendimento Presencial</span>
-                        </div>
-
+                        <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2"><i class="fa-solid fa-wrench text-blue-600"></i> Diagnóstico</h3>
                         <div class="grid grid-cols-1 gap-3.5 text-xs">
                             <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
-                                <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-amber-500"></i> Relato Inicial</span>
-                                <p id="td-problem" class="text-slate-800 font-medium leading-relaxed pt-0.5"></p>
+                                <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-amber-500"></i> Problema</span>
+                                <p id="td-problem" class="text-slate-800 font-medium leading-relaxed pt-0.5 whitespace-pre-line"></p>
                             </div>
-                            <div class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 space-y-1">
-                                <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-laptop-code text-blue-600"></i> Procedimentos Remotos</span>
+                            <div id="td-procedures-box" class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 space-y-1">
+                                <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-laptop-code text-blue-600"></i> Procedimentos</span>
                                 <p id="td-procedures" class="text-slate-800 leading-relaxed pt-0.5 whitespace-pre-line"></p>
                             </div>
                             <div id="td-materials-box" class="bg-amber-50/80 p-3.5 rounded-xl border border-amber-200 space-y-1 hidden">
@@ -332,233 +251,183 @@
                         </div>
                     </div>
 
+                    <!-- FOTO DO DEFEITO / EQUIPAMENTO -->
+                    <div id="td-foto-box" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 hidden">
+                        <h3 class="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-camera text-slate-500"></i> Evidência Fotográfica</h3>
+                        <img id="td-foto-img" src="" class="max-h-48 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:opacity-90 transition object-cover" onclick="window.abrirFotoFullscreen(this.src)">
+                    </div>
+
                     <div id="remote-actions-bar" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-end gap-3 hidden">
                         <button onclick="window.quickResolveTicket(window.currentTicketId);" class="px-5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"><i class="fa-solid fa-check"></i> Resolver Remoto</button>
-                        <button onclick="window.quickTriageTicket(window.currentTicketId);" class="px-5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"><i class="fa-solid fa-arrow-right"></i> Enviar p/ Triagem</button>
+                        <button onclick="window.quickTriageTicket(window.currentTicketId);" class="px-5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"><i class="fa-solid fa-arrow-right"></i> Ir para Triagem</button>
                     </div>
 
                     <div id="reopen-actions-bar" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3 hidden">
-                        <div class="text-xs text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i><span>Atendimento <strong>Finalizado</strong>.</span></div>
+                        <div class="text-xs text-slate-500 font-medium flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i><span>Atendimento Finalizado.</span></div>
                         <button onclick="window.reopenTicketToTriage(window.currentTicketId);" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer"><i class="fa-solid fa-rotate-left"></i> Reabrir p/ Triagem</button>
                     </div>
                 </div>
 
-                <!-- ABA 2: TRIAGEM -->
                 <div id="tab-triagem" class="tab-content hidden space-y-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <h3 class="text-xs font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">Avaliação de Necessidade Presencial</h3>
-                        
+                        <h3 class="text-xs font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">Triagem Técnica e Encaminhamento</h3>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-2">Requer atendimento presencial / peças / orçamento comercial?</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-2">Requer atendimento presencial ou orçamento?</label>
                             <div class="flex gap-4">
-                                <label class="inline-flex items-center text-xs font-semibold cursor-pointer"><input type="radio" name="triage-presencial" value="sim" class="form-radio text-blue-600" onchange="window.toggleTriageFields(true)" checked> <span class="ml-2">Sim (Ir para Orçamento)</span></label>
-                                <label class="inline-flex items-center text-xs font-semibold cursor-pointer"><input type="radio" name="triage-presencial" value="nao" class="form-radio text-blue-600" onchange="window.toggleTriageFields(false)"> <span class="ml-2">Não (Encerrar na Triagem)</span></label>
+                                <label class="inline-flex items-center text-xs font-semibold cursor-pointer"><input type="radio" name="triage-presencial" value="sim" class="form-radio text-blue-600" onchange="window.toggleTriageFields(true)" checked><span class="ml-2">Sim (Avançar Fluxo)</span></label>
+                                <label class="inline-flex items-center text-xs font-semibold cursor-pointer"><input type="radio" name="triage-presencial" value="nao" class="form-radio text-blue-600" onchange="window.toggleTriageFields(false)"><span class="ml-2">Não (Encerrar Chamado)</span></label>
                             </div>
                         </div>
-
                         <div id="triage-needs-container" class="space-y-4 border-t border-slate-100 pt-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-2">Itens necessários:</label>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="triage-need" value="Visita Técnica"> <span class="ml-2 font-medium">Visita Técnica</span></label>
-                                    <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="triage-need" value="Mão de Obra"> <span class="ml-2 font-medium">Mão de Obra Especializada</span></label>
-                                    <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="triage-need" value="Peças"> <span class="ml-2 font-medium">Substituição de Peças</span></label>
-                                    <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="triage-need" value="Deslocamento"> <span class="ml-2 font-medium">Taxa de Deslocamento</span></label>
-                                </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="form-checkbox text-blue-600 rounded triage-need" value="Visita Técnica"> <span class="ml-2 font-medium">Visita Presencial</span></label>
+                                <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="form-checkbox text-blue-600 rounded triage-need" value="Mão de Obra"> <span class="ml-2 font-medium">Mão de Obra</span></label>
+                                <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="form-checkbox text-blue-600 rounded triage-need" value="Peças"> <span class="ml-2 font-medium">Peças</span></label>
+                                <label class="inline-flex items-center p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-blue-50/50"><input type="checkbox" class="form-checkbox text-blue-600 rounded triage-need" value="Deslocamento"> <span class="ml-2 font-medium">Deslocamento</span></label>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Parecer Técnico para Orçamento</label>
-                                <textarea id="triage-desc" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Especifique peças e orientações comerciais..."></textarea>
-                            </div>
-                            <button onclick="window.processTriage()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer">Salvar e Enviar p/ Orçamentos</button>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Parecer Técnico / Peças a Cotar</label><textarea id="triage-desc" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
+                            <button onclick="window.processTriage()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">Salvar Triagem -> Orçamentos</button>
                         </div>
-
                         <div id="triage-resolve-container" class="hidden space-y-3 border-t border-slate-100 pt-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Solução Aplicada</label>
-                                <textarea id="triage-solution" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Como o problema foi solucionado..."></textarea>
-                            </div>
-                            <button onclick="window.resolveTicketFromTriage()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer">Concluir e Finalizar Chamado</button>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Solução Aplicada</label><textarea id="triage-solution" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-emerald-500"></textarea></div>
+                            <button onclick="window.resolveTicketFromTriage()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">Encerrar Chamado</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ABA 3: ORÇAMENTO -->
                 <div id="tab-orcamento" class="tab-content hidden space-y-4">
                     <div class="bg-blue-50 border border-blue-200 p-4 rounded-2xl text-xs text-blue-950 space-y-1">
-                        <strong class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> Notas da Triagem:</strong>
+                        <strong class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> Parecer da Triagem:</strong>
                         <p id="orcamento-triage-needs" class="font-bold text-blue-800"></p>
                         <p id="orcamento-triage-desc" class="italic text-slate-600"></p>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <h3 class="text-xs font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2 flex justify-between">
-                            <span>Elaboração da Proposta</span><span id="orc-status-tag" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">Pendente</span>
-                        </h3>
+                        <h3 class="text-xs font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">Elaboração da Proposta Comercial</h3>
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nº do Orçamento</label>
-                                <input type="text" id="orc-numero" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ORC-2026-001">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Valor Total (R$)</label>
-                                <input type="number" step="0.01" id="orc-valor" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0.00">
-                            </div>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Nº do Orçamento</label><input type="text" id="orc-numero" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Valor Total (R$)</label><input type="number" step="0.01" id="orc-valor" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Resumo Itens Cotados</label>
-                            <textarea id="orc-desc" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                        </div>
-                        <button onclick="window.sendQuoteToClient()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-floppy-disk"></i> Salvar Orçamento</button>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Itens Cotados</label><textarea id="orc-desc" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
+                        <button onclick="window.sendQuoteToClient()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"><i class="fa-solid fa-floppy-disk"></i> Salvar Orçamento</button>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                        <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Retorno do Cliente</h3>
+                        <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Decisão do Cliente</h3>
                         <div class="flex gap-3">
-                            <button onclick="window.processQuoteResponse(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-check"></i> Aprovado (Agendar OS)</button>
-                            <button onclick="window.processQuoteResponse(false)" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-xmark"></i> Reprovado (Encerrar)</button>
+                            <button onclick="window.processQuoteResponse(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md"><i class="fa-solid fa-check"></i> Aprovado -> Agendar</button>
+                            <button onclick="window.processQuoteResponse(false)" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md"><i class="fa-solid fa-xmark"></i> Reprovado -> Encerrar</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ABA 4: AGENDAMENTO -->
                 <div id="tab-agendamento" class="tab-content hidden space-y-4">
-                    <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-2xl text-xs text-cyan-950 flex gap-3">
-                        <i class="fa-solid fa-calendar-check text-cyan-600 text-base mt-0.5"></i>
-                        <div>
-                            <strong class="font-bold text-cyan-950">Aprovação recebida! Programação de OS Automática:</strong>
-                            <p class="mt-0.5 text-cyan-800">Preencha os dados abaixo. Ao salvar, uma Tarefa Oficial será criada no módulo de Agenda e o técnico será notificado.</p>
-                        </div>
-                    </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                        <h3 class="text-xs font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">Agendamento e Emissão de OS</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nº da Ordem de Serviço *</label>
-                                <input type="text" id="sch-os" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Data Agendada *</label>
-                                <input type="date" id="sch-date" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Técnico Responsável *</label>
-                                <select id="sch-tech" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer">
-                                    <!-- Injetado via JS -->
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Serviço *</label>
-                                <select id="sch-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer">
-                                    <option value="Atendimento Externo">Atendimento Externo</option>
-                                    <option value="Preventiva">Preventiva</option>
-                                    <option value="Garantia">Garantia</option>
-                                    <option value="Retrabalho">Retrabalho</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Número da OS *</label><input type="text" id="sch-os" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-blue-500"></div>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Data *</label><input type="date" id="sch-date" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                            <div><label class="block text-xs font-bold text-slate-700 mb-1">Técnico *</label><select id="sch-tech" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 cursor-pointer"></select></div>
                         </div>
-
                         <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
-                            <button onclick="window.saveSchedule(false)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-floppy-disk"></i> Criar OS na Agenda</button>
-                            <button onclick="window.saveSchedule(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-circle-check"></i> Finalizar Chamado</button>
+                            <button onclick="window.saveSchedule(false)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"><i class="fa-solid fa-floppy-disk"></i> Salvar Agendamento</button>
+                            <button onclick="window.saveSchedule(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"><i class="fa-solid fa-circle-check"></i> Finalizar Chamado</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ABA 5: HISTÓRICO -->
                 <div id="tab-historico" class="tab-content hidden space-y-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
                         <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">Linha do Tempo</h3>
                         <div id="timeline-container" class="space-y-4 mb-6"></div>
-
-                        <div class="pt-4 border-t border-slate-200">
-                            <label class="block text-xs font-bold text-slate-700 mb-2">Adicionar Nota Interna</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') window.addQuickNote()" class="flex-1 border border-slate-200 rounded-xl py-2 px-3 text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                                <button onclick="window.addQuickNote()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer">Registrar</button>
-                            </div>
+                        <div class="pt-4 border-t border-slate-200 flex gap-2">
+                            <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') window.addQuickNote()" class="flex-1 border border-slate-200 rounded-xl py-2 px-3 focus:outline-none focus:border-blue-500 text-xs" placeholder="Adicionar nota...">
+                            <button onclick="window.addQuickNote()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Registrar</button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Confirmação Delete -->
-    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4 text-center">
-            <div class="w-12 h-12 rounded-full bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div>
-                <h3 class="text-base font-bold text-slate-900">Excluir Atendimento?</h3>
-                <p class="text-xs text-slate-500 mt-1">Tem certeza que deseja remover o chamado <span id="deleteTicketTargetId" class="font-mono font-bold text-slate-800"></span>?</p>
+    <!-- MODAL FOTO FULLSCREEN -->
+    <div id="modal-foto-full" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4 cursor-pointer" onclick="this.classList.add('hidden')">
+        <button class="absolute top-6 right-6 text-white text-3xl hover:text-slate-300 transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+        <img id="img-fullscreen" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain">
+    </div>
+
+    <!-- MODAL: Configurações de Alertas -->
+    <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 flex flex-col">
+            <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-amber-400"></i> Automação de Alertas do Funil</h3>
+                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 cursor-pointer">Cancelar</button>
-                <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i> Sim, Excluir</button>
+            <div class="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar bg-slate-50 space-y-5">
+                <p class="text-xs text-slate-600">Determine quem deve ser notificado automaticamente (computador e celular) quando um chamado entrar em cada fase do Kanban.</p>
+                <div id="config-alertas-container" class="space-y-4">
+                    <!-- Injetado dinamicamente -->
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
+                <button onclick="window.fecharModalConfigAlertas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                <button onclick="window.salvarConfigAlertas()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-md">Salvar Regras</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Novo Suporte Remoto -->
-    <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+    <!-- MODAL: Notificar Manual -->
+    <div id="modal-notificar" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col">
+            <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Disparar Alerta / Cobrança</h3>
+                <button onclick="window.fecharModalNotificar()" class="text-amber-100 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Destinatário</label>
+                    <select id="notif-target" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <optgroup label="Por Perfil / Equipe" id="notif-group-perfis">
+                            <option value="perfil_Vendedor">Equipe: Vendas</option>
+                            <option value="perfil_Técnico">Equipe: Técnica</option>
+                            <option value="perfil_Financeiro">Equipe: Financeiro</option>
+                            <option value="perfil_Administrativo">Equipe: Administrativo</option>
+                        </optgroup>
+                        <optgroup label="Por Usuário" id="notif-group-usuarios"></optgroup>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mensagem do Alerta</label>
+                    <textarea id="notif-msg" rows="3" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                </div>
+                <button onclick="window.enviarNotificacaoManual()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">Enviar Notificação Push</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Novo Chamado (Criação Manual) -->
+    <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
             <div class="px-6 py-4 bg-white border-b border-slate-200 text-slate-900 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 font-bold"><i class="fa-solid fa-headset"></i></div>
-                    <div><h3 class="text-sm font-bold text-slate-900">Novo Atendimento Remoto</h3><p class="text-[11px] text-slate-500">Abertura de OSR (Entrada do Funil)</p></div>
-                </div>
-                <button onclick="window.closeNewTicketModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-headset text-blue-600"></i> Registro de Atendimento Manual</h3>
+                <button onclick="window.closeNewTicketModal()" class="text-slate-400 hover:text-slate-700 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-
-            <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-slate-50 custom-scrollbar">
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-slate-50">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-user"></i> Cliente & Equipamento</h4>
+                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Cliente & Equipamento</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Cliente / Razão Social *</label>
-                            <input type="text" id="new-cli-name" list="clientes-catalogo" onchange="window.autoFillClient(this.value)" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: TecnoLog S/A">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label>
-                            <input type="text" id="new-cli-city" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Contato Responsável</label>
-                            <input type="text" id="new-cli-contato" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Telefone / WhatsApp</label>
-                            <input type="text" id="new-cli-tel" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Equipamento (Marca/Modelo) *</label>
-                            <input type="text" id="new-eq-modelo" list="maquinas-catalogo" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nº de Série *</label>
-                            <input type="text" id="new-eq-serial" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono">
-                        </div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Cliente *</label><input type="text" id="new-cli-name" list="list-clientes" oninput="window.autoFillCliente(this.value)" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label><input type="text" id="new-cli-city" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Contato</label><input type="text" id="new-cli-contato" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Telefone / Whats</label><input type="text" id="new-cli-tel" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label><input type="text" id="new-eq-modelo" list="list-maquinas" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label><input type="text" id="new-eq-serial" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></div>
                     </div>
                 </div>
-
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-wrench"></i> Relato & Peças</h4>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Problema Relatado *</label>
-                        <textarea id="new-problem" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Procedimentos Executados</label>
-                        <textarea id="new-procedures" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Peças / Materiais (Opcional)</label>
-                        <input type="text" id="new-materials" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
+                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Problema e Relato</h4>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Problema *</label><textarea id="new-problem" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Procedimentos Iniciais</label><textarea id="new-procedures" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500"></textarea></div>
                 </div>
             </div>
-
             <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
                 <button onclick="window.closeNewTicketModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">Cancelar</button>
                 <button onclick="window.createNewTicket()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-check"></i> Cadastrar OSR</button>
@@ -566,563 +435,365 @@
         </div>
     </div>
 
-    <!-- MODAL: Configurações de Alertas -->
-    <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-gear"></i> Configurações de Automação e Alertas</h3>
-                <button onclick="window.closeConfigModal()" class="text-slate-300 hover:text-white transition-colors p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL DELETAR -->
+    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Excluir Atendimento?</h3>
+                <p class="text-xs text-slate-500 mt-1">Apagar o chamado <span id="deleteTicketTargetId" class="font-bold text-slate-800"></span>?</p>
             </div>
-            <div class="p-6 bg-slate-50 flex-1 overflow-y-auto custom-scrollbar space-y-4">
-                <p class="text-xs text-slate-600 font-medium mb-2">Selecione equipes inteiras ou indivíduos específicos para receber alertas em cada etapa do Kanban.</p>
-                
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- ENTRADA -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando entrar em <span class="text-blue-600">Suporte Remoto (Novo)</span>:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_entrada_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_entrada_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- TRIAGEM -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-amber-600">Triagem Técnica</span>:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_triagem_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_triagem_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- ORÇAMENTO -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-purple-600">Orçamento Comercial</span>:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_orcamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_orcamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- AGENDAMENTO -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando for para <span class="text-cyan-600">Agendamento de OS</span>:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_agendamento_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_agendamento_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- CONCLUÍDO -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-800 mb-3 pb-2 border-b border-slate-100">🔔 Quando <span class="text-emerald-600">Finalizar / Concluir</span> o Chamado:</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Equipe (Perfil)</span><div id="cfg_concluido_perfis" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                            <div><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Avisar Usuário Específico</span><div id="cfg_concluido_usuarios" class="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
-                <button onclick="window.closeConfigModal()" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">Cancelar</button>
-                <button onclick="window.saveConfigModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-save"></i> Salvar Regras</button>
+            <div class="flex gap-2 pt-2">
+                <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancelar</button>
+                <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">Sim, Excluir</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Alerta Manual Direcionado -->
-    <div id="modal-alerta-manual" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200">
-            <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Enviar Alerta Direcionado</h3>
-                <button onclick="window.closeManualAlertModal()" class="text-white hover:text-amber-100 transition-colors p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-6 bg-slate-50 space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Destinatário do Alerta *</label>
-                    <select id="alerta_manual_target" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 cursor-pointer">
-                        <!-- Renderizado por JS via Central de Usuários -->
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Mensagem do Alerta *</label>
-                    <textarea id="alerta_manual_msg" rows="3" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:border-amber-500 resize-none" placeholder="Ex: Favor verificar o chamado com urgência..."></textarea>
-                </div>
-            </div>
-            <div class="bg-white px-6 py-3 border-t border-slate-200 flex gap-2">
-                <button onclick="window.closeManualAlertModal()" class="flex-1 py-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">Cancelar</button>
-                <button onclick="window.sendManualAlert()" class="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-paper-plane"></i> Enviar Alerta</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
     <script type="module" src="core.js"></script>
+    <script type="module">
+        import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        window.FirebaseRunTransaction = runTransaction;
+    </script>
 
     <script>
-        window.allUsersDB = [];
-        window.allProfilesDB = new Set();
-        
+        window.usersList = [];
         window.tickets = [];
-        window.clientesCatalogo = [];
         window.currentTicketId = null;
         window.pendingDeleteTicketId = null;
         window.draggedTicketId = null;
-        window.currentUserStr = 'U';
-
-        // Configurações Globais das 5 fases
-        window.alertConfigs = {
-            entrada: { perfis: [], usuarios: [] },
-            triagem: { perfis: [], usuarios: [] },
-            orcamento: { perfis: [], usuarios: [] },
-            agendamento: { perfis: [], usuarios: [] },
-            concluido: { perfis: [], usuarios: [] }
+        window.currentUserStr = '';
+        
+        window.alertSettings = {
+            'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': []
         };
 
-        const EVENTS = ['entrada', 'triagem', 'orcamento', 'agendamento', 'concluido'];
+        window.dbClientes = [];
+        window.dbMaquinas = [];
 
-        let filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
+        window.filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
         const STATUSES = {
             'ENTRADA': { label: 'Suporte Remoto', color: 'bg-blue-50 text-blue-900 border-blue-200', badgeDot: 'bg-blue-600' },
             'TRIAGEM': { label: 'Triagem Técnica', color: 'bg-amber-50 text-amber-900 border-amber-200', badgeDot: 'bg-amber-500' },
             'ORCAMENTO': { label: 'Orçamentos', color: 'bg-purple-50 text-purple-900 border-purple-200', badgeDot: 'bg-purple-600' },
-            'AGENDAMENTO': { label: 'Agendamento / Execução', color: 'bg-cyan-50 text-cyan-900 border-cyan-200', badgeDot: 'bg-cyan-600' },
+            'AGENDAMENTO': { label: 'Agendamento', color: 'bg-cyan-50 text-cyan-900 border-cyan-200', badgeDot: 'bg-cyan-600' },
             'CONCLUIDO': { label: 'Finalizados', color: 'bg-emerald-50 text-emerald-900 border-emerald-200', badgeDot: 'bg-emerald-600' }
         };
-
-        const STATUS_TO_PHASE = {
-            'ENTRADA': 'entrada', 'TRIAGEM': 'triagem', 'ORCAMENTO': 'orcamento', 'AGENDAMENTO': 'agendamento', 'CONCLUIDO': 'concluido'
-        };
-
-        const COLUMNS = Object.keys(STATUSES);
 
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
             document.getElementById('main-content')?.classList.remove('hidden');
 
-            window.currentUserStr = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
+            window.currentUserStr = window.nomeUsuarioLogado || window.currentUser?.email || 'Técnico';
 
-            // Libera a Engrenagem para Master e Administrativo
-            if (perfil === 'Master' || perfil === 'Administrativo') {
+            if (perfil === 'Admin' || perfil === 'Master' || perfil === 'Administrativo') {
                 document.getElementById('btnConfigAlertas').classList.remove('hidden');
             }
 
-            const db = window.AppDB;
-
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), (snap) => {
-                window.allUsersDB = [];
-                window.allProfilesDB = new Set();
-                
-                const selTechFilter = document.getElementById('filterTech');
-                const selTechSch = document.getElementById('sch-tech');
-                let htmlUsers = '';
-                
-                snap.forEach(doc => {
-                    const u = doc.data();
-                    window.allUsersDB.push(u);
-                    if (u.perfil) window.allProfilesDB.add(u.perfil);
-                    htmlUsers += `<option value="${u.nome}">${u.nome}</option>`;
-                });
-                
-                window.allUsersDB.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-                
-                if(selTechFilter) selTechFilter.innerHTML = `<option value="ALL">Todos os Responsáveis</option>` + htmlUsers;
-                if(selTechSch) selTechSch.innerHTML = htmlUsers;
-
-                window.renderAlertasConfigUI();
-                window.renderAlertaManualUI();
+            // Sync Usuários Reais
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
+                window.usersList = [];
+                snap.forEach(d => window.usersList.push(d.data()));
+                window.populateTechSelects();
             });
 
-            window.fsOnSnapshot(window.fsDoc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), snap => {
-                if (snap.exists()) {
-                    const data = snap.data();
-                    EVENTS.forEach(evt => {
-                        if (data[evt]) window.alertConfigs[evt] = data[evt];
-                    });
-                    window.renderAlertasConfigUI();
-                }
-            });
-
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
-                window.clientesCatalogo = [];
-                const dl = document.getElementById('clientes-catalogo'); dl.innerHTML = '';
+            // Sync Clientes / Maquinas para AutoComplete
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
+                window.dbClientes = [];
+                let html = '';
                 snap.forEach(d => {
                     const c = d.data();
-                    window.clientesCatalogo.push(c);
-                    dl.innerHTML += `<option value="${c.fantasia || c.razao_social}">`;
+                    window.dbClientes.push(c);
+                    const n = c.fantasia || c.razao_social || '';
+                    if(n) html += `<option value="${n}">`;
                 });
+                document.getElementById('list-clientes').innerHTML = html;
             });
 
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
-                const dl = document.getElementById('maquinas-catalogo'); dl.innerHTML = '';
-                snap.forEach(d => dl.innerHTML += `<option value="${d.data().modelo}">`);
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
+                window.dbMaquinas = [];
+                let html = '';
+                snap.forEach(d => {
+                    const m = d.data();
+                    window.dbMaquinas.push(m);
+                    if(m.modelo) html += `<option value="${m.modelo}">`;
+                });
+                document.getElementById('list-maquinas').innerHTML = html;
             });
 
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), (snap) => {
+            // Sync Tickets OSR (Converte formato flat -> aninhado)
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.tickets = [];
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    if(d) {
-                        let dataReal = new Date().toISOString();
-                        if (d.timestamp) {
-                            dataReal = new Date(d.timestamp).toISOString();
-                        } else if (d.data_formatada) {
-                            const apenasData = d.data_formatada.split(',')[0].trim();
-                            const p = apenasData.split('/');
-                            if(p.length === 3) dataReal = new Date(`${p[2]}-${p[1]}-${p[0]}T12:00:00Z`).toISOString();
-                        }
-
-                        window.tickets.push({
-                            id: d.osr || d.id,
-                            createdAt: dataReal,
-                            status: d.status_kanban || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA'),
-                            client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
-                            equipment: { model: d.maquina || '', serial: d.serial || '' },
-                            request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.isPresencial || false },
-                            assignee: d.tecnico_kanban || d.tecnico || window.currentUserStr,
-                            nextAction: d.nextAction || 'Triagem / Atendimento',
-                            history: d.history || [{ date: new Date(d.timestamp).toISOString(), user: d.tecnico, type: 'system', text: 'Atendimento registrado.' }],
-                            triage: d.triage || null,
-                            quote: d.quote || null,
-                            schedule: d.schedule || null
-                        });
-                    }
+                snap.forEach(dSnap => {
+                    const d = dSnap.data();
+                    let tStatus = d.status || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA');
+                    
+                    window.tickets.push({
+                        id: d.osr || dSnap.id,
+                        createdAt: new Date(d.timestamp || Date.now()).toISOString(),
+                        status: tStatus,
+                        client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
+                        equipment: { model: d.maquina || '', serial: d.serial || '' },
+                        request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.conclusao === 'Marcar atendimento' },
+                        urgency: d.urgencia === 'CRITICA' || d.urgencia === 'CRITICAL' ? 'CRITICAL' : 'MEDIUM',
+                        fotoBase64: d.fotoBase64 || null,
+                        assignee: d.tecnico_kanban || d.tecnico || window.currentUserStr,
+                        nextAction: d.nextAction || 'Triagem / Atendimento',
+                        history: d.history || [],
+                        triage: d.triage || null,
+                        quote: d.quote || null,
+                        schedule: d.schedule || null,
+                        timestampOriginal: d.timestamp || Date.now()
+                    });
                 });
-                window.tickets.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+                window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
                 window.applyFilters();
             });
-        };
 
-        window.triggerPhaseAlert = function(phase, ticketId, clientName) {
-            if (!window.enviarNotificacaoApp) return;
-            const conf = window.alertConfigs[phase];
-            if (!conf) return;
-            if (conf.perfis.length === 0 && conf.usuarios.length === 0) return;
-
-            let msg = '';
-            if (phase === 'entrada') msg = `Novo Chamado Suporte Remoto: ${ticketId} - ${clientName}`;
-            if (phase === 'triagem') msg = `O chamado ${ticketId} (${clientName}) foi para Triagem Técnica.`;
-            if (phase === 'orcamento') msg = `O chamado ${ticketId} (${clientName}) precisa de Orçamento Comercial.`;
-            if (phase === 'agendamento') msg = `O chamado ${ticketId} (${clientName}) está pronto para Agendamento.`;
-            if (phase === 'concluido') msg = `O chamado ${ticketId} (${clientName}) foi Finalizado!`;
-
-            window.enviarNotificacaoApp(msg, conf.usuarios, conf.perfis, 'info');
-        };
-
-        window.renderAlertasConfigUI = function() {
-            const perfis = Array.from(window.allProfilesDB).sort();
-            
-            EVENTS.forEach(evt => {
-                const containerPerfis = document.getElementById(`cfg_${evt}_perfis`);
-                const containerUsers = document.getElementById(`cfg_${evt}_usuarios`);
-                if(!containerPerfis || !containerUsers) return;
-
-                const savedConfig = window.alertConfigs[evt] || { perfis: [], usuarios: [] };
-
-                containerPerfis.innerHTML = perfis.map(p => `
-                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 cursor-pointer p-1 hover:bg-white rounded">
-                        <input type="checkbox" value="${p}" class="w-3.5 h-3.5 rounded text-blue-600 chk-cfg-${evt}-perfil" ${savedConfig.perfis.includes(p) ? 'checked' : ''}>
-                        ${p}
-                    </label>
-                `).join('');
-
-                containerUsers.innerHTML = window.allUsersDB.map(u => `
-                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 cursor-pointer p-1 hover:bg-white rounded">
-                        <input type="checkbox" value="${u.email}" class="w-3.5 h-3.5 rounded text-blue-600 chk-cfg-${evt}-user" ${savedConfig.usuarios.includes(u.email) ? 'checked' : ''}>
-                        ${u.nome} <span class="text-[9px] text-slate-400">(${u.perfil})</span>
-                    </label>
-                `).join('');
+            // Sync Regras de Alerta
+            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
+                if(snap.exists()) {
+                    const r = snap.data();
+                    window.alertSettings = r;
+                }
             });
         };
 
-        window.renderAlertaManualUI = function() {
-            const select = document.getElementById('alerta_manual_target');
-            if(!select) return;
-            
-            let html = '<option value="" disabled selected>Selecione quem receberá o alerta...</option>';
-            html += '<optgroup label="--- Equipes (Perfis) ---">';
-            Array.from(window.allProfilesDB).sort().forEach(p => {
-                html += `<option value="PERFIL|${p}">Equipe de ${p}s</option>`;
-            });
-            html += '</optgroup>';
-            html += '<optgroup label="--- Usuários Individuais ---">';
-            window.allUsersDB.forEach(u => {
-                html += `<option value="USER|${u.email}">${u.nome} (${u.email})</option>`;
-            });
-            html += '</optgroup>';
-            select.innerHTML = html;
-        };
-
-        window.openConfigModal = function() { document.getElementById('modal-config-alertas').classList.remove('hidden'); };
-        window.closeConfigModal = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
-
-        window.saveConfigModal = async function() {
-            const newConfig = {};
-            EVENTS.forEach(evt => {
-                const perfis = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-perfil:checked`)).map(cb => cb.value);
-                const usuarios = Array.from(document.querySelectorAll(`.chk-cfg-${evt}-user:checked`)).map(cb => cb.value);
-                newConfig[evt] = { perfis, usuarios };
-            });
-
-            window.alertConfigs = newConfig;
-
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config_alertas', 'serviceflow'), window.alertConfigs);
-                window.showToast('Regras de notificação salvas!', 'success');
-                window.closeConfigModal();
-            } catch(e) { window.showToast('Erro ao salvar as configurações.', 'warning'); }
-        };
-
-        window.openManualAlertModal = function() {
-            if(!window.currentTicketId) return;
-            document.getElementById('alerta_manual_msg').value = `Favor verificar com urgência o chamado ${window.currentTicketId}.`;
-            document.getElementById('alerta_manual_target').value = "";
-            document.getElementById('modal-alerta-manual').classList.remove('hidden');
-        };
-        
-        window.closeManualAlertModal = function() { document.getElementById('modal-alerta-manual').classList.add('hidden'); };
-        
-        window.sendManualAlert = function() {
-            const target = document.getElementById('alerta_manual_target').value;
-            const msg = document.getElementById('alerta_manual_msg').value.trim();
-            if(msg && target) {
-                let arrUsers = []; let arrPerfis = [];
-                if(target.startsWith('PERFIL|')) arrPerfis.push(target.split('|')[1]);
-                else if(target.startsWith('USER|')) arrUsers.push(target.split('|')[1]);
-
-                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(msg, arrUsers, arrPerfis, 'warning');
-                window.showToast('Notificação disparada com sucesso.', 'success');
-                window.closeManualAlertModal();
-            } else {
-                window.showToast('Selecione o destinatário e a mensagem.', 'warning');
-            }
-        };
-
-        window.autoFillClient = function(val) {
-            if(!val) return;
-            const c = window.clientesCatalogo.find(x => x.fantasia === val || x.razao_social === val);
-            if(c) {
-                const cityStr = c.cidade ? c.cidade + (c.estado ? '/' + c.estado : '') : '';
-                document.getElementById('new-cli-city').value = cityStr;
-                
-                if(c.contatos && c.contatos.length > 0) {
-                    document.getElementById('new-cli-contato').value = c.contatos[0].nome || '';
-                    document.getElementById('new-cli-tel').value = c.contatos[0].telefone || '';
-                } else {
-                    document.getElementById('new-cli-contato').value = c.contato || '';
-                    document.getElementById('new-cli-tel').value = c.telefone || '';
+        window.autoFillCliente = function(nome) {
+            const cli = window.dbClientes.find(c => c.fantasia === nome || c.razao_social === nome);
+            if(cli) {
+                document.getElementById('new-cli-city').value = `${cli.cidade||''}/${cli.estado||''}`;
+                if(cli.contatos && cli.contatos.length>0){
+                    document.getElementById('new-cli-contato').value = cli.contatos[0].nome||'';
+                    document.getElementById('new-cli-tel').value = cli.contatos[0].telefone||'';
                 }
             }
         };
 
-        window.saveSingleTicket = async function(t) {
-            const dataToSave = {
-                id: t.id, osr: t.id,
-                status_kanban: t.status,
-                conclusao: t.status === 'CONCLUIDO' ? 'Resolvido' : (t.status === 'AGENDAMENTO' ? 'Marcar atendimento' : 'Pendente'),
-                cliente: t.client.name, cidade: t.client.city, contato: t.client.contact, telefone: t.client.phone,
-                maquina: t.equipment.model, serial: t.equipment.serial,
-                defeito: t.request.problem, solucao: t.request.procedures, pecas: t.request.materiais, isPresencial: t.request.isPresencial,
-                tecnico_kanban: t.assignee, tecnico: t.assignee,
-                nextAction: t.nextAction, history: t.history, triage: t.triage, quote: t.quote, schedule: t.schedule,
-                timestamp: new Date(t.createdAt).getTime(), data_formatada: new Date(t.createdAt).toLocaleDateString('pt-BR')
+        window.populateTechSelects = function() {
+            const techsHtml = '<option value="ALL">Todos</option>' + window.usersList.map(u => `<option value="${u.nome}">${u.nome}</option>`).join('');
+            document.getElementById('filterTech').innerHTML = techsHtml;
+            
+            const techsHtml2 = '<option value="">Selecione...</option>' + window.usersList.map(u => `<option value="${u.nome}">${u.nome}</option>`).join('');
+            const schTech = document.getElementById('sch-tech');
+            if(schTech) {
+                const cur = schTech.value;
+                schTech.innerHTML = techsHtml2;
+                schTech.value = cur;
+            }
+
+            const gUsuarios = document.getElementById('notif-group-usuarios');
+            if(gUsuarios) {
+                gUsuarios.innerHTML = window.usersList.map(u => `<option value="${u.email}">Usuário: ${u.nome}</option>`).join('');
+            }
+        };
+
+        window.saveTicketToDB = async function(t) {
+            const data = {
+                osr: t.id,
+                timestamp: t.timestampOriginal,
+                status: t.status,
+                cliente: t.client.name,
+                cidade: t.client.city,
+                contato: t.client.contact,
+                telefone: t.client.phone,
+                maquina: t.equipment.model,
+                serial: t.equipment.serial,
+                defeito: t.request.problem,
+                solucao: t.request.procedures,
+                pecas: t.request.materiais,
+                urgencia: t.urgency === 'CRITICAL' ? 'CRITICA' : 'NORMAL',
+                conclusao: t.status === 'CONCLUIDO' ? 'Resolvido' : (t.request.isPresencial ? 'Marcar atendimento' : ''),
+                fotoBase64: t.fotoBase64 || null,
+                tecnico_kanban: t.assignee,
+                tecnico: t.assignee,
+                nextAction: t.nextAction,
+                history: t.history,
+                triage: t.triage,
+                quote: t.quote,
+                schedule: t.schedule
             };
-            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), dataToSave); } catch(e){}
+            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), data, {merge: true}); } catch(e){}
         };
 
-        window.toggleFilterPanel = () => document.getElementById('filterPanel').classList.toggle('hidden');
-        window.syncHeaderSearch = val => { document.getElementById('filterSearch').value = val; window.applyFilters(); };
-
-        window.applyFilters = function() {
-            filters.search = document.getElementById('filterSearch')?.value.toLowerCase().trim() || '';
-            filters.client = document.getElementById('filterClient')?.value.toLowerCase().trim() || '';
-            filters.serial = document.getElementById('filterSerial')?.value.toLowerCase().trim() || '';
-            filters.dateStart = document.getElementById('filterDateStart')?.value || '';
-            filters.dateEnd = document.getElementById('filterDateEnd')?.value || '';
-            filters.status = document.getElementById('filterStatus')?.value || 'ALL';
-            filters.tech = document.getElementById('filterTech')?.value || 'ALL';
-
-            const headerQuick = document.getElementById('headerQuickSearch');
-            if(headerQuick && headerQuick.value !== filters.search) headerQuick.value = filters.search;
-
-            const badge = document.getElementById('activeFilterBadge');
-            const hasActiveFilter = Object.values(filters).some(v => v && v !== 'ALL');
-            if (badge) badge.classList.toggle('hidden', !hasActiveFilter);
-
-            window.renderKanban();
-            window.updatePendencias();
-            window.updateIndicadores();
-        };
-
-        window.resetFilters = function() {
-            ['filterSearch','headerQuickSearch','filterClient','filterSerial','filterDateStart','filterDateEnd'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
-            ['filterStatus','filterTech'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = 'ALL'; });
-            window.applyFilters();
-        };
-
-        function filterTicketByCriteria(t) {
-            if (filters.search && !(t.id.toLowerCase().includes(filters.search) || t.client.name.toLowerCase().includes(filters.search) || t.equipment.model.toLowerCase().includes(filters.search) || t.equipment.serial.toLowerCase().includes(filters.search) || t.request.problem.toLowerCase().includes(filters.search))) return false;
-            if (filters.client && !t.client.name.toLowerCase().includes(filters.client)) return false;
-            if (filters.serial && !t.equipment.serial.toLowerCase().includes(filters.serial)) return false;
+        window.dispararAlertaAutomatico = function(fase, msgBase) {
+            const regras = window.alertSettings[fase];
+            if(!regras || regras.length === 0) return;
             
-            if (filters.dateStart && new Date(t.createdAt).setHours(0,0,0,0) < new Date(filters.dateStart).setHours(0,0,0,0)) return false;
-            if (filters.dateEnd && new Date(t.createdAt).setHours(23,59,59,999) > new Date(filters.dateEnd).setHours(23,59,59,999)) return false;
+            const perfis = regras.filter(r => r.startsWith('perfil_')).map(r => r.replace('perfil_', ''));
+            const emails = regras.filter(r => r.includes('@'));
             
-            if (filters.status !== 'ALL' && t.status !== filters.status) return false;
-            if (filters.tech !== 'ALL' && t.assignee !== filters.tech && (!t.schedule || t.schedule.tech !== filters.tech)) return false;
-            return true;
-        }
+            if(perfis.length > 0 || emails.length > 0) {
+                window.enviarNotificacaoApp(msgBase, emails, perfis, 'info');
+            }
+        };
 
-        function formatElapsedTime(isoDate) {
-            const diffHours = Math.floor((Date.now() - new Date(isoDate).getTime()) / 3600000);
+        window.formatElapsedTime = function(msOriginal) {
+            const diffHours = Math.floor((Date.now() - msOriginal) / (1000 * 60 * 60));
             if (diffHours < 1) return 'Hoje';
             if (diffHours < 24) return `${diffHours}h atrás`;
             return `${Math.floor(diffHours / 24)}d atrás`;
-        }
+        };
 
         window.showToast = function(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             if(!container) return;
             const toast = document.createElement('div');
-            const bgColors = { 'success': 'bg-white border-emerald-500 text-emerald-800', 'warning': 'bg-white border-amber-500 text-amber-800', 'info': 'bg-white border-blue-600 text-blue-900' };
-            const icons = { 'success': 'fa-circle-check text-emerald-600', 'warning': 'fa-triangle-exclamation text-amber-600', 'info': 'fa-circle-info text-blue-600' };
-            toast.className = `toast-animate pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border text-xs font-semibold backdrop-blur-md shadow-lg ${bgColors[type] || bgColors.info}`;
-            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm"></i> <span>${msg}</span>`;
+            const bgColors = { 'success': 'bg-emerald-50 text-emerald-800 border-emerald-300', 'warning': 'bg-amber-50 text-amber-800 border-amber-300', 'info': 'bg-blue-50 text-blue-900 border-blue-300' };
+            toast.className = `toast-animate pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border text-xs font-semibold shadow-lg ${bgColors[type]}`;
+            toast.innerHTML = `<span>${msg}</span>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity='0'; toast.style.transition='0.3s'; setTimeout(()=>toast.remove(), 300); }, 3500);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
         };
 
         window.switchView = function(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-link').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20'); el.classList.add('text-slate-600', 'hover:text-blue-700', 'hover:bg-white/80'); });
-            const activeNav = document.getElementById(`nav-${viewName}`);
-            const activeView = document.getElementById(`view-${viewName}`);
-            if(activeNav) { activeNav.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20'); activeNav.classList.remove('text-slate-600', 'hover:text-blue-700', 'hover:bg-white/80'); }
-            if(activeView) activeView.classList.remove('hidden');
+            document.querySelectorAll('.nav-link').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-600', 'hover:text-blue-700'); });
+            document.getElementById(`nav-${viewName}`).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            document.getElementById(`nav-${viewName}`).classList.remove('text-slate-600', 'hover:text-blue-700');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
             if(viewName === 'kanban') window.renderKanban();
             if(viewName === 'pendencias') window.updatePendencias();
             if(viewName === 'indicadores') window.updateIndicadores();
         };
 
-        window.handleDragStart = function(e, id) { window.draggedTicketId = id; e.dataTransfer.setData('text/plain', id); e.currentTarget.classList.add('dragging'); };
-        window.handleDragEnd = function(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over')); };
-        window.handleDragOver = function(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
-        window.handleDragLeave = function(e) { e.currentTarget.classList.remove('drag-over'); };
-        window.handleDrop = async function(e, targetStatus) {
-            e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-            if(!window.draggedTicketId) return;
-            const t = window.tickets.find(x => x.id === window.draggedTicketId);
-            if(t && t.status !== targetStatus) {
-                const oL = STATUSES[t.status].label, nL = STATUSES[targetStatus].label;
-                t.status = targetStatus;
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Movido via Kanban de "${oL}" para "${nL}".` });
-                await window.saveSingleTicket(t);
-                
-                window.triggerPhaseAlert(STATUS_TO_PHASE[targetStatus], t.id, t.client.name);
-                window.showToast(`Chamado ${t.id} movido para ${nL}!`, 'info');
-            }
-            window.draggedTicketId = null;
+        window.syncHeaderSearch = function(val) { document.getElementById('filterSearch').value = val; window.applyFilters(); };
+        window.toggleFilterPanel = function() { document.getElementById('filterPanel').classList.toggle('hidden'); };
+        
+        window.applyFilters = function() {
+            window.filters.search = document.getElementById('filterSearch').value.toLowerCase().trim();
+            window.filters.client = document.getElementById('filterClient').value.toLowerCase().trim();
+            window.filters.serial = document.getElementById('filterSerial').value.toLowerCase().trim();
+            window.filters.dateStart = document.getElementById('filterDateStart').value;
+            window.filters.dateEnd = document.getElementById('filterDateEnd').value;
+            window.filters.status = document.getElementById('filterStatus').value;
+            window.filters.type = document.getElementById('filterType').value;
+            window.filters.tech = document.getElementById('filterTech').value;
+            window.renderKanban(); window.updatePendencias(); window.updateIndicadores();
+        };
+        window.resetFilters = function() {
+            document.getElementById('filterSearch').value = ''; document.getElementById('headerQuickSearch').value = '';
+            document.getElementById('filterClient').value = ''; document.getElementById('filterSerial').value = '';
+            document.getElementById('filterDateStart').value = ''; document.getElementById('filterDateEnd').value = '';
+            document.getElementById('filterStatus').value = 'ALL'; document.getElementById('filterType').value = 'ALL'; document.getElementById('filterTech').value = 'ALL';
+            window.applyFilters();
+        };
+
+        window.filterTicketByCriteria = function(t) {
+            const f = window.filters;
+            if(f.search && !(t.id.toLowerCase().includes(f.search) || t.client.name.toLowerCase().includes(f.search) || t.equipment.model.toLowerCase().includes(f.search) || t.equipment.serial.toLowerCase().includes(f.search) || t.request.problem.toLowerCase().includes(f.search))) return false;
+            if(f.client && !t.client.name.toLowerCase().includes(f.client)) return false;
+            if(f.serial && !t.equipment.serial.toLowerCase().includes(f.serial)) return false;
+            if(f.dateStart && new Date(t.createdAt).setHours(0,0,0,0) < new Date(f.dateStart).setHours(0,0,0,0)) return false;
+            if(f.dateEnd && new Date(t.createdAt).setHours(23,59,59,999) > new Date(f.dateEnd).setHours(23,59,59,999)) return false;
+            if(f.status !== 'ALL' && t.status !== f.status) return false;
+            if(f.type === 'REMOTO' && t.request.isPresencial) return false;
+            if(f.type === 'PRESENCIAL' && !t.request.isPresencial) return false;
+            if(f.tech !== 'ALL' && t.assignee !== f.tech && (!t.schedule || t.schedule.tech !== f.tech)) return false;
+            return true;
         };
 
         window.renderKanban = function() {
-            const grid = document.getElementById('kanban-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
+            const cont = document.getElementById('kanban-grid');
+            if(!cont) return;
+            cont.innerHTML = '';
+            
+            Object.keys(STATUSES).forEach(colKey => {
+                const cDef = STATUSES[colKey];
+                const cDiv = document.createElement('div');
+                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-w-[280px] sm:min-w-[0px] w-[280px] sm:w-auto flex-1';
+                cDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+                cDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
+                cDiv.ondrop = e => {
+                    e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+                    if(!window.draggedTicketId) return;
+                    const t = window.tickets.find(x => x.id === window.draggedTicketId);
+                    if(t && t.status !== colKey) {
+                        t.status = colKey;
+                        t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Movido para ${STATUSES[colKey].label}`});
+                        window.saveTicketToDB(t);
+                        window.dispararAlertaAutomatico(colKey, `Chamado ${t.id} movido para ${STATUSES[colKey].label}.`);
+                    }
+                    window.draggedTicketId = null;
+                };
 
-            COLUMNS.forEach(colKey => {
-                const colDef = STATUSES[colKey];
-                const colDiv = document.createElement('div');
-                colDiv.className = 'kanban-col flex flex-col bg-slate-200/50 backdrop-blur border border-slate-300/60 rounded-2xl h-full min-h-0 overflow-hidden shadow-xs transition-colors duration-200';
-                colDiv.ondragover = window.handleDragOver; colDiv.ondragleave = window.handleDragLeave; colDiv.ondrop = (e) => window.handleDrop(e, colKey);
-
-                let colTickets = window.tickets.filter(t => t.status === colKey && filterTicketByCriteria(t));
-
-                const colHeader = document.createElement('div');
-                colHeader.className = `p-3 border-b flex items-center justify-between shrink-0 ${colDef.color}`;
-                colHeader.innerHTML = `<div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full ${colDef.badgeDot}"></span><span class="font-extrabold text-xs tracking-tight">${colDef.label}</span></div><span class="bg-white/90 border border-slate-200 text-slate-800 font-bold text-[10px] px-2 py-0.5 rounded-full shadow-2xs">${colTickets.length}</span>`;
-                colDiv.appendChild(colHeader);
-
+                let tks = window.tickets.filter(t => t.status === colKey && window.filterTicketByCriteria(t));
+                
+                cDiv.innerHTML = `<div class="p-3 border-b flex items-center justify-between shrink-0 ${cDef.color} rounded-t-2xl"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full ${cDef.badgeDot}"></span><span class="font-extrabold text-xs tracking-tight whitespace-nowrap">${cDef.label}</span></div><span class="bg-white/90 border border-slate-200 text-slate-800 font-bold text-[10px] px-2 py-0.5 rounded-full">${tks.length}</span></div>`;
+                
                 const cardsCont = document.createElement('div');
-                cardsCont.className = 'flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-0 custom-scrollbar';
-
-                colTickets.forEach(t => {
+                cardsCont.className = 'flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-0 custom-scrollbar pb-12';
+                
+                tks.forEach(t => {
+                    const isCritical = t.urgency === 'CRITICAL';
                     const card = document.createElement('div');
-                    card.className = 'bg-white hover:bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 hover:border-blue-500 shadow-xs hover:shadow-card-hover transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between';
-                    card.draggable = true; card.ondragstart = (e) => window.handleDragStart(e, t.id); card.ondragend = window.handleDragEnd;
+                    card.className = `bg-white hover:bg-slate-50/80 p-3.5 rounded-xl border ${isCritical ? 'border-red-400 pulse-critical' : 'border-slate-200/80 hover:border-blue-500'} shadow-xs hover:shadow-card-hover transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between`;
+                    card.draggable = true; card.ondragstart = (e) => { window.draggedTicketId = t.id; e.currentTarget.classList.add('dragging'); }; card.ondragend = (e) => e.currentTarget.classList.remove('dragging');
                     card.onclick = (e) => { if(!e.target.closest('.quick-action-btn')) window.openTicketModal(t.id); };
 
                     let qA = '';
                     if (t.status === 'ENTRADA') qA = `<div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5"><button onclick="event.stopPropagation(); window.quickResolveTicket('${t.id}')" class="quick-action-btn flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] py-1 rounded-lg font-bold border border-emerald-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-check text-[9px]"></i> Resolvido</button><button onclick="event.stopPropagation(); window.quickTriageTicket('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] py-1 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-right text-[9px]"></i> Triagem</button></div>`;
                     else if (t.status === 'CONCLUIDO') qA = `<div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5"><button onclick="event.stopPropagation(); window.reopenTicketToTriage('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] py-1 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-left text-[9px]"></i> Reabrir p/ Triagem</button></div>`;
 
-                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${formatElapsedTime(t.createdAt)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate"><i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i>${t.equipment.model}</span><span class="font-mono text-slate-400 ml-1 shrink-0">${t.equipment.serial}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${t.request.problem}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${t.assignee.substring(0,1).toUpperCase()}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${t.assignee}</span></div></div>${qA}</div>`;
+                    const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-1.5 py-0.5 rounded border border-red-200 ml-2"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
+
+                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span>${urgBadge}</div><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate"><i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i>${t.equipment.model}</span><span class="font-mono text-slate-400 ml-1 shrink-0">${t.equipment.serial}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${t.request.problem}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${t.assignee.substring(0,1).toUpperCase()}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${t.assignee}</span></div></div>${qA}</div>`;
                     cardsCont.appendChild(card);
                 });
-                colDiv.appendChild(cardsCont);
-                grid.appendChild(colDiv);
+                cDiv.appendChild(cardsCont);
+                cont.appendChild(cDiv);
             });
         };
 
         window.updatePendencias = function() {
             const list = document.getElementById('pendenciasList');
             if(!list) return;
-            const myTickets = window.tickets.filter(t => t.status !== 'CONCLUIDO' && filterTicketByCriteria(t));
-            if(document.getElementById('badge-pendencias')) { document.getElementById('badge-pendencias').innerText = myTickets.length; document.getElementById('badge-pendencias').classList.toggle('hidden', myTickets.length===0); }
-            if(document.getElementById('pendenciasCountTag')) document.getElementById('pendenciasCountTag').innerText = `${myTickets.length} itens`;
+            const myT = window.tickets.filter(t => t.status !== 'CONCLUIDO' && window.filterTicketByCriteria(t));
+            document.getElementById('badge-pendencias').innerText = myT.length;
+            document.getElementById('badge-pendencias').classList.toggle('hidden', myT.length === 0);
+            document.getElementById('pendenciasCountTag').innerText = `${myT.length} itens`;
 
-            list.innerHTML = '';
-            if (myTickets.length === 0) { list.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500 shadow-xs">Nenhum atendimento pendente.</div>`; return; }
-
-            myTickets.forEach(t => {
-                const item = document.createElement('div');
-                item.className = 'bg-white hover:bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between cursor-pointer transition-all shadow-xs hover:shadow-md';
-                item.onclick = () => window.openTicketModal(t.id);
-                item.innerHTML = `<div class="space-y-1"><div class="flex items-center gap-2"><span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${STATUSES[t.status].color}">${STATUSES[t.status].label}</span><span class="text-[10px] font-mono text-slate-400">Série: ${t.equipment.serial}</span></div><h4 class="text-xs font-bold text-slate-900">${t.client.name}</h4><p class="text-[11px] text-slate-600">${t.request.problem}</p></div><button class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/20">Atender</button>`;
-                list.appendChild(item);
-            });
+            if(myT.length === 0) { list.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">Nenhum atendimento pendente.</div>`; return; }
+            list.innerHTML = myT.map(t => `<div class="bg-white hover:bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between cursor-pointer shadow-xs" onclick="window.openTicketModal('${t.id}')"><div class="space-y-1"><div class="flex items-center gap-2"><span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">${t.id}</span><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${STATUSES[t.status].color}">${STATUSES[t.status].label}</span></div><h4 class="text-xs font-bold text-slate-900">${t.client.name}</h4><p class="text-[11px] text-slate-600">${t.request.problem}</p></div><button class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">Abrir</button></div>`).join('');
         };
 
         window.updateIndicadores = function() {
             const grid = document.getElementById('statsGrid');
-            const barList = document.getElementById('indicadoresBarList');
-            if(!grid || !barList) return;
-            const filtered = window.tickets.filter(t => filterTicketByCriteria(t));
-            const total = filtered.length;
-            const concluidos = filtered.filter(t => t.status === 'CONCLUIDO').length;
-            const triagem = filtered.filter(t => t.status === 'TRIAGEM').length;
-            const orcamento = filtered.filter(t => t.status === 'ORCAMENTO').length;
-            const agendados = filtered.filter(t => t.status === 'AGENDAMENTO').length;
-
-            grid.innerHTML = `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block mb-1">Total Filtrado</span><span class="text-3xl font-extrabold text-slate-900">${total}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block mb-1">Em Triagem</span><span class="text-3xl font-extrabold text-amber-600">${triagem}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-purple-600 uppercase tracking-wider block mb-1">Em Orçamento</span><span class="text-3xl font-extrabold text-purple-600">${orcamento}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs"><span class="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block mb-1">Finalizados</span><span class="text-3xl font-extrabold text-emerald-600">${concluidos}</span></div>`;
-            const getPct = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
-            barList.innerHTML = `<div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-blue-700">Suporte Remoto</span><span>${filtered.filter(t => t.status==='ENTRADA').length} (${getPct(filtered.filter(t => t.status==='ENTRADA').length)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${getPct(filtered.filter(t => t.status==='ENTRADA').length)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-amber-700">Triagem Técnica</span><span>${triagem} (${getPct(triagem)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width: ${getPct(triagem)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-purple-700">Orçamento Comercial</span><span>${orcamento} (${getPct(orcamento)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width: ${getPct(orcamento)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyan-700">Agendamento & Execução</span><span>${agendados} (${getPct(agendados)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-cyan-600 h-2 rounded-full" style="width: ${getPct(agendados)}%"></div></div></div><div><div class="flex justify-between text-xs font-semibold mb-1"><span class="text-emerald-700">Finalizados</span><span>${concluidos} (${getPct(concluidos)}%)</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-600 h-2 rounded-full" style="width: ${getPct(concluidos)}%"></div></div></div>`;
+            const bars = document.getElementById('indicadoresBarList');
+            if(!grid) return;
+            const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
+            const tot = f.length; const c = f.filter(t=>t.status==='CONCLUIDO').length; const tr = f.filter(t=>t.status==='TRIAGEM').length; const or = f.filter(t=>t.status==='ORCAMENTO').length; const ag = f.filter(t=>t.status==='AGENDAMENTO').length;
+            
+            grid.innerHTML = `<div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-blue-600 uppercase block">Total</span><span class="text-3xl font-extrabold text-slate-900">${tot}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-amber-600 uppercase block">Em Triagem</span><span class="text-3xl font-extrabold text-amber-600">${tr}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-purple-600 uppercase block">Orçamento</span><span class="text-3xl font-extrabold text-purple-600">${or}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-emerald-600 uppercase block">Finalizados</span><span class="text-3xl font-extrabold text-emerald-600">${c}</span></div>`;
+            
+            if(bars) {
+                const gp = v => tot>0 ? Math.round((v/tot)*100) : 0;
+                bars.innerHTML = `<div class="mb-2"><div class="flex justify-between text-xs font-bold text-amber-700 mb-1"><span>Triagem</span><span>${gp(tr)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:${gp(tr)}%"></div></div></div><div class="mb-2"><div class="flex justify-between text-xs font-bold text-purple-700 mb-1"><span>Orçamentos</span><span>${gp(or)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width:${gp(or)}%"></div></div></div><div><div class="flex justify-between text-xs font-bold text-emerald-700 mb-1"><span>Concluídos</span><span>${gp(c)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-600 h-2 rounded-full" style="width:${gp(c)}%"></div></div></div>`;
+            }
         };
 
-        window.openTicketModal = function(ticketId) {
-            window.currentTicketId = ticketId;
-            const t = window.tickets.find(x => x.id === ticketId);
+        window.openTicketModal = function(id) {
+            window.currentTicketId = id;
+            const t = window.tickets.find(x => x.id === id);
             if(!t) return;
 
             document.getElementById('tm-id').innerText = t.id;
-            const badge = document.getElementById('tm-status-badge');
-            if(badge) {
-                badge.innerText = STATUSES[t.status].label;
-                badge.className = `px-3 py-0.5 rounded-full text-[11px] font-bold ${STATUSES[t.status].color}`;
-            }
+            document.getElementById('tm-status-badge').innerText = STATUSES[t.status].label;
+            document.getElementById('tm-status-badge').className = `px-3 py-0.5 rounded-full text-[11px] font-bold ${STATUSES[t.status].color}`;
+            document.getElementById('tm-assignee').innerText = t.assignee;
+            document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock"></i> Aberto ${window.formatElapsedTime(t.timestampOriginal)}`;
 
-            if(document.getElementById('tm-assignee')) document.getElementById('tm-assignee').innerHTML = `<i class="fa-regular fa-user text-blue-600 text-xs"></i> ${t.assignee}`;
-            if(document.getElementById('tm-created-time')) document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock text-slate-400"></i> Aberto há ${formatElapsedTime(t.createdAt)}`;
-
-            if(document.getElementById('td-client')) document.getElementById('td-client').innerText = t.client?.name || '';
-            if(document.getElementById('td-city')) document.getElementById('td-city').innerText = t.client?.city || '-';
-            if(document.getElementById('td-contact')) document.getElementById('td-contact').innerText = t.client?.contact || '-';
-            if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client?.phone || '-';
-            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = t.equipment?.model || '';
-            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = t.equipment?.serial || '';
-            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request?.problem || '';
-            if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request?.procedures || 'Nenhum registrado.';
+            if(document.getElementById('td-client')) document.getElementById('td-client').innerText = t.client.name;
+            if(document.getElementById('td-city')) document.getElementById('td-city').innerText = t.client.city || '-';
+            if(document.getElementById('td-contact')) document.getElementById('td-contact').innerText = t.client.contact || '-';
+            if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client.phone || '-';
+            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = t.equipment.model;
+            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = t.equipment.serial;
+            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request.problem;
+            if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum.';
 
             const matBox = document.getElementById('td-materials-box');
             if (matBox) {
@@ -1132,42 +803,41 @@
                 } else matBox.classList.add('hidden');
             }
 
+            const fotoBox = document.getElementById('td-foto-box');
+            if (fotoBox) {
+                if (t.fotoBase64) {
+                    document.getElementById('td-foto-img').src = t.fotoBase64;
+                    fotoBox.classList.remove('hidden');
+                } else {
+                    fotoBox.classList.add('hidden');
+                    document.getElementById('td-foto-img').src = '';
+                }
+            }
+
             if(document.getElementById('remote-actions-bar')) document.getElementById('remote-actions-bar').classList.toggle('hidden', t.status !== 'ENTRADA');
             if(document.getElementById('reopen-actions-bar')) document.getElementById('reopen-actions-bar').classList.toggle('hidden', t.status !== 'CONCLUIDO');
 
-            if(document.getElementById('tab-nav-triagem')) document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
-            if(document.getElementById('tab-nav-orcamento')) document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
-            if(document.getElementById('tab-nav-agendamento')) document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO', 'CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-triagem')) document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM','ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-orcamento')) document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-agendamento')) document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO','CONCLUIDO'].includes(t.status));
 
             if(t.triage) {
-                if(document.getElementById('triagem-motivo')) document.getElementById('triagem-motivo').innerText = t.triage.reason || 'Necessidade de avaliação presencial/peças.';
-                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = t.triage.needs && t.triage.needs.length>0 ? `Itens: ${t.triage.needs.join(', ')}` : 'Nenhum item específico.';
-                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = t.triage.desc ? `Parecer do Técnico: "${t.triage.desc}"` : 'Sem parecer técnico.';
+                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = t.triage.needs ? t.triage.needs.join(', ') : 'Nenhum item marcado';
+                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = t.triage.desc || '';
                 if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = t.triage.desc || '';
                 document.querySelectorAll('.triage-need').forEach(cb => cb.checked = t.triage.needs ? t.triage.needs.includes(cb.value) : false);
-            } else {
-                if(document.getElementById('triagem-motivo')) document.getElementById('triagem-motivo').innerText = 'Necessidade de avaliação.';
-                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = 'Aguardando preenchimento da triagem.';
-                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = '';
-                if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = '';
-                document.querySelectorAll('.triage-need').forEach(cb => cb.checked = false);
             }
 
             if(t.quote) {
                 if(document.getElementById('orc-numero')) document.getElementById('orc-numero').value = t.quote.number || '';
                 if(document.getElementById('orc-valor')) document.getElementById('orc-valor').value = t.quote.amount || '';
                 if(document.getElementById('orc-desc')) document.getElementById('orc-desc').value = t.quote.desc || '';
-            } else {
-                ['orc-numero','orc-valor','orc-desc'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
             }
 
             if(t.schedule) {
                 if(document.getElementById('sch-os')) document.getElementById('sch-os').value = t.schedule.os || '';
                 if(document.getElementById('sch-date')) document.getElementById('sch-date').value = t.schedule.date || '';
                 if(document.getElementById('sch-tech')) document.getElementById('sch-tech').value = t.schedule.tech || '';
-                if(document.getElementById('sch-type')) document.getElementById('sch-type').value = t.schedule.type || '';
-            } else {
-                ['sch-os','sch-date','sch-tech','sch-type'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
             }
 
             window.renderTimeline(t);
@@ -1175,252 +845,255 @@
             document.getElementById('ticketModal').classList.remove('hidden');
         };
 
-        window.closeTicketModal = function() { document.getElementById('ticketModal').classList.add('hidden'); window.currentTicketId = null; };
+        window.abrirFotoFullscreen = function(src) {
+            if(!src) return;
+            document.getElementById('img-fullscreen').src = src;
+            document.getElementById('modal-foto-full').classList.remove('hidden');
+        };
+
+        window.closeTicketModal = function() {
+            document.getElementById('ticketModal').classList.add('hidden');
+        };
 
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            const activeBtn = document.querySelector(`[data-target="${tabId}"]`);
-            const activeContent = document.getElementById(tabId);
-            if(activeBtn) activeBtn.classList.add('tab-active');
-            if(activeContent) activeContent.classList.remove('hidden');
+            const aBtn = document.querySelector(`[data-target="${tabId}"]`);
+            const aCont = document.getElementById(tabId);
+            if(aBtn) aBtn.classList.add('tab-active');
+            if(aCont) aCont.classList.remove('hidden');
         };
 
         window.renderTimeline = function(t) {
-            const container = document.getElementById('timeline-container');
-            if(!container) return;
-            container.innerHTML = '';
-            if(!t.history || t.history.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhum evento registrado.</p>`; return; }
+            const cont = document.getElementById('timeline-container');
+            if(!cont) return;
+            cont.innerHTML = '';
+            if(!t.history || t.history.length === 0) return;
             t.history.forEach(item => {
-                container.innerHTML += `<div class="timeline-item"><div class="timeline-dot"></div><div class="text-xs"><div class="flex items-center gap-2 mb-0.5"><span class="font-bold text-slate-800">${item.user}</span><span class="text-[10px] text-slate-400">${new Date(item.date).toLocaleString('pt-BR')}</span></div><p class="text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/60">${item.text}</p></div></div>`;
+                cont.innerHTML += `<div class="timeline-item"><div class="timeline-dot"></div><div class="text-xs"><div class="flex items-center gap-2 mb-0.5"><span class="font-bold text-slate-800">${item.user}</span><span class="text-[10px] text-slate-400">${new Date(item.date).toLocaleString('pt-BR')}</span></div><p class="text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/60">${item.text}</p></div></div>`;
             });
         };
 
-        window.addQuickNote = async function() {
-            const input = document.getElementById('quickNoteInput');
-            if(!input || !input.value.trim() || !window.currentTicketId) return;
+        window.addQuickNote = function() {
+            const inp = document.getElementById('quickNoteInput');
+            if(!inp || !inp.value.trim() || !window.currentTicketId) return;
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(t) {
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: input.value.trim() });
-                input.value = '';
-                await window.saveSingleTicket(t);
-                window.renderTimeline(t);
-                window.showToast('Nota registrada.', 'success');
+                if(!t.history) t.history = [];
+                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: inp.value.trim() });
+                inp.value = ''; window.saveTicketToDB(t); window.renderTimeline(t); window.showToast('Nota salva.', 'success');
             }
         };
 
-        window.confirmDeleteTicket = function(id) { if(!id) return; window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
-        window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
-        window.executeDeleteTicket = async function() {
-            if (!window.pendingDeleteTicketId) return;
-            const deletedId = window.pendingDeleteTicketId;
-            try {
-                await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', deletedId));
-                window.closeDeleteModal();
-                if (window.currentTicketId === deletedId) window.closeTicketModal();
-                window.showToast(`Chamado ${deletedId} excluído.`, 'warning');
-            } catch(e) { window.showToast('Erro ao excluir.', 'warning'); }
-        };
-
-        window.quickResolveTicket = async function(id) {
+        window.quickResolveTicket = function(id) {
             const t = window.tickets.find(x => x.id === id);
             if(!t) return;
-            t.status = 'CONCLUIDO'; t.nextAction = 'Concluído via Remoto';
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via suporte remoto.' });
-            await window.saveSingleTicket(t);
-            window.triggerPhaseAlert('concluido', t.id, t.client.name);
-            window.showToast(`Chamado finalizado!`, 'success');
+            t.status = 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via remoto.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Resolvido!', 'success');
         };
 
-        window.quickTriageTicket = async function(id) {
+        window.quickTriageTicket = function(id) {
             const t = window.tickets.find(x => x.id === id);
             if(!t) return;
-            t.status = 'TRIAGEM'; t.nextAction = 'Avaliar na Triagem';
-            t.triage = { reason: 'Encaminhado diretamente do Suporte Remoto.' };
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem Técnica.' });
-            await window.saveSingleTicket(t);
-            
-            window.triggerPhaseAlert('triagem', t.id, t.client.name);
-            window.showToast(`Enviado para Triagem!`, 'warning');
+            t.status = 'TRIAGEM';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Triagem!', 'warning');
+            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} encaminhado para Triagem Técnica.`);
         };
 
-        window.reopenTicketToTriage = async function(id) {
+        window.reopenTicketToTriage = function(id) {
             const t = window.tickets.find(x => x.id === id);
             if(!t) return;
-            t.status = 'TRIAGEM'; t.nextAction = 'Reaberto';
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto e enviado para Triagem.' });
-            await window.saveSingleTicket(t);
-            window.triggerPhaseAlert('triagem', t.id, t.client.name);
-            window.showToast(`Chamado reaberto.`, 'info');
+            t.status = 'TRIAGEM';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto para Triagem.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Reaberto!', 'info');
         };
 
-        window.toggleTriageFields = function(needsPresencial) {
-            document.getElementById('triage-needs-container').classList.toggle('hidden', !needsPresencial);
-            document.getElementById('triage-resolve-container').classList.toggle('hidden', needsPresencial);
+        window.toggleTriageFields = function(np) {
+            if(document.getElementById('triage-needs-container')) document.getElementById('triage-needs-container').classList.toggle('hidden', !np);
+            if(document.getElementById('triage-resolve-container')) document.getElementById('triage-resolve-container').classList.toggle('hidden', np);
         };
 
-        window.processTriage = async function() {
-            if(!window.currentTicketId) return;
+        window.processTriage = function() {
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
-            const selectedNeeds = Array.from(document.querySelectorAll('.triage-need:checked')).map(cb => cb.value);
-            t.status = 'ORCAMENTO'; t.request.isPresencial = true; t.nextAction = 'Elaborar orçamento';
-            t.triage = { reason: 'Aprovado na triagem.', needs: selectedNeeds, desc: document.getElementById('triage-desc').value.trim() };
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Triagem concluída: Enviado para Orçamentos.` });
-            await window.saveSingleTicket(t);
-            
-            window.triggerPhaseAlert('orcamento', t.id, t.client.name);
-            window.showToast('Triagem salva! Enviado para Orçamentos.', 'success');
-            window.closeTicketModal();
+            const needs = Array.from(document.querySelectorAll('.triage-need:checked')).map(cb => cb.value);
+            t.status = 'ORCAMENTO';
+            t.triage = { needs: needs, desc: document.getElementById('triage-desc').value.trim() };
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Triagem salva. Enviado para Orçamento.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Orçamentos!', 'success');
+            window.dispararAlertaAutomatico('ORCAMENTO', `Chamado ${t.id} requer Orçamento. Avaliação: ${needs.join(', ')}`);
         };
 
-        window.resolveTicketFromTriage = async function() {
-            if(!window.currentTicketId) return;
+        window.resolveTicketFromTriage = function() {
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
-            t.status = 'CONCLUIDO'; t.nextAction = 'Resolvido na Triagem';
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Encerrado na Triagem. Solução: ${document.getElementById('triage-solution').value.trim()}` });
-            await window.saveSingleTicket(t);
-            window.triggerPhaseAlert('concluido', t.id, t.client.name);
-            window.showToast('Encerrado na triagem!', 'success');
-            window.closeTicketModal();
+            t.status = 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encerrado na Triagem: ' + document.getElementById('triage-solution').value });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Encerrado na Triagem!', 'success');
         };
 
-        window.sendQuoteToClient = async function() {
-            if(!window.currentTicketId) return;
+        window.sendQuoteToClient = function() {
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
-            const num = document.getElementById('orc-numero').value.trim();
-            const val = document.getElementById('orc-valor').value;
-            if(!num || !val) { window.showToast('Preencha nº e valor.', 'warning'); return; }
-            t.quote = { number: num, amount: parseFloat(val), desc: document.getElementById('orc-desc').value };
-            t.nextAction = 'Aguardando Aprovação do Cliente';
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Orçamento ${num} elaborado (R$ ${val}).` });
-            await window.saveSingleTicket(t);
-            window.showToast('Orçamento salvo!', 'success');
+            t.quote = { number: document.getElementById('orc-numero').value, amount: parseFloat(document.getElementById('orc-valor').value), desc: document.getElementById('orc-desc').value };
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento elaborado.' });
+            window.saveTicketToDB(t); window.showToast('Orçamento salvo!', 'success');
         };
 
-        window.processQuoteResponse = async function(approved) {
-            if(!window.currentTicketId) return;
+        window.processQuoteResponse = function(apv) {
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
-            if(approved) {
-                t.status = 'AGENDAMENTO'; t.nextAction = 'Programar OS';
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento APROVADO.' });
-                window.triggerPhaseAlert('agendamento', t.id, t.client.name);
-                window.showToast('Orçamento aprovado!', 'success');
-            } else {
-                t.status = 'CONCLUIDO'; t.nextAction = 'Reprovado';
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento REPROVADO.' });
-                window.triggerPhaseAlert('concluido', t.id, t.client.name);
-                window.showToast('Orçamento reprovado.', 'info');
-            }
-            await window.saveSingleTicket(t);
-            window.closeTicketModal();
+            t.status = apv ? 'AGENDAMENTO' : 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: apv ? 'Orçamento Aprovado. Liberado para Agendamento.' : 'Reprovado. Encerrado.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast(apv ? 'Aprovado!' : 'Reprovado e Encerrado.', 'info');
+            if(apv) window.dispararAlertaAutomatico('AGENDAMENTO', `Orçamento Aprovado (${t.id}). Necessário Agendar OS.`);
         };
 
         window.saveSchedule = async function(complete) {
-            if(!window.currentTicketId) return;
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
+            const os = document.getElementById('sch-os').value; const dt = document.getElementById('sch-date').value; const tc = document.getElementById('sch-tech').value;
+            if(!os || !dt || !tc) { alert('Preencha OS, Data e Técnico.'); return; }
+            
+            t.schedule = { os: os, date: dt, tech: tc };
+            t.status = complete ? 'CONCLUIDO' : t.status;
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: complete ? `OS ${os} concluída pelo técnico ${tc}.` : `OS ${os} agendada para ${dt} (${tc}).` });
+            
+            await window.saveTicketToDB(t);
 
-            const os = document.getElementById('sch-os').value.trim();
-            const date = document.getElementById('sch-date').value;
-            const techName = document.getElementById('sch-tech').value;
-            const type = document.getElementById('sch-type').value;
-
-            if(!os || !date || !techName) { window.showToast('Preencha OS, data e técnico.', 'warning'); return; }
-
-            const userFound = window.allUsersDB.find(x => x.nome === techName);
-            const techEmail = userFound ? userFound.email : '';
-            const techId = userFound ? userFound.id : techName;
-
-            t.schedule = { os, date, tech: techName, type };
-
-            if(complete) {
-                t.status = 'CONCLUIDO'; t.nextAction = 'Visita Concluída';
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `OS ${os} concluída pelo técnico ${techName}.` });
-                window.triggerPhaseAlert('concluido', t.id, t.client.name);
-                window.showToast('Chamado e visita finalizados!', 'success');
+            if(!complete) {
+                const u = window.usersList.find(x => x.nome === tc);
+                if(u && u.email) {
+                    window.enviarNotificacaoApp(`OS ${os} agendada para você no dia ${dt.split('-').reverse().join('/')}. Cliente: ${t.client.name}`, [u.email]);
+                    
+                    const tId = 't_' + Date.now();
+                    try {
+                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', tId), {
+                            id: tId, osNumber: os, client: t.client.name, title: t.client.name, type: 'TECHNICAL', location: t.client.city, techIds: [tc], techId: tc,
+                            urgency: t.urgency === 'CRITICAL' ? 'CRITICAL' : 'MEDIUM', scheduledDate: dt, dueDate: dt, status: 'PENDING', description: `Gerado via ServiceFlow OSR: ${t.id}`
+                        });
+                    } catch(e) {}
+                }
             } else {
-                t.nextAction = `Agendado para ${date}`;
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Visita agendada para ${date} (${techName}).` });
-                window.showToast('Agendamento salvo e Tarefa Criada na Agenda!', 'info');
-                
-                const agendaId = 't_' + Date.now();
-                const agendaData = {
-                    id: agendaId,
-                    osNumber: os,
-                    client: t.client.name,
-                    title: t.client.name,
-                    type: 'TECHNICAL',
-                    location: t.client.city || '',
-                    techIds: [techId],
-                    techId: techId,
-                    urgency: (t.request.problem||'').toLowerCase().includes('parada') ? 'HIGH' : 'MEDIUM',
-                    scheduledDate: date,
-                    dueDate: date,
-                    status: 'PENDING',
-                    description: `OS gerada via Kanban (Chamado: ${t.id}).\nProblema Relatado: ${t.request.problem}`
-                };
-                try {
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', agendaId), agendaData);
-                    if (window.enviarNotificacaoApp && techEmail) {
-                        window.enviarNotificacaoApp(`Nova OS Agendada para você: ${t.client.name} (Dia ${date.split('-').reverse().join('/')})`, [techEmail], [], 'info');
-                    }
-                } catch(e) {}
+                window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado com Sucesso (OS: ${os}).`);
             }
-            await window.saveSingleTicket(t);
-            window.closeTicketModal();
+            
+            window.closeTicketModal(); window.showToast('Salvo com sucesso!', 'success');
         };
 
-        window.openNewTicketModal = function() { document.getElementById('modal-new-ticket').classList.remove('hidden'); setTimeout(() => document.getElementById('new-cli-name')?.focus(), 100); };
+        window.confirmDeleteTicket = function(id) { window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
+        window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
+        window.executeDeleteTicket = async function() {
+            if(!window.pendingDeleteTicketId) return;
+            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteTicketId)); window.closeDeleteModal(); window.closeTicketModal(); window.showToast('Excluído.', 'warning'); } catch(e){}
+        };
+
+        window.exportToCSV = function() {
+            const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
+            let csv = "\uFEFFID;Data;Status;Cliente;Maquina;Problema;Responsavel\n";
+            f.forEach(t => { csv += `${t.id};${new Date(t.timestampOriginal).toLocaleDateString('pt-BR')};${STATUSES[t.status].label};"${t.client.name}";"${t.equipment.model}";"${t.request.problem}";${t.assignee}\n`; });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'export.csv'; link.click();
+        };
+
+        window.openNewTicketModal = function() { document.getElementById('modal-new-ticket').classList.remove('hidden'); };
         window.closeNewTicketModal = function() { document.getElementById('modal-new-ticket').classList.add('hidden'); };
-
+        
         window.createNewTicket = async function() {
-            const cliName = document.getElementById('new-cli-name').value.trim();
-            const eqModelo = document.getElementById('new-eq-modelo').value.trim();
-            const eqSerial = document.getElementById('new-eq-serial').value.trim();
-            const problem = document.getElementById('new-problem').value.trim();
+            const cli = document.getElementById('new-cli-name').value.trim();
+            const mod = document.getElementById('new-eq-modelo').value.trim();
+            const ser = document.getElementById('new-eq-serial').value.trim();
+            const prob = document.getElementById('new-problem').value.trim();
+            if(!cli || !mod || !ser || !prob) { alert('Preencha os campos obrigatórios (*)'); return; }
 
-            if(!cliName || !eqModelo || !eqSerial || !problem) { window.showToast('Preencha os campos obrigatórios (*).', 'warning'); return; }
+            const numFmt = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
+                const ref = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
+                const doc = await transaction.get(ref);
+                let cur = doc.exists() ? doc.data().current : 1000;
+                transaction.set(ref, { current: cur + 1 }, { merge: true });
+                return `OSR-${new Date().getFullYear()}-${cur + 1}`;
+            });
 
-            const newId = `ATD-#${String(Date.now()).slice(-5)}`;
-            const newTicket = {
-                id: newId, osr: newId,
-                status_kanban: 'ENTRADA', conclusao: 'Pendente',
-                cliente: cliName,
-                cidade: document.getElementById('new-cli-city').value.trim(),
-                contato: document.getElementById('new-cli-contato').value.trim(),
-                telefone: document.getElementById('new-cli-tel').value.trim(),
-                maquina: eqModelo,
-                serial: eqSerial,
-                defeito: problem,
-                solucao: document.getElementById('new-procedures').value.trim(),
-                pecas: document.getElementById('new-materials').value.trim(),
-                isPresencial: false,
-                tecnico_kanban: window.currentUserStr,
-                tecnico: window.currentUserStr,
-                nextAction: 'Triagem Inicial',
-                history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado aberto via ServiceFlow.' }],
-                timestamp: Date.now(), data_formatada: new Date().toLocaleDateString('pt-BR')
+            const data = {
+                osr: numFmt, timestamp: Date.now(), status: 'ENTRADA',
+                cliente: cli, cidade: document.getElementById('new-cli-city').value, contato: document.getElementById('new-cli-contato').value, telefone: document.getElementById('new-cli-tel').value,
+                maquina: mod, serial: ser, defeito: prob, solucao: document.getElementById('new-procedures').value, pecas: '', urgencia: 'NORMAL', conclusao: '', tecnico: window.currentUserStr, history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado manual criado no Kanban.' }]
             };
 
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', newId), newTicket);
-                document.querySelectorAll('#modal-new-ticket input, #modal-new-ticket textarea').forEach(el => el.value = '');
-                window.closeNewTicketModal();
-                window.showToast(`Chamado ${newId} cadastrado!`, 'success');
-            } catch(e) { window.showToast('Erro ao salvar.', 'warning'); }
+            await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', numFmt), data);
+            
+            // REMOVIDO ALERTA AUTOMÁTICO DE NOVO CHAMADO COMO SOLICITADO
+            
+            window.closeNewTicketModal();
+            document.getElementById('new-cli-name').value = ''; document.getElementById('new-eq-modelo').value = ''; document.getElementById('new-eq-serial').value = ''; document.getElementById('new-problem').value = ''; document.getElementById('new-procedures').value = '';
+            window.showToast('Chamado criado com sucesso!', 'success');
         };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.closeManualAlertModal(); document.getElementById('filterPanel').classList.add('hidden'); }
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                if (e.key.toLowerCase() === 'n') { e.preventDefault(); window.openNewTicketModal(); }
-                if (e.key.toLowerCase() === 'f') { e.preventDefault(); window.toggleFilterPanel(); }
-            }
-        });
+        // --- AUTOMAÇÃO MANUAL DE ALERTAS ---
+        window.abrirModalNotificar = function() {
+            if(!window.currentTicketId) return;
+            document.getElementById('notif-msg').value = `Por favor, verificar o chamado ${window.currentTicketId}.`;
+            document.getElementById('modal-notificar').classList.remove('hidden');
+        };
+        window.fecharModalNotificar = function() { document.getElementById('modal-notificar').classList.add('hidden'); };
+        
+        window.enviarNotificacaoManual = function() {
+            const tg = document.getElementById('notif-target').value;
+            const msg = document.getElementById('notif-msg').value.trim();
+            if(!msg) return;
+            if(tg.startsWith('perfil_')) { window.enviarNotificacaoApp(msg, [], [tg.replace('perfil_', '')], 'warning'); }
+            else { window.enviarNotificacaoApp(msg, [tg], [], 'info'); }
+            window.fecharModalNotificar(); window.showToast('Notificação enviada!', 'success');
+        };
+
+        // --- CONFIGURAÇÃO DE ALERTAS ---
+        window.abrirModalConfigAlertas = function() {
+            const cont = document.getElementById('config-alertas-container');
+            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin'];
+            let html = '';
+            ['ENTRADA','TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].forEach(fase => {
+                const faseNome = STATUSES[fase]?.label || fase;
+                const set = window.alertSettings[fase] || [];
+                html += `
+                    <div class="bg-white p-4 border border-slate-200 rounded-xl">
+                        <h4 class="text-xs font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">Quando entrar em: <span class="text-blue-600 uppercase">${faseNome}</span></h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Equipes:</span>`;
+                            perfis.forEach(p => { html += `<label class="flex items-center gap-1.5 text-[10px]"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="perfil_${p}" ${set.includes('perfil_'+p) ? 'checked' : ''}> ${p}</label>`; });
+                html += `   </div>
+                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Indivíduos:</span>
+                                <div class="max-h-24 overflow-y-auto custom-scrollbar border border-slate-100 p-1 rounded">`;
+                                window.usersList.forEach(u => { html += `<label class="flex items-center gap-1.5 text-[10px] truncate"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="${u.email}" ${set.includes(u.email) ? 'checked' : ''}> ${u.nome}</label>`; });
+                html += `       </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            cont.innerHTML = html;
+            document.getElementById('modal-config-alertas').classList.remove('hidden');
+        };
+        
+        window.fecharModalConfigAlertas = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
+        
+        window.salvarConfigAlertas = async function() {
+            const config = { 'ENTRADA': [], 'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': [] };
+            document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
+                window.alertSettings = config; window.fecharModalConfigAlertas(); window.showToast('Regras de Automação salvas!', 'success');
+            } catch(e) {}
+        };
+
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); } });
     </script>
 </body>
 </html>
