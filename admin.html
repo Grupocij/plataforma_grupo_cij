@@ -262,7 +262,7 @@
 
         // 2. INICIALIZAÇÃO DO MÓDULO PELO CORE.JS
         window.initModule = function(perfil) {
-            if (perfil !== 'Admin') {
+            if (perfil !== 'Master') {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('login-message').innerHTML = '<span class="text-red-600 font-bold">Acesso Restrito: Apenas Administradores podem acessar este painel.</span>';
                 window.fazerLogout();
