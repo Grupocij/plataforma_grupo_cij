@@ -23,7 +23,7 @@
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
-    <!-- TELA DE LOGIN (Padrão do Sistema) -->
+    <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
             <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
@@ -34,7 +34,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- CABEÇALHO DO MÓDULO (Sem a tag header para não bloquear o core.js) -->
+        <!-- CABEÇALHO DO MÓDULO -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl shrink-0 shadow-inner">
@@ -45,7 +45,9 @@
                     <p class="text-slate-500 text-xs mt-0.5">Gestão de Clientes, Peças, Equipamentos e Base Instalada.</p>
                 </div>
             </div>
-            <div class="flex gap-2 w-full lg:w-auto">
+            
+            <!-- CONTÊINER DO BOTÃO EXCEL (COM ID PARA OCULTAR) -->
+            <div id="container-importar-excel" class="flex gap-2 w-full lg:w-auto">
                 <button onclick="window.abrirModalExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-4 py-2.5 rounded-xl shadow-sm transition text-xs flex items-center gap-2 cursor-pointer w-full justify-center">
                     <i class="fa-solid fa-file-excel"></i> Importar Clientes
                 </button>
@@ -63,12 +65,12 @@
         </div>
 
         <!-- FILTRO DE BUSCA GERAL -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between shrink-0">
-            <div class="relative w-full max-w-md">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between shrink-0 gap-3">
+            <div class="relative w-full md:max-w-md">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input type="text" id="filtro-busca" onkeyup="window.renderTabelaAtual()" placeholder="Buscar por nome, CNPJ, modelo ou serial..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-600 font-medium">
             </div>
-            <button id="btnNovoCadastro" onclick="window.abrirModalCadastro()" class="ml-4 bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center gap-2 cursor-pointer shrink-0">
+            <button id="btnNovoCadastro" onclick="window.abrirModalCadastro()" class="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0">
                 <i class="fa-solid fa-plus"></i> Novo Cadastro
             </button>
         </div>
@@ -80,7 +82,7 @@
                 <!-- TABELA: CLIENTES -->
                 <table id="table-clientes" class="w-full text-left text-xs min-w-[800px] hidden">
                     <thead class="bg-slate-900 text-white uppercase font-bold sticky top-0 z-10">
-                        <tr><th class="p-3">Fantasia / Razão Social</th><th class="p-3">CNPJ</th><th class="p-3">Cidade/UF</th><th class="p-3">Contato Principal</th><th class="p-3 text-center w-24">Ações</th></tr>
+                        <tr><th class="p-3">Fantasia / Razão Social</th><th class="p-3">CNPJ</th><th class="p-3">Cidade/UF</th><th class="p-3">Contato Principal</th><th class="p-3 text-center w-32">Ações</th></tr>
                     </thead>
                     <tbody id="tb-clientes" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                 </table>
@@ -144,7 +146,7 @@
     </main>
 
     <!-- ========================================== -->
-    <!-- MODAIS DE CADASTRO (CLIENTES, PEÇAS, ETC)  -->
+    <!-- MODAIS DE CADASTRO GERAL (CLIENTES, ETC)   -->
     <!-- ========================================== -->
     <div id="modalCadastro" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl border border-slate-200 my-auto transform transition-all flex flex-col">
@@ -167,14 +169,14 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAÇÃO GERAL (Mostra a ficha do cliente/peça) -->
+    <!-- MODAL DE VISUALIZAÇÃO GERAL DA FICHA DO CLIENTE -->
     <div id="modalVisualizacao" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl border border-slate-200 my-auto transform transition-all flex flex-col max-h-[90vh]">
             <div class="bg-slate-100 text-slate-800 px-6 py-4 flex items-center justify-between rounded-t-3xl border-b border-slate-200 shrink-0">
-                <h3 class="font-black text-sm flex items-center gap-2" id="modalVisTitulo"><i class="fa-solid fa-magnifying-glass text-blue-600"></i> Detalhes do Registro</h3>
+                <h3 class="font-black text-sm flex items-center gap-2" id="modalVisTitulo"><i class="fa-solid fa-building text-blue-600"></i> Ficha do Cliente</h3>
                 <div class="flex gap-2">
-                    <button id="modalVisBtnEdit" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg font-bold transition border border-blue-200 cursor-pointer">Editar</button>
-                    <button onclick="window.fecharModais()" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    <button id="modalVisBtnEdit" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg font-bold transition border border-blue-200 cursor-pointer"><i class="fa-solid fa-pen mr-1"></i> Editar Cliente</button>
+                    <button onclick="window.fecharModais()" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer ml-2"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1" id="modalVisConteudo"></div>
@@ -336,8 +338,8 @@
                 <!-- LINHA DO TEMPO: HISTÓRICO -->
                 <div>
                     <div class="flex items-center gap-3 border-b border-slate-200 pb-2 mb-4">
-                        <button onclick="window.mudarAbaFicha('manutencao')" id="btnAbaManut" class="text-xs font-black pb-2 border-b-2 border-blue-600 text-blue-700 transition">Histórico de OS (Manutenções)</button>
-                        <button onclick="window.mudarAbaFicha('transferencia')" id="btnAbaTransf" class="text-xs font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">Log de Transferências</button>
+                        <button onclick="window.mudarAbaFicha('manutencao')" id="btnAbaManut" class="text-xs font-black pb-2 border-b-2 border-blue-600 text-blue-700 transition focus:outline-none">Histórico de OS (Manutenções)</button>
+                        <button onclick="window.mudarAbaFicha('transferencia')" id="btnAbaTransf" class="text-xs font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition focus:outline-none">Log de Transferências</button>
                     </div>
 
                     <div id="aba_manutencao" class="space-y-3">
@@ -387,7 +389,7 @@
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- LÓGICA PRINCIPAL (Cadastros + Parque + Relacional) -->
+    <!-- LÓGICA PRINCIPAL -->
     <script>
         window.dadosClientes = [];
         window.dadosEquipamentos = [];
@@ -408,16 +410,33 @@
             const db = window.AppDB;
 
             // Busca Cadastros Básicos
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), s => { window.dadosClientes = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.razao_social?.localeCompare(b.razao_social)); window.renderTabelaAtual(); });
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), s => { window.dadosEquipamentos = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.modelo?.localeCompare(b.modelo)); window.renderTabelaAtual(); });
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_pecas'), s => { window.dadosPecas = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.nome?.localeCompare(b.nome)); window.renderTabelaAtual(); });
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_consumiveis'), s => { window.dadosConsumiveis = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.codigo?.localeCompare(b.codigo)); window.renderTabelaAtual(); });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), s => { 
+                window.dadosClientes = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=> (a.fantasia || a.razao_social || '').localeCompare(b.fantasia || b.razao_social || '')); 
+                window.renderTabelaAtual(); 
+            });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), s => { 
+                window.dadosEquipamentos = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=> (a.modelo || '').localeCompare(b.modelo || '')); 
+                window.renderTabelaAtual(); 
+            });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_pecas'), s => { 
+                window.dadosPecas = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=> (a.nome || '').localeCompare(b.nome || '')); 
+                window.renderTabelaAtual(); 
+            });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_consumiveis'), s => { 
+                window.dadosConsumiveis = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=> (a.codigo || '').localeCompare(b.codigo || '')); 
+                window.renderTabelaAtual(); 
+            });
             
             // Busca Parque de Máquinas e OSR
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), s => { window.dadosParque = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.serial?.localeCompare(b.serial)); window.renderTabelaAtual(); });
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), s => { window.historicoOSR = s.docs.map(d => d.data()); });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), s => { 
+                window.dadosParque = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=> (a.serial || '').localeCompare(b.serial || '')); 
+                window.renderTabelaAtual(); 
+            });
+            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), s => { 
+                window.historicoOSR = s.docs.map(d => d.data()); 
+            });
 
-            // Checa se veio com aba selecionada via URL
+            // Checa URL se deve pular para o parque
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('tab') === 'parque') {
                 window.mudarAba('parque');
@@ -441,6 +460,14 @@
 
         window.mudarAba = function(aba) {
             tabAtiva = aba;
+            
+            // Esconde/Mostra botão de Importar Excel
+            const containerExcel = document.getElementById('container-importar-excel');
+            if(containerExcel) {
+                if (aba === 'clientes') containerExcel.classList.remove('hidden');
+                else containerExcel.classList.add('hidden');
+            }
+
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.className = "tab-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all bg-transparent text-slate-600 hover:bg-slate-100 cursor-pointer whitespace-nowrap";
             });
@@ -456,16 +483,15 @@
             document.getElementById(`table-${aba}`).classList.remove('hidden');
             document.getElementById(`info-page-${aba}`).classList.remove('hidden');
 
-            // Ajusta o botão "Novo Cadastro" para o Parque
             const btnNovo = document.getElementById('btnNovoCadastro');
             if (aba === 'parque') {
                 btnNovo.onclick = () => window.abrirPmCadastro();
                 btnNovo.innerHTML = '<i class="fa-solid fa-plus"></i> Registrar Máquina';
-                btnNovo.className = 'ml-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center gap-2 cursor-pointer shrink-0';
+                btnNovo.className = 'w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0';
             } else {
                 btnNovo.onclick = () => window.abrirModalCadastro();
                 btnNovo.innerHTML = '<i class="fa-solid fa-plus"></i> Novo Cadastro';
-                btnNovo.className = 'ml-4 bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center gap-2 cursor-pointer shrink-0';
+                btnNovo.className = 'w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0';
             }
 
             document.getElementById('filtro-busca').value = '';
@@ -477,11 +503,11 @@
             const busca = document.getElementById('filtro-busca').value.toLowerCase();
             let lista = [];
 
-            if(tabAtiva === 'clientes') lista = window.dadosClientes.filter(x => `${x.razao_social} ${x.fantasia} ${x.cnpj}`.toLowerCase().includes(busca));
-            if(tabAtiva === 'equipamentos') lista = window.dadosEquipamentos.filter(x => `${x.modelo} ${x.categoria} ${x.marca}`.toLowerCase().includes(busca));
-            if(tabAtiva === 'pecas') lista = window.dadosPecas.filter(x => `${x.sku} ${x.nome} ${x.aplicacao}`.toLowerCase().includes(busca));
-            if(tabAtiva === 'consumiveis') lista = window.dadosConsumiveis.filter(x => `${x.codigo} ${x.descricao} ${x.base}`.toLowerCase().includes(busca));
-            if(tabAtiva === 'parque') lista = window.dadosParque.filter(x => `${x.serial} ${x.modelo} ${x.cliente_atual} ${x.status}`.toLowerCase().includes(busca));
+            if(tabAtiva === 'clientes') lista = window.dadosClientes.filter(x => `${x.razao_social||''} ${x.fantasia||''} ${x.cnpj||''}`.toLowerCase().includes(busca));
+            if(tabAtiva === 'equipamentos') lista = window.dadosEquipamentos.filter(x => `${x.modelo||''} ${x.categoria||''} ${x.marca||''}`.toLowerCase().includes(busca));
+            if(tabAtiva === 'pecas') lista = window.dadosPecas.filter(x => `${x.sku||''} ${x.nome||''} ${x.aplicacao||''}`.toLowerCase().includes(busca));
+            if(tabAtiva === 'consumiveis') lista = window.dadosConsumiveis.filter(x => `${x.codigo||''} ${x.descricao||''} ${x.base||''}`.toLowerCase().includes(busca));
+            if(tabAtiva === 'parque') lista = window.dadosParque.filter(x => `${x.serial||''} ${x.modelo||''} ${x.cliente_atual||''} ${x.status||''}`.toLowerCase().includes(busca));
 
             const totalPages = Math.ceil(lista.length / ITEMS_PER_PAGE) || 1;
             if(pageTab[tabAtiva] > totalPages) pageTab[tabAtiva] = totalPages;
@@ -493,19 +519,27 @@
             if(tabAtiva === 'clientes') {
                 renderPaginatedTable('tb-clientes', 'info-page-clientes', filtrados, 'clientes', c => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                    <td class="p-3"><strong class="block text-slate-800">${c.fantasia || '-'}</strong><span class="text-[10px] text-slate-500">${c.razao_social || '-'}</span></td>
+                    <td class="p-3">
+                        <button onclick="window.abrirVisualizacao('clientes', '${c.id}')" class="text-left focus:outline-none cursor-pointer group">
+                            <strong class="block text-blue-700 group-hover:text-blue-900 group-hover:underline transition">${c.fantasia || c.razao_social || '-'}</strong>
+                            <span class="text-[10px] text-slate-500">${c.fantasia ? (c.razao_social || '') : ''}</span>
+                        </button>
+                    </td>
                     <td class="p-3 text-slate-600 font-mono">${c.cnpj || '-'}</td>
                     <td class="p-3 text-slate-600">${c.cidade || '-'}/${c.estado || c.uf || '-'}</td>
                     <td class="p-3 text-slate-600">${c.contato || '-'}<br><span class="text-[10px]">${c.telefone || '-'}</span></td>
                     <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                        <button onclick="window.abrirVisualizacao('clientes', '${c.id}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-eye"></i></button>
-                        <button onclick="window.excluirCadastro('clientes', '${c.id}')" class="p-2 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="window.abrirVisualizacao('clientes', '${c.id}')" title="Ver Ficha" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                        <button onclick="window.abrirModalCadastro('${c.id}')" title="Editar" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="window.excluirCadastro('clientes', '${c.id}')" title="Excluir" class="p-2 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`);
             } else if (tabAtiva === 'equipamentos') {
                 renderPaginatedTable('tb-equipamentos', 'info-page-equipamentos', filtrados, 'equipamentos', e => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                    <td class="p-3 font-bold text-slate-800">${e.modelo || '-'}</td>
+                    <td class="p-3">
+                        <button onclick="window.abrirModalCadastro('${e.id}')" class="text-left font-bold text-blue-700 hover:text-blue-900 hover:underline transition focus:outline-none cursor-pointer">${e.modelo || '-'}</button>
+                    </td>
                     <td class="p-3 text-slate-600">${e.categoria || '-'}</td>
                     <td class="p-3 text-slate-600">${e.marca || '-'}</td>
                     <td class="p-3 text-center space-x-1 whitespace-nowrap">
@@ -517,7 +551,9 @@
                 renderPaginatedTable('tb-pecas', 'info-page-pecas', filtrados, 'pecas', p => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="p-3 font-bold text-slate-800 font-mono">${p.sku || '-'}</td>
-                    <td class="p-3 text-slate-600">${p.nome || '-'}</td>
+                    <td class="p-3">
+                        <button onclick="window.abrirModalCadastro('${p.id}')" class="text-left font-bold text-blue-700 hover:text-blue-900 hover:underline transition focus:outline-none cursor-pointer">${p.nome || '-'}</button>
+                    </td>
                     <td class="p-3 text-slate-600">${p.aplicacao || '-'}</td>
                     <td class="p-3 text-center space-x-1 whitespace-nowrap">
                         <button onclick="window.abrirModalCadastro('${p.id}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-pen"></i></button>
@@ -528,7 +564,9 @@
                 renderPaginatedTable('tb-consumiveis', 'info-page-consumiveis', filtrados, 'consumiveis', c => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="p-3 font-bold text-slate-800 font-mono">${c.codigo || '-'}</td>
-                    <td class="p-3 text-slate-600">${c.nome || '-'}</td>
+                    <td class="p-3">
+                        <button onclick="window.abrirModalCadastro('${c.id}')" class="text-left font-bold text-blue-700 hover:text-blue-900 hover:underline transition focus:outline-none cursor-pointer">${c.nome || '-'}</button>
+                    </td>
                     <td class="p-3 text-slate-600">${c.base || '-'} / ${c.cor || '-'}</td>
                     <td class="p-3 text-center space-x-1 whitespace-nowrap">
                         <button onclick="window.abrirModalCadastro('${c.id}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-pen"></i></button>
@@ -544,12 +582,14 @@
                     else if(m.status === 'Manutenção') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
                     else if(m.status === 'Disponível') badgeClass = 'bg-blue-100 text-blue-800 border-blue-300';
 
-                    // GATILHO RELACIONAL: LINK PARA A FICHA DO CLIENTE
-                    let clienteHtml = `<span class="font-bold text-slate-600"><i class="fa-solid fa-building text-slate-400 mr-1"></i> ${m.cliente_atual}</span>`;
+                    // GATILHO RELACIONAL BLINDADO
+                    let clienteHtml = `<span class="font-bold text-slate-600"><i class="fa-solid fa-building text-slate-400 mr-1"></i> ${m.cliente_atual || 'Sem Cliente'}</span>`;
+                    
                     if (m.cliente_atual) {
+                        const safeCliName = m.cliente_atual.toUpperCase();
                         const cli = window.dadosClientes.find(c => 
-                            (c.razao_social && c.razao_social.toUpperCase() === m.cliente_atual.toUpperCase()) || 
-                            (c.fantasia && c.fantasia.toUpperCase() === m.cliente_atual.toUpperCase())
+                            (c.razao_social && c.razao_social.toUpperCase() === safeCliName) || 
+                            (c.fantasia && c.fantasia.toUpperCase() === safeCliName)
                         );
                         if (cli) {
                             clienteHtml = `<button onclick="window.fecharModais(); window.abrirVisualizacao('clientes', '${cli.id}')" class="text-left font-bold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer focus:outline-none transition"><i class="fa-solid fa-building text-blue-400"></i> ${m.cliente_atual}</button>`;
@@ -560,14 +600,16 @@
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                         <td class="p-3">
                             <button onclick="window.fecharModais(); window.abrirFicha('${m.id}')" class="text-left font-mono font-black text-indigo-700 text-sm hover:underline flex items-center gap-2 cursor-pointer focus:outline-none">
-                                <i class="fa-solid fa-qrcode text-slate-400 text-xs"></i> ${m.serial}
+                                <i class="fa-solid fa-qrcode text-slate-400 text-xs"></i> ${m.serial || '-'}
                             </button>
                         </td>
-                        <td class="p-3 font-bold text-slate-800">${m.modelo}</td>
+                        <td class="p-3">
+                            <button onclick="window.fecharModais(); window.abrirFicha('${m.id}')" class="text-left font-bold text-slate-800 hover:text-blue-600 hover:underline focus:outline-none cursor-pointer">${m.modelo || '-'}</button>
+                        </td>
                         <td class="p-3">${clienteHtml}</td>
                         <td class="p-3 text-slate-500 font-medium">${window.formatarDataBR(m.data_instalacao).split(' ')[0]}</td>
                         <td class="p-3 text-center">
-                            <span class="px-2.5 py-1 text-[10px] font-black uppercase rounded-lg border whitespace-nowrap ${badgeClass}">${m.status}</span>
+                            <span class="px-2.5 py-1 text-[10px] font-black uppercase rounded-lg border whitespace-nowrap ${badgeClass}">${m.status || 'Sem Status'}</span>
                         </td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             <button onclick="window.abrirPmTransferencia('${m.id}')" title="Transferir Cliente" class="p-2 text-amber-600 bg-amber-50 hover:bg-amber-500 hover:text-white rounded-lg transition shadow-sm font-bold text-[10px] cursor-pointer"><i class="fa-solid fa-right-left"></i> Transferir</button>
@@ -587,7 +629,13 @@
             } else {
                 tb.innerHTML = data.map(rowMapper).join('');
             }
-            const total = window[`dados${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`].length;
+            // Usa o array global correto para o info text
+            const totalDataArray = tabName === 'parque' ? window.dadosParque : 
+                                   tabName === 'clientes' ? window.dadosClientes : 
+                                   tabName === 'equipamentos' ? window.dadosEquipamentos : 
+                                   tabName === 'pecas' ? window.dadosPecas : window.dadosConsumiveis;
+                                   
+            const total = totalDataArray.length;
             const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
             document.getElementById(infoId).innerText = `Pág. ${pageTab[tabName]} de ${totalPages} (Total: ${total})`;
         }
@@ -724,6 +772,13 @@
             
             if (tipo === 'clientes') {
                 item = window.dadosClientes.find(x => x.id === id);
+                
+                // BLINDAGEM: Se o item não for encontrado, encerra a função sem quebrar a tela.
+                if (!item) {
+                    window.mostrarNotificacao('Cliente não encontrado no banco de dados.', true);
+                    return;
+                }
+
                 editFn = `window.abrirModalCadastro('${id}')`;
                 
                 let contatosStr = '';
@@ -755,12 +810,14 @@
                     </div>
                 `;
             } else {
-                return; // Outros visualizadores se precisarem
+                return; // Outros visualizadores não estão implementados para este modal ainda
             }
 
             document.getElementById('modalVisConteudo').innerHTML = html;
+            
             const btnEdit = document.getElementById('modalVisBtnEdit');
             btnEdit.setAttribute('onclick', `window.fecharModais(); ${editFn}`);
+
             document.getElementById('modalVisualizacao').classList.remove('hidden');
 
             if (tipo === 'clientes') {
@@ -768,14 +825,17 @@
             }
         };
 
-        window.carregarMaquinasDoCliente = function(razao, fantasia) {
+        window.carregarMaquinasDoCliente = async function(razao, fantasia) {
             const container = document.getElementById('client-machines-container');
             
-            // Busca máquinas atreladas a esse cliente
-            let maquinas = window.dadosParque.filter(m => 
-                (razao && m.cliente_atual.toUpperCase() === razao.toUpperCase()) || 
-                (fantasia && m.cliente_atual.toUpperCase() === fantasia.toUpperCase())
-            );
+            const safeRazao = (razao || '').toUpperCase();
+            const safeFantasia = (fantasia || '').toUpperCase();
+
+            // Busca as máquinas que estão no nome deste cliente
+            let maquinas = window.dadosParque.filter(m => {
+                const cliAtual = (m.cliente_atual || '').toUpperCase();
+                return (safeRazao && cliAtual === safeRazao) || (safeFantasia && cliAtual === safeFantasia);
+            });
 
             if(maquinas.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">Nenhum equipamento vinculado a este cliente na Base Instalada.</p>';
@@ -784,6 +844,7 @@
 
             let html = '<div class="space-y-3">';
             maquinas.forEach(m => {
+                // Filtra as OS baseadas no Serial (do histórico global que puxamos no initModule)
                 let hist = window.historicoOSR.filter(o => o.serial === m.serial);
                 hist.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                 
@@ -793,32 +854,30 @@
                     dataFormatadaUltima = window.formatarDataBR(ultData);
                 }
 
-                let badgeStatus = 'bg-slate-100 text-slate-800';
-                if(m.status === 'Ativo Cliente') badgeStatus = 'bg-emerald-100 text-emerald-800';
-                else if(m.status === 'Manutenção') badgeStatus = 'bg-amber-100 text-amber-800';
-                else if(m.status === 'Disponível') badgeStatus = 'bg-blue-100 text-blue-800';
-                else if(m.status === 'Alugada') badgeStatus = 'bg-cyan-100 text-cyan-800';
-                else if(m.status === 'Emprestada') badgeStatus = 'bg-purple-100 text-purple-800';
+                const badgeStatus = m.status === 'Ativo Cliente' ? 'bg-emerald-100 text-emerald-800' : m.status === 'Manutenção' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
 
                 html += `
                 <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <div class="bg-slate-50 p-3 flex justify-between items-center">
+                    <div class="bg-slate-50 p-3 flex justify-between items-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('hist_maquina_${m.serial}').classList.toggle('hidden')">
                         <div>
                             <!-- GATILHO RELACIONAL: LINK PARA A FICHA DA MÁQUINA -->
-                            <button type="button" onclick="window.fecharModais(); window.abrirFicha('${m.id}')" class="font-black text-blue-700 hover:text-blue-900 hover:underline block text-sm cursor-pointer focus:outline-none text-left"><i class="fa-solid fa-print text-blue-500 mr-1.5"></i> ${m.modelo}</button>
+                            <span class="font-bold text-slate-800 block text-sm"><i class="fa-solid fa-print text-blue-500 mr-1.5"></i> ${m.modelo || 'S/M'}</span>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[10px] font-mono text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-sm">SN: ${m.serial}</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeStatus}">${m.status}</span>
+                                <span class="text-[10px] font-mono text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-sm">SN: ${m.serial || '-'}</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeStatus}">${m.status || '-'}</span>
                             </div>
                         </div>
                         <div class="text-right">
                             <span class="block text-[9px] font-bold text-slate-400 uppercase">Última OS</span>
                             <span class="text-xs font-black text-slate-700">${dataFormatadaUltima}</span>
-                            <button onclick="document.getElementById('hist_maquina_${m.serial}').classList.toggle('hidden')" class="block text-[9px] text-blue-600 mt-1 cursor-pointer hover:underline ml-auto focus:outline-none">Ver Histórico <i class="fa-solid fa-chevron-down"></i></button>
+                            <span class="block text-[9px] text-blue-600 mt-1 cursor-pointer hover:underline">Ver Histórico <i class="fa-solid fa-chevron-down"></i></span>
                         </div>
                     </div>
                     <div id="hist_maquina_${m.serial}" class="hidden p-3 bg-white border-t border-slate-200 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                        <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Histórico de OS Cadastrado</h5>
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Histórico de OS Cadastrado</h5>
+                            <button onclick="window.fecharModais(); window.abrirFicha('${m.id}')" class="text-[9px] bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded hover:bg-blue-200 transition">Ver Ficha Completa</button>
+                        </div>
                         ${hist.length === 0 ? '<p class="text-xs text-slate-500">Nenhum chamado/manutenção registrado para este número de série.</p>' : hist.map(h => {
                             const dBR = h.timestamp ? window.formatarDataBR(new Date(h.timestamp).toISOString()) : window.formatarDataBR(h.data_formatada || h.dataComparacao);
                             return `
@@ -969,9 +1028,10 @@
             // GATILHO RELACIONAL: LINK PARA O CLIENTE NA FICHA DA MÁQUINA
             let idClienteFicha = null;
             if (m.cliente_atual) {
+                const safeCliAtual = m.cliente_atual.toUpperCase();
                 const cli = window.dadosClientes.find(c => 
-                    (c.razao_social && c.razao_social.toUpperCase() === m.cliente_atual.toUpperCase()) || 
-                    (c.fantasia && c.fantasia.toUpperCase() === m.cliente_atual.toUpperCase())
+                    (c.razao_social && c.razao_social.toUpperCase() === safeCliAtual) || 
+                    (c.fantasia && c.fantasia.toUpperCase() === safeCliAtual)
                 );
                 if (cli) idClienteFicha = cli.id;
             }
