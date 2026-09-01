@@ -220,6 +220,11 @@
                                 <div><span class="text-slate-400 block text-[10px]">Modelo</span> <span id="td-equip" class="font-bold text-slate-900 text-sm"></span></div>
                                 <div><span class="text-slate-400 block text-[10px]">Série</span> <span id="td-serial" class="font-mono font-semibold text-slate-700"></span></div>
                             </div>
+                            <!-- ALERTA DINÂMICO PARA CADASTRAR/VINCULAR MÁQUINA -->
+                            <div id="td-parque-warning" class="hidden mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-2">
+                                <p class="text-[9px] font-bold text-rose-700 leading-tight"><i class="fa-solid fa-triangle-exclamation"></i> Equipamento não vinculado a este cliente no Parque. (Veio do Suporte OSR)</p>
+                                <button onclick="window.vincularMaquinaParqueApp()" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold rounded-lg transition shadow-sm cursor-pointer">Vincular/Cadastrar Agora</button>
+                            </div>
                         </div>
                     </div>
 
@@ -832,6 +837,22 @@
             if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client.phone || '-';
             if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = t.equipment.model;
             if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = t.equipment.serial;
+            
+            // LÓGICA DO ALERTA DE EQUIPAMENTO DESVINCULADO
+            const warningBox = document.getElementById('td-parque-warning');
+            if(warningBox) {
+                if (t.equipment.serial && t.equipment.serial.trim() !== '') {
+                    const maq = window.parqueMaquinas.find(m => m.serial.toLowerCase() === t.equipment.serial.toLowerCase());
+                    if (!maq || maq.cliente_atual.toLowerCase() !== t.client.name.toLowerCase()) {
+                        warningBox.classList.remove('hidden');
+                    } else {
+                        warningBox.classList.add('hidden');
+                    }
+                } else {
+                    warningBox.classList.add('hidden'); // Se não tiver serial, não tem como vincular
+                }
+            }
+
             if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = t.request.problem || '';
             if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum.';
 
@@ -893,6 +914,40 @@
 
         window.closeTicketModal = function() {
             document.getElementById('ticketModal').classList.add('hidden');
+        };
+
+        // --- FUNÇÃO PARA VINCULAR MÁQUINA QUE VEIO DO SUPORTE OSR ---
+        window.vincularMaquinaParqueApp = async function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            
+            const cli = t.client.name;
+            const mod = t.equipment.model;
+            const ser = t.equipment.serial;
+
+            const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
+            
+            if(confirm(`Deseja cadastrar e vincular a máquina ${mod} (SN: ${ser}) ao cliente "${cli}" no Parque de Máquinas agora?`)) {
+                const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
+                const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
+                    id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via ServiceFlow (Atendimento)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+                };
+                
+                if(maquinaNoParque) {
+                    if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
+                    pmData.historico_transferencias.push({
+                         id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Transferência via ServiceFlow OSR', responsavel: window.currentUserStr, timestamp: Date.now()
+                    });
+                }
+                
+                try {
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
+                    window.showToast('Máquina vinculada ao Parque com sucesso!', 'success');
+                    document.getElementById('td-parque-warning').classList.add('hidden');
+                } catch(err) {
+                    alert("Erro ao salvar no Parque de Máquinas.");
+                }
+            }
         };
 
         window.switchTab = function(tabId) {
