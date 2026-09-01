@@ -19,6 +19,7 @@ if ('serviceWorker' in navigator) {
 }
 
 const injectLayout = () => {
+    // A TRAVA DE SEGURANÇA: Se a tela tiver <header>, ele aborta. (Por isso mudamos na Central de Cadastros)
     if (document.querySelector('header')) return;
 
     const style = document.createElement('style');
@@ -146,6 +147,7 @@ const injectLayout = () => {
                                 <a href="requisicao_material.html" data-module="requisicao_material.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-toolbox"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Req. de Material</h4><p class="text-[10px] text-slate-500">Aprovação/Baixas</p></div></a>
                                 <a href="estoque-novos.html" data-module="estoque-novos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Novos</h4><p class="text-[10px] text-slate-500">Máquinas Faturamento</p></div></a>
                                 <a href="estoque.html" data-module="estoque.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Geral</h4><p class="text-[10px] text-slate-500">Usados e Demonstração</p></div></a>
+                                <a href="central_cadastros.html?tab=parque" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-server"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Parque Máquinas</h4><p class="text-[10px] text-slate-500">Base Instalada CIJ</p></div></a>
                             </div>
                         </div>
                     </div>
@@ -272,6 +274,7 @@ const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
     { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
+    { name: 'Parque de Máquinas', url: 'central_cadastros.html?tab=parque', icon: 'fa-server text-indigo-600' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -308,7 +311,7 @@ window.filterGlobalModules = function() {
         allowedUrls.push('diretoria-custos.html');
     }
 
-    const filtered = globalModulesMap.filter(m => m.name.toLowerCase().includes(input) && allowedUrls.includes(m.url));
+    const filtered = globalModulesMap.filter(m => m.name.toLowerCase().includes(input) && allowedUrls.includes(m.url.split('?')[0]));
 
     if (filtered.length > 0) {
         resultBox.innerHTML = filtered.map(m => `
@@ -385,15 +388,17 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
 
     const allLinks = document.querySelectorAll('a.nav-item');
     allLinks.forEach(link => {
-        const url = link.getAttribute('data-module');
+        const urlComParametros = link.getAttribute('data-module');
+        const urlBase = urlComParametros.split('?')[0]; // Remove "?tab=parque" para a checagem
+
         let temAcesso = false;
         
         if (isMaster) {
             temAcesso = true;
         } else if (isAdministrativo) {
-            if (url !== 'admin.html' && url !== 'diretoria-custos.html') temAcesso = true;
+            if (urlBase !== 'admin.html' && urlBase !== 'diretoria-custos.html') temAcesso = true;
         } else {
-            if (modulosPermitidos.includes(url)) temAcesso = true;
+            if (modulosPermitidos.includes(urlBase)) temAcesso = true;
         }
 
         if (temAcesso) link.style.display = 'flex';
@@ -414,17 +419,19 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
         mobContainer.innerHTML = '<a href="index.html" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid fa-house text-blue-400"></i> Home</a>';
         
         globalModulesMap.forEach(m => {
+            const urlBaseM = m.url.split('?')[0];
             let addNoMobile = false;
+
             if (isMaster) {
                 addNoMobile = true;
             } else if (isAdministrativo) {
-                if (m.url !== 'admin.html' && m.url !== 'diretoria-custos.html') addNoMobile = true;
+                if (urlBaseM !== 'admin.html' && urlBaseM !== 'diretoria-custos.html') addNoMobile = true;
             } else {
-                if (modulosPermitidos.includes(m.url)) addNoMobile = true;
+                if (modulosPermitidos.includes(urlBaseM)) addNoMobile = true;
             }
 
             if (addNoMobile) {
-                const isSecret = m.url === 'diretoria-custos.html' ? 'mobile-secret' : '';
+                const isSecret = urlBaseM === 'diretoria-custos.html' ? 'mobile-secret' : '';
                 mobContainer.innerHTML += `<a href="${m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
             }
         });
@@ -539,7 +546,7 @@ onAuthStateChanged(auth, async (user) => {
             if (emailsMaster.includes(cleanEmail)) {
                 dbUser = { 
                     email: cleanEmail, nome: 'Marcos Bazacas', perfil: 'Master', 
-                    visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
+                    visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url.split('?')[0]) 
                 };
             } else {
                 alert("⚠️ ACESSO BLOQUEADO!\nSeu e-mail (" + cleanEmail + ") não possui permissão de acesso ao Portal. Procure a administração.");
@@ -551,7 +558,7 @@ onAuthStateChanged(auth, async (user) => {
         if (emailsMaster.includes(cleanEmail)) {
             dbUser.perfil = 'Master';
             dbUser.nome = 'Marcos Bazacas'; 
-            if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url); 
+            if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url.split('?')[0]); 
         }
 
         window.currentUser = user;
