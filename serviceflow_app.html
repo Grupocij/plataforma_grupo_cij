@@ -765,9 +765,18 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     if(d) {
+                        let dataReal = new Date().toISOString();
+                        if (d.timestamp) {
+                            dataReal = new Date(d.timestamp).toISOString();
+                        } else if (d.data_formatada) {
+                            const apenasData = d.data_formatada.split(',')[0].trim();
+                            const p = apenasData.split('/');
+                            if(p.length === 3) dataReal = new Date(`${p[2]}-${p[1]}-${p[0]}T12:00:00Z`).toISOString();
+                        }
+
                         window.tickets.push({
                             id: d.osr || d.id,
-                            createdAt: d.data_formatada ? new Date(d.data_formatada.split('/').reverse().join('-')).toISOString() : new Date(d.timestamp).toISOString(),
+                            createdAt: dataReal,
                             status: d.status_kanban || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA'),
                             client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
                             equipment: { model: d.maquina || '', serial: d.serial || '' },
