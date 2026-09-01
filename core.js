@@ -19,8 +19,9 @@ if ('serviceWorker' in navigator) {
 }
 
 const injectLayout = () => {
-    // A TRAVA DE SEGURANÇA: Se a tela tiver <header>, ele aborta. (Por isso mudamos na Central de Cadastros)
-    if (document.querySelector('header')) return;
+    // A TRAVA DE SEGURANÇA: Se a tela já tiver o layout injetado (ou um <header> solto), ele não injeta de novo.
+    // Trocamos para 'nav-category' para evitar conflito com módulos que usam <header> interno.
+    if (document.getElementById('desktop-nav-menu')) return;
 
     const style = document.createElement('style');
     style.innerHTML = `
@@ -147,7 +148,8 @@ const injectLayout = () => {
                                 <a href="requisicao_material.html" data-module="requisicao_material.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-toolbox"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Req. de Material</h4><p class="text-[10px] text-slate-500">Aprovação/Baixas</p></div></a>
                                 <a href="estoque-novos.html" data-module="estoque-novos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Novos</h4><p class="text-[10px] text-slate-500">Máquinas Faturamento</p></div></a>
                                 <a href="estoque.html" data-module="estoque.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Geral</h4><p class="text-[10px] text-slate-500">Usados e Demonstração</p></div></a>
-                                <a href="central_cadastros.html?tab=parque" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-server"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Parque Máquinas</h4><p class="text-[10px] text-slate-500">Base Instalada CIJ</p></div></a>
+                                <!-- Módulo Parque de Máquinas retornado para o Menu -->
+                                <a href="parque_maquinas.html" data-module="parque_maquinas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-server"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Parque Máquinas</h4><p class="text-[10px] text-slate-500">Base Instalada CIJ</p></div></a>
                             </div>
                         </div>
                     </div>
@@ -274,7 +276,7 @@ const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
     { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
-    { name: 'Parque de Máquinas', url: 'central_cadastros.html?tab=parque', icon: 'fa-server text-indigo-600' },
+    { name: 'Parque de Máquinas', url: 'parque_maquinas.html', icon: 'fa-server text-indigo-600' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -389,7 +391,7 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     const allLinks = document.querySelectorAll('a.nav-item');
     allLinks.forEach(link => {
         const urlComParametros = link.getAttribute('data-module');
-        const urlBase = urlComParametros.split('?')[0]; // Remove "?tab=parque" para a checagem
+        const urlBase = urlComParametros.split('?')[0]; 
 
         let temAcesso = false;
         
@@ -540,7 +542,14 @@ onAuthStateChanged(auth, async (user) => {
             });
         } catch (e) { console.error("Erro ao ler permissões", e); }
 
-        const emailsMaster = ['marcos@grupocij.com', 'marcos@grupocij.com.br', 'marcos.bazacas@grupocij.com', 'marcos.bazacas@grupocij.com.br', 'adm@grupocij.com', 'adm@grupocij.com.br'];
+        const emailsMaster = [
+            'marcos@grupocij.com', 
+            'marcos@grupocij.com.br', 
+            'marcos.bazacas@grupocij.com', 
+            'marcos.bazacas@grupocij.com.br', 
+            'adm@grupocij.com', 
+            'adm@grupocij.com.br'
+        ];
 
         if (!dbUser) {
             if (emailsMaster.includes(cleanEmail)) {
