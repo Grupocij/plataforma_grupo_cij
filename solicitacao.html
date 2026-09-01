@@ -241,6 +241,12 @@
         </form>
     </main>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 transition-opacity">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
+    </div>
+
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
@@ -258,6 +264,15 @@
     </script>
 
     <script>
+        window.mostrarNotificacao = function(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            document.getElementById('toast-message').innerText = msg;
+            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
+            toast.classList.remove('hidden'); 
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        };
+
         // 1. INICIALIZAÇÃO DO MÓDULO PELA CORE
         window.initModule = function(perfil) {
             document.getElementById('login-screen').classList.add('hidden');
@@ -432,7 +447,7 @@
 
             try {
                 if (file && window.FirebaseUploadBytes && window.FirebaseStorageRef) {
-                    const storageRef = window.FirebaseStorageRef(window.AppStorage, `solicitacoes_anexos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+                    const storageRef = window.FirebaseStorageRef(window.AppStorage, `solicitacoes_anexos/${Date.now()}_${file.name.replace(/[^a-z0-9]/g, '_')}`);
                     const snapshot = await window.FirebaseUploadBytes(storageRef, file);
                     solicitacaoObj.anexo_url = await window.FirebaseGetDownloadURL(snapshot.ref);
                     solicitacaoObj.anexo_nome = file.name;
@@ -462,7 +477,7 @@
                 }
             } catch (error) { 
                 console.error("ERRO AO SALVAR:", error);
-                alert("Erro ao salvar no banco de dados. Verifique a conexão.");
+                window.mostrarNotificacao("Erro ao salvar no banco de dados. Verifique a conexão.", true);
             } finally {
                 btn.innerHTML = originalText; btn.disabled = false;
             }
