@@ -32,7 +32,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Menu e Elementos Glass */
         .glass-header {
             background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(12px);
@@ -40,7 +39,6 @@
         }
         .modal-overlay { background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(5px); }
 
-        /* Timeline do Histórico */
         .timeline-item { position: relative; padding-left: 1.5rem; }
         .timeline-item::before {
             content: ''; position: absolute; left: 4px; top: 6px; bottom: -1.25rem; border-left: 2px solid #e2e8f0;
@@ -51,11 +49,9 @@
             background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
         }
 
-        /* Drag and Drop visual cues */
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
         .dragging { opacity: 0.4; transform: scale(0.98); }
 
-        /* Alarme de Urgência */
         .pulse-critical { animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
@@ -71,11 +67,9 @@
 </head>
 <body class="h-full flex flex-col overflow-hidden text-slate-800 bg-slate-100 antialiased selection:bg-blue-600 selection:text-white">
 
-    <!-- DATALISTS PARA AUTOCOMPLETE (Puxados do Firebase) -->
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
 
-    <!-- ATENÇÃO: Mantido como <div> para não bloquear a injeção do menu do core.js -->
     <div class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
         <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
             
@@ -103,7 +97,6 @@
             </nav>
 
             <div class="flex items-center gap-2 ml-auto">
-                <!-- Botão de Configuração de Alertas (Exclusivo Master/Admin/Administrativo) -->
                 <button onclick="window.abrirModalConfigAlertas()" id="btnConfigAlertas" title="Configurar Automações de Alerta" class="hidden bg-slate-800 hover:bg-slate-900 text-amber-400 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all items-center gap-1.5 shadow-xs cursor-pointer">
                     <i class="fa-solid fa-gear"></i><span class="hidden xl:inline">Alertas</span>
                 </button>
@@ -122,7 +115,6 @@
             </div>
         </div>
 
-        <!-- Painel de Filtros -->
         <div id="filterPanel" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 shadow-xs hidden transition-all">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
                 <div>
@@ -152,9 +144,7 @@
         </div>
 
         <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col">
-            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4">
-                <!-- Colunas Kanban Injetadas via JS -->
-            </div>
+            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4"></div>
         </div>
 
         <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
@@ -251,7 +241,6 @@
                         </div>
                     </div>
 
-                    <!-- FOTO DO DEFEITO / EQUIPAMENTO -->
                     <div id="td-foto-box" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 hidden">
                         <h3 class="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-camera text-slate-500"></i> Evidência Fotográfica</h3>
                         <img id="td-foto-img" src="" class="max-h-48 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:opacity-90 transition object-cover" onclick="window.abrirFotoFullscreen(this.src)">
@@ -363,9 +352,7 @@
             </div>
             <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50 space-y-5">
                 <p class="text-xs text-slate-600">Determine quem deve ser notificado automaticamente (computador e celular) quando um chamado entrar em cada fase.</p>
-                <div id="config-alertas-container" class="space-y-4">
-                    <!-- Injetado dinamicamente -->
-                </div>
+                <div id="config-alertas-container" class="space-y-4"></div>
             </div>
             <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
                 <button onclick="window.fecharModalConfigAlertas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
@@ -403,7 +390,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Novo Chamado (Criação Manual) -->
+    <!-- MODAL: Novo Chamado (Criação Manual Kanban) -->
     <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
             <div class="px-6 py-4 bg-white border-b border-slate-200 text-slate-900 flex justify-between items-center shrink-0">
@@ -430,13 +417,15 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">Telefone / Whats</label>
                             <input type="text" id="new-cli-tel" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label>
-                            <input type="text" id="new-eq-modelo" list="list-maquinas" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label>
-                            <input type="text" id="new-eq-serial" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                        <div class="col-span-1 md:col-span-2 grid grid-cols-2 gap-3">
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label>
+                                <input type="text" id="new-eq-modelo" list="list-maquinas" required onchange="window.extractSerialFromModel(this.value)" placeholder="Selecione..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label>
+                                <input type="text" id="new-eq-serial" required placeholder="SN..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -496,6 +485,7 @@
 
         window.dbClientes = [];
         window.dbMaquinas = [];
+        window.parqueMaquinas = [];
 
         window.filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
@@ -518,14 +508,12 @@
                 if (btnConfig) btnConfig.classList.remove('hidden');
             }
 
-            // Sync Usuários Reais
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
                 window.usersList = [];
                 snap.forEach(d => window.usersList.push(d.data()));
                 window.populateTechSelects();
             });
 
-            // Sync Clientes / Maquinas para AutoComplete
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.dbClientes = [];
                 let html = '';
@@ -538,18 +526,18 @@
                 document.getElementById('list-clientes').innerHTML = html;
             });
 
+            // CARREGA MÁQUINAS GENÉRICAS (Para preencher se o cliente não tiver nada no Parque)
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
                 window.dbMaquinas = [];
-                let html = '';
-                snap.forEach(d => {
-                    const m = d.data();
-                    window.dbMaquinas.push(m);
-                    if(m.modelo) html += `<option value="${m.modelo}">`;
-                });
-                document.getElementById('list-maquinas').innerHTML = html;
+                snap.forEach(d => window.dbMaquinas.push(d.data()));
             });
 
-            // Sync Tickets OSR (Converte formato flat -> aninhado)
+            // LER PARQUE DE MÁQUINAS ESTRATÉGICO
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => {
+                window.parqueMaquinas = [];
+                snap.forEach(d => window.parqueMaquinas.push(d.data()));
+            });
+
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.tickets = [];
                 snap.forEach(dSnap => {
@@ -578,7 +566,6 @@
                 window.applyFilters();
             });
 
-            // Sync Regras de Alerta
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
                 if(snap.exists()) {
                     const r = snap.data();
@@ -589,6 +576,7 @@
             });
         };
 
+        // --- FILTRO CASCATA (CLIENTE -> MÁQUINAS) KANBAN ---
         window.autoFillCliente = function(nome) {
             const cli = window.dbClientes.find(c => c.fantasia === nome || c.razao_social === nome);
             if(cli) {
@@ -597,6 +585,30 @@
                     document.getElementById('new-cli-contato').value = cli.contatos[0].nome||'';
                     document.getElementById('new-cli-tel').value = cli.contatos[0].telefone||'';
                 }
+            }
+
+            // ATUALIZA A LISTA DE MÁQUINAS
+            const dl = document.getElementById('list-maquinas');
+            dl.innerHTML = '';
+            
+            const maquinasDoCliente = window.parqueMaquinas.filter(m => m.cliente_atual && m.cliente_atual.toLowerCase() === nome.toLowerCase());
+            if (maquinasDoCliente.length > 0) {
+                maquinasDoCliente.forEach(m => {
+                    dl.innerHTML += `<option value="[SN: ${m.serial}] ${m.modelo}">`;
+                });
+            } else {
+                window.dbMaquinas.forEach(m => {
+                    dl.innerHTML += `<option value="${m.modelo}">`;
+                });
+            }
+        };
+
+        // --- EXTRATOR DE NÚMERO DE SÉRIE ---
+        window.extractSerialFromModel = function(valor) {
+            const match = valor.match(/^\[SN: (.*?)\] (.*)$/);
+            if (match) {
+                document.getElementById('new-eq-serial').value = match[1].trim(); 
+                document.getElementById('new-eq-modelo').value = match[2].trim(); 
             }
         };
 
@@ -1049,6 +1061,33 @@
             const ser = document.getElementById('new-eq-serial').value.trim();
             const prob = document.getElementById('new-problem').value.trim();
             if(!cli || !mod || !ser || !prob) { alert('Preencha os campos obrigatórios (*)'); return; }
+
+            // INTEGRAÇÃO: PARQUE DE MÁQUINAS (TRAVA DO GESTOR)
+            const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
+            
+            if (!maquinaNoParque || maquinaNoParque.cliente_atual.toLowerCase() !== cli.toLowerCase()) {
+                if(confirm(`Atenção Gestor: A máquina ${mod} (SN: ${ser}) não consta no Parque de Máquinas do cliente "${cli}".\n\nDeseja cadastrá-la e vinculá-la oficialmente agora?`)) {
+                    
+                    const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
+                    const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
+                        id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Cadastrado automaticamente via Kanban', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+                    };
+                    
+                    if(maquinaNoParque) {
+                        if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
+                        pmData.historico_transferencias.push({
+                             id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Abertura de OSR / Kanban', responsavel: window.currentUserStr, timestamp: Date.now()
+                        });
+                    }
+                    
+                    try {
+                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
+                        window.showToast('Máquina vinculada ao Parque com sucesso!', 'success');
+                    } catch(err) {
+                        alert("Erro ao salvar no Parque de Máquinas.");
+                    }
+                }
+            }
 
             const numFmt = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
                 const ref = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
