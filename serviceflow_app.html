@@ -454,7 +454,7 @@
     </div>
 
     <!-- MODAL DELETAR -->
-    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[99999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center my-auto">
             <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <div>
@@ -464,6 +464,31 @@
             <div class="flex gap-2 pt-2">
                 <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancelar</button>
                 <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: REVISAR E VINCULAR EQUIPAMENTO -->
+    <div id="modal-vincular-equip" class="fixed inset-0 modal-overlay z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col my-auto">
+            <div class="px-6 py-4 bg-blue-600 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-server"></i> Revisar Vínculo</h3>
+                <button onclick="document.getElementById('modal-vincular-equip').classList.add('hidden')" class="text-blue-200 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-600">Verifique e corrija possíveis erros de digitação do técnico antes de salvar o equipamento no Parque de Máquinas do cliente.</p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Modelo do Equipamento</label>
+                    <input type="text" id="vinc-eq-modelo" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 font-bold uppercase">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Número de Série (SN)</label>
+                    <input type="text" id="vinc-eq-serial" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 font-mono font-bold uppercase">
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-slate-100">
+                    <button onclick="document.getElementById('modal-vincular-equip').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button onclick="window.confirmarVinculoParque()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">Confirmar e Cadastrar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -917,36 +942,57 @@
         };
 
         // --- FUNÇÃO PARA VINCULAR MÁQUINA QUE VEIO DO SUPORTE OSR ---
-        window.vincularMaquinaParqueApp = async function() {
+        window.vincularMaquinaParqueApp = function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            
+            // Abre o modal de revisão com os dados atuais da OSR
+            document.getElementById('vinc-eq-modelo').value = t.equipment.model || '';
+            document.getElementById('vinc-eq-serial').value = t.equipment.serial || '';
+            document.getElementById('modal-vincular-equip').classList.remove('hidden');
+        };
+
+        window.confirmarVinculoParque = async function() {
             const t = window.tickets.find(x => x.id === window.currentTicketId);
             if(!t) return;
             
             const cli = t.client.name;
-            const mod = t.equipment.model;
-            const ser = t.equipment.serial;
+            const mod = document.getElementById('vinc-eq-modelo').value.trim().toUpperCase();
+            const ser = document.getElementById('vinc-eq-serial').value.trim().toUpperCase();
 
+            if(!mod || !ser) { alert("Preencha o modelo e o número de série para continuar."); return; }
+
+            // 1. Corrige o ticket OSR localmente e no banco de dados (se houve alteração)
+            t.equipment.model = mod;
+            t.equipment.serial = ser;
+            await window.saveTicketToDB(t);
+
+            // 2. Atualiza a tela de detalhes da OSR instantaneamente
+            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = mod;
+            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = ser;
+
+            // 3. Processa a vinculação/transferência no Parque de Máquinas
             const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
             
-            if(confirm(`Deseja cadastrar e vincular a máquina ${mod} (SN: ${ser}) ao cliente "${cli}" no Parque de Máquinas agora?`)) {
-                const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
-                const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
-                    id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via ServiceFlow (Atendimento)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
-                };
-                
-                if(maquinaNoParque) {
-                    if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
-                    pmData.historico_transferencias.push({
-                         id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Transferência via ServiceFlow OSR', responsavel: window.currentUserStr, timestamp: Date.now()
-                    });
-                }
-                
-                try {
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
-                    window.showToast('Máquina vinculada ao Parque com sucesso!', 'success');
-                    document.getElementById('td-parque-warning').classList.add('hidden');
-                } catch(err) {
-                    alert("Erro ao salvar no Parque de Máquinas.");
-                }
+            const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
+            const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
+                id: pmId, serial: ser, modelo: mod, cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via ServiceFlow (Atendimento Revisado)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+            };
+            
+            if(maquinaNoParque) {
+                if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
+                pmData.historico_transferencias.push({
+                     id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Transferência via ServiceFlow (Correção Gestor)', responsavel: window.currentUserStr, timestamp: Date.now()
+                });
+            }
+            
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
+                window.showToast('Equipamento revisado e vinculado com sucesso!', 'success');
+                document.getElementById('td-parque-warning').classList.add('hidden');
+                document.getElementById('modal-vincular-equip').classList.add('hidden');
+            } catch(err) {
+                alert("Erro ao salvar no Parque de Máquinas.");
             }
         };
 
@@ -1219,7 +1265,7 @@
             } catch(e) {}
         };
 
-        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); document.getElementById('modal-foto-full').classList.add('hidden'); } });
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); document.getElementById('modal-foto-full').classList.add('hidden'); document.getElementById('modal-vincular-equip').classList.add('hidden'); } });
     </script>
 </body>
 </html>
