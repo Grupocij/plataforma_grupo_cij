@@ -72,7 +72,6 @@
 
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
-    <!-- Mocks Injetados via JS -->
     <datalist id="mock-clientes"></datalist>
     <datalist id="mock-maquinas"></datalist>
 
@@ -175,159 +174,161 @@
         </div>
     </main>
 
-
-    <!-- NOVO MODAL DE O.S. COMPLEXA (3 ABAS) -->
-    <div id="modal-os" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[95vh] overflow-hidden my-auto transform transition-all">
-            
-            <!-- Modal Header -->
-            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Nova Ordem de Serviço</span></h3>
-                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <!-- Modal Tabs -->
-            <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                <div class="flex gap-6 text-xs font-semibold overflow-x-auto custom-scrollbar">
-                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building"></i> Dados e Agendamento</button>
-                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+    <!-- NOVO MODAL DE O.S. COMPLEXA (3 ABAS) COM ESTRUTURA BLINDADA CONTRA OVERFLOW -->
+    <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[95vh] overflow-hidden transform transition-all">
+                
+                <!-- Modal Header -->
+                <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+                    <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Nova Ordem de Serviço</span></h3>
+                    <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-            </div>
+                
+                <!-- Modal Tabs -->
+                <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                    <div class="flex gap-6 text-xs font-semibold overflow-x-auto custom-scrollbar">
+                        <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building"></i> Dados e Agendamento</button>
+                        <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                        <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                    </div>
+                </div>
 
-            <!-- Modal Content -->
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
-                <form id="form-nova-os" onsubmit="event.preventDefault();">
-                    <input type="hidden" id="os-id-oculto" value="">
-                    
-                    <!-- ABA 1: CLIENTE E GERAL -->
-                    <div id="aba1" class="space-y-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente *</label>
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition shadow-sm">
-                            </div>
-                            
-                            <!-- Card Automático do Cliente -->
-                            <div id="card-cliente-info" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                                <div class="space-y-1">
-                                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Dados do Cadastro</p>
-                                    <p id="card-end" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> <span id="card-end-txt"></span></p>
-                                    <p id="card-tel" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-phone w-4 text-slate-400"></i> <span id="card-tel-txt"></span></p>
-                                    <p id="card-con" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-user w-4 text-slate-400"></i> Contato Base: <span id="card-con-txt" class="font-bold"></span></p>
+                <!-- Modal Content (Este é o cara que rola se precisar) -->
+                <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
+                    <form id="form-nova-os" onsubmit="event.preventDefault();">
+                        <input type="hidden" id="os-id-oculto" value="">
+                        
+                        <!-- ABA 1: CLIENTE E GERAL -->
+                        <div id="aba1" class="space-y-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente *</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition shadow-sm">
+                                </div>
+                                
+                                <!-- Card Automático do Cliente -->
+                                <div id="card-cliente-info" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Dados do Cadastro</p>
+                                        <p id="card-end" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> <span id="card-end-txt"></span></p>
+                                        <p id="card-tel" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-phone w-4 text-slate-400"></i> <span id="card-tel-txt"></span></p>
+                                        <p id="card-con" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-user w-4 text-slate-400"></i> Contato Base: <span id="card-con-txt" class="font-bold"></span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Atendimento *</label>
-                                <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
-                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
-                                </select>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Atendimento *</label>
+                                    <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
+                                        <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Técnico Designado *</label>
+                                    <select id="os-tecnico" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
+                                        <!-- Injetado via JS -->
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria..." class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600 resize-none"></textarea></div>
                             </div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Técnico Designado *</label>
-                                <select id="os-tecnico" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
-                                    <!-- Injetado -->
-                                </select>
+
+                            <div class="flex justify-end pt-4">
+                                <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
                             </div>
-                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria..." class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600 resize-none"></textarea></div>
                         </div>
 
-                        <div class="flex justify-end pt-4">
-                            <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- ABA 2: EQUIPAMENTOS -->
-                    <div id="aba2" class="hidden space-y-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Equipamentos da OS</h4>
-                                <p class="text-[10px] text-slate-500">Adicione as máquinas e defina formulários e etapas específicas para cada uma.</p>
+                        <!-- ABA 2: EQUIPAMENTOS -->
+                        <div id="aba2" class="hidden space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">Equipamentos da OS</h4>
+                                    <p class="text-[10px] text-slate-500">Adicione as máquinas e defina formulários e etapas específicas para cada uma.</p>
+                                </div>
+                                <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+                                    <i class="fa-solid fa-plus"></i> Add Máquina
+                                </button>
                             </div>
-                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Add Máquina
-                            </button>
-                        </div>
 
-                        <div id="container-equipamentos-os" class="space-y-4 pb-10">
-                            <!-- Injetado via JS -->
-                        </div>
-
-                        <div class="flex justify-between pt-4 border-t border-slate-100">
-                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- ABA 3: ORÇAMENTOS -->
-                    <div id="aba3" class="hidden space-y-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Orçamentos e Faturamento</h4>
-                                <p class="text-[10px] text-slate-500">Adicione propostas, insira peças, horas e calcule totais.</p>
+                            <div id="container-equipamentos-os" class="space-y-4 pb-10">
+                                <!-- Injetado via JS -->
                             </div>
-                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm border border-emerald-200 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Add Orçamento
-                            </button>
+
+                            <div class="flex justify-between pt-4 border-t border-slate-100">
+                                <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                                <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
                         </div>
 
-                        <div id="container-orcamentos-os" class="space-y-4 min-h-[200px]">
-                            <!-- Injetado via JS -->
-                        </div>
-                        
-                        <div class="bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white mt-4 shadow-lg">
-                            <span class="text-sm font-bold uppercase tracking-wider text-slate-300">Total Geral da Ordem de Serviço:</span>
-                            <span id="valor-total-geral-os" class="text-xl font-black text-emerald-400">R$ 0,00</span>
-                        </div>
+                        <!-- ABA 3: ORÇAMENTOS -->
+                        <div id="aba3" class="hidden space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">Orçamentos e Faturamento</h4>
+                                    <p class="text-[10px] text-slate-500">Adicione propostas, insira peças, horas e calcule totais.</p>
+                                </div>
+                                <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm border border-emerald-200 cursor-pointer">
+                                    <i class="fa-solid fa-plus"></i> Add Orçamento
+                                </button>
+                            </div>
 
-                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar Equipamentos</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                            <div id="container-orcamentos-os" class="space-y-4 min-h-[200px]">
+                                <!-- Injetado via JS -->
+                            </div>
+                            
+                            <div class="bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white mt-4 shadow-lg">
+                                <span class="text-sm font-bold uppercase tracking-wider text-slate-300">Total Geral da Ordem de Serviço:</span>
+                                <span id="valor-total-geral-os" class="text-xl font-black text-emerald-400">R$ 0,00</span>
+                            </div>
 
-            <!-- Modal Footer (Ações) -->
-            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex gap-2">
-                    <button type="button" onclick="alert('Função PDF na aba Visualizar')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-print"></i> PDF / Imprimir</button>
+                            <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
+                                <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar Equipamentos</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <button type="button" onclick="window.fecharModalOS()" class="flex-1 sm:flex-none px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                    <button type="button" onclick="window.salvarOS()" class="flex-1 sm:flex-none px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Ordem de Serviço</button>
-                </div>
-            </div>
 
+                <!-- Modal Footer (Ações) -->
+                <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="flex gap-2">
+                        <button type="button" onclick="alert('Função PDF na aba Visualizar')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-print"></i> PDF / Imprimir</button>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="window.fecharModalOS()" class="flex-1 sm:flex-none px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                        <button type="button" onclick="window.salvarOS()" class="flex-1 sm:flex-none px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Ordem de Serviço</button>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <!-- MODAL DE CONFIGURAÇÃO DE AUTOMAÇÃO DO KANBAN -->
-    <div id="modal-config-kanban" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col transform transition-all overflow-hidden max-h-[90vh]">
-            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-gear text-slate-300"></i> Configurar Automação Kanban</h3>
-                <button onclick="window.fecharConfigKanban()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
-                <p class="text-xs text-slate-600 mb-4 font-medium">Defina em qual Coluna do Kanban a OS deve cair automaticamente de acordo com a Etapa em que o técnico marcou o equipamento.</p>
-                <div id="config-mapping-container" class="space-y-3">
-                    <!-- Injetado via JS -->
+    <div id="modal-config-kanban" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col transform transition-all overflow-hidden max-h-[90vh]">
+                <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+                    <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-gear text-slate-300"></i> Configurar Automação Kanban</h3>
+                    <button onclick="window.fecharConfigKanban()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-            </div>
-            <div class="bg-white border-t border-slate-200 px-6 py-4 flex justify-end gap-3 shrink-0">
-                <button onclick="window.fecharConfigKanban()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button onclick="window.salvarConfigKanban()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-save"></i> Salvar Automação</button>
+                <div class="p-6 bg-slate-50 overflow-y-auto flex-1 custom-scrollbar">
+                    <p class="text-xs text-slate-600 mb-4 font-medium">Defina em qual Coluna do Kanban a OS deve cair automaticamente de acordo com a Etapa em que o técnico marcou o equipamento.</p>
+                    <div id="config-mapping-container" class="space-y-3">
+                        <!-- Injetado via JS -->
+                    </div>
+                </div>
+                <div class="bg-white border-t border-slate-200 px-6 py-4 flex justify-end gap-3 shrink-0">
+                    <button onclick="window.fecharConfigKanban()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button onclick="window.salvarConfigKanban()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-save"></i> Salvar Automação</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- OUTROS MODAIS ANTIGOS (Preservados para detalhes, alertas, etc) -->
-    <!-- (Modal Drawer de Ticket Antigo) -->
-    <div id="ticketModal" class="fixed inset-0 modal-overlay z-[9990] hidden flex justify-end">
+    <!-- DRAWER: TICKET (ANTIGO) -->
+    <div id="ticketModal" class="fixed inset-0 z-[9990] hidden bg-slate-900/50 backdrop-blur-sm flex justify-end">
         <div class="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl drawer-animate" id="ticketDrawer">
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white text-slate-900 shrink-0">
                 <div class="flex items-center gap-3">
@@ -336,6 +337,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="window.abrirModalOS(window.currentTicketId)" class="text-blue-600 hover:bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-pen text-sm"></i> Editar OS Completa</button>
+                    <button onclick="window.abrirModalNotificar()" class="text-amber-600 hover:bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-bell text-sm"></i> Notificar</button>
                     <button onclick="window.confirmDeleteTicket(window.currentTicketId)" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors p-1.5 rounded-lg border border-transparent hover:border-rose-200 cursor-pointer"><i class="fa-solid fa-trash-can text-sm"></i></button>
                     <button onclick="window.closeTicketModal()" class="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
@@ -376,34 +378,69 @@
         </div>
     </div>
 
-    <!-- MODAL DELETAR -->
-    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[99999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center my-auto">
-            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div>
-                <h3 class="text-base font-bold text-slate-900">Excluir OS?</h3>
-                <p class="text-xs text-slate-500 mt-1">Apagar a Ordem de Serviço <span id="deleteTicketTargetId" class="font-bold text-slate-800"></span>?</p>
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancelar</button>
-                <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">Sim, Excluir</button>
+    <!-- MODAL DELETAR CONFIRM -->
+    <div id="modal-delete-confirm" class="fixed inset-0 z-[99999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center">
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Excluir OS?</h3>
+                    <p class="text-xs text-slate-500 mt-1">Apagar a Ordem de Serviço <span id="deleteTicketTargetId" class="font-bold text-slate-800"></span>?</p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancelar</button>
+                    <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">Sim, Excluir</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL ALERTAS ANTIGO MANTIDO -->
-    <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col my-auto">
-            <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell text-amber-400"></i> Automação de Alertas do Kanban</h3>
-                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL DE CONFIGURAR ALERTAS -->
+    <div id="modal-config-alertas" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden transform transition-all border border-slate-200">
+                <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                    <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell text-amber-400"></i> Automação de Alertas do Kanban</h3>
+                    <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50 space-y-5">
+                    <div id="config-alertas-container" class="space-y-4"></div>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
+                    <button onclick="window.fecharModalConfigAlertas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button onclick="window.salvarConfigAlertas()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-md">Salvar Regras</button>
+                </div>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50 space-y-5">
-                <div id="config-alertas-container" class="space-y-4"></div>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
-                <button onclick="window.fecharModalConfigAlertas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button onclick="window.salvarConfigAlertas()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-md">Salvar Regras</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE NOTIFICAÇÃO MANUAL -->
+    <div id="modal-notificar" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col transform transition-all border border-slate-200">
+                <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center rounded-t-3xl shrink-0">
+                    <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Disparar Alerta / Cobrança</h3>
+                    <button onclick="window.fecharModalNotificar()" class="text-amber-100 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Destinatário</label>
+                        <select id="notif-target" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer">
+                            <optgroup label="Por Perfil / Equipe" id="notif-group-perfis">
+                                <option value="perfil_Vendedor">Equipe: Vendas</option>
+                                <option value="perfil_Técnico">Equipe: Técnica</option>
+                                <option value="perfil_Financeiro">Equipe: Financeiro</option>
+                                <option value="perfil_Administrativo">Equipe: Administrativo</option>
+                            </optgroup>
+                            <optgroup label="Por Usuário Individual" id="notif-group-usuarios"></optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mensagem do Alerta</label>
+                        <textarea id="notif-msg" rows="3" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                    </div>
+                    <button onclick="window.enviarNotificacaoManual()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">Enviar Notificação Push</button>
+                </div>
             </div>
         </div>
     </div>
@@ -568,6 +605,25 @@
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
                 window.applyFilters();
             });
+
+            window.fsOnSnapshot(window.fsDoc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
+                if(snap.exists()) {
+                    const r = snap.data();
+                    window.alertSettings = {
+                        'ENTRADA': r.ENTRADA || [], 'TRIAGEM': r.TRIAGEM || [], 'ORCAMENTO': r.ORCAMENTO || [], 'AGENDAMENTO': r.AGENDAMENTO || [], 'CONCLUIDO': r.CONCLUIDO || []
+                    };
+                }
+            });
+        };
+
+        window.populateTechSelects = function() {
+            const techsHtml = '<option value="ALL">Todos</option>' + window.usersList.map(u => `<option value="${u.nome}">${u.nome}</option>`).join('');
+            document.getElementById('filterTech').innerHTML = techsHtml;
+            
+            const gUsuarios = document.getElementById('notif-group-usuarios');
+            if(gUsuarios) {
+                gUsuarios.innerHTML = window.usersList.map(u => `<option value="${u.email}">Usuário: ${u.nome}</option>`).join('');
+            }
         };
 
         window.mudarAbaOS = function(aba) {
@@ -845,6 +901,74 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), { mapping: novosMap }); window.showToast('Automação salva!'); window.fecharConfigKanban(); } catch(e) {}
         };
 
+        window.abrirModalConfigAlertas = function() {
+            const cont = document.getElementById('config-alertas-container');
+            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
+            let html = '';
+            ['ENTRADA','TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].forEach(fase => {
+                const faseNome = COLUNAS_KANBAN.find(c => c.id === fase)?.nome || fase;
+                const set = window.alertSettings[fase] || [];
+                html += `
+                    <div class="bg-white p-4 border border-slate-200 rounded-xl">
+                        <h4 class="text-xs font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">Quando entrar em: <span class="text-blue-600 uppercase">${faseNome}</span></h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Equipes:</span>`;
+                            perfis.forEach(p => { html += `<label class="flex items-center gap-1.5 text-[10px]"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="perfil_${p}" ${set.includes('perfil_'+p) ? 'checked' : ''}> ${p}</label>`; });
+                html += `   </div>
+                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Indivíduos:</span>
+                                <div class="max-h-24 overflow-y-auto custom-scrollbar border border-slate-100 p-1 rounded">`;
+                                window.usersList.forEach(u => { html += `<label class="flex items-center gap-1.5 text-[10px] truncate"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="${u.email}" ${set.includes(u.email) ? 'checked' : ''}> ${u.nome}</label>`; });
+                html += `       </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            cont.innerHTML = html;
+            document.getElementById('modal-config-alertas').classList.remove('hidden');
+        };
+
+        window.fecharModalConfigAlertas = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
+
+        window.salvarConfigAlertas = async function() {
+            const config = { 'ENTRADA': [], 'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': [] };
+            document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
+                window.alertSettings = config; window.fecharModalConfigAlertas(); window.showToast('Regras de Automação salvas!', 'success');
+            } catch(e) {}
+        };
+
+        window.abrirModalNotificar = function() {
+            if(!window.currentTicketId) return;
+            document.getElementById('notif-msg').value = `Por favor, verificar o chamado ${window.currentTicketId}.`;
+            document.getElementById('modal-notificar').classList.remove('hidden');
+        };
+
+        window.fecharModalNotificar = function() { document.getElementById('modal-notificar').classList.add('hidden'); };
+
+        window.enviarNotificacaoManual = function() {
+            const tg = document.getElementById('notif-target').value;
+            const msg = document.getElementById('notif-msg').value.trim();
+            if(!msg) return;
+            if(tg.startsWith('perfil_')) { window.enviarNotificacaoApp(msg, [], [tg.replace('perfil_', '')], 'warning'); }
+            else { window.enviarNotificacaoApp(msg, [tg], [], 'info'); }
+            window.fecharModalNotificar(); window.showToast('Notificação enviada!', 'success');
+        };
+
+        window.confirmDeleteTicket = function(id) { window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
+        window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
+        window.executeDeleteTicket = async function() {
+            if(!window.pendingDeleteTicketId) return;
+            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteTicketId)); window.closeDeleteModal(); window.closeTicketModal(); window.showToast('Excluído.', 'warning'); } catch(e){}
+        };
+
+        window.exportToCSV = function() {
+            const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
+            let csv = "\uFEFFID;Data;Status;Cliente;Maquina;Problema;Responsavel\n";
+            f.forEach(t => { csv += `${t.id};${new Date(t.timestampOriginal).toLocaleDateString('pt-BR')};${STATUSES[t.status]?.label || t.status};"${t.client.name}";"${t.equipment.model}";"${t.request.problem || ''}";${t.assignee}\n`; });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'export_os.csv'; link.click();
+        };
+
         window.renderKanban = function() {
             const cont = document.getElementById('kanban-grid');
             if(!cont) return;
@@ -921,8 +1045,8 @@
             if(viewName === 'kanban') window.renderKanban();
         };
         window.openTicketModal = function(id) { window.currentTicketId = id; window.abrirModalOS(id); };
-        window.closeTicketModal = function() {}; window.abrirModalNotificar = function() {}; window.confirmDeleteTicket = function() {};
-
+        window.closeTicketModal = function() {};
+        
     </script>
 </body>
 </html>
