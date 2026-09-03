@@ -819,67 +819,6 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), { mapping: novosMap }); window.showToast('Automação salva!'); window.fecharConfigKanban(); } catch(e) {}
         };
 
-        window.abrirModalConfigAlertas = function() {
-            const cont = document.getElementById('config-alertas-container');
-            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
-            let html = '';
-            ['ENTRADA','TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].forEach(fase => {
-                const faseNome = COLUNAS_KANBAN.find(c => c.id === fase)?.nome || fase;
-                const set = window.alertSettings[fase] || [];
-                html += `
-                    <div class="bg-white p-4 border border-slate-200 rounded-xl">
-                        <h4 class="text-xs font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">Quando entrar em: <span class="text-blue-600 uppercase">${faseNome}</span></h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Equipes:</span>`;
-                            perfis.forEach(p => { html += `<label class="flex items-center gap-1.5 text-[10px]"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="perfil_${p}" ${set.includes('perfil_'+p) ? 'checked' : ''}> ${p}</label>`; });
-                html += `   </div>
-                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Indivíduos:</span>
-                                <div class="max-h-24 overflow-y-auto custom-scrollbar border border-slate-100 p-1 rounded">`;
-                                window.usersList.forEach(u => { html += `<label class="flex items-center gap-1.5 text-[10px] truncate"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="${u.email}" ${set.includes(u.email) ? 'checked' : ''}> ${u.nome}</label>`; });
-                html += `       </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            cont.innerHTML = html;
-            document.getElementById('modal-config-alertas').classList.remove('hidden');
-        };
-
-        window.fecharModalConfigAlertas = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
-
-        window.salvarConfigAlertas = async function() {
-            const config = { 'ENTRADA': [], 'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': [] };
-            document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
-                window.alertSettings = config; window.fecharModalConfigAlertas(); window.showToast('Regras de Automação salvas!', 'success');
-            } catch(e) {}
-        };
-
-        window.abrirModalNotificar = function() {
-            if(!window.currentTicketId) return;
-            document.getElementById('notif-msg').value = `Por favor, verificar o chamado ${window.currentTicketId}.`;
-            document.getElementById('modal-notificar').classList.remove('hidden');
-        };
-
-        window.fecharModalNotificar = function() { document.getElementById('modal-notificar').classList.add('hidden'); };
-
-        window.enviarNotificacaoManual = function() {
-            const tg = document.getElementById('notif-target').value;
-            const msg = document.getElementById('notif-msg').value.trim();
-            if(!msg) return;
-            if(tg.startsWith('perfil_')) { window.enviarNotificacaoApp(msg, [], [tg.replace('perfil_', '')], 'warning'); }
-            else { window.enviarNotificacaoApp(msg, [tg], [], 'info'); }
-            window.fecharModalNotificar(); window.showToast('Notificação enviada!', 'success');
-        };
-
-        window.confirmDeleteTicket = function(id) { window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
-        window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
-        window.executeDeleteTicket = async function() {
-            if(!window.pendingDeleteTicketId) return;
-            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteTicketId)); window.closeDeleteModal(); window.closeTicketModal(); window.showToast('Excluído.', 'warning'); } catch(e){}
-        };
-
         window.exportToCSV = function() {
             const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
             let csv = "\uFEFFID;Data;Status;Cliente;Maquina;Problema;Responsavel\n";
@@ -895,7 +834,7 @@
             COLUNAS_KANBAN.forEach(cDef => {
                 const colKey = cDef.id;
                 const cDiv = document.createElement('div');
-                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-h-0';
+                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-h-0 flex-1';
                 cDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 cDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
                 cDiv.ondrop = e => {
