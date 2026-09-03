@@ -149,11 +149,11 @@
         </div>
 
         <!-- VIEW KANBAN -->
-        <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col">
-            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4"></div>
+        <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col min-h-0">
+            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4 min-h-0"></div>
         </div>
 
-        <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+        <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100 min-h-0">
             <div class="max-w-4xl mx-auto space-y-4">
                 <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
                     <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
@@ -977,7 +977,8 @@
             COLUNAS_KANBAN.forEach(cDef => {
                 const colKey = cDef.id;
                 const cDiv = document.createElement('div');
-                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-w-[280px] sm:min-w-[0px] w-[280px] sm:w-auto flex-1';
+                // ADICIONADO: min-h-0 e flex-1 configurados corretamente para isolar o scroll
+                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-w-[280px] sm:min-w-[0px] w-[280px] sm:w-auto flex-1 min-h-0';
                 cDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 cDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
                 cDiv.ondrop = e => {
@@ -996,7 +997,8 @@
                 cDiv.innerHTML = `<div class="p-3 border-b flex items-center justify-between shrink-0 ${cDef.color} rounded-t-2xl"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full ${cDef.badgeDot}"></span><span class="font-extrabold text-xs tracking-tight whitespace-nowrap">${cDef.nome}</span></div><span class="bg-white/90 border border-slate-200 text-slate-800 font-bold text-[10px] px-2 py-0.5 rounded-full">${tks.length}</span></div>`;
                 
                 const cardsCont = document.createElement('div');
-                cardsCont.className = 'flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-0 custom-scrollbar pb-12';
+                // ADICIONADO: flex-1 e min-h-0 garantem que esta div rola e não empurra a coluna para baixo
+                cardsCont.className = 'flex-1 overflow-y-auto p-2.5 space-y-2.5 custom-scrollbar pb-12 min-h-0';
                 
                 tks.forEach(t => {
                     const isCritical = t.urgency === 'CRITICAL';
