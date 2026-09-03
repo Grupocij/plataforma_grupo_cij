@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>App do Técnico - Grupo CIJ</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #e2e8f0; margin: 0; padding: 0; overflow: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 480px; margin: 0 auto; background-color: #f8fafc; height: 100dvh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        .screen { position: absolute; inset: 0; background: #f8fafc; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; opacity: 0; visibility: hidden; }
+        .screen.active { transform: translateX(0); z-index: 20; opacity: 1; visibility: visible; }
+        .screen.previous { transform: translateX(-30%); opacity: 0.5; visibility: visible; }
+
+        .signature-pad { border: 2px dashed #cbd5e1; border-radius: 12px; background: white; touch-action: none; width: 100%; height: 200px; cursor: crosshair; }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-4">
+            <h1 class="text-xl font-black text-[#002d72]">App do Técnico CIJ</h1>
+            <p class="text-xs text-slate-500">Sincronizando Ordens de Serviço...</p>
+        </div>
+    </div>
+
+    <!-- CONTAINER MOBILE -->
+    <div class="app-container" id="main-content" style="display: none;">
+        
+        <!-- HEADER -->
+        <header class="bg-blue-700 text-white pt-10 pb-4 px-4 shadow-md flex items-center justify-between z-30 shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="btn-back" onclick="app.goBack()" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-800/50 hover:bg-blue-800 transition hidden cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-white"></i>
+                </button>
+                <div>
+                    <h1 id="header-title" class="font-black text-lg leading-tight tracking-tight">Minha Fila</h1>
+                    <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium">Conectado (Online)</p>
+                </div>
+            </div>
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border border-blue-400 shrink-0 shadow-inner">
+                <i class="fa-solid fa-user-astronaut text-xs"></i>
+            </div>
+        </header>
+
+        <main class="flex-1 relative overflow-hidden bg-slate-100">
+            
+            <!-- TELA 1: FILA DE OS -->
+            <div id="screen-home" class="screen active flex flex-col">
+                <div class="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 space-y-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-sm font-black text-slate-800 uppercase tracking-wider">Chamados Abertos</h2>
+                        <span id="badge-os-count" class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">0</span>
+                    </div>
+                    <div id="lista-os-home" class="space-y-3">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TELA 2: DETALHES DA OS -->
+            <div id="screen-os" class="screen flex flex-col">
+                <div class="bg-white p-4 border-b border-slate-200 shadow-sm shrink-0">
+                    <div class="flex justify-between items-start mb-2">
+                        <h2 id="os-det-cliente" class="text-lg font-black text-slate-900 leading-tight">...</h2>
+                        <span id="os-det-id" class="text-[10px] font-mono font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded border border-slate-200">OS-000</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-500 font-medium mb-3">
+                        <i class="fa-regular fa-calendar"></i> <span id="os-det-data">--/--/----</span>
+                        <span class="mx-1">•</span>
+                        <i class="fa-solid fa-user-tie"></i> <span id="os-det-solicitante">--</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <button onclick="app.abrirGPS()" class="bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-location-dot text-blue-600"></i> Navegar (GPS)
+                        </button>
+                        <button onclick="app.abrirWhatsApp()" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-sm text-emerald-500"></i> Avisar Chegada
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50 pb-20 space-y-4">
+                    <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider mb-2"><i class="fa-solid fa-server mr-1"></i> Máquinas na OS</h3>
+                    <div id="lista-maquinas-os" class="space-y-3"></div>
+                </div>
+                
+                <div class="p-4 bg-white border-t border-slate-200 shrink-0 pb-6">
+                    <button onclick="app.iniciarCheckout()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-pen-nib"></i> Coletar Assinatura (Checkout)
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELA 3: EXECUÇÃO NA MÁQUINA (APONTAMENTOS) -->
+            <div id="screen-maquina" class="screen flex flex-col bg-white">
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20 space-y-5">
+                    
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Equipamento em Manutenção</p>
+                        <h2 id="maq-det-nome" class="text-sm font-black text-blue-700">...</h2>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Defeito Relatado</h4>
+                        <p id="maq-det-defeito" class="text-xs font-medium text-slate-700 bg-rose-50 p-3 rounded-xl border border-rose-100 whitespace-pre-wrap">--</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Hora Início</label>
+                            <input type="time" id="maq-inp-inicio" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Hora Fim</label>
+                            <input type="time" id="maq-inp-fim" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-stairs text-blue-500"></i> Atualizar Etapa da Máquina</label>
+                        <select id="maq-inp-etapa" onchange="app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white">
+                            <!-- Injetado via JS -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-list-check"></i> Checklist / Formulário</h4>
+                        <div id="maq-det-forms" class="space-y-2"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-wrench"></i> Relatório / Serviço Realizado</label>
+                        <textarea id="maq-inp-servico" rows="3" placeholder="Descreva o que foi feito..." class="w-full text-xs font-medium p-3 rounded-xl outline-none border border-slate-300 bg-slate-50 focus:bg-white focus:border-emerald-500 transition shadow-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="border border-purple-200 rounded-xl p-3 bg-purple-50/50">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-[10px] font-bold text-purple-700 uppercase tracking-wider"><i class="fa-solid fa-box-open"></i> Peças Utilizadas</label>
+                            <button onclick="app.abrirModalPecas()" class="bg-purple-600 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer hover:bg-purple-700 transition shadow-sm"><i class="fa-solid fa-plus"></i> Usar da Mochila</button>
+                        </div>
+                        <ul id="maq-lista-pecas" class="space-y-1.5 min-h-[30px]">
+                            <li class="text-[10px] text-slate-400 italic text-center py-2">Nenhuma peça utilizada.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6">
+                    <button onclick="app.salvarMaquinaAtual()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Apontamentos
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELA 4: CHECKOUT / ASSINATURA -->
+            <div id="screen-checkout" class="screen flex flex-col bg-white">
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20 space-y-6">
+                    <div class="text-center space-y-1 mt-4">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-check-double text-xl"></i></div>
+                        <h2 class="text-lg font-black text-slate-800">Finalização de OS</h2>
+                        <p class="text-[11px] text-slate-500 font-medium">Confirme com o cliente e colete a assinatura.</p>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1.5">
+                        <p><strong class="text-slate-500">Cliente:</strong> <span id="chk-cliente" class="font-bold text-slate-800"></span></p>
+                        <p><strong class="text-slate-500">OS nº:</strong> <span id="chk-os" class="font-mono font-bold text-slate-800"></span></p>
+                        <p><strong class="text-slate-500">Máquinas Revisadas:</strong> <span id="chk-qtd" class="font-bold text-blue-600"></span></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2 text-center">Assinatura do Responsável</label>
+                        <canvas id="signature-pad" class="signature-pad shadow-inner"></canvas>
+                        <div class="flex justify-end mt-2">
+                            <button onclick="app.limparAssinatura()" class="text-[10px] text-slate-500 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer active:bg-slate-200">
+                                <i class="fa-solid fa-eraser"></i> Limpar Prancheta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6">
+                    <button onclick="app.finalizarOS()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer text-sm">
+                        <i class="fa-solid fa-lock"></i> Encerrar e Sincronizar
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- MENU DE NAVEGAÇÃO INFERIOR -->
+        <nav class="bg-white border-t border-slate-200 flex items-center justify-around pb-5 pt-2 px-2 shrink-0 z-40 relative">
+            <button onclick="app.goHome()" class="flex flex-col items-center gap-1 p-2 text-blue-600 w-16 cursor-pointer">
+                <i class="fa-solid fa-clipboard-list text-xl"></i>
+                <span class="text-[9px] font-bold">OS (Fila)</span>
+            </button>
+            <button onclick="app.sincronizar()" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-blue-500 transition w-16 cursor-pointer relative group">
+                <i class="fa-solid fa-rotate text-xl group-active:rotate-180 transition-transform duration-500"></i>
+                <span class="text-[9px] font-bold">Sincronizar</span>
+                <span class="absolute top-1 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white"></span>
+            </button>
+            
+            <div class="flex flex-col items-center gap-1 p-1 text-slate-400 w-20">
+                <span class="text-[8px] font-bold uppercase tracking-tighter">Visão Equipe</span>
+                <label class="relative inline-flex items-center cursor-pointer mt-0.5">
+                  <input type="checkbox" id="dev-visao-global" class="sr-only peer" onchange="app.carregarFilaOS()">
+                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+        </nav>
+
+        <!-- MODAL PEÇAS DA MOCHILA -->
+        <div id="modal-pecas" class="fixed inset-0 bg-slate-900/70 z-[9999] flex flex-col justify-end hidden opacity-0 transition-opacity">
+            <div class="bg-white rounded-t-3xl h-[70vh] flex flex-col transform translate-y-full transition-transform duration-300" id="modal-pecas-content">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
+                    <div>
+                        <h3 class="font-black text-sm text-purple-800"><i class="fa-solid fa-box-open mr-1"></i> Peças na sua Mochila</h3>
+                        <p class="text-[9px] text-slate-500 font-bold">Autorizadas pela Logística</p>
+                    </div>
+                    <button onclick="app.fecharModalPecas()" class="w-8 h-8 bg-slate-200 rounded-full text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-2" id="lista-estoque-modal"></div>
+            </div>
+        </div>
+
+        <!-- NOTIFICAÇÃO TOAST -->
+        <div id="custom-toast" class="fixed top-10 left-4 right-4 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl z-[99999] flex items-center gap-3 hidden opacity-0 transform -translate-y-10 transition-all duration-300">
+            <div id="toast-icon-bg" class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <i id="toast-icon" class="fa-solid fa-check"></i>
+            </div>
+            <p id="toast-msg" class="text-xs font-bold leading-tight flex-1"></p>
+        </div>
+    </div>
+
+    <!-- MOTOR CENTRAL E FIREBASE -->
+    <script type="module" src="core.js"></script>
+
+    <script>
+        const app = {
+            nomeTecnico: "",
+            emailTecnico: "",
+            temVisaoGlobal: false,
+            
+            dbOrdens: [],
+            estoqueCarro: [],
+            kanbanMapping: {},
+            
+            osAtual: null,
+            maquinaIndex: null,
+            assinaturaPad: null,
+            isDrawing: false,
+            pecasTemporarias: [],
+
+            etapasOficiais: [
+                { nome: '1. Abertura da OS', cor: 'bg-slate-100 text-slate-600 border-slate-300' },
+                { nome: '2. Check-list de Entrada', cor: 'bg-sky-50 text-sky-700 border-sky-300' },
+                { nome: '3. Diagnóstico Técnico', cor: 'bg-indigo-50 text-indigo-700 border-indigo-300' },
+                { nome: '4. Elaboração de Orçamento', cor: 'bg-purple-50 text-purple-700 border-purple-300' },
+                { nome: '5. Aprovação do Cliente', cor: 'bg-amber-50 text-amber-700 border-amber-300' },
+                { nome: '6. Execução do Serviço', cor: 'bg-rose-50 text-rose-700 border-rose-300' },
+                { nome: '7. Faturamento', cor: 'bg-teal-50 text-teal-700 border-teal-300' },
+                { nome: '8. Check-out / Finalização', cor: 'bg-emerald-50 text-emerald-700 border-emerald-300' },
+                { nome: '9. Expedição / Devolução', cor: 'bg-blue-50 text-blue-700 border-blue-300' },
+                { nome: '10. Pós-Venda', cor: 'bg-emerald-100 text-emerald-800 border-emerald-400' }
+            ],
+
+            init: function() {
+                this.initAssinatura();
+            },
+
+            initAssinatura: function() {
+                const canvas = document.getElementById('signature-pad');
+                if(!canvas) return;
+                this.assinaturaPad = canvas;
+                const ctx = canvas.getContext('2d');
+                
+                const resize = () => {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'round';
+                };
+                window.addEventListener('resize', resize);
+                resize();
+
+                const getPos = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const evt = e.touches ? e.touches[0] : e;
+                    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+                };
+
+                const start = (e) => { this.isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+                const draw = (e) => { if(!this.isDrawing) return; e.preventDefault(); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
+                const stop = () => { this.isDrawing = false; };
+
+                canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseleave', stop);
+                canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', draw); canvas.addEventListener('touchend', stop);
+            },
+
+            limparAssinatura: function() {
+                if(!this.assinaturaPad) return;
+                const ctx = this.assinaturaPad.getContext('2d');
+                ctx.clearRect(0, 0, this.assinaturaPad.width, this.assinaturaPad.height);
+            },
+
+            navigate: function(screenId, title, showBack = true) {
+                document.querySelectorAll('.screen').forEach(s => {
+                    if (s.classList.contains('active')) s.className = 'screen previous';
+                    else s.className = 'screen';
+                });
+                
+                const target = document.getElementById(screenId);
+                target.className = 'screen active';
+
+                document.getElementById('header-title').innerText = title;
+                document.getElementById('btn-back').style.display = showBack ? 'flex' : 'none';
+            },
+
+            goHome: function() {
+                this.carregarFilaOS();
+                this.navigate('screen-home', 'Minha Fila', false);
+            },
+
+            goBack: function() {
+                const active = document.querySelector('.screen.active').id;
+                if(active === 'screen-maquina' || active === 'screen-checkout') {
+                    this.abrirOS(this.osAtual.id);
+                } else {
+                    this.goHome();
+                }
+            },
+
+            carregarFilaOS: function() {
+                const container = document.getElementById('lista-os-home');
+                const btnGlobal = document.getElementById('dev-visao-global').checked;
+
+                // O técnico não deve ver as que já foram finalizadas e sumiram do Kanban principal de ação, 
+                // mas para histórico ele pode ver as não faturadas. Vamos filtrar por status diferente de CONCLUIDO.
+                let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO');
+                
+                if (!this.temVisaoGlobal && !btnGlobal) {
+                    // Filtro para mostrar apenas as OS atribuídas a este técnico
+                    minhasOS = minhasOS.filter(os => os.tecnico === this.nomeTecnico || os.tecnico === this.emailTecnico || os.tecnico_kanban === this.nomeTecnico);
+                }
+
+                document.getElementById('badge-os-count').innerText = minhasOS.length;
+
+                if (minhasOS.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-10 opacity-60">
+                            <i class="fa-solid fa-mug-hot text-4xl text-slate-400 mb-3"></i>
+                            <h3 class="text-sm font-bold text-slate-600">Sua fila está vazia!</h3>
+                            <p class="text-[10px] text-slate-500 mt-1">Aproveite o café ou aguarde novos chamados do Gestor.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = minhasOS.map(os => {
+                    const arrayEquips = os.equipamentos || [];
+                    const qtd = arrayEquips.length;
+                    const urgColor = os.urgencia === 'CRITICA' || os.urgencia === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
+                    const dataBR = os.dataAgendamento ? os.dataAgendamento.split('-').reverse().join('/') : '-';
+                    const cliName = os.cliente || os.client?.name || 'Cliente Não Informado';
+
+                    return `
+                    <div onclick="app.abrirOS('${os.id}')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 active:scale-95 transition-transform cursor-pointer relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 ${urgColor}"></div>
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">${os.id}</span>
+                            <span class="text-[9px] font-bold text-slate-400"><i class="fa-regular fa-calendar"></i> ${dataBR}</span>
+                        </div>
+                        <h3 class="text-sm font-black text-slate-900 leading-tight mb-1">${cliName}</h3>
+                        <p class="text-[10px] text-slate-500 font-medium mb-3"><i class="fa-solid fa-location-dot"></i> Rota/Endereço a conferir</p>
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-100"><i class="fa-solid fa-server mr-1"></i> ${qtd} Máquinas</span>
+                            <span class="text-slate-400 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">Tec: ${os.tecnico || os.tecnico_kanban || '-'}</span>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            },
+
+            abrirOS: function(id) {
+                this.osAtual = this.dbOrdens.find(x => x.id === id);
+                if(!this.osAtual) return;
+
+                document.getElementById('os-det-id').innerText = this.osAtual.id;
+                document.getElementById('os-det-cliente').innerText = this.osAtual.cliente || this.osAtual.client?.name || '';
+                document.getElementById('os-det-data').innerText = this.osAtual.dataAgendamento ? this.osAtual.dataAgendamento.split('-').reverse().join('/') : '';
+                document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || 'Atendimento Padrão';
+
+                const container = document.getElementById('lista-maquinas-os');
+                const arrayEquips = this.osAtual.equipamentos || [];
+
+                if(arrayEquips.length === 0) {
+                    container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum equipamento cadastrado nesta OS pelo gestor.</p>';
+                } else {
+                    container.innerHTML = arrayEquips.map((maq, index) => {
+                        const objEtapa = this.etapasOficiais.find(e => e.nome === maq.etapa) || this.etapasOficiais[0];
+                        return `
+                        <div onclick="app.abrirMaquina(${index})" class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
+                            <div class="flex-1 pr-3">
+                                <h4 class="text-xs font-black text-blue-800 mb-1 leading-tight line-clamp-1">${maq.maquina || 'Máquina S/N'}</h4>
+                                <p class="text-[9px] text-slate-500 line-clamp-1 mb-2">Defeito: ${maq.defeito || 'Sem relato no ServiceFlow'}</p>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${objEtapa.cor}">${objEtapa.nome}</span>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                        </div>
+                        `;
+                    }).join('');
+                }
+
+                this.navigate('screen-os', `Chamado Ativo`, true);
+            },
+
+            abrirMaquina: function(index) {
+                this.maquinaIndex = index;
+                const maq = this.osAtual.equipamentos[index];
+                
+                document.getElementById('maq-det-nome').innerText = maq.maquina;
+                document.getElementById('maq-det-defeito').innerText = maq.defeito || 'Sem relato.';
+                document.getElementById('maq-inp-servico').value = maq.servico || '';
+                
+                document.getElementById('maq-inp-inicio').value = maq.horaInicio || '';
+                document.getElementById('maq-inp-fim').value = maq.horaFim || '';
+                
+                const selectEtapa = document.getElementById('maq-inp-etapa');
+                selectEtapa.innerHTML = this.etapasOficiais.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
+                selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
+                this.atualizarCorEtapaSelect();
+
+                const containerForms = document.getElementById('maq-det-forms');
+                if(maq.formulario) {
+                    containerForms.innerHTML = `
+                        <button onclick="app.showToast('Funcionalidade integrada ao FormCraft em breve', 'info')" class="w-full bg-white border border-blue-200 hover:bg-blue-50 p-3 rounded-xl flex items-center justify-between shadow-sm transition cursor-pointer">
+                            <span class="text-[11px] font-bold text-blue-800 flex items-center gap-2"><i class="fa-regular fa-file-lines text-blue-500 text-sm"></i> ${maq.formulario}</span>
+                            <span class="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200">Pendente</span>
+                        </button>
+                    `;
+                } else {
+                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-2 rounded-lg border border-slate-200">Nenhum formulário exigido pelo gestor.</p>';
+                }
+
+                this.pecasTemporarias = maq.pecasUtilizadas ? [...maq.pecasUtilizadas] : [];
+                this.renderizarPecasUtilizadas();
+
+                this.navigate('screen-maquina', `Execução Técnica`, true);
+            },
+
+            atualizarCorEtapaSelect: function() {
+                const sel = document.getElementById('maq-inp-etapa');
+                const opt = sel.options[sel.selectedIndex];
+                sel.className = `w-full text-xs font-bold p-3 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors ${opt.getAttribute('data-cor')}`;
+            },
+
+            abrirModalPecas: function() {
+                const modal = document.getElementById('modal-pecas');
+                const content = document.getElementById('modal-pecas-content');
+                const lista = document.getElementById('lista-estoque-modal');
+                
+                if (this.estoqueCarro.length === 0) {
+                    lista.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-box-open text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Sua mochila está vazia.</p><p class="text-[9px] text-slate-400 mt-1">Peça materiais no módulo Logística.</p></div>';
+                } else {
+                    lista.innerHTML = this.estoqueCarro.map(item => `
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
+                            <div class="pr-2">
+                                <p class="text-[10px] font-bold text-slate-800 leading-tight">${item.material}</p>
+                                <p class="text-[9px] text-slate-500 font-medium mt-0.5">Disp: <span class="font-black text-blue-600">${item.qtd} un</span></p>
+                            </div>
+                            <button onclick="app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-100 hover:bg-purple-200 text-purple-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition active:scale-95 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    `).join('');
+                }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+            },
+
+            fecharModalPecas: function() {
+                const modal = document.getElementById('modal-pecas');
+                const content = document.getElementById('modal-pecas-content');
+                modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            },
+
+            adicionarPecaNaMaquina: function(idItem, nomeItem) {
+                const existente = this.pecasTemporarias.find(p => p.id === idItem);
+                if(existente) { existente.qtd++; } 
+                else { this.pecasTemporarias.push({ id: idItem, nome: nomeItem, qtd: 1 }); }
+                
+                this.renderizarPecasUtilizadas();
+                this.showToast('Peça adicionada ao serviço!', 'success');
+                this.fecharModalPecas();
+            },
+
+            removerPecaDaMaquina: function(idItem) {
+                this.pecasTemporarias = this.pecasTemporarias.filter(p => p.id !== idItem);
+                this.renderizarPecasUtilizadas();
+            },
+
+            renderizarPecasUtilizadas: function() {
+                const ul = document.getElementById('maq-lista-pecas');
+                if(this.pecasTemporarias.length === 0) {
+                    ul.innerHTML = '<li class="text-[10px] text-slate-400 italic text-center py-2">Nenhuma peça utilizada.</li>';
+                    return;
+                }
+                ul.innerHTML = this.pecasTemporarias.map(p => `
+                    <li class="bg-white p-2 rounded-lg border border-purple-100 flex justify-between items-center shadow-sm">
+                        <span class="text-[10px] font-bold text-slate-700 truncate flex-1"><span class="text-purple-600 bg-purple-50 px-1.5 rounded mr-1 border border-purple-200">${p.qtd}x</span> ${p.nome}</span>
+                        <button onclick="app.removerPecaDaMaquina('${p.id}')" class="text-red-400 p-1 active:bg-red-50 rounded cursor-pointer"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </li>
+                `).join('');
+            },
+
+            salvarMaquinaAtual: async function() {
+                // Atualiza o objeto em memória
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                maq.etapa = document.getElementById('maq-inp-etapa').value;
+                maq.servico = document.getElementById('maq-inp-servico').value;
+                maq.horaInicio = document.getElementById('maq-inp-inicio').value;
+                maq.horaFim = document.getElementById('maq-inp-fim').value;
+                maq.pecasUtilizadas = this.pecasTemporarias;
+
+                // INSERE O ESQUELETO DO ORÇAMENTO NA OS PARA O GESTOR
+                if (!this.osAtual.orcamentos) this.osAtual.orcamentos = [];
+                
+                if (this.pecasTemporarias.length > 0 || maq.horaInicio || maq.horaFim) {
+                    let orc = this.osAtual.orcamentos.find(o => o.alvo === maq.maquina);
+                    if (!orc) {
+                        orc = { alvo: maq.maquina, itens: [], mo_qtd: 0, mo_unit: 0, desl_qtd: 0, desl_unit: 0, obs: "Gerado automaticamente via App do Técnico", total: 0 };
+                        this.osAtual.orcamentos.push(orc);
+                    }
+                    
+                    this.pecasTemporarias.forEach(p => {
+                        const itemExistente = orc.itens.find(i => i.desc === p.nome);
+                        if (itemExistente) { itemExistente.qtd = p.qtd; } 
+                        else { orc.itens.push({ desc: p.nome, qtd: p.qtd, unit: 0 }); }
+                    });
+                }
+
+                // RECALCULA O STATUS DA OS PARA O KANBAN COM BASE NAS REGRAS DO GESTOR
+                let lowestStageNum = 10;
+                let lowestStageName = this.etapasOficiais[9].nome;
+
+                this.osAtual.equipamentos.forEach(m => {
+                    const numMatch = m.etapa.match(/^(\d+)/);
+                    if(numMatch) {
+                        const num = parseInt(numMatch[1]);
+                        if(num < lowestStageNum) {
+                            lowestStageNum = num;
+                            lowestStageName = m.etapa;
+                        }
+                    }
+                });
+
+                // Lê o mapping que veio da nuvem
+                this.osAtual.status = this.kanbanMapping[lowestStageName] || 'ENTRADA';
+
+                // Salva no Firebase
+                try {
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
+                    
+                    // Dá baixa nas peças da Requisição de Material
+                    for (const peca of this.pecasTemporarias) {
+                        const req = this.estoqueCarro.find(r => r.id === peca.id);
+                        if(req) {
+                            req.status = 'UTILIZADO';
+                            req.os = this.osAtual.id;
+                            req.data_atualizacao = new Date().toISOString();
+                            await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', req.id), req);
+                        }
+                    }
+
+                    this.showToast('Apontamentos Salvos na Nuvem!', 'success');
+                    setTimeout(() => { this.abrirOS(this.osAtual.id); }, 800);
+                } catch(e) {
+                    this.showToast('Erro de conexão ao salvar na nuvem.', 'error');
+                }
+            },
+
+            iniciarCheckout: function() {
+                const cName = this.osAtual.cliente || this.osAtual.client?.name || 'Cliente';
+                document.getElementById('chk-cliente').innerText = cName;
+                document.getElementById('chk-os').innerText = this.osAtual.id;
+                document.getElementById('chk-qtd').innerText = this.osAtual.equipamentos ? this.osAtual.equipamentos.length + " Máquina(s)" : "0";
+                this.limparAssinatura();
+                this.navigate('screen-checkout', 'Coletar Assinatura', true);
+            },
+
+            finalizarOS: async function() {
+                if(!this.assinaturaPad) return;
+                
+                const canvas = document.getElementById('signature-pad');
+                // Salva o base64 da assinatura
+                this.osAtual.assinaturaDigital = canvas.toDataURL('image/png');
+                
+                // Força todas as máquinas para etapa 8 (Check-out) se estiverem abaixo
+                if(this.osAtual.equipamentos) {
+                    this.osAtual.equipamentos.forEach(m => {
+                        const numMatch = m.etapa.match(/^(\d+)/);
+                        if(numMatch && parseInt(numMatch[1]) < 8) {
+                            m.etapa = '8. Check-out / Finalização';
+                        }
+                    });
+                }
+
+                // Ao finalizar o checkout, joga para a coluna que o gestor mapeou para a Etapa 8 (normalmente CONCLUIDO)
+                this.osAtual.status = this.kanbanMapping['8. Check-out / Finalização'] || 'CONCLUIDO';
+
+                try {
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
+                    this.showToast('OS Finalizada e Sincronizada com o Escritório!', 'success');
+                    setTimeout(() => { this.goHome(); }, 1500);
+                } catch(e) {
+                    this.showToast('Erro ao sincronizar assinatura.', 'error');
+                }
+            },
+
+            sincronizar: function() {
+                this.showToast('Buscando atualizações na Nuvem...', 'info');
+                setTimeout(() => {
+                    this.carregarFilaOS();
+                    this.showToast('Dados 100% Sincronizados!', 'success');
+                }, 1000);
+            },
+
+            abrirGPS: function() { this.showToast('Abrindo Navegador de GPS...', 'info'); },
+            abrirWhatsApp: function() { this.showToast('Abrindo WhatsApp: "Estou a caminho!"', 'info'); },
+
+            showToast: function(msg, tipo = 'info') {
+                const t = document.getElementById('custom-toast');
+                const icon = document.getElementById('toast-icon');
+                const bg = document.getElementById('toast-icon-bg');
+                
+                document.getElementById('toast-msg').innerText = msg;
+                
+                if(tipo === 'success') {
+                    icon.className = 'fa-solid fa-check'; bg.className = 'w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+                } else if(tipo === 'info') {
+                    icon.className = 'fa-solid fa-info'; bg.className = 'w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0';
+                } else if(tipo === 'error') {
+                    icon.className = 'fa-solid fa-xmark'; bg.className = 'w-8 h-8 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0';
+                }
+
+                t.classList.remove('hidden');
+                setTimeout(() => { t.classList.remove('opacity-0', '-translate-y-10'); }, 10);
+                setTimeout(() => { t.classList.add('opacity-0', '-translate-y-10'); setTimeout(() => t.classList.add('hidden'), 300); }, 3000);
+            }
+        };
+
+        // INICIALIZAÇÃO FIREBASE VIA CORE.JS
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').style.display = 'flex';
+
+            app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
+            app.emailTecnico = window.currentUser.email;
+            app.temVisaoGlobal = window.userVisaoGlobal;
+
+            if (app.temVisaoGlobal) {
+                document.getElementById('dev-visao-global').checked = true;
+            }
+
+            app.init();
+
+            // 1. ESCUTA AS ORDENS DE SERVIÇO GLOBAIS
+            const osCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr');
+            window.fsOnSnapshot(osCol, snap => {
+                app.dbOrdens = [];
+                snap.forEach(d => app.dbOrdens.push(d.data()));
+                
+                app.dbOrdens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                if (app.osAtual) {
+                    const atualizada = app.dbOrdens.find(x => x.id === app.osAtual.id);
+                    if (atualizada) app.osAtual = atualizada;
+                }
+
+                app.carregarFilaOS();
+            });
+
+            // 2. ESCUTA O ESTOQUE DO CARRO (Logística)
+            const reqCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material');
+            window.fsOnSnapshot(reqCol, snap => {
+                app.estoqueCarro = [];
+                snap.forEach(d => {
+                    const r = d.data();
+                    if(r.autor_email === app.emailTecnico && r.status === 'COM_TECNICO') {
+                        app.estoqueCarro.push(r);
+                    }
+                });
+            });
+
+            // 3. ESCUTA A CONFIGURAÇÃO DE AUTOMAÇÃO DO GESTOR
+            app.kanbanMapping = {
+                '1. Abertura da OS': 'ENTRADA', '2. Check-list de Entrada': 'ENTRADA',
+                '3. Diagnóstico Técnico': 'TRIAGEM', '4. Elaboração de Orçamento': 'ORCAMENTO', '5. Aprovação do Cliente': 'ORCAMENTO',
+                '6. Execução do Serviço': 'AGENDAMENTO', '7. Faturamento': 'CONCLUIDO', '8. Check-out / Finalização': 'CONCLUIDO',
+                '9. Expedição / Devolução': 'CONCLUIDO', '10. Pós-Venda': 'CONCLUIDO'
+            };
+            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
+                if(snap.exists()) {
+                    app.kanbanMapping = snap.data().mapping;
+                    app.carregarFilaOS();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
