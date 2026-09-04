@@ -38,7 +38,7 @@
         <!-- CABEÇALHO DO APP -->
         <header class="bg-blue-700 text-white pt-10 pb-4 px-4 shadow-md flex items-center justify-between z-30 shrink-0">
             <div class="flex items-center gap-3">
-                <button id="btn-back" onclick="app.goBack()" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-800/50 hover:bg-blue-800 transition hidden cursor-pointer">
+                <button id="btn-back" onclick="window.app.goBack()" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-800/50 hover:bg-blue-800 transition hidden cursor-pointer">
                     <i class="fa-solid fa-arrow-left text-white"></i>
                 </button>
                 <div>
@@ -78,10 +78,10 @@
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button onclick="app.abrirGPS()" class="bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                        <button onclick="window.app.abrirGPS()" class="bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
                             <i class="fa-solid fa-location-dot text-blue-600"></i> Navegar (GPS)
                         </button>
-                        <button onclick="app.abrirWhatsApp()" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                        <button onclick="window.app.abrirWhatsApp()" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
                             <i class="fa-brands fa-whatsapp text-sm text-emerald-500"></i> Avisar Chegada
                         </button>
                     </div>
@@ -93,7 +93,7 @@
                 </div>
                 
                 <div class="p-4 bg-white border-t border-slate-200 shrink-0 pb-6">
-                    <button onclick="app.iniciarCheckout()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                    <button onclick="window.app.iniciarCheckout()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-pen-nib"></i> Coletar Assinatura (Checkout)
                     </button>
                 </div>
@@ -126,7 +126,7 @@
 
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-stairs text-blue-500"></i> Atualizar Etapa da Máquina</label>
-                        <select id="maq-inp-etapa" onchange="app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white"></select>
+                        <select id="maq-inp-etapa" onchange="window.app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white"></select>
                     </div>
 
                     <!-- Módulo FormCraft Integrado na Máquina -->
@@ -143,7 +143,7 @@
                     <div class="border border-purple-200 rounded-xl p-3 bg-purple-50/50">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[10px] font-bold text-purple-700 uppercase tracking-wider"><i class="fa-solid fa-box-open"></i> Peças Utilizadas</label>
-                            <button onclick="app.abrirModalPecas()" class="bg-purple-600 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer hover:bg-purple-700 transition shadow-sm"><i class="fa-solid fa-plus"></i> Mochila</button>
+                            <button onclick="window.app.abrirModalPecas()" class="bg-purple-600 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer hover:bg-purple-700 transition shadow-sm"><i class="fa-solid fa-plus"></i> Mochila</button>
                         </div>
                         <ul id="maq-lista-pecas" class="space-y-1.5 min-h-[30px]">
                             <li class="text-[10px] text-slate-400 italic text-center py-2">Nenhuma peça utilizada.</li>
@@ -152,7 +152,7 @@
                 </div>
 
                 <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6">
-                    <button onclick="app.salvarMaquinaAtual()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                    <button onclick="window.app.salvarMaquinaAtual()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-floppy-disk"></i> Salvar Apontamentos
                     </button>
                 </div>
@@ -177,7 +177,7 @@
                         <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2 text-center">Assinatura do Responsável</label>
                         <canvas id="signature-pad" class="signature-pad shadow-inner"></canvas>
                         <div class="flex justify-end mt-2">
-                            <button onclick="app.limparAssinatura()" class="text-[10px] text-slate-500 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer active:bg-slate-200">
+                            <button onclick="window.app.limparAssinatura()" class="text-[10px] text-slate-500 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer active:bg-slate-200">
                                 <i class="fa-solid fa-eraser"></i> Limpar Prancheta
                             </button>
                         </div>
@@ -185,7 +185,7 @@
                 </div>
 
                 <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6">
-                    <button onclick="app.finalizarOS()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer text-sm">
+                    <button onclick="window.app.finalizarOS()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer text-sm">
                         <i class="fa-solid fa-lock"></i> Encerrar e Sincronizar
                     </button>
                 </div>
@@ -195,20 +195,20 @@
 
         <!-- MENU INFERIOR NATIVO -->
         <nav class="bg-white border-t border-slate-200 flex items-center justify-around pb-5 pt-2 px-2 shrink-0 z-40 relative">
-            <button onclick="app.goHome()" class="flex flex-col items-center gap-1 p-2 text-blue-600 w-16 cursor-pointer">
+            <button onclick="window.app.goHome()" class="flex flex-col items-center gap-1 p-2 text-blue-600 w-16 cursor-pointer">
                 <i class="fa-solid fa-clipboard-list text-xl"></i>
                 <span class="text-[9px] font-bold">OS (Fila)</span>
             </button>
-            <button onclick="app.sincronizar()" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-blue-500 transition w-16 cursor-pointer relative group">
+            <button onclick="window.app.sincronizar()" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-blue-500 transition w-16 cursor-pointer relative group">
                 <i class="fa-solid fa-rotate text-xl group-active:rotate-180 transition-transform duration-500"></i>
                 <span class="text-[9px] font-bold">Sincronizar</span>
                 <span class="absolute top-1 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white"></span>
             </button>
             
-            <div class="flex flex-col items-center gap-1 p-1 text-slate-400 w-20">
+            <div id="container-visao-equipe" class="flex flex-col items-center gap-1 p-1 text-slate-400 w-20">
                 <span class="text-[8px] font-bold uppercase tracking-tighter">Visão Equipe</span>
                 <label class="relative inline-flex items-center cursor-pointer mt-0.5">
-                  <input type="checkbox" id="dev-visao-global" class="sr-only peer" onchange="app.carregarFilaOS()">
+                  <input type="checkbox" id="dev-visao-global" class="sr-only peer" onchange="window.app.carregarFilaOS()">
                   <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
             </div>
@@ -222,7 +222,7 @@
                         <h3 class="font-black text-sm text-purple-800"><i class="fa-solid fa-box-open mr-1"></i> Peças na sua Mochila</h3>
                         <p class="text-[9px] text-slate-500 font-bold">Autorizadas pela Logística</p>
                     </div>
-                    <button onclick="app.fecharModalPecas()" class="w-8 h-8 bg-slate-200 rounded-full text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="window.app.fecharModalPecas()" class="w-8 h-8 bg-slate-200 rounded-full text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-2" id="lista-estoque-modal"></div>
             </div>
@@ -233,17 +233,17 @@
             <div id="modal-form-content" class="bg-slate-50 rounded-t-3xl w-full h-[90vh] flex flex-col overflow-hidden transform translate-y-full transition-transform duration-300">
                 <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0">
                     <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-blue-400"></i> <span id="titulo-modal-form">Formulário</span></h3>
-                    <button onclick="app.fecharModalFormulario()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    <button onclick="window.app.fecharModalFormulario()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 
                 <div class="p-4 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
-                    <form id="interactive-preview-form" onsubmit="app.salvarPreenchimentoForm(event)" class="space-y-4">
+                    <form id="interactive-preview-form" onsubmit="window.app.salvarPreenchimentoForm(event)" class="space-y-4">
                         <div id="preview-fields-container" class="space-y-4"></div>
                     </form>
                 </div>
                 
                 <div class="bg-white border-t border-slate-200 px-5 py-4 shrink-0 flex gap-3 pb-8">
-                    <button type="button" onclick="app.fecharModalFormulario()" class="flex-1 py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button type="button" onclick="window.app.fecharModalFormulario()" class="flex-1 py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
                     <button type="submit" form="interactive-preview-form" class="flex-1 py-3.5 bg-blue-600 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar Laudo</button>
                 </div>
             </div>
@@ -263,7 +263,8 @@
 
     <!-- LÓGICA DO APLICATIVO DO TÉCNICO -->
     <script>
-        const app = {
+        // O objeto do App é declarado globalmente para garantir que o onClick no HTML o encontre 100% das vezes
+        window.app = {
             nomeTecnico: "",
             emailTecnico: "",
             temVisaoGlobal: false,
@@ -278,7 +279,6 @@
             isDrawing: false,
             pecasTemporarias: [],
             
-            // Variáveis de controle do FormCraft
             currentActiveForm: null,
             currentActiveSubmissionId: null,
 
@@ -358,7 +358,8 @@
 
                 let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO' && os.status !== '8. Check-out / Finalização');
                 
-                // Filtro Criterioso e Seguro para Técnico vs Equipe
+                // Se a chave no rodapé NÃO estiver ligada (ou ele nem tiver acesso a ela),
+                // o sistema vai forçar a filtrar somente as OS do técnico logado.
                 if (!btnGlobal) {
                     const euNome = (this.nomeTecnico || '').toLowerCase().trim();
                     const euEmail = (this.emailTecnico || '').toLowerCase().trim();
@@ -379,29 +380,35 @@
                 document.getElementById('badge-os-count').innerText = minhasOS.length;
 
                 if (minhasOS.length === 0) {
-                    container.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-mug-hot text-4xl text-slate-400 mb-3"></i><h3 class="text-sm font-bold text-slate-600">Sua fila está vazia!</h3><p class="text-[10px] text-slate-500 mt-1">Aguarde novos chamados do Gestor ou desmarque "Visão Equipe".</p></div>`;
+                    container.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-mug-hot text-4xl text-slate-400 mb-3"></i><h3 class="text-sm font-bold text-slate-600">Sua fila está vazia!</h3><p class="text-[10px] text-slate-500 mt-1">Aguarde novos chamados do Gestor.</p></div>`;
                     return;
                 }
 
                 container.innerHTML = minhasOS.map(os => {
-                    const arrayEquips = os.equipamentos || os.equipamentosOS || [];
+                    // Blindagem de compatibilidade para máquinas
+                    let arrayEquips = [];
+                    if (Array.isArray(os.equipamentosOS) && os.equipamentosOS.length > 0) arrayEquips = os.equipamentosOS;
+                    else if (Array.isArray(os.equipamentos) && os.equipamentos.length > 0) arrayEquips = os.equipamentos;
+                    
                     const qtd = arrayEquips.length > 0 ? arrayEquips.length : 1;
                     const urgColor = os.urgency === 'CRITICA' || os.urgency === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
                     
-                    // Prevenção de quebra de .split() com datas em formatos variados
+                    // Prevenção de quebra de .split() com datas em formatos nulos
                     let dataBR = '-';
-                    let rawDate = os.dataAgendamento || os.dataAgendamentoOS || '';
-                    if (typeof rawDate === 'string' && rawDate.includes('-')) {
+                    let rawDate = os.dataAgendamento || os.dataAgendamentoOS || os.createdAt || '';
+                    if (typeof rawDate === 'string' && rawDate.includes('T')) {
+                        dataBR = rawDate.split('T')[0].split('-').reverse().join('/');
+                    } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
                         dataBR = rawDate.split('-').reverse().join('/');
                     } else if (rawDate) {
                         dataBR = rawDate;
                     }
 
-                    const cliName = os.cliente || os.clienteOS || os.client?.name || 'Cliente';
+                    const cliName = os.cliente || os.clienteOS || (os.client ? os.client.name : '') || 'Cliente Indefinido';
                     const nomeT = os.tecnicoOS || os.tecnico || os.tecnico_kanban || '-';
 
                     return `
-                    <div onclick="app.abrirOS('${os.id}')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 active:scale-95 transition-transform cursor-pointer relative overflow-hidden">
+                    <div onclick="window.app.abrirOS('${os.id}')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 active:scale-95 transition-transform cursor-pointer relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 ${urgColor}"></div>
                         <div class="flex justify-between items-start mb-1.5">
                             <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 shadow-sm">${os.id}</span>
@@ -420,16 +427,28 @@
 
             abrirOS: function(id) {
                 try {
-                    this.osAtual = this.dbOrdens.find(x => x.id === id);
-                    if(!this.osAtual) return;
+                    // Limpa espaços no ID para evitar erros de busca invisíveis
+                    this.osAtual = this.dbOrdens.find(x => String(x.id).trim() === String(id).trim());
+                    if(!this.osAtual) {
+                        this.showToast('Erro: OS não localizada no banco.', 'error');
+                        return;
+                    }
 
-                    document.getElementById('os-det-id').innerText = this.osAtual.id;
-                    document.getElementById('os-det-cliente').innerText = this.osAtual.cliente || this.osAtual.clienteOS || this.osAtual.client?.name || 'Cliente Indefinido';
+                    // Nome do Cliente c/ Fallbacks
+                    let cName = 'Cliente Indefinido';
+                    if (this.osAtual.clienteOS) cName = this.osAtual.clienteOS;
+                    else if (this.osAtual.cliente) cName = this.osAtual.cliente;
+                    else if (this.osAtual.client && this.osAtual.client.name) cName = this.osAtual.client.name;
+                    document.getElementById('os-det-cliente').innerText = cName;
                     
-                    // Proteção extra na data para não quebrar a tela
-                    let rawDate = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS || '';
+                    document.getElementById('os-det-id').innerText = this.osAtual.id || id;
+                    
+                    // Tratamento Super Blindado na Data
+                    let rawDate = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS || this.osAtual.createdAt || '';
                     let dt = '--/--/----';
-                    if (typeof rawDate === 'string' && rawDate.includes('-')) {
+                    if (typeof rawDate === 'string' && rawDate.includes('T')) {
+                        dt = rawDate.split('T')[0].split('-').reverse().join('/');
+                    } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
                         dt = rawDate.split('-').reverse().join('/');
                     } else if (rawDate) {
                         dt = rawDate;
@@ -440,27 +459,29 @@
 
                     const container = document.getElementById('lista-maquinas-os');
                     
-                    // Consolidando os equipamentos para blindar o JSON
+                    // Consolidando os equipamentos para blindar as versões do JSON
                     let arrayEquips = [];
                     if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) {
                         arrayEquips = this.osAtual.equipamentosOS;
                     } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) {
                         arrayEquips = this.osAtual.equipamentos;
                     } else if (this.osAtual.equipment && this.osAtual.equipment.model) {
-                        arrayEquips = [{ maquina: this.osAtual.equipment.model, defeito: this.osAtual.request?.problem || 'Sem relato', etapa: '1. Abertura da OS' }];
+                        arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS' }];
+                    } else if (this.osAtual.maquina) {
+                        arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS' }];
                     }
+
+                    // Salva na memória do App
+                    this.osAtual.equipamentos = arrayEquips; 
 
                     if(arrayEquips.length === 0) {
                         container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum equipamento cadastrado.</p>';
                     } else {
-                        // Força salvamento local do array tratado
-                        this.osAtual.equipamentos = arrayEquips;
-
                         container.innerHTML = arrayEquips.map((maq, index) => {
                             const etapaName = maq.etapa || '1. Abertura da OS';
                             const objEtapa = this.etapasOficiais.find(e => e.nome === etapaName) || this.etapasOficiais[0];
                             return `
-                            <div onclick="app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
+                            <div onclick="window.app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
                                 <div class="flex-1 pr-3">
                                     <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
                                     <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 leading-tight"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
@@ -475,7 +496,7 @@
                     this.navigate('screen-os', `Chamado Ativo`, true);
                 } catch(e) {
                     console.error("Erro Crítico ao Abrir O.S: ", e);
-                    this.showToast('Erro ao ler O.S. (Formato Incompatível)', 'error');
+                    this.showToast('Erro interno ao ler dados da OS.', 'error');
                 }
             },
 
@@ -483,7 +504,7 @@
                 this.maquinaIndex = index;
                 const maq = this.osAtual.equipamentos[index];
                 
-                document.getElementById('maq-det-nome').innerText = maq.maquina;
+                document.getElementById('maq-det-nome').innerText = maq.maquina || 'Máquina Indefinida';
                 document.getElementById('maq-det-defeito').innerText = maq.defeito || 'Sem relato.';
                 document.getElementById('maq-inp-servico').value = maq.servico || '';
                 document.getElementById('maq-inp-inicio').value = maq.horaInicio || '';
@@ -504,7 +525,7 @@
                     containerForms.innerHTML = `
                         <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                             <span class="text-[11px] font-bold text-slate-700 truncate pr-2"><i class="fa-solid fa-clipboard-check text-slate-400 mr-1.5"></i> ${maq.formulario}</span>
-                            <button onclick="app.abrirModalFormulario('${maq.formulario}')" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer">
+                            <button onclick="window.app.abrirModalFormulario('${maq.formulario}')" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer">
                                 ${btnText}
                             </button>
                         </div>`;
@@ -545,7 +566,7 @@
                 }
 
                 const cont = document.getElementById('preview-fields-container');
-                const eventHandlers = `onchange="app.evaluatePreviewRules()" oninput="app.evaluatePreviewRules()"`;
+                const eventHandlers = `onchange="window.app.evaluatePreviewRules()" oninput="window.app.evaluatePreviewRules()"`;
                 
                 cont.innerHTML = formObj.fields.map(f => {
                     let html = `<label class="block text-xs font-black text-slate-800 mb-1.5 leading-tight">${this.escapeHtml(f.label)} ${f.required?'<span class="text-red-500">*</span>':''}</label>`;
@@ -687,9 +708,6 @@
                 } catch(err) { this.showToast('Erro ao salvar laudo.', 'error'); console.error(err); }
             },
 
-            // ==========================================
-            // CONTINUAÇÃO DA LÓGICA DE MÁQUINAS/MOCHILA
-            // ==========================================
             abrirModalPecas: function() {
                 const modal = document.getElementById('modal-pecas');
                 const content = document.getElementById('modal-pecas-content');
@@ -701,7 +719,7 @@
                     lista.innerHTML = this.estoqueCarro.map(item => `
                         <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
                             <div><p class="text-[11px] font-bold text-slate-800">${item.material}</p><p class="text-[10px] text-slate-500 mt-0.5">Disp: <strong>${item.qtd} un</strong></p></div>
-                            <button onclick="app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer shadow-md active:scale-95"><i class="fa-solid fa-plus"></i></button>
+                            <button onclick="window.app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer shadow-md active:scale-95"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     `).join('');
                 }
@@ -738,7 +756,7 @@
                 ul.innerHTML = this.pecasTemporarias.map(p => `
                     <li class="bg-white p-2.5 rounded-lg border border-purple-200 flex justify-between items-center shadow-sm">
                         <span class="text-[11px] font-bold text-slate-700 truncate flex-1"><span class="text-purple-700 bg-purple-100 px-2 py-0.5 rounded mr-1.5 shadow-inner">${p.qtd}x</span> ${p.nome}</span>
-                        <button onclick="app.removerPecaDaMaquina('${p.id}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer transition bg-red-50 rounded-lg ml-2"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                        <button onclick="window.app.removerPecaDaMaquina('${p.id}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer transition bg-red-50 rounded-lg ml-2"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                     </li>
                 `).join('');
             },
@@ -781,12 +799,12 @@
                 try {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
                     this.showToast('Apontamentos Salvos!', 'success');
-                    setTimeout(() => { this.abrirOS(this.osAtual.id); }, 800);
+                    setTimeout(() => { window.app.abrirOS(this.osAtual.id); }, 800);
                 } catch(e) { this.showToast('Erro ao salvar.', 'error'); }
             },
 
             iniciarCheckout: function() {
-                const cName = this.osAtual.cliente || this.osAtual.clienteOS || this.osAtual.client?.name || 'Cliente';
+                const cName = this.osAtual.cliente || this.osAtual.clienteOS || (this.osAtual.client ? this.osAtual.client.name : '') || 'Cliente';
                 document.getElementById('chk-cliente').innerText = cName;
                 document.getElementById('chk-os').innerText = this.osAtual.id;
                 document.getElementById('chk-qtd').innerText = (this.osAtual.equipamentos || []).length + " Máquina(s)";
@@ -811,13 +829,13 @@
                 try {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
                     this.showToast('OS Finalizada com Sucesso!', 'success');
-                    setTimeout(() => { this.goHome(); }, 1500);
+                    setTimeout(() => { window.app.goHome(); }, 1500);
                 } catch(e) { this.showToast('Erro ao sincronizar.', 'error'); }
             },
 
             sincronizar: function() {
                 this.showToast('Sincronizando...', 'info');
-                setTimeout(() => { this.carregarFilaOS(); this.showToast('Sincronizado!', 'success'); }, 800);
+                setTimeout(() => { window.app.carregarFilaOS(); this.showToast('Sincronizado!', 'success'); }, 800);
             },
 
             abrirGPS: function() { this.showToast('Abrindo GPS...', 'info'); },
@@ -825,8 +843,6 @@
 
             showToast: function(msg, tipo = 'info') {
                 const t = document.getElementById('custom-toast');
-                const icon = document.getElementById('toast-icon');
-                const bg = document.getElementById('toast-icon-bg');
                 document.getElementById('toast-msg').innerText = msg;
                 t.classList.remove('hidden');
                 setTimeout(() => { t.classList.remove('opacity-0', '-translate-y-10'); }, 10);
@@ -834,60 +850,69 @@
             }
         };
 
+        // Torna o Objeto App e Suas Funções acessíveis globalmente pela Interface
+        window.app = app;
+
+        // Função Construtora Iniciada pelo CORE.js
         window.initModule = function(perfil) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-content').style.display = 'flex';
 
-            app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
-            app.emailTecnico = window.currentUser.email;
+            window.app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
+            window.app.emailTecnico = window.currentUser.email;
             
-            // O botão do técnico define se a visão é global
-            if (perfil === 'Master' || perfil === 'Administrativo') {
-                app.temVisaoGlobal = true;
+            // Controle de Visão (Técnico vs Gestor)
+            if (perfil === 'Master' || perfil === 'Administrativo' || window.userVisaoGlobal) {
+                window.app.temVisaoGlobal = true;
+                // Deixa a chave ligada por padrão para a Diretoria/Admins
                 document.getElementById('dev-visao-global').checked = true;
+                document.getElementById('container-visao-equipe').style.display = 'flex';
             } else {
-                app.temVisaoGlobal = false;
+                window.app.temVisaoGlobal = false;
+                document.getElementById('dev-visao-global').checked = false;
+                // Oculta o botão de Visão Equipe para o técnico comum
+                document.getElementById('container-visao-equipe').style.display = 'none';
             }
 
-            app.init();
+            window.app.init();
 
-            // LER FORMS E RESPOSTAS (Integração com FormCraft Sandbox)
+            // Ler Forms Sandbox (Integração Direta)
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
-                app.dbForms = [];
-                snap.forEach(d => app.dbForms.push(d.data()));
+                window.app.dbForms = [];
+                snap.forEach(d => window.app.dbForms.push(d.data()));
             });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
-                app.formSubmissions = [];
-                snap.forEach(d => app.formSubmissions.push(d.data()));
+                window.app.formSubmissions = [];
+                snap.forEach(d => window.app.formSubmissions.push(d.data()));
             });
 
-            // LER OSs
+            // Ler O.S
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
-                app.dbOrdens = [];
-                snap.forEach(d => app.dbOrdens.push(d.data()));
-                app.dbOrdens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                window.app.dbOrdens = [];
+                snap.forEach(d => window.app.dbOrdens.push(d.data()));
+                window.app.dbOrdens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                 
-                if (app.osAtual) {
-                    const atualizada = app.dbOrdens.find(x => x.id === app.osAtual.id);
-                    if (atualizada) app.osAtual = atualizada;
+                if (window.app.osAtual) {
+                    const atualizada = window.app.dbOrdens.find(x => x.id === window.app.osAtual.id);
+                    if (atualizada) window.app.osAtual = atualizada;
                 }
-                app.carregarFilaOS();
+                window.app.carregarFilaOS();
             });
 
-            // LER PEÇAS DA LOGÍSTICA
+            // Ler Mochila de Peças
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material'), snap => {
-                app.estoqueCarro = [];
+                window.app.estoqueCarro = [];
                 snap.forEach(d => {
                     const r = d.data();
-                    if(r.autor_email === app.emailTecnico && r.status === 'COM_TECNICO') { app.estoqueCarro.push(r); }
+                    if(r.autor_email === window.app.emailTecnico && r.status === 'COM_TECNICO') { window.app.estoqueCarro.push(r); }
                 });
             });
 
-            // LER AUTOMAÇÃO DO KANBAN
+            // Ler Automação (Gatilhos do Gestor)
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
                 if(snap.exists()) {
-                    app.kanbanMapping = snap.data().mapping;
-                    app.carregarFilaOS();
+                    window.app.kanbanMapping = snap.data().mapping;
+                    window.app.carregarFilaOS();
                 }
             });
         };
