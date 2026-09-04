@@ -11,13 +11,26 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
         
-        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 800; }
-        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; }
+        /* Estilo sutil para as abas */
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 500; }
+
+        /* Estilos Drag and Drop do Kanban */
+        .kanban-col.drag-over { background-color: #f1f5f9 !important; border-color: #3b82f6 !important; border-style: dashed; }
+        .dragging { opacity: 0.5; transform: scale(0.98); }
+
+        /* Inputs mais finos e delicados */
+        .input-delicate {
+            width: 100%; padding: 0.5rem 0.75rem; font-size: 0.75rem; line-height: 1rem;
+            color: #334155; background-color: #ffffff; border: 1px solid #cbd5e1; 
+            border-radius: 0.5rem; outline: none; transition: all 0.2s;
+        }
+        .input-delicate:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
         @media print {
             @page { size: A4 portrait; margin: 15mm; }
@@ -40,73 +53,70 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT TRAVADO E BLINDADO CONTRA DUPLO SCROLL -->
+    <!-- MAIN CONTENT -->
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-5 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
         
-        <!-- CABEÇALHO DO MÓDULO -->
-        <header class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
+        <!-- CABEÇALHO -->
+        <header class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-blue-500/30">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100">
                     <i class="fa-solid fa-file-invoice"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-none">Gestão de Ordens de Serviço</h1>
-                    <p class="text-slate-500 text-xs mt-1">Painel central de controle, emissão e faturamento das O.S.</p>
+                    <h1 class="text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-none">Gestão de Ordens de Serviço</h1>
+                    <p class="text-slate-500 text-[11px] mt-1">Painel central de controle, faturamento e laudos.</p>
                 </div>
             </div>
-            <button onclick="window.abrirModalOS()" class="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white font-black px-6 py-3 rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-sm"></i> Emitir Nova O.S.
-            </button>
+            
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+                <!-- Botões de View (Lista / Kanban) -->
+                <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <button onclick="window.mudarVisao('lista')" id="btn-visao-lista" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition">
+                        <i class="fa-solid fa-list-check"></i> Lista
+                    </button>
+                    <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition">
+                        <i class="fa-solid fa-columns"></i> Kanban
+                    </button>
+                </div>
+                
+                <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Emitir Nova O.S.
+                </button>
+            </div>
         </header>
 
-        <!-- KPIS RÁPIDOS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 shrink-0">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-slate-500 uppercase">Total Emitidas (Mês)</p><p id="kpi-total" class="text-xl font-black text-slate-800 mt-0.5">0</p></div>
-                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600"><i class="fa-solid fa-layer-group"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-amber-600 uppercase">Aguard. Aprovação</p><p id="kpi-orc" class="text-xl font-black text-amber-700 mt-0.5">0</p></div>
-                <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><i class="fa-solid fa-hourglass-half"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-blue-600 uppercase">Em Execução</p><p id="kpi-exec" class="text-xl font-black text-blue-700 mt-0.5">0</p></div>
-                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-emerald-600 uppercase">Prontas p/ Faturar</p><p id="kpi-fat" class="text-xl font-black text-emerald-700 mt-0.5">0</p></div>
-                <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"><i class="fa-solid fa-check-double"></i></div>
-            </div>
-        </div>
-
-        <!-- BARRA DE PESQUISA -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-3 shrink-0">
+        <!-- BARRA DE PESQUISA / FILTROS -->
+        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-3 shrink-0">
             <div class="relative flex-1 w-full">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="filtro-busca" onkeyup="window.renderizarTabela()" placeholder="Buscar por OS, Cliente, Técnico ou Máquina..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-blue-600 focus:bg-white font-medium transition">
+                <input type="text" id="filtro-busca" onkeyup="window.renderizarVisoes()" placeholder="Buscar por OS, Cliente, Técnico ou Máquina..." class="input-delicate pl-8">
             </div>
-            <select id="filtro-status" onchange="window.renderizarTabela()" class="w-full md:w-48 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600 cursor-pointer text-slate-700 transition">
-                <option value="ALL">Todos os Status</option>
-                <option value="ENTRADA">Suporte Inicial</option>
-                <option value="DIAGNOSTICO">Diagnóstico / Orçamento</option>
-                <option value="EXECUCAO">Em Execução</option>
-                <option value="CONCLUIDO">Finalizada / Faturar</option>
-            </select>
+            <div class="w-full md:w-64">
+                <select id="filtro-status" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700">
+                    <option value="ALL">Todos os Status</option>
+                    <option value="ENTRADA">Suporte Inicial</option>
+                    <option value="DIAGNOSTICO">Diagnóstico / Orçamento</option>
+                    <option value="EXECUCAO">Em Execução</option>
+                    <option value="CONCLUIDO">Finalizada / Faturar</option>
+                </select>
+            </div>
         </div>
 
-        <!-- TABELA DE O.S. (Ocupa o resto da tela com scroll interno) -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[300px]">
+        <!-- CONTEÚDO PRINCIPAL (ALTERNÂNCIA ENTRE LISTA E KANBAN) -->
+        
+        <!-- VISÃO: LISTA (TABELA) -->
+        <div id="visao-lista" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[300px]">
             <div class="flex-1 overflow-auto custom-scrollbar">
                 <table class="w-full text-left text-xs min-w-[900px]">
-                    <thead class="bg-slate-900 text-white uppercase font-bold sticky top-0 z-10 shadow-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase font-semibold sticky top-0 z-10 border-b border-slate-200 text-[10px]">
                         <tr>
-                            <th class="p-4">Nº O.S. / Data</th>
-                            <th class="p-4">Cliente Solicitante</th>
-                            <th class="p-4">Técnico Designado</th>
-                            <th class="p-4 text-center">Máquinas</th>
-                            <th class="p-4 text-right">Orçamento (R$)</th>
-                            <th class="p-4 text-center">Status Faturamento</th>
-                            <th class="p-4 text-center">Ações</th>
+                            <th class="p-3">Nº O.S. / Data</th>
+                            <th class="p-3">Cliente Solicitante</th>
+                            <th class="p-3">Técnico Designado</th>
+                            <th class="p-3 text-center">Máquinas</th>
+                            <th class="p-3 text-right">Orçamento (R$)</th>
+                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3 text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-os-body" class="divide-y divide-slate-100 font-medium text-slate-700">
@@ -116,170 +126,196 @@
             </div>
         </div>
 
+        <!-- VISÃO: KANBAN -->
+        <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 hidden w-full">
+            <div id="kanban-board" class="flex gap-4 h-full w-max min-w-full">
+                <!-- Colunas Geradas via JS -->
+            </div>
+        </div>
+
     </main>
 
     <!-- ========================================== -->
-    <!-- MODAL GIGANTE DE O.S. (3 ABAS) - BLINDADO -->
+    <!-- MODAL DE O.S. (REFINADO, MENOR E DELICADO) -->
     <!-- ========================================== -->
-    <div id="modal-os" class="fixed inset-0 z-[9999] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+    <div id="modal-os" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden">
         
-        <!-- O Modal está cravado em 95vh e largura máxima 7xl, com flex-col para scroll interno perfeito nas abas -->
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden relative">
+        <!-- Reduzido de max-w-7xl para max-w-5xl (Mais delicado e focado) -->
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden relative border border-slate-200">
             
-            <!-- Cabeçalho (Fixo) -->
-            <div class="bg-slate-900 text-white px-6 py-5 flex justify-between items-center shrink-0 shadow-md z-20">
-                <h3 class="font-black text-base flex items-center gap-3"><i class="fa-solid fa-file-invoice text-blue-400 text-xl"></i> <span id="titulo-modal-os">Ordem de Serviço Oficial</span></h3>
-                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <!-- Cabeçalho (Limpo e Fino) -->
+            <div class="bg-white px-5 py-4 flex justify-between items-center shrink-0 border-b border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-500"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
+                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
                 
-            <!-- Abas (Fixas) -->
-            <div class="px-6 pt-5 bg-slate-50 border-b border-slate-200 shrink-0 z-10 shadow-sm">
-                <div class="flex gap-8 text-sm font-bold overflow-x-auto custom-scrollbar">
-                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building text-blue-600"></i> Dados e Agendamento</button>
-                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos da OS <span id="badge-equip-count" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-xs ml-1 shadow-inner">0</span></button>
-                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Peças <span id="badge-orc-count" class="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded text-xs ml-1 shadow-inner">0</span></button>
+            <!-- Abas (Delicadas) -->
+            <div class="px-5 pt-3 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div class="flex gap-6 text-xs overflow-x-auto custom-scrollbar">
+                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-user"></i> Dados e Agenda</button>
+                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Máquinas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-calculator text-emerald-600"></i> Orçamentos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba4')" id="btn-aba4" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-list-check text-purple-500"></i> Formulários <span id="badge-form-count" class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
                 </div>
             </div>
 
-            <!-- Corpo do Modal (Apenas esta área rola para baixo) -->
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white">
+            <!-- Corpo (Rolagem fina e limpa) -->
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white">
                 <form id="form-nova-os" onsubmit="event.preventDefault();" class="h-full">
                     <input type="hidden" id="os-id-oculto" value="">
                     
                     <!-- ABA 1: DADOS -->
-                    <div id="aba1" class="space-y-6 max-w-5xl mx-auto pb-10">
+                    <div id="aba1" class="space-y-5 max-w-4xl mx-auto pb-6">
                         <div>
-                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Cliente *</label>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente *</label>
                             <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" id="os-cliente" list="list-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente ou razão social..." class="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-300 text-sm font-black rounded-xl outline-none focus:border-blue-600 focus:bg-white transition shadow-sm text-slate-900">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="os-cliente" list="list-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="input-delicate pl-8 font-semibold text-sm">
                             </div>
                             
-                            <div id="card-cliente-info" class="hidden mt-4 bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row gap-5 justify-between items-start sm:items-center shadow-sm">
-                                <div class="space-y-1.5">
-                                    <p class="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-1"><i class="fa-solid fa-address-card mr-1"></i> Dados do Cadastro Oficial</p>
-                                    <p id="card-end" class="text-sm font-bold text-slate-700"><i class="fa-solid fa-location-dot w-5 text-blue-400"></i> <span id="card-end-txt"></span></p>
-                                    <p id="card-tel" class="text-sm font-bold text-slate-700"><i class="fa-solid fa-phone w-5 text-blue-400"></i> <span id="card-tel-txt"></span></p>
+                            <div id="card-cliente-info" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                                <div class="space-y-1 text-xs">
+                                    <p id="card-end" class="text-slate-600"><i class="fa-solid fa-location-dot w-4 text-blue-400"></i> <span id="card-end-txt"></span></p>
+                                    <p id="card-tel" class="text-slate-600"><i class="fa-solid fa-phone w-4 text-blue-400"></i> <span id="card-tel-txt"></span></p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o serviço?" class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 focus:bg-white shadow-sm transition"></div>
-                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tipo de Atendimento *</label>
-                                <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 focus:bg-white cursor-pointer shadow-sm transition">
-                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Nome..." class="input-delicate"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Atendimento *</label>
+                                <select id="os-tipo" class="input-delicate cursor-pointer">
+                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Lab)</option><option value="Remoto">Remoto (Online)</option>
                                 </select>
                             </div>
-                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Data Referência *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 focus:bg-white cursor-pointer shadow-sm transition"></div>
-                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Técnico Designado</label>
-                                <select id="os-tecnico" class="w-full bg-slate-50 border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 focus:bg-white cursor-pointer shadow-sm transition"></select>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Agendamento *</label><input type="date" id="os-data" required class="input-delicate cursor-pointer"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Técnico Designado</label>
+                                <select id="os-tecnico" class="input-delicate cursor-pointer"></select>
                             </div>
-                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Observações Gerais (Aparece no PDF)</label><textarea id="os-obs" rows="2" placeholder="Instruções gerais sobre esta OS..." class="w-full bg-slate-50 border border-slate-300 text-sm font-medium text-slate-700 p-3 rounded-xl outline-none focus:border-blue-600 focus:bg-white resize-none shadow-sm transition"></textarea></div>
+                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Observações de Agenda</label><textarea id="os-obs" rows="2" placeholder="Instruções para o técnico..." class="input-delicate resize-none"></textarea></div>
                         </div>
 
-                        <div class="flex justify-end pt-6">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="bg-slate-900 hover:bg-black text-white font-black px-8 py-3.5 rounded-xl text-sm flex items-center gap-2 shadow-lg transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        <!-- Info Agenda Integrada -->
+                        <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100 flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                            <p class="text-[10px] text-blue-800 leading-relaxed">Se uma Data e um Técnico forem selecionados, o sistema criará automaticamente um agendamento na <strong>Agenda (Home)</strong> para esta OS.</p>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-5 py-2 rounded-lg text-xs flex items-center gap-2 transition cursor-pointer">Avançar <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
 
                     <!-- ABA 2: EQUIPAMENTOS -->
-                    <div id="aba2" class="hidden space-y-6 max-w-6xl mx-auto pb-10">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <div>
-                                <h4 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-server text-blue-600"></i> Máquinas da OS</h4>
-                                <p class="text-xs text-slate-500 mt-1 font-medium">Adicione as máquinas envolvidas neste chamado e descreva os defeitos/serviços de cada uma.</p>
-                            </div>
-                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="w-full sm:w-auto bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-sm border border-blue-300 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Adicionar Máquina
+                    <div id="aba2" class="hidden space-y-4 max-w-5xl mx-auto pb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-sm font-semibold text-slate-800">Equipamentos / Máquinas</h4>
+                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition border border-blue-200 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Adicionar
                             </button>
                         </div>
 
-                        <div id="container-equipamentos-os" class="space-y-5"></div>
+                        <div id="container-equipamentos-os" class="space-y-4"></div>
 
-                        <div class="flex justify-between pt-6 border-t border-slate-200">
-                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-600 hover:text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition cursor-pointer bg-slate-100 hover:bg-slate-200 border border-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar</button>
-                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-900 hover:bg-black text-white font-black px-8 py-3.5 rounded-xl text-sm flex items-center gap-2 shadow-lg transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        <div class="flex justify-between pt-4 border-t border-slate-100">
+                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-5 py-2 rounded-lg text-xs flex items-center gap-2 transition cursor-pointer">Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
 
                     <!-- ABA 3: ORÇAMENTOS -->
-                    <div id="aba3" class="hidden space-y-6 max-w-6xl mx-auto pb-10">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 bg-emerald-50 p-5 rounded-2xl border border-emerald-200">
-                            <div>
-                                <h4 class="text-base font-black text-emerald-900 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Composição Financeira</h4>
-                                <p class="text-xs text-emerald-700 mt-1 font-medium">Crie orçamentos específicos para cada máquina ou um orçamento geral para a OS.</p>
-                            </div>
-                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-md cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Novo Orçamento
+                    <div id="aba3" class="hidden space-y-4 max-w-5xl mx-auto pb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-sm font-semibold text-slate-800">Composição de Orçamentos</h4>
+                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition border border-emerald-200 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Adicionar
                             </button>
                         </div>
 
-                        <div id="container-orcamentos-os" class="space-y-6 min-h-[250px]"></div>
+                        <div id="container-orcamentos-os" class="space-y-4 min-h-[150px]"></div>
                         
-                        <div class="bg-slate-900 rounded-3xl p-6 flex flex-col sm:flex-row justify-between items-center text-white mt-8 shadow-2xl relative overflow-hidden">
-                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
-                            <span class="text-sm font-bold uppercase tracking-widest text-slate-300 z-10">Total Geral Desta O.S.:</span>
-                            <span id="valor-total-geral-os" class="text-3xl font-black text-emerald-400 z-10 mt-2 sm:mt-0">R$ 0,00</span>
+                        <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center border border-slate-200 mt-4">
+                            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Total Final da O.S.:</span>
+                            <span id="valor-total-geral-os" class="text-lg font-black text-emerald-600">R$ 0,00</span>
                         </div>
 
-                        <div class="flex justify-start pt-6 border-t border-slate-200 mt-6">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-600 hover:text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition cursor-pointer bg-slate-100 hover:bg-slate-200 border border-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar p/ Equipamentos</button>
+                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                         </div>
                     </div>
+
+                    <!-- ABA 4: FORMULÁRIOS / LAUDOS (NOVA) -->
+                    <div id="aba4" class="hidden space-y-4 max-w-4xl mx-auto pb-6">
+                        <div class="mb-2">
+                            <h4 class="text-sm font-semibold text-slate-800">Formulários e Check-lists da O.S.</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Lista de formulários exigidos conforme os equipamentos cadastrados na Aba 2.</p>
+                        </div>
+                        
+                        <div id="container-formularios-os" class="space-y-3 min-h-[150px]">
+                            <!-- Injetado via JS -->
+                            <div class="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50">
+                                <p class="text-xs text-slate-400">Nenhum formulário vinculado ainda.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        </div>
+                    </div>
+
                 </form>
             </div>
 
-            <!-- Rodapé (Fixo na Tela) -->
-            <div class="bg-slate-50 border-t border-slate-200 px-6 py-5 shrink-0 flex justify-between items-center z-10 shadow-inner">
+            <!-- Rodapé (Botões de Ação Fixos) -->
+            <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 shrink-0 flex justify-between items-center">
                 <div class="flex gap-2">
-                    <button type="button" onclick="window.imprimirOS()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-print"></i> Gerar PDF</button>
-                    <button type="button" onclick="window.enviarWhatsAppOS()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center gap-2 cursor-pointer hidden sm:flex"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</button>
+                    <button type="button" onclick="window.imprimirOS()" class="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-medium rounded-lg text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-print"></i> PDF</button>
+                    <button type="button" onclick="window.enviarWhatsAppOS()" class="px-3 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-medium rounded-lg text-xs transition shadow-sm items-center gap-1.5 cursor-pointer hidden sm:flex"><i class="fa-brands fa-whatsapp text-sm"></i> Enviar</button>
                 </div>
-                <div class="flex gap-3">
-                    <button type="button" onclick="window.fecharModalOS()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-sm transition cursor-pointer shadow-sm">Cancelar</button>
-                    <button type="button" onclick="window.salvarOS()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5"><i class="fa-solid fa-cloud-arrow-up text-lg"></i> Salvar O.S.</button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="window.fecharModalOS()" class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-medium rounded-lg text-xs transition cursor-pointer shadow-sm">Cancelar</button>
+                    <button type="button" onclick="window.salvarOS()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar O.S.</button>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO OCULTA -->
+    <!-- ÁREA DE IMPRESSÃO -->
     <div id="print-area"></div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 transition-opacity">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 border border-slate-700 transition-opacity">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+        <span id="toast-message" class="text-xs font-medium">Sucesso!</span>
     </div>
 
-    <!-- MOTOR CENTRAL DO SISTEMA E FIREBASE -->
+    <!-- MOTOR CENTRAL -->
     <script type="module" src="core.js"></script>
     <script type="module">
         import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         window.FirebaseRunTransaction = runTransaction;
     </script>
 
-    <!-- LÓGICA DO MÓDULO (BLINDADA) -->
+    <!-- LÓGICA DA GESTÃO DE OS -->
     <script>
         window.tickets = [];
         window.dbClientes = [];
         window.dbMaquinas = [];
         window.parqueMaquinas = [];
         window.usersList = [];
-        window.dbForms = []; // Para puxar os formulários do FormCraft no futuro
+        window.dbForms = []; 
         
         window.contadorEquips = 0;
         window.contadorOrcs = 0;
         window.currentUserStr = '';
+        window.visaoAtual = 'lista'; // Pode ser 'lista' ou 'kanban'
 
-        // Status baseados no fluxo de OS
         const STATUSES_OS = {
-            'ENTRADA': 'Suporte Inicial',
-            'DIAGNOSTICO': 'Diagnóstico / Orçamento',
-            'EXECUCAO': 'Em Execução',
-            'CONCLUIDO': 'Finalizada / Faturar'
+            'ENTRADA': { label: 'Suporte Inicial', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+            'DIAGNOSTICO': { label: 'Diagnóstico', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+            'EXECUCAO': { label: 'Em Execução', color: 'bg-purple-50 border-purple-200 text-purple-700' },
+            'CONCLUIDO': { label: 'Concluído', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' }
         };
 
         const ETAPAS_SERVICO = [
@@ -300,50 +336,25 @@
 
             window.currentUserStr = window.nomeUsuarioLogado || window.currentUser?.email || 'Técnico';
 
-            // 1. DADOS DE CLIENTES E MÁQUINAS (Para Autocomplete e Validação)
+            // Dados base (Clientes, Máquinas, Usuários, Forms)
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.dbClientes = []; let html = '';
-                snap.forEach(d => {
-                    const c = d.data(); window.dbClientes.push(c);
-                    const n = c.fantasia || c.razao_social || '';
-                    if(n) html += `<option value="${n}">`;
-                });
+                snap.forEach(d => { const c = d.data(); window.dbClientes.push(c); const n = c.fantasia || c.razao_social || ''; if(n) html += `<option value="${n}">`; });
                 document.getElementById('list-clientes').innerHTML = html;
             });
-
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => {
-                window.parqueMaquinas = [];
-                snap.forEach(d => window.parqueMaquinas.push(d.data()));
-            });
-
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
-                window.dbMaquinas = [];
-                snap.forEach(d => window.dbMaquinas.push(d.data()));
-            });
-
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => { window.parqueMaquinas = []; snap.forEach(d => window.parqueMaquinas.push(d.data())); });
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => { window.dbMaquinas = []; snap.forEach(d => window.dbMaquinas.push(d.data())); });
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => { window.dbForms = []; snap.forEach(d => window.dbForms.push(d.data().title)); });
+            
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
-                window.usersList = [];
-                let htmlTec = '<option value="">Selecione um técnico...</option>';
-                snap.forEach(d => {
-                    const u = d.data(); window.usersList.push(u);
-                    htmlTec += `<option value="${u.nome}">${u.nome}</option>`;
-                });
+                window.usersList = []; let htmlTec = '<option value="">Selecione...</option>';
+                snap.forEach(d => { const u = d.data(); window.usersList.push(u); htmlTec += `<option value="${u.nome}">${u.nome}</option>`; });
                 document.getElementById('os-tecnico').innerHTML = htmlTec;
             });
 
-            // LER FORMCRAFT SANDBOX PARA INJETAR NAS ETAPAS DA OS
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
-                window.dbForms = [];
-                snap.forEach(d => window.dbForms.push(d.data().title));
-            });
-
-            // 2. LER AS ORDENS DE SERVIÇO (Usando a mesma tabela que o app_tecnico usa)
+            // Ler as OS e Renderizar
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.tickets = [];
-                let kpiTotal = 0; let kpiOrc = 0; let kpiExec = 0; let kpiFat = 0;
-                
-                const mesAtual = new Date().getMonth();
-                
                 snap.forEach(dSnap => {
                     const d = dSnap.data();
                     let tStatus = d.status || (d.conclusao === 'Resolvido' ? 'CONCLUIDO' : 'ENTRADA');
@@ -354,27 +365,13 @@
                         clienteOS: d.clienteOS || d.cliente || '',
                         tecnicoOS: d.tecnicoOS || d.tecnico || '',
                         dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || (d.timestamp ? new Date(d.timestamp).toISOString().split('T')[0] : ''),
-                        equipamentosOS: d.equipamentosOS || d.equipamentos || (d.maquina ? [{maquina: `[SN: ${d.serial}] ${d.maquina}`, defeito: d.defeito, etapa: '1. Abertura da OS'}] : []),
+                        equipamentosOS: d.equipamentosOS || d.equipamentos || (d.maquina ? [{maquina: `[SN: ${d.serial||'S/N'}] ${d.maquina}`, defeito: d.defeito, etapa: '1. Abertura da OS', formulario: ''}] : []),
                         orcamentosOS: d.orcamentosOS || d.orcamentos || [],
                         timestampOriginal: d.timestamp || Date.now()
                     });
-
-                    // KPIs Simples
-                    const dt = new Date(d.timestamp || Date.now());
-                    if (dt.getMonth() === mesAtual) kpiTotal++;
-                    if (tStatus === 'ORCAMENTO' || tStatus === 'DIAGNOSTICO') kpiOrc++;
-                    if (tStatus === 'EXECUCAO' || tStatus === 'AGENDAMENTO') kpiExec++;
-                    if (tStatus === 'CONCLUIDO') kpiFat++;
                 });
-                
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
-                
-                document.getElementById('kpi-total').innerText = kpiTotal;
-                document.getElementById('kpi-orc').innerText = kpiOrc;
-                document.getElementById('kpi-exec').innerText = kpiExec;
-                document.getElementById('kpi-fat').innerText = kpiFat;
-                
-                window.renderizarTabela();
+                window.renderizarVisoes();
             });
         };
 
@@ -383,7 +380,7 @@
             document.getElementById('toast-message').innerText = msg;
             document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
             toast.classList.remove('hidden'); 
-            setTimeout(() => toast.classList.add('hidden'), 4000);
+            setTimeout(() => toast.classList.add('hidden'), 3500);
         };
 
         window.formatarDataBR = function(isoStr) {
@@ -391,23 +388,35 @@
             try { return isoStr.split('T')[0].split('-').reverse().join('/'); } 
             catch(e) { return isoStr; }
         };
-
         window.formatarMoeda = function(v) { return (v||0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
 
         // =====================================
-        // TABELA DE O.S. (LIST VIEW)
+        // GERENCIADOR DE VISÕES (LISTA / KANBAN)
         // =====================================
-        window.renderizarTabela = function() {
-            const tbody = document.getElementById('tabela-os-body');
+        window.mudarVisao = function(visao) {
+            window.visaoAtual = visao;
+            if(visao === 'lista') {
+                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
+                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition";
+                document.getElementById('visao-lista').classList.remove('hidden');
+                document.getElementById('visao-kanban').classList.add('hidden');
+            } else {
+                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
+                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition";
+                document.getElementById('visao-kanban').classList.remove('hidden');
+                document.getElementById('visao-lista').classList.add('hidden');
+            }
+            window.renderizarVisoes();
+        };
+
+        window.getFiltrados = function() {
             const busca = document.getElementById('filtro-busca').value.toLowerCase();
             const statusFiltro = document.getElementById('filtro-status').value;
 
-            const filtrados = window.tickets.filter(t => {
-                // Adaptador de status entre o Kanban original e este painel
+            return window.tickets.filter(t => {
                 let mappedStatus = t.status;
                 if (t.status === 'TRIAGEM' || t.status === 'ORCAMENTO') mappedStatus = 'DIAGNOSTICO';
                 if (t.status === 'AGENDAMENTO') mappedStatus = 'EXECUCAO';
-                
                 if(statusFiltro !== 'ALL' && mappedStatus !== statusFiltro) return false;
                 
                 if(busca) {
@@ -416,112 +425,169 @@
                 }
                 return true;
             });
+        };
 
-            if(filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">Nenhuma Ordem de Serviço encontrada.</td></tr>`;
-                return;
-            }
+        window.renderizarVisoes = function() {
+            const filtrados = window.getFiltrados();
+            if(window.visaoAtual === 'lista') window.renderizarTabela(filtrados);
+            else window.renderizarKanban(filtrados);
+        };
+
+        window.renderizarTabela = function(filtrados) {
+            const tbody = document.getElementById('tabela-os-body');
+            if(filtrados.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-xs">Nenhuma O.S. encontrada.</td></tr>`; return; }
 
             tbody.innerHTML = filtrados.map(t => {
-                let badgeClass = 'bg-slate-100 text-slate-800 border-slate-300';
-                let labelStatus = 'Suporte';
-                
-                if(t.status === 'ENTRADA') { badgeClass = 'bg-blue-100 text-blue-800'; labelStatus = 'Recepção'; }
-                else if(t.status === 'TRIAGEM' || t.status === 'ORCAMENTO') { badgeClass = 'bg-amber-100 text-amber-800'; labelStatus = 'Em Orçamento'; }
-                else if(t.status === 'AGENDAMENTO' || t.status === 'EXECUCAO') { badgeClass = 'bg-purple-100 text-purple-800'; labelStatus = 'Em Execução'; }
-                else if(t.status === 'CONCLUIDO') { badgeClass = 'bg-emerald-100 text-emerald-800'; labelStatus = 'Finalizada'; }
+                let mappedStatus = t.status;
+                if (t.status === 'TRIAGEM' || t.status === 'ORCAMENTO') mappedStatus = 'DIAGNOSTICO';
+                if (t.status === 'AGENDAMENTO') mappedStatus = 'EXECUCAO';
+                const stConf = STATUSES_OS[mappedStatus] || STATUSES_OS['ENTRADA'];
 
                 const totalOrcs = (t.orcamentosOS || []).reduce((acc, curr) => acc + (curr.total || 0), 0);
                 const qtdMaqs = (t.equipamentosOS || []).length;
 
                 return `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition cursor-pointer" onclick="window.abrirModalOS('${t.id}')">
-                    <td class="p-4">
-                        <span class="block font-black text-blue-700 text-sm">${t.id}</span>
-                        <span class="text-[10px] text-slate-500 font-bold">${window.formatarDataBR(t.dataAgendamentoOS)}</span>
-                    </td>
-                    <td class="p-4 font-bold text-slate-800">${t.clienteOS || 'S/N'}</td>
-                    <td class="p-4 font-bold text-slate-600">${t.tecnicoOS || 'Pendente'}</td>
-                    <td class="p-4 text-center">
-                        <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">${qtdMaqs} maq.</span>
-                    </td>
-                    <td class="p-4 text-right font-black text-emerald-600">${window.formatarMoeda(totalOrcs)}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2.5 py-1 text-[10px] font-black uppercase rounded-lg border ${badgeClass}">${labelStatus}</span>
-                    </td>
-                    <td class="p-4 text-center text-blue-600 font-bold text-xs">
-                        <button class="bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-pen"></i> Abrir</button>
-                    </td>
-                </tr>
-                `;
+                    <td class="p-3"><span class="block font-bold text-blue-600">${t.id}</span><span class="text-[9px] text-slate-400">${window.formatarDataBR(t.dataAgendamentoOS)}</span></td>
+                    <td class="p-3 font-semibold text-slate-800">${t.clienteOS || 'S/N'}</td>
+                    <td class="p-3 text-slate-600">${t.tecnicoOS || 'Pendente'}</td>
+                    <td class="p-3 text-center"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px]">${qtdMaqs} maq.</span></td>
+                    <td class="p-3 text-right font-semibold text-emerald-600">${window.formatarMoeda(totalOrcs)}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 text-[9px] font-bold uppercase rounded border ${stConf.color}">${stConf.label}</span></td>
+                    <td class="p-3 text-center text-blue-500 font-medium text-xs hover:underline">Abrir</td>
+                </tr>`;
             }).join('');
         };
 
-        // =====================================
-        // ABAS DO MODAL
-        // =====================================
-        window.mudarAbaOS = function(aba) {
-            ['aba1', 'aba2', 'aba3'].forEach(a => {
-                document.getElementById(a).classList.add('hidden');
-                document.getElementById('btn-' + a).className = "tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer";
+        window.renderizarKanban = function(filtrados) {
+            const board = document.getElementById('kanban-board');
+            board.innerHTML = '';
+
+            Object.keys(STATUSES_OS).forEach(key => {
+                const conf = STATUSES_OS[key];
+                const colDiv = document.createElement('div');
+                colDiv.className = 'kanban-col w-72 flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 shrink-0 transition-colors h-full';
+                
+                // Drag & Drop logic (simplificado)
+                colDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+                colDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
+                colDiv.ondrop = async e => {
+                    e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+                    const id = e.dataTransfer.getData('text/plain');
+                    const t = window.tickets.find(x => x.id === id);
+                    if(t && t.status !== key) {
+                        t.status = key;
+                        try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), {status: key}, {merge: true}); } catch(err){}
+                    }
+                };
+
+                let myTks = filtrados.filter(t => {
+                    let map = t.status;
+                    if(t.status === 'TRIAGEM' || t.status === 'ORCAMENTO') map = 'DIAGNOSTICO';
+                    if(t.status === 'AGENDAMENTO') map = 'EXECUCAO';
+                    return map === key;
+                });
+
+                colDiv.innerHTML = `
+                    <div class="p-3 border-b border-slate-200 bg-white rounded-t-xl flex justify-between items-center shrink-0">
+                        <h4 class="text-[10px] font-bold uppercase text-slate-700">${conf.label}</h4>
+                        <span class="text-[10px] font-bold bg-slate-100 px-1.5 rounded">${myTks.length}</span>
+                    </div>
+                `;
+
+                const cardsCont = document.createElement('div');
+                cardsCont.className = 'flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar min-h-0';
+                
+                myTks.forEach(t => {
+                    const card = document.createElement('div');
+                    card.draggable = true;
+                    card.className = 'bg-white p-3 rounded-lg border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-400 transition text-xs';
+                    card.ondragstart = e => { e.dataTransfer.setData('text/plain', t.id); card.classList.add('dragging'); };
+                    card.ondragend = () => card.classList.remove('dragging');
+                    card.onclick = () => window.abrirModalOS(t.id);
+
+                    const maqStr = t.equipamentosOS && t.equipamentosOS.length > 0 ? (t.equipamentosOS.length > 1 ? `${t.equipamentosOS.length} equipamentos` : t.equipamentosOS[0].maquina) : 'Sem máquina';
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-blue-600 text-[10px]">${t.id}</span>
+                            <span class="text-[9px] text-slate-400">${window.formatarDataBR(t.dataAgendamentoOS)}</span>
+                        </div>
+                        <h5 class="font-semibold text-slate-800 truncate mb-1">${t.clienteOS || 'Sem Nome'}</h5>
+                        <p class="text-[10px] text-slate-500 truncate bg-slate-50 p-1 rounded border border-slate-100 mb-2"><i class="fa-solid fa-print mr-1"></i>${maqStr}</p>
+                        <div class="flex justify-between items-center text-[9px] font-medium text-slate-500 border-t border-slate-100 pt-1">
+                            <span>Tec: <strong class="text-slate-600">${t.tecnicoOS || 'Pendente'}</strong></span>
+                        </div>
+                    `;
+                    cardsCont.appendChild(card);
+                });
+                
+                colDiv.appendChild(cardsCont);
+                board.appendChild(colDiv);
             });
-            document.getElementById(aba).classList.remove('hidden');
-            const activeBtn = document.getElementById('btn-' + aba);
-            activeBtn.className = activeBtn.className.replace('tab-inactive', 'tab-active text-blue-600');
         };
 
         // =====================================
-        // MODAL GIGANTE DE ABERTURA / EDIÇÃO
+        // MODAL DE O.S. (DELICADO)
         // =====================================
+        window.mudarAbaOS = function(aba) {
+            ['aba1', 'aba2', 'aba3', 'aba4'].forEach(a => {
+                document.getElementById(a).classList.add('hidden');
+                document.getElementById('btn-' + a).className = "tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer";
+            });
+            document.getElementById(aba).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + aba);
+            activeBtn.className = activeBtn.className.replace('tab-inactive', 'tab-active');
+        };
+
         window.abrirModalOS = function(idEdit = null) {
             document.getElementById('form-nova-os').reset();
             document.getElementById('os-id-oculto').value = '';
             document.getElementById('card-cliente-info').classList.add('hidden');
             document.getElementById('container-equipamentos-os').innerHTML = '';
-            document.getElementById('container-orcamentos-os').innerHTML = '<div id="orcamentos-vazio" class="text-center py-16 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50"><i class="fa-solid fa-file-invoice-dollar text-4xl text-slate-300 mb-3"></i><p class="text-sm font-bold text-slate-500">Nenhum orçamento adicionado nesta O.S.</p></div>';
+            document.getElementById('container-orcamentos-os').innerHTML = '<div class="text-center py-6 border border-dashed border-slate-300 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum orçamento adicionado.</p></div>';
+            document.getElementById('container-formularios-os').innerHTML = '<div class="text-center py-6 border border-dashed border-slate-300 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum formulário vinculado ainda.</p></div>';
             document.getElementById('valor-total-geral-os').innerText = 'R$ 0,00';
             window.contadorEquips = 0; window.contadorOrcs = 0;
 
             if (idEdit) {
-                // MODO EDIÇÃO
-                const osOrig = window.tickets.find(x => x.id === idEdit);
-                if(osOrig) {
-                    // Busca documento completo no Firebase para pegar todos os campos pesados
-                    window.fsGetDocs(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr')).then(snap => {
-                        let osCompleta = null;
-                        snap.forEach(d => { if(d.id === idEdit) osCompleta = d.data(); });
-                        
-                        if(osCompleta) {
-                            document.getElementById('titulo-modal-os').innerText = `Editando OS: ${osCompleta.osr}`;
-                            document.getElementById('os-id-oculto').value = osCompleta.osr;
-                            document.getElementById('os-cliente').value = osCompleta.clienteOS || osCompleta.cliente || '';
-                            window.preencherCardCliente(osCompleta.clienteOS || osCompleta.cliente);
-                            document.getElementById('os-solicitante').value = osCompleta.solicitanteOS || '';
-                            document.getElementById('os-tipo').value = osCompleta.tipoAtendimentoOS || 'Interno';
-                            document.getElementById('os-data').value = osCompleta.dataAgendamentoOS || osCompleta.dataAgendamento || '';
-                            document.getElementById('os-tecnico').value = osCompleta.tecnicoOS || osCompleta.tecnico || '';
-                            document.getElementById('os-obs').value = osCompleta.observacoesOS || '';
+                // MODO EDIÇÃO COMPLETA
+                window.fsGetDocs(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr')).then(snap => {
+                    let osCompleta = null;
+                    snap.forEach(d => { if(d.id === idEdit) osCompleta = d.data(); });
+                    
+                    if(osCompleta) {
+                        document.getElementById('titulo-modal-os').innerText = `O.S. ${osCompleta.osr}`;
+                        document.getElementById('os-id-oculto').value = osCompleta.osr;
+                        document.getElementById('os-cliente').value = osCompleta.clienteOS || osCompleta.cliente || '';
+                        window.preencherCardCliente(osCompleta.clienteOS || osCompleta.cliente);
+                        document.getElementById('os-solicitante').value = osCompleta.solicitanteOS || '';
+                        document.getElementById('os-tipo').value = osCompleta.tipoAtendimentoOS || 'Interno';
+                        document.getElementById('os-data').value = osCompleta.dataAgendamentoOS || osCompleta.dataAgendamento || '';
+                        document.getElementById('os-tecnico').value = osCompleta.tecnicoOS || osCompleta.tecnico || '';
+                        document.getElementById('os-obs').value = osCompleta.observacoesOS || '';
 
-                            let eqs = osCompleta.equipamentosOS || osCompleta.equipamentos || [];
-                            if(eqs.length === 0 && osCompleta.maquina) {
-                                eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, etapa: '1. Abertura da OS'}];
-                            }
-                            
-                            if(eqs.length > 0) eqs.forEach(maq => window.adicionarEquipamentoNaOS(maq));
-                            else window.adicionarEquipamentoNaOS();
-
-                            if(osCompleta.orcamentosOS && osCompleta.orcamentosOS.length > 0) {
-                                document.getElementById('orcamentos-vazio')?.remove();
-                                osCompleta.orcamentosOS.forEach(orc => window.adicionarOrcamentoNaOS(orc));
-                            }
-                            
-                            window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
-                            window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os');
+                        let eqs = osCompleta.equipamentosOS || osCompleta.equipamentos || [];
+                        if(eqs.length === 0 && osCompleta.maquina) {
+                            eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, etapa: '1. Abertura da OS'}];
                         }
-                    });
-                }
+                        
+                        if(eqs.length > 0) eqs.forEach(maq => window.adicionarEquipamentoNaOS(maq));
+                        else window.adicionarEquipamentoNaOS();
+
+                        if(osCompleta.orcamentosOS && osCompleta.orcamentosOS.length > 0) {
+                            document.getElementById('container-orcamentos-os').innerHTML = '';
+                            osCompleta.orcamentosOS.forEach(orc => window.adicionarOrcamentoNaOS(orc));
+                        }
+
+                        window.atualizarAbaFormularios();
+                        
+                        window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
+                        window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os');
+                    }
+                });
             } else {
-                // MODO NOVA O.S.
+                // NOVA
                 document.getElementById('titulo-modal-os').innerText = 'Nova Ordem de Serviço';
                 document.getElementById('os-data').value = new Date().toISOString().split('T')[0];
                 window.adicionarEquipamentoNaOS(); 
@@ -535,9 +601,7 @@
 
         window.fecharModalOS = () => document.getElementById('modal-os').classList.add('hidden');
 
-        // =====================================
-        // LÓGICA DE DADOS DO CLIENTE
-        // =====================================
+        // CLIENTE
         window.preencherCardCliente = function(nome) {
             const cli = window.dbClientes.find(c => c.fantasia === nome || c.razao_social === nome);
             const card = document.getElementById('card-cliente-info');
@@ -545,11 +609,10 @@
             dlMaq.innerHTML = '';
 
             if (cli) {
-                document.getElementById('card-end-txt').innerText = cli.endereco ? `${cli.endereco}, ${cli.cidade || ''}` : 'Sem endereço cadastrado';
+                document.getElementById('card-end-txt').innerText = cli.endereco ? `${cli.endereco}, ${cli.cidade || ''}` : 'Endereço não cadastrado';
                 let telTxt = cli.telefone || '-';
                 if(cli.contatos && cli.contatos.length > 0) telTxt = cli.contatos[0].telefone || telTxt;
                 document.getElementById('card-tel-txt').innerText = telTxt;
-
                 card.classList.remove('hidden');
 
                 const maqsDoCli = window.parqueMaquinas.filter(m => m.cliente_atual === cli.fantasia || m.cliente_atual === cli.razao_social);
@@ -561,41 +624,36 @@
             }
         };
 
-        // =====================================
-        // LÓGICA DE EQUIPAMENTOS
-        // =====================================
+        // EQUIPAMENTOS (Design mais leve)
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
             
             const formsOptions = window.dbForms.map(f => `<option value="${f}">${f}</option>`).join('');
-            const etapasOptions = ETAPAS_SERVICO.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
+            const etapasOptions = ETAPAS_SERVICO.map(e => `<option value="${e.nome}">${e.nome}</option>`).join('');
 
             const cardHtml = `
-                <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative transition hover:border-blue-300">
-                    <div class="absolute -left-3 -top-3 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-lg border-2 border-white">${window.contadorEquips}</div>
-                    <button type="button" onclick="document.getElementById('equip-card-${window.contadorEquips}').remove(); window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash-can"></i></button>
+                <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
+                    <button type="button" onclick="document.getElementById('equip-card-${window.contadorEquips}').remove(); window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os'); window.atualizarAbaFormularios();" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-trash-can text-sm"></i></button>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-3">
-                        <div class="space-y-4">
-                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-print text-blue-500"></i> Equipamento / Modelo / SN *</label><input type="text" list="list-maquinas" class="inp-maquina w-full px-4 py-3 bg-slate-50 border border-slate-300 text-sm font-black text-slate-900 rounded-xl outline-none focus:border-blue-600 focus:bg-white transition shadow-inner" placeholder="Ex: [SN: 1234] Datador..." value="${dadosSalvos ? (dadosSalvos.maquina||'').replace(/"/g, '&quot;') : ''}"></div>
-                            <div><label class="block text-[11px] font-bold text-rose-600 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Defeito Relatado *</label><textarea rows="2" class="inp-defeito w-full bg-rose-50/50 border border-rose-200 text-sm text-slate-800 font-medium p-3 rounded-xl outline-none focus:border-rose-400 focus:bg-white resize-none shadow-sm" placeholder="O que o cliente informou?">${dadosSalvos ? (dadosSalvos.defeito||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
-                            <div><label class="block text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-wrench"></i> Serviço Realizado / Laudo</label><textarea rows="2" class="inp-servico w-full bg-emerald-50/50 border border-emerald-200 text-sm text-slate-800 font-medium p-3 rounded-xl outline-none focus:border-emerald-400 focus:bg-white resize-none shadow-sm" placeholder="O que o técnico fez?">${dadosSalvos ? (dadosSalvos.servico||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Início (Técnico)</label><input type="time" class="inp-hora-inicio w-full bg-white border border-slate-300 text-sm font-bold text-slate-700 p-2.5 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
-                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-flag-checkered"></i> Fim (Técnico)</label><input type="time" class="inp-hora-fim w-full bg-white border border-slate-300 text-sm font-bold text-slate-700 p-2.5 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div class="space-y-3">
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Máquina / SN *</label><input type="text" list="list-maquinas" class="inp-maquina input-delicate" placeholder="Modelo ou Série..." value="${dadosSalvos ? (dadosSalvos.maquina||'').replace(/"/g, '&quot;') : ''}"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Defeito *</label><textarea rows="2" class="inp-defeito input-delicate resize-none" placeholder="Relato do cliente...">${dadosSalvos ? (dadosSalvos.defeito||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Serviço / Laudo</label><textarea rows="2" class="inp-servico input-delicate resize-none" placeholder="Laudo do técnico...">${dadosSalvos ? (dadosSalvos.servico||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
                         </div>
-                        <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-center shadow-inner relative overflow-hidden">
-                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
-                            <div class="relative z-10">
-                                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2"><i class="fa-solid fa-clipboard-list text-blue-600 text-base align-middle mr-1"></i> Formulário Obrigatório</label>
-                                <select class="inp-formulario w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3.5 rounded-xl cursor-pointer shadow-sm focus:outline-none focus:border-blue-600 transition"><option value="">Nenhum formulário exigido</option>${formsOptions}</select>
+                        <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col justify-center">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Início</label><input type="time" class="inp-hora-inicio input-delicate" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fim</label><input type="time" class="inp-hora-fim input-delicate" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
                             </div>
-                            <div class="mt-6 pt-6 border-t border-slate-200 relative z-10">
-                                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-amber-500 text-base align-middle mr-1"></i> Etapa Técnica do Equipamento</label>
-                                <select onchange="window.mudarCorEtapa(this)" class="inp-etapa etapa-color w-full border text-sm font-black p-3.5 rounded-xl cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${ETAPAS_SERVICO[0].cor}">${etapasOptions}</select>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Check-list / Formulário</label>
+                                <select class="inp-formulario input-delicate cursor-pointer" onchange="window.atualizarAbaFormularios()"><option value="">Nenhum formulário</option>${formsOptions}</select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Etapa Atual</label>
+                                <select class="inp-etapa input-delicate cursor-pointer font-semibold text-blue-700">${etapasOptions}</select>
                             </div>
                             <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas).replace(/'/g, "&#39;") : "[]"}'>
                         </div>
@@ -606,25 +664,57 @@
             if (dadosSalvos) {
                 const cardNode = document.getElementById(`equip-card-${window.contadorEquips}`);
                 cardNode.querySelector('.inp-formulario').value = dadosSalvos.formulario || '';
-                const selectEtapa = cardNode.querySelector('.inp-etapa');
-                selectEtapa.value = dadosSalvos.etapa || ETAPAS_SERVICO[0].nome;
-                window.mudarCorEtapa(selectEtapa); 
+                cardNode.querySelector('.inp-etapa').value = dadosSalvos.etapa || ETAPAS_SERVICO[0].nome;
             }
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
+            window.atualizarAbaFormularios();
         };
 
-        window.mudarCorEtapa = function(s) { const cor = s.options[s.selectedIndex].getAttribute('data-cor'); s.className = `inp-etapa etapa-color w-full border text-sm font-black p-3.5 rounded-xl cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${cor}`; };
+        // ABA 4: FORMULÁRIOS (Atualizada Dinamicamente)
+        window.atualizarAbaFormularios = function() {
+            const container = document.getElementById('container-formularios-os');
+            const selectsForms = document.querySelectorAll('.inp-formulario');
+            const selectMaquinas = document.querySelectorAll('.inp-maquina');
+            
+            let html = '';
+            let count = 0;
 
-        // =====================================
-        // LÓGICA DE ORÇAMENTOS E CUSTOS
-        // =====================================
+            selectsForms.forEach((sel, i) => {
+                const formNome = sel.value;
+                const maqNome = selectMaquinas[i] ? selectMaquinas[i].value : 'Máquina Indefinida';
+                
+                if(formNome) {
+                    count++;
+                    html += `
+                    <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
+                        <div>
+                            <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pendente</span>
+                            <h5 class="text-sm font-semibold text-slate-800 mt-1">${formNome}</h5>
+                            <p class="text-[10px] text-slate-500"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome || 'S/M'}</p>
+                        </div>
+                        <button type="button" onclick="alert('Integração com o FormCraft Sandbox em breve!')" class="bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white px-3 py-1.5 rounded-md text-xs font-semibold transition border border-purple-200 cursor-pointer">
+                            Preencher Laudo
+                        </button>
+                    </div>`;
+                }
+            });
+
+            if(count === 0) {
+                container.innerHTML = '<div class="text-center py-6 border border-dashed border-slate-300 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum formulário exigido para as máquinas atuais.</p></div>';
+            } else {
+                container.innerHTML = html;
+            }
+            document.getElementById('badge-form-count').innerText = count;
+        };
+
+        // ORÇAMENTOS (Delicado)
         window.adicionarOrcamentoNaOS = function(dadosSalvos = null) {
             window.contadorOrcs++;
-            if (document.getElementById('orcamentos-vazio')) document.getElementById('orcamentos-vazio').remove();
+            document.getElementById('container-orcamentos-os').innerHTML = document.getElementById('container-orcamentos-os').innerHTML.replace(/<div class="text-center py-6 border border-dashed.*/, '');
             
             const container = document.getElementById('container-orcamentos-os');
             const maqValues = Array.from(document.querySelectorAll('.inp-maquina')).map(inp => inp.value).filter(val => val !== '');
-            let opcoesAlvo = '<option value="Geral da OS">Orçamento Geral da O.S.</option>';
+            let opcoesAlvo = '<option value="Geral da OS">Geral da O.S.</option>';
             maqValues.forEach(maq => { opcoesAlvo += `<option value="${maq.replace(/"/g, '&quot;')}">${maq}</option>`; });
 
             let itensHtml = '';
@@ -636,54 +726,47 @@
             const sDeslQtd = dadosSalvos ? (dadosSalvos.desl_qtd || 1) : 1; const sDeslUnit = dadosSalvos ? (dadosSalvos.desl_unit || '') : '';
 
             const cardHtml = `
-                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border-2 border-emerald-300 rounded-3xl p-6 shadow-md relative mb-6">
-                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash-can"></i></button>
+                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border border-emerald-200 rounded-xl p-4 relative mb-4">
+                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
                     
-                    <div class="mb-5 pr-12">
-                        <label class="block text-[11px] font-black text-emerald-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-bullseye"></i> Máquina Vinculada (Alvo)</label>
-                        <select class="inp-orc-alvo w-full md:w-1/2 bg-emerald-50 border border-emerald-300 text-sm font-black p-3 rounded-xl text-emerald-900 shadow-sm focus:outline-none focus:border-emerald-600 cursor-pointer">${opcoesAlvo}</select>
+                    <div class="mb-3 w-1/2 pr-8">
+                        <label class="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1">Máquina Alvo</label>
+                        <select class="inp-orc-alvo input-delicate border-emerald-200 bg-emerald-50/30 text-emerald-900">${opcoesAlvo}</select>
                     </div>
                     
-                    <div class="border border-slate-200 rounded-2xl overflow-hidden mb-5 shadow-sm">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 font-black uppercase text-[10px] tracking-wider">
-                                <tr><th class="p-3 w-1/2">Produto / Peça Trocada</th><th class="p-3 w-20 text-center">Qtd</th><th class="p-3 w-32 text-right">Val. Unitário</th><th class="p-3 w-32 text-right">Subtotal</th><th class="p-3 w-12 text-center"><i class="fa-solid fa-gear"></i></th></tr>
+                    <div class="border border-slate-200 rounded-lg overflow-hidden mb-3">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-[10px]">
+                                <tr><th class="p-2 w-1/2">Peça/Serviço</th><th class="p-2 text-center w-16">Qtd</th><th class="p-2 text-right w-24">Unitário</th><th class="p-2 text-right w-24">Subtotal</th><th class="p-2 text-center w-8"></th></tr>
                             </thead>
-                            <tbody id="tbody-itens-orc-${window.contadorOrcs}" class="divide-y divide-slate-100 bg-white">${itensHtml}</tbody>
+                            <tbody id="tbody-itens-orc-${window.contadorOrcs}" class="divide-y divide-slate-100">${itensHtml}</tbody>
                         </table>
-                        <div class="bg-slate-50 p-3 flex justify-between items-center border-t border-slate-200">
-                            <button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition cursor-pointer shadow-sm"><i class="fa-solid fa-plus mr-1"></i> Add Peça</button>
-                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Subtotal Peças: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-900 text-sm ml-2 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-inner">R$ 0,00</span></span>
+                        <div class="bg-slate-50 p-2 flex justify-between items-center border-t border-slate-200">
+                            <button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-[10px] font-semibold text-blue-600 hover:text-blue-800 transition"><i class="fa-solid fa-plus mr-1"></i> Add Linha</button>
+                            <span class="text-[10px] text-slate-500 font-bold">Sub Peças: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-800">R$ 0,00</span></span>
                         </div>
                     </div>
                     
-                    <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner">
-                        <h5 class="text-[11px] font-black uppercase text-slate-500 border-b border-slate-200 pb-2"><i class="fa-solid fa-toolbox mr-1"></i> Serviços e Deslocamento</h5>
-                        
-                        <div class="grid grid-cols-12 gap-3 items-center">
-                            <div class="col-span-12 sm:col-span-5"><label class="block text-xs font-bold text-slate-700">Mão de Obra Técnica</label></div>
-                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Horas</span><input type="number" step="0.5" class="inp-orc-mo-qtd w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-center p-2.5 pl-10 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sMoQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
-                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">R$/h</span><input type="number" step="0.01" class="inp-orc-mo-unit w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-right p-2.5 pl-10 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sMoUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
-                            <div class="col-span-12 sm:col-span-3 text-right font-black text-slate-900 text-sm bg-white border border-slate-200 p-2.5 rounded-xl shadow-inner" id="sub-mo-${window.contadorOrcs}">R$ 0,00</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase w-20">Mão de Obra</label>
+                            <input type="number" step="0.5" class="inp-orc-mo-qtd input-delicate w-16 text-center" placeholder="h" value="${sMoQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})">
+                            <input type="number" step="0.01" class="inp-orc-mo-unit input-delicate w-20 text-right" placeholder="R$/h" value="${sMoUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})">
+                            <span class="text-xs font-bold text-slate-700 w-20 text-right" id="sub-mo-${window.contadorOrcs}">R$ 0,00</span>
                         </div>
-
-                        <div class="grid grid-cols-12 gap-3 items-center">
-                            <div class="col-span-12 sm:col-span-5"><label class="block text-xs font-bold text-slate-700">Taxa de Deslocamento</label></div>
-                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Km</span><input type="number" step="1" class="inp-orc-desl-qtd w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-center p-2.5 pl-8 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sDeslQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
-                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">R$/Km</span><input type="number" step="0.01" class="inp-orc-desl-unit w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-right p-2.5 pl-12 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sDeslUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
-                            <div class="col-span-12 sm:col-span-3 text-right font-black text-slate-900 text-sm bg-white border border-slate-200 p-2.5 rounded-xl shadow-inner" id="sub-desl-${window.contadorOrcs}">R$ 0,00</div>
-                        </div>
-
-                        <div class="mt-4 pt-3 border-t border-slate-200">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Observações Visíveis no Orçamento</label>
-                            <input type="text" class="inp-orc-obs w-full bg-white border border-slate-300 text-sm font-medium p-3 rounded-xl outline-none focus:border-emerald-500 shadow-sm" placeholder="Ex: Pagamento faturado em 28 dias..." value="${dadosSalvos ? (dadosSalvos.obs||'').replace(/"/g, '&quot;') : ''}">
+                        <div class="flex items-center gap-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase w-20">Desloc.</label>
+                            <input type="number" step="1" class="inp-orc-desl-qtd input-delicate w-16 text-center" placeholder="km" value="${sDeslQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})">
+                            <input type="number" step="0.01" class="inp-orc-desl-unit input-delicate w-20 text-right" placeholder="R$/km" value="${sDeslUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})">
+                            <span class="text-xs font-bold text-slate-700 w-20 text-right" id="sub-desl-${window.contadorOrcs}">R$ 0,00</span>
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-5 border-t border-emerald-200 flex justify-end">
-                        <div class="bg-emerald-100 border-2 border-emerald-400 px-6 py-3 rounded-2xl flex items-center shadow-md">
-                            <span class="text-xs font-black text-emerald-900 uppercase tracking-widest mr-4">Total Deste Orçamento:</span>
-                            <span id="total-card-${window.contadorOrcs}" class="text-2xl font-black text-emerald-700">R$ 0,00</span>
+                    <div class="mt-3 flex justify-between items-center pt-3 border-t border-emerald-100">
+                        <input type="text" class="inp-orc-obs input-delicate w-2/3" placeholder="Observações..." value="${dadosSalvos ? (dadosSalvos.obs||'').replace(/"/g, '&quot;') : ''}">
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-emerald-800 uppercase mr-2">Total Item:</span>
+                            <span id="total-card-${window.contadorOrcs}" class="text-base font-black text-emerald-600">R$ 0,00</span>
                         </div>
                     </div>
                 </div>
@@ -694,7 +777,7 @@
         };
 
         window.gerarLinhaItemOrcamento = function(id, d, q, u) { 
-            return `<tr class="item-produto"><td class="p-2.5"><input type="text" class="inp-item-desc w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none shadow-sm" placeholder="Ex: Filtro Principal Inkjet" value="${(d||'').replace(/"/g, '&quot;')}"></td><td class="p-2.5"><input type="number" class="inp-item-qtd w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none text-center shadow-sm" value="${q}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-2.5"><input type="number" class="inp-item-unit w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none text-right shadow-sm" value="${u}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-2.5 text-right font-black text-emerald-700 item-subtotal text-sm align-middle">R$ 0,00</td><td class="p-2.5 text-center align-middle"><button type="button" onclick="this.closest('tr').remove(); window.calcularTotaisCard(${id});" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600 transition flex items-center justify-center cursor-pointer shadow-sm mx-auto"><i class="fa-solid fa-xmark"></i></button></td></tr>`; 
+            return `<tr class="item-produto"><td class="p-1"><input type="text" class="inp-item-desc input-delicate border-transparent focus:border-slate-300 shadow-none" placeholder="Descrição..." value="${(d||'').replace(/"/g, '&quot;')}"></td><td class="p-1"><input type="number" class="inp-item-qtd input-delicate text-center border-transparent focus:border-slate-300 shadow-none" value="${q}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-1"><input type="number" class="inp-item-unit input-delicate text-right border-transparent focus:border-slate-300 shadow-none" value="${u}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-1 text-right font-medium text-slate-600 item-subtotal text-[11px] align-middle">R$ 0,00</td><td class="p-1 text-center align-middle"><button type="button" onclick="this.closest('tr').remove(); window.calcularTotaisCard(${id});" class="text-slate-300 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button></td></tr>`; 
         };
 
         window.addProdutoOrcamento = function(id) { document.getElementById(`tbody-itens-orc-${id}`).insertAdjacentHTML('beforeend', window.gerarLinhaItemOrcamento(id, '', 1, 0)); window.calcularTotaisCard(id); };
@@ -710,166 +793,91 @@
         };
 
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
-        window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
+        window.atualizarContadorBadge = function(idB, idC) { const val = document.getElementById(idC).querySelectorAll(`.${idC === 'container-equipamentos-os' ? 'equip-card' : 'orc-card'}`).length; document.getElementById(idB).innerText = val; };
 
         // =====================================
-        // SALVAMENTO DA OS NO FIREBASE
+        // SALVAMENTO DA OS E INTEGRAÇÃO (AGENDA)
         // =====================================
         window.salvarOS = async function() {
             const cliente = document.getElementById('os-cliente').value.trim();
-            if (!cliente) { window.mostrarNotificacao("Preencha o Cliente Oficial!", 'warning'); window.mudarAbaOS('aba1'); return; }
+            if (!cliente) { window.mostrarNotificacao("Preencha o Cliente!", 'warning'); window.mudarAbaOS('aba1'); return; }
 
             const equipCards = document.querySelectorAll('.equip-card');
-            if (equipCards.length === 0) { window.mostrarNotificacao("Adicione pelo menos um equipamento/máquina!", 'warning'); window.mudarAbaOS('aba2'); return; }
+            if (equipCards.length === 0) { window.mostrarNotificacao("Adicione uma máquina!", 'warning'); window.mudarAbaOS('aba2'); return; }
 
-            let maqOk = true;
             const arrayEquips = [];
-            
             equipCards.forEach(c => {
-                const mq = c.querySelector('.inp-maquina').value.trim(); const df = c.querySelector('.inp-defeito').value.trim();
-                if(!mq || !df) maqOk = false;
-                
                 arrayEquips.push({
-                    maquina: mq, defeito: df, servico: c.querySelector('.inp-servico').value, horaInicio: c.querySelector('.inp-hora-inicio').value, horaFim: c.querySelector('.inp-hora-fim').value,
-                    formulario: c.querySelector('.inp-formulario').value, etapa: c.querySelector('.inp-etapa').value, pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
+                    maquina: c.querySelector('.inp-maquina').value.trim() || 'S/N', defeito: c.querySelector('.inp-defeito').value.trim() || 'S/D', servico: c.querySelector('.inp-servico').value, horaInicio: c.querySelector('.inp-hora-inicio').value, horaFim: c.querySelector('.inp-hora-fim').value, formulario: c.querySelector('.inp-formulario').value, etapa: c.querySelector('.inp-etapa').value, pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
                 });
             });
-
-            if(!maqOk) { window.mostrarNotificacao("A Máquina e o Defeito são obrigatórios!", 'warning'); window.mudarAbaOS('aba2'); return; }
 
             const arrayOrcs = [];
             document.querySelectorAll('.orc-card').forEach(c => {
                 const itens = [];
                 c.querySelectorAll('.item-produto').forEach(r => { const d = r.querySelector('.inp-item-desc').value.trim(); if(d) itens.push({desc: d, qtd: parseFloat(r.querySelector('.inp-item-qtd').value)||0, unit: parseFloat(r.querySelector('.inp-item-unit').value)||0}); });
                 arrayOrcs.push({
-                    alvo: c.querySelector('.inp-orc-alvo').value, itens: itens,
-                    mo_qtd: parseFloat(c.querySelector('.inp-orc-mo-qtd').value)||0, mo_unit: parseFloat(c.querySelector('.inp-orc-mo-unit').value)||0,
-                    desl_qtd: parseFloat(c.querySelector('.inp-orc-desl-qtd').value)||0, desl_unit: parseFloat(c.querySelector('.inp-orc-desl-unit').value)||0,
-                    obs: c.querySelector('.inp-orc-obs').value.trim(), total: parseFloat(c.getAttribute('data-total'))||0
+                    alvo: c.querySelector('.inp-orc-alvo').value, itens: itens, mo_qtd: parseFloat(c.querySelector('.inp-orc-mo-qtd').value)||0, mo_unit: parseFloat(c.querySelector('.inp-orc-mo-unit').value)||0, desl_qtd: parseFloat(c.querySelector('.inp-orc-desl-qtd').value)||0, desl_unit: parseFloat(c.querySelector('.inp-orc-desl-unit').value)||0, obs: c.querySelector('.inp-orc-obs').value.trim(), total: parseFloat(c.getAttribute('data-total'))||0
                 });
             });
 
             const idOculto = document.getElementById('os-id-oculto').value;
+            const dataAgendada = document.getElementById('os-data').value;
             const tecnicoDesignado = document.getElementById('os-tecnico').value;
             
-            // DERIVAR STATUS BASEADO NA ETAPA MAIS BAIXA
+            // Define o status do Kanban base da OS
             let lowestStageNum = 10;
-            arrayEquips.forEach(m => {
-                const numMatch = m.etapa.match(/^(\d+)/);
-                if(numMatch && parseInt(numMatch[1]) < lowestStageNum) { lowestStageNum = parseInt(numMatch[1]); }
-            });
-
+            arrayEquips.forEach(m => { const numMatch = m.etapa.match(/^(\d+)/); if(numMatch && parseInt(numMatch[1]) < lowestStageNum) { lowestStageNum = parseInt(numMatch[1]); } });
             let targetStatus = 'ENTRADA';
             if (lowestStageNum >= 3 && lowestStageNum <= 5) targetStatus = 'DIAGNOSTICO';
             if (lowestStageNum >= 6 && lowestStageNum <= 7) targetStatus = 'EXECUCAO';
             if (lowestStageNum >= 8) targetStatus = 'CONCLUIDO';
 
             const payload = {
-                clienteOS: cliente, cliente: cliente, 
-                solicitanteOS: document.getElementById('os-solicitante').value.trim(), 
-                tipoAtendimentoOS: document.getElementById('os-tipo').value, 
-                dataAgendamentoOS: document.getElementById('os-data').value, 
-                tecnicoOS: tecnicoDesignado, tecnico_kanban: tecnicoDesignado, tecnico: tecnicoDesignado, 
-                observacoesOS: document.getElementById('os-obs').value.trim(),
-                equipamentosOS: arrayEquips, equipamentos: arrayEquips,
-                orcamentosOS: arrayOrcs, orcamentos: arrayOrcs,
-                status: targetStatus
+                clienteOS: cliente, cliente: cliente, solicitanteOS: document.getElementById('os-solicitante').value.trim(), tipoAtendimentoOS: document.getElementById('os-tipo').value, dataAgendamentoOS: dataAgendada, tecnicoOS: tecnicoDesignado, tecnico_kanban: tecnicoDesignado, tecnico: tecnicoDesignado, observacoesOS: document.getElementById('os-obs').value.trim(), equipamentosOS: arrayEquips, equipamentos: arrayEquips, orcamentosOS: arrayOrcs, orcamentos: arrayOrcs, status: targetStatus
             };
 
             try {
+                let osFinalId = idOculto;
                 if (idOculto) {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', idOculto), payload, {merge: true});
                 } else {
                     const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
-                    const osIdSalva = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
+                    osFinalId = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
                         const cDoc = await transaction.get(counterRef);
                         let cur = cDoc.exists() ? cDoc.data().current : 1000;
                         transaction.set(counterRef, { current: cur + 1 }, { merge: true });
                         return `OS-${new Date().getFullYear()}-${cur + 1}`;
                     });
-                    payload.osr = osIdSalva;
-                    payload.timestamp = Date.now();
-                    
-                    // Legacy Support
-                    payload.maquina = arrayEquips[0].maquina; payload.defeito = arrayEquips[0].defeito; 
-                    payload.urgencia = 'NORMAL'; 
-                    
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osIdSalva), payload);
+                    payload.osr = osFinalId; payload.timestamp = Date.now();
+                    payload.maquina = arrayEquips[0].maquina; payload.defeito = arrayEquips[0].defeito; payload.urgencia = 'NORMAL'; 
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
                 }
 
-                window.fecharModalOS(); window.mostrarNotificacao('Ordem de Serviço salva com sucesso!', 'success');
-            } catch(e) { window.mostrarNotificacao('Erro fatal ao salvar a OS no servidor.', 'error'); }
+                // INTEGRAÇÃO MÁGICA: AGENDA (HOME)
+                if (dataAgendada && tecnicoDesignado) {
+                    // Verifica se já existe um agendamento para essa OS (Se for edição)
+                    const agendaRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2');
+                    window.fsGetDocs(agendaRef).then(snap => {
+                        let exists = false;
+                        snap.forEach(d => { if(d.data().osNumber === osFinalId) exists = true; });
+                        
+                        if (!exists) {
+                            const userObj = window.usersList.find(u => u.nome === tecnicoDesignado);
+                            const tId = 't_' + Date.now();
+                            window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', tId), {
+                                id: tId, osNumber: osFinalId, client: cliente, title: cliente, type: 'TECHNICAL', location: document.getElementById('card-end-txt').innerText || '-', techIds: userObj ? [userObj.id || tecnicoDesignado] : [tecnicoDesignado], techId: userObj ? (userObj.id || tecnicoDesignado) : tecnicoDesignado, urgency: 'MEDIUM', scheduledDate: dataAgendada, dueDate: dataAgendada, status: 'PENDING', description: `Gerado automaticamente via Módulo Gestão de O.S.\n${document.getElementById('os-obs').value.trim()}`
+                            });
+                        }
+                    });
+                }
+
+                window.fecharModalOS(); window.mostrarNotificacao('O.S. salva com sucesso!', 'success');
+            } catch(e) { window.mostrarNotificacao('Erro ao salvar.', 'error'); }
         };
 
-        // =====================================
-        // RELATÓRIOS E PDF
-        // =====================================
-        window.imprimirOS = function() {
-            const osID = document.getElementById('os-id-oculto').value || 'OS-NOVA';
-            const cliente = document.getElementById('os-cliente').value || 'Não Informado';
-            const dt = document.getElementById('os-data').value ? document.getElementById('os-data').value.split('-').reverse().join('/') : '-';
-            const tec = document.getElementById('os-tecnico').value || 'A definir';
-            const endereco = document.getElementById('card-end-txt').innerText || '-';
-            
-            let maquinasStr = '';
-            document.querySelectorAll('.equip-card').forEach(card => {
-                const m = card.querySelector('.inp-maquina').value;
-                const d = card.querySelector('.inp-defeito').value;
-                const s = card.querySelector('.inp-servico').value;
-                if(m) maquinasStr += `<div style="margin-bottom: 10px;"><strong>Equipamento:</strong> ${m}<br><strong>Defeito:</strong> ${d}<br><strong>Serviço:</strong> ${s || 'Pendente'}</div>`;
-            });
-
-            let orcamentosStr = ''; let totalGlobal = 0;
-            document.querySelectorAll('.orc-card').forEach(card => {
-                const alvo = card.querySelector('.inp-orc-alvo').value;
-                const totCard = parseFloat(card.getAttribute('data-total'))||0; totalGlobal += totCard;
-                orcamentosStr += `<div style="margin-bottom: 10px; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px;"><strong>Alvo:</strong> ${alvo}<br><strong>Total deste item:</strong> ${window.formatarMoeda(totCard)}</div>`;
-            });
-
-            const pArea = document.getElementById('print-area');
-            pArea.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #1e3a8a; padding-bottom:10px; margin-bottom:15px;">
-                    <div><h1 style="color:#1e3a8a; margin:0; font-size:24px; font-weight:900;">GRUPO CIJ</h1><p style="margin:0; font-size:10px; color:#64748b;">Soluções em Codificação Industrial</p></div>
-                    <div style="text-align:right;"><h2 style="margin:0; font-size:18px; color:#333;">ORDEM DE SERVIÇO / ORÇAMENTO</h2><h3 style="margin:0; color:#dc2626;">${osID}</h3></div>
-                </div>
-                <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse:collapse;">
-                    <tr><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Cliente:</td><td style="padding:4px; border:1px solid #e2e8f0;">${cliente}</td><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Data:</td><td style="padding:4px; border:1px solid #e2e8f0;">${dt}</td></tr>
-                    <tr><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Endereço:</td><td style="padding:4px; border:1px solid #e2e8f0;">${endereco}</td><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Técnico:</td><td style="padding:4px; border:1px solid #e2e8f0;">${tec}</td></tr>
-                </table>
-                <h3 style="background:#1e3a8a; color:white; padding:5px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">Equipamentos e Serviços</h3>
-                <div style="font-size:11px; margin-bottom:20px;">${maquinasStr || '<p>Nenhum equipamento listado.</p>'}</div>
-                <h3 style="background:#1e3a8a; color:white; padding:5px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">Proposta Financeira</h3>
-                <div>${orcamentosStr || '<p>Sem orçamento lançado.</p>'}</div>
-                <div style="margin-top:20px; text-align:right; font-size:18px; border-top:2px solid #1e3a8a; padding-top:10px;"><strong>VALOR TOTAL DA O.S: <span style="color:#047857;">${window.formatarMoeda(totalGlobal)}</span></strong></div>
-            `;
-            window.print();
-        };
-
-        window.enviarWhatsAppOS = function() {
-            const osID = document.getElementById('os-id-oculto').value || 'OS-NOVA';
-            const cliente = document.getElementById('os-cliente').value || 'Não Informado';
-            const dt = document.getElementById('os-data').value ? document.getElementById('os-data').value.split('-').reverse().join('/') : '-';
-            const tec = document.getElementById('os-tecnico').value || 'A definir';
-            
-            let totalGlobal = 0;
-            document.querySelectorAll('.orc-card').forEach(card => { totalGlobal += parseFloat(card.getAttribute('data-total'))||0; });
-
-            let texto = `*Ordem de Serviço: ${osID}* 📄\n*Cliente:* ${cliente}\n*Data:* ${dt} | *Técnico:* ${tec}\n\n`;
-            if(totalGlobal > 0) { texto += `*RESUMO DO ORÇAMENTO:*\n💳 *Valor Total:* ${window.formatarMoeda(totalGlobal)}\n\n`; } 
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
-        };
-
+        // PDF SIMPLES
+        window.imprimirOS = function() { window.print(); };
     </script>
 </body>
 </html>
-```
-
-### O que acontece neste arquivo:
-* Ele tem um container principal limpo, com KPI no topo.
-* Uma tabela de leitura maravilhosa para OS.
-* O mesmo modal da OS das tentativas anteriores, mas com as travas perfeitas.
-* Toda a conexão com o Firebase está encapsulada dentro dele, sem depender do ServiceFlow.
-
-Isso significa que você tem a robustez de um módulo de OS que não esbarra no Kanban! Fica limpo e profissional.
-
-Testa essa tela sozinha para a gente confirmar que ela roda perfeitamente as O.S. sem sumir ou esmagar o modal. Depois, se você realmente quiser uma visão do Kanban dentro DELA, nós podemos adicionar um botão para trocar a visualização no futuro. Mas a tabela garantirá a sua operação!
