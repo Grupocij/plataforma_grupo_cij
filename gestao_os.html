@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-50">
+<html lang="pt-BR" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,24 +11,21 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
         
-        /* Estilo sutil para as abas */
-        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
-        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 500; }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 700; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; }
 
-        /* Estilos Drag and Drop do Kanban */
-        .kanban-col.drag-over { background-color: #f1f5f9 !important; border-color: #3b82f6 !important; border-style: dashed; }
-        .dragging { opacity: 0.5; transform: scale(0.98); }
+        .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; border-style: dashed; }
+        .dragging { opacity: 0.4; transform: scale(0.95); }
 
-        /* Inputs mais finos e delicados */
         .input-delicate {
             width: 100%; padding: 0.5rem 0.75rem; font-size: 0.75rem; line-height: 1rem;
             color: #334155; background-color: #ffffff; border: 1px solid #cbd5e1; 
-            border-radius: 0.5rem; outline: none; transition: all 0.2s;
+            border-radius: 0.5rem; outline: none; transition: all 0.2s; font-weight: 500;
         }
         .input-delicate:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
@@ -43,7 +40,7 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
+<body class="h-full flex flex-col text-slate-800 antialiased bg-slate-100">
 
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
@@ -55,56 +52,64 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 w-full max-w-[1400px] mx-auto flex flex-col p-4 md:p-6 relative gap-4 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
+    <!-- MAIN CONTENT - FULL WIDTH -->
+    <main class="flex-1 w-full flex flex-col relative overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
+        <div class="bg-white px-4 md:px-6 py-4 shadow-sm border-b border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 z-20">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100">
+                <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
                     <i class="fa-solid fa-file-invoice"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-none">Gestão de Ordens de Serviço</h1>
-                    <p class="text-slate-500 text-[11px] mt-1">Painel central de O.S, Kanban de fluxo e faturamento.</p>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg md:text-xl font-black text-slate-900 tracking-tight leading-none">Gestão de Ordens de Serviço</h1>
+                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">V2</span>
+                    </div>
+                    <p class="text-slate-500 text-xs mt-1 font-medium">Painel central de O.S, Kanban de fluxo e faturamento.</p>
                 </div>
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <!-- Botões de Configuração e Automação -->
-                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer" title="Configurar Alertas Automáticos (Sininho)">
-                    <i class="fa-regular fa-bell text-lg"></i>
+                <button onclick="window.abrirModalConfigAlertas()" class="p-2.5 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Configurar Notificações (Sininho)">
+                    <i class="fa-solid fa-bell text-lg"></i>
                 </button>
-                <button onclick="window.abrirModalAutomacao()" class="p-2 text-slate-400 hover:text-blue-600 transition cursor-pointer" title="Configurar Automação Kanban (Robô)">
+                <button onclick="window.abrirModalAutomacao()" class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition cursor-pointer" title="Automação Kanban (Robô)">
                     <i class="fa-solid fa-robot text-lg"></i>
                 </button>
 
-                <div class="w-px h-6 bg-slate-200 mx-1"></div>
+                <div class="w-px h-8 bg-slate-200 mx-1"></div>
 
-                <!-- Botões de View (Lista / Kanban) -->
                 <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                    <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer">
-                        <i class="fa-solid fa-columns"></i> Kanban
+                    <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-4 py-2 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm transition">
+                        <i class="fa-solid fa-columns mr-1"></i> Kanban
                     </button>
-                    <button onclick="window.mudarVisao('lista')" id="btn-visao-lista" class="px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer">
-                        <i class="fa-solid fa-list-check"></i> Lista
+                    <button onclick="window.mudarVisao('lista')" id="btn-visao-lista" class="px-4 py-2 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition">
+                        <i class="fa-solid fa-list-check mr-1"></i> Lista
                     </button>
                 </div>
                 
-                <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2 cursor-pointer">
+                <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-5 py-2.5 rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2 cursor-pointer ml-1">
                     <i class="fa-solid fa-plus"></i> Nova O.S.
                 </button>
             </div>
         </div>
 
-        <!-- BARRA DE PESQUISA / FILTROS -->
-        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-3 shrink-0">
-            <div class="relative flex-1 w-full">
+        <!-- BARRA DE PESQUISA / FILTROS FULL WIDTH -->
+        <div class="bg-white px-4 md:px-6 py-3 border-b border-slate-200 flex flex-col md:flex-row items-center gap-3 shrink-0 z-10">
+            <div class="relative flex-1 w-full max-w-2xl">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="filtro-busca" onkeyup="window.renderizarVisoes()" placeholder="Buscar por OS, Cliente, Técnico ou Máquina..." class="input-delicate pl-8">
+                <input type="text" id="filtro-busca" onkeyup="window.renderizarVisoes()" placeholder="Buscar rápida por OS, Cliente, Técnico ou Máquina..." class="w-full pl-9 pr-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-xs font-medium outline-none focus:bg-white focus:border-blue-400 transition-all">
             </div>
-            <div class="w-full md:w-64">
-                <select id="filtro-status" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700 font-bold">
+            
+            <div class="flex gap-3 w-full md:w-auto">
+                <select id="filtro-tipo" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700 font-bold bg-slate-50 w-full md:w-40 py-2">
+                    <option value="ALL">Todas (OS e OSR)</option>
+                    <option value="OS">Apenas O.S. (Campo)</option>
+                    <option value="OSR">Apenas OSR (Remoto)</option>
+                </select>
+
+                <select id="filtro-status" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700 font-bold bg-slate-50 w-full md:w-48 py-2">
                     <option value="ALL">Todos os Status</option>
                     <option value="ABERTURA">Abertura OS</option>
                     <option value="DIAGNOSTICO">Diagnóstico</option>
@@ -118,31 +123,27 @@
 
         <!-- CONTEÚDO PRINCIPAL -->
         
-        <!-- VISÃO: LISTA (TABELA) -->
-        <div id="visao-lista" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[300px] hidden">
+        <div id="visao-lista" class="bg-white m-4 md:m-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[300px] hidden">
             <div class="flex-1 overflow-auto custom-scrollbar">
                 <table class="w-full text-left text-xs min-w-[900px]">
-                    <thead class="bg-slate-50 text-slate-500 uppercase font-semibold sticky top-0 z-10 border-b border-slate-200 text-[10px]">
+                    <thead class="bg-slate-50 text-slate-500 uppercase font-black sticky top-0 z-10 border-b border-slate-200 text-[10px]">
                         <tr>
-                            <th class="p-3">Nº O.S. / Data</th>
-                            <th class="p-3">Cliente Solicitante</th>
-                            <th class="p-3">Técnico Designado</th>
-                            <th class="p-3 text-center">Etapa Atual</th>
+                            <th class="p-3">Nº / Data</th>
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">Técnico</th>
+                            <th class="p-3 text-center">Etapa / Status</th>
                             <th class="p-3 text-right">Orçamento (R$)</th>
-                            <th class="p-3 text-center">Coluna Kanban</th>
                             <th class="p-3 text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-os-body" class="divide-y divide-slate-100 font-medium text-slate-700">
-                        <!-- Renderizado via JS -->
-                    </tbody>
+                    <tbody id="tabela-os-body" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- VISÃO: KANBAN TELA CHEIA -->
-        <div id="visao-kanban" class="flex-1 min-h-0 w-full overflow-x-auto pb-2">
-            <div id="kanban-board" class="flex gap-3 h-full w-full min-w-max md:min-w-full">
+        <!-- VISÃO: KANBAN -->
+        <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-4 md:p-6 w-full">
+            <div id="kanban-board" class="flex gap-4 h-full w-max min-w-full pb-2">
                 <!-- Colunas Geradas via JS -->
             </div>
         </div>
@@ -150,77 +151,79 @@
     </main>
 
     <!-- ========================================== -->
-    <!-- MODAL DE O.S. (GIGANTE, FIXO E DELICADO) -->
+    <!-- MODAL DE O.S. (REFINADO, MENOR E DELICADO) -->
     <!-- ========================================== -->
-    <div id="modal-os" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden">
+    <div id="modal-os" class="fixed inset-0 z-[9999] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden">
         
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[95vh] flex flex-col overflow-hidden relative border border-slate-200">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[95vh] flex flex-col overflow-hidden relative border border-slate-200">
             
-            <div class="bg-white px-5 py-4 flex justify-between items-center shrink-0 border-b border-slate-200">
-                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-500"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
-                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="bg-white px-6 py-5 flex justify-between items-center shrink-0 border-b border-slate-200">
+                <h3 class="font-black text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-600 text-lg"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
+                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
                 
-            <div class="px-5 pt-3 bg-slate-50 border-b border-slate-200 shrink-0">
-                <div class="flex gap-6 text-xs overflow-x-auto custom-scrollbar">
-                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-user"></i> Dados e Agenda</button>
-                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Máquinas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-calculator text-emerald-600"></i> Orçamentos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                    <button type="button" onclick="window.mudarAbaOS('aba4')" id="btn-aba4" class="tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-list-check text-purple-500"></i> Formulários <span id="badge-form-count" class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+            <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div class="flex gap-8 text-xs font-bold overflow-x-auto custom-scrollbar">
+                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-user text-blue-600"></i> Dados e Agenda</button>
+                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Máquinas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] ml-1">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-calculator text-emerald-600"></i> Orçamentos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] ml-1">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba4')" id="btn-aba4" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-list-check text-purple-500"></i> Formulários <span id="badge-form-count" class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[10px] ml-1">0</span></button>
                 </div>
             </div>
 
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white">
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
                 <form id="form-nova-os" onsubmit="event.preventDefault();" class="h-full">
                     <input type="hidden" id="os-id-oculto" value="">
                     
-                    <!-- ABA 1: DADOS -->
-                    <div id="aba1" class="space-y-5 max-w-4xl mx-auto pb-6">
+                    <div id="aba1" class="space-y-6 max-w-4xl mx-auto pb-6">
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente *</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cliente *</label>
                             <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input type="text" id="os-cliente" list="list-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="input-delicate pl-8 font-semibold text-sm">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="os-cliente" list="list-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-sm font-bold rounded-xl outline-none focus:border-blue-600 focus:bg-white transition shadow-sm text-slate-900">
                             </div>
                             
-                            <div id="card-cliente-info" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                            <div id="card-cliente-info" class="hidden mt-3 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
                                 <div class="space-y-1 text-xs">
-                                    <p id="card-end" class="text-slate-600"><i class="fa-solid fa-location-dot w-4 text-blue-400"></i> <span id="card-end-txt"></span></p>
-                                    <p id="card-tel" class="text-slate-600"><i class="fa-solid fa-phone w-4 text-blue-400"></i> <span id="card-tel-txt"></span></p>
+                                    <p id="card-end" class="text-slate-700 font-medium"><i class="fa-solid fa-location-dot w-4 text-blue-400"></i> <span id="card-end-txt"></span></p>
+                                    <p id="card-tel" class="text-slate-700 font-medium"><i class="fa-solid fa-phone w-4 text-blue-400"></i> <span id="card-tel-txt"></span></p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                            <label class="block text-[10px] font-black text-blue-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-blue-500 mr-1"></i> Etapa Técnica Atual da O.S.</label>
-                            <select id="os-etapa" class="input-delicate cursor-pointer font-bold text-slate-800 border-blue-300 shadow-sm"></select>
-                            <p class="text-[9px] text-blue-600 mt-1">A mudança desta etapa move a O.S. de coluna no Kanban automaticamente conforme sua Automação.</p>
+                        <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 shadow-sm">
+                            <label class="block text-[11px] font-black text-blue-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-blue-500 mr-1"></i> Etapa Técnica Atual da O.S.</label>
+                            <select id="os-etapa" class="w-full py-3 px-4 bg-white border border-blue-300 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-600 cursor-pointer shadow-sm"></select>
+                            <p class="text-[10px] text-blue-600 mt-2 font-medium">A mudança desta etapa move a O.S. de coluna no Kanban automaticamente conforme sua Automação.</p>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Nome..." class="input-delicate"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Atendimento *</label>
-                                <select id="os-tipo" class="input-delicate cursor-pointer">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Solicitante</label><input type="text" id="os-solicitante" placeholder="Nome..." class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600 shadow-sm"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Atendimento *</label>
+                                <select id="os-tipo" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600 shadow-sm cursor-pointer">
                                     <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Lab)</option><option value="Remoto">Remoto (Online)</option>
                                 </select>
                             </div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Agendamento *</label><input type="date" id="os-data" required class="input-delicate cursor-pointer"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Técnico Designado</label>
-                                <select id="os-tecnico" class="input-delicate cursor-pointer"></select>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Data Agendamento *</label><input type="date" id="os-data" required class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600 shadow-sm cursor-pointer"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Técnico Designado</label>
+                                <select id="os-tecnico" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600 shadow-sm cursor-pointer"></select>
                             </div>
-                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Observações de Agenda</label><textarea id="os-obs" rows="2" placeholder="Instruções para o técnico..." class="input-delicate resize-none"></textarea></div>
+                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Observações de Agenda</label><textarea id="os-obs" rows="2" placeholder="Instruções para o técnico..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600 shadow-sm resize-none"></textarea></div>
                         </div>
 
-                        <div class="flex justify-end pt-2">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-5 py-2 rounded-lg text-xs flex items-center gap-2 transition cursor-pointer">Avançar <i class="fa-solid fa-arrow-right"></i></button>
+                        <div class="flex justify-end pt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="bg-slate-900 hover:bg-black text-white font-black px-6 py-3 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer shadow-md">Avançar para Máquinas <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
 
-                    <!-- ABA 2: EQUIPAMENTOS -->
-                    <div id="aba2" class="hidden space-y-4 max-w-5xl mx-auto pb-6">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-semibold text-slate-800">Equipamentos / Máquinas</h4>
-                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition border border-blue-200 cursor-pointer">
+                    <!-- ABA 2, 3, 4 Idênticas, com classes ajustadas para text-xs/sm e p-4 -->
+                    <div id="aba2" class="hidden space-y-5 max-w-5xl mx-auto pb-6">
+                        <div class="flex justify-between items-center mb-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800">Equipamentos / Máquinas</h4>
+                                <p class="text-[10px] text-slate-500 font-medium">Cadastre as máquinas e relate o problema.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
                                 <i class="fa-solid fa-plus"></i> Adicionar
                             </button>
                         </div>
@@ -228,117 +231,124 @@
                         <div id="container-equipamentos-os" class="space-y-4"></div>
 
                         <div class="flex justify-between pt-4 border-t border-slate-100">
-                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-5 py-2 rounded-lg text-xs flex items-center gap-2 transition cursor-pointer">Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
+                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-600 hover:text-slate-900 font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer bg-slate-100 hover:bg-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-900 hover:bg-black text-white font-black px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer shadow-md">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
 
-                    <!-- ABA 3: ORÇAMENTOS -->
-                    <div id="aba3" class="hidden space-y-4 max-w-5xl mx-auto pb-6">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-semibold text-slate-800">Composição de Orçamentos</h4>
-                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition border border-emerald-200 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Adicionar
+                    <div id="aba3" class="hidden space-y-5 max-w-5xl mx-auto pb-6">
+                        <div class="flex justify-between items-center mb-2 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                            <div>
+                                <h4 class="text-sm font-black text-emerald-900">Composição de Orçamentos</h4>
+                                <p class="text-[10px] text-emerald-700 font-medium">Adicione peças e mão de obra.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Novo Orçamento
                             </button>
                         </div>
 
-                        <div id="container-orcamentos-os" class="space-y-4 min-h-[150px]"></div>
+                        <div id="container-orcamentos-os" class="space-y-5 min-h-[150px]"></div>
                         
-                        <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center border border-slate-200 mt-4">
-                            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Total Final da O.S.:</span>
-                            <span id="valor-total-geral-os" class="text-lg font-black text-emerald-600">R$ 0,00</span>
+                        <div class="bg-slate-900 rounded-2xl p-5 flex justify-between items-center text-white mt-6 shadow-xl">
+                            <span class="text-xs font-black uppercase tracking-widest text-slate-300">Total Final da O.S.:</span>
+                            <span id="valor-total-geral-os" class="text-2xl font-black text-emerald-400">R$ 0,00</span>
                         </div>
 
-                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        <div class="flex justify-start pt-6 border-t border-slate-100 mt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-600 hover:text-slate-900 font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer bg-slate-100 hover:bg-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                         </div>
                     </div>
 
-                    <!-- ABA 4: FORMULÁRIOS / LAUDOS -->
                     <div id="aba4" class="hidden space-y-4 max-w-4xl mx-auto pb-6">
-                        <div class="mb-2">
-                            <h4 class="text-sm font-semibold text-slate-800">Formulários e Check-lists da O.S.</h4>
-                            <p class="text-[10px] text-slate-500 mt-0.5">Lista de formulários exigidos conforme os equipamentos cadastrados na Aba 2.</p>
+                        <div class="mb-4 bg-purple-50 p-4 rounded-xl border border-purple-200">
+                            <h4 class="text-sm font-black text-purple-900">Formulários e Check-lists da O.S.</h4>
+                            <p class="text-[10px] text-purple-700 font-medium">Lista de formulários exigidos nas máquinas.</p>
                         </div>
                         
                         <div id="container-formularios-os" class="space-y-3 min-h-[150px]">
-                            <!-- Injetado via JS -->
-                            <div class="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50">
-                                <p class="text-xs text-slate-400">Nenhum formulário vinculado ainda.</p>
+                            <div class="text-center py-10 border border-dashed border-slate-300 rounded-2xl bg-slate-50">
+                                <p class="text-xs font-bold text-slate-400">Nenhum formulário vinculado ainda.</p>
                             </div>
                         </div>
 
-                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
-                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="text-slate-500 hover:text-slate-700 font-medium px-4 py-2 rounded-lg text-xs transition cursor-pointer border border-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        <div class="flex justify-start pt-6 border-t border-slate-100 mt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="text-slate-600 hover:text-slate-900 font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer bg-slate-100 hover:bg-slate-200"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                         </div>
                     </div>
-
                 </form>
             </div>
 
             <!-- Rodapé Fixo -->
-            <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 shrink-0 flex justify-between items-center">
+            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex justify-between items-center">
                 <div class="flex gap-2">
-                    <button type="button" onclick="window.imprimirOS()" class="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-medium rounded-lg text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-print"></i> PDF</button>
-                    <button type="button" onclick="window.enviarWhatsAppOS()" class="px-3 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-medium rounded-lg text-xs transition shadow-sm items-center gap-1.5 cursor-pointer hidden sm:flex"><i class="fa-brands fa-whatsapp text-sm"></i> Enviar</button>
+                    <button type="button" onclick="window.imprimirOS()" class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-print"></i> PDF</button>
+                    <button type="button" onclick="window.enviarWhatsAppOS()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs transition shadow-sm items-center gap-1.5 cursor-pointer hidden sm:flex"><i class="fa-brands fa-whatsapp text-sm"></i> Enviar</button>
                 </div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="window.fecharModalOS()" class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-medium rounded-lg text-xs transition cursor-pointer shadow-sm">Cancelar</button>
-                    <button type="button" onclick="window.salvarOS()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar O.S.</button>
+                <div class="flex gap-3">
+                    <button type="button" onclick="window.fecharModalOS()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer shadow-sm">Cancelar</button>
+                    <button type="button" onclick="window.salvarOS()" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar O.S.</button>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- MODAL DE PREENCHIMENTO DE FORMULÁRIO (FORMCRAFT INTEGRADO) -->
-    <div id="modal-preencher-form" class="fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden no-print">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden relative border border-slate-200">
-            <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0 border-b border-slate-800">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-purple-400"></i> <span id="titulo-modal-form">Preencher Laudo</span></h3>
-                <button onclick="window.fecharModalPreencherForm()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL DE EXCLUSÃO (ServiceFlow Vibe) -->
+    <div id="modal-delete-confirm" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 border border-slate-200 space-y-5 text-center my-auto transform transition-all">
+            <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-3xl shadow-inner border border-rose-200"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+                <h3 class="text-lg font-black text-slate-900">Excluir Chamado / O.S.?</h3>
+                <p class="text-xs text-slate-500 mt-2 font-medium">Esta ação não pode ser desfeita. Apagar o registro <span id="modal-delete-id" class="font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded"></span>?</p>
             </div>
-            <div class="bg-slate-100 p-4 border-b border-slate-200 shrink-0">
+            <div class="flex gap-3 pt-4">
+                <button onclick="window.fecharModalDelete()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition">Cancelar</button>
+                <button onclick="window.executarExclusao()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-md cursor-pointer transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PREENCHIMENTO DE FORMULÁRIO (FormCraft Integrado) -->
+    <div id="modal-preencher-form" class="fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden no-print">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden relative border border-slate-200">
+            <div class="bg-slate-900 text-white px-6 py-5 flex justify-between items-center shrink-0">
+                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-purple-400"></i> <span id="titulo-modal-form">Preencher Laudo</span></h3>
+                <button onclick="window.fecharModalPreencherForm()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="bg-slate-100 p-5 border-b border-slate-200 shrink-0">
                 <p id="desc-modal-form" class="text-xs text-slate-600 font-medium"></p>
-                <div class="mt-2 flex gap-2">
-                    <span class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200" id="badge-os-form"></span>
-                    <span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded border border-slate-300" id="badge-maq-form"></span>
+                <div class="mt-3 flex gap-2">
+                    <span class="text-[10px] font-bold bg-blue-200 text-blue-800 px-2.5 py-1 rounded-lg shadow-sm" id="badge-os-form"></span>
+                    <span class="text-[10px] font-bold bg-white text-slate-700 px-2.5 py-1 rounded-lg border border-slate-300 shadow-sm" id="badge-maq-form"></span>
                 </div>
             </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
                 <form id="interactive-preview-form" onsubmit="window.salvarPreenchimentoForm(event)" class="space-y-5">
                     <div id="preview-fields-container" class="space-y-4 max-w-2xl mx-auto"></div>
                 </form>
             </div>
-            <div class="bg-white border-t border-slate-200 px-5 py-4 shrink-0 flex justify-end gap-3">
-                <button type="button" onclick="window.fecharModalPreencherForm()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button type="submit" form="interactive-preview-form" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar Laudo</button>
+            <div class="bg-white border-t border-slate-200 px-6 py-4 shrink-0 flex justify-end gap-3">
+                <button type="button" onclick="window.fecharModalPreencherForm()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                <button type="submit" form="interactive-preview-form" class="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar Laudo</button>
             </div>
         </div>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO -->
-    <div id="print-area"></div>
-
-    <!-- ========================================== -->
-    <!-- MODAIS DE AUTOMAÇÃO E ALERTAS -->
-    <!-- ========================================== -->
-
     <!-- MODAL: CONFIGURAR NOTIFICAÇÕES (Sininho) -->
     <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm"><i class="fa-regular fa-bell mr-2 text-amber-400"></i> Notificações do Kanban</h3>
-                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 text-white px-6 py-5 flex items-center justify-between shrink-0">
+                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-regular fa-bell text-amber-400 text-lg"></i> Notificações do Kanban</h3>
+                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-5 bg-slate-50 border-b border-slate-200 shrink-0">
                 <p class="text-xs text-slate-600 font-medium">Quem deve receber um alerta no App/Computador quando um cartão entrar nessas colunas do Kanban?</p>
             </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1" id="config-alertas-content">
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-alertas-content">
                 <!-- Gerado dinamicamente via JS -->
             </div>
-            <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-                <button onclick="window.salvarConfigAlertas()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-2 cursor-pointer">
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+                <button onclick="window.salvarConfigAlertas()" class="bg-slate-900 hover:bg-black text-white font-black py-2.5 px-6 rounded-xl shadow-md transition text-xs flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-save"></i> Salvar Alertas
                 </button>
             </div>
@@ -347,30 +357,33 @@
 
     <!-- MODAL: CONFIGURAÇÃO DE AUTOMAÇÃO (Robô) -->
     <div id="modal-config-automacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-blue-800 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm"><i class="fa-solid fa-robot mr-2 text-blue-300"></i> Automação: Etapas vs Kanban</h3>
-                <button onclick="window.fecharModalAutomacao()" class="text-blue-300 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-blue-800 text-white px-6 py-5 flex items-center justify-between shrink-0">
+                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-robot text-blue-300 text-lg"></i> Automação: Etapas vs Kanban</h3>
+                <button onclick="window.fecharModalAutomacao()" class="text-blue-300 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-5 bg-slate-50 border-b border-slate-200 shrink-0">
                 <p class="text-xs text-slate-600 font-medium">Defina quais Etapas Técnicas (que o técnico preenche) devem mover o cartão para qual coluna no Kanban automaticamente.</p>
             </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1" id="config-automacao-content">
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-automacao-content">
                 <!-- Gerado dinamicamente via JS -->
             </div>
-            <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-                <button onclick="window.salvarConfigAutomacao()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-2 cursor-pointer">
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+                <button onclick="window.salvarConfigAutomacao()" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 px-6 rounded-xl shadow-md transition text-xs flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-save"></i> Salvar Automação
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 border border-slate-700 transition-opacity">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-        <span id="toast-message" class="text-xs font-medium">Sucesso!</span>
+    <!-- TOAST NATIVO -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden z-[99999] bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 transition-opacity">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message" class="text-sm font-bold">Sucesso!</span>
     </div>
+
+    <!-- ÁREA DE IMPRESSÃO -->
+    <div id="print-area"></div>
 
     <!-- MOTOR CENTRAL -->
     <script type="module" src="core.js"></script>
@@ -387,13 +400,15 @@
         window.parqueMaquinas = [];
         window.usersList = [];
         window.dbForms = []; 
+        window.formSubmissions = [];
+        
         window.alertSettings = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
         window.kanbanMapping = {};
         
         window.contadorEquips = 0;
         window.contadorOrcs = 0;
         window.currentUserStr = '';
-        window.visaoAtual = 'kanban';
+        window.visaoAtual = 'kanban'; 
 
         // 6 Fases Oficiais do Kanban
         const STATUSES_OS = {
@@ -424,37 +439,32 @@
 
             window.currentUserStr = window.nomeUsuarioLogado || window.currentUser?.email || 'Técnico';
 
-            // Preenche Options de Etapa Global
             const etapaSelect = document.getElementById('os-etapa');
             etapaSelect.innerHTML = ETAPAS_SERVICO.map(e => `<option value="${e}">${e}</option>`).join('');
 
-            // Carrega Configurações de Notificações
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
-                if(snap.exists()) {
-                    window.alertSettings = snap.data();
-                }
+                if(snap.exists()) { window.alertSettings = snap.data(); }
             });
 
-            // Carrega Automação (Mapping)
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
-                if(snap.exists()) {
-                    window.kanbanMapping = snap.data().mapping || {};
-                }
+                if(snap.exists()) { window.kanbanMapping = snap.data().mapping || {}; }
             });
 
-            // Dados base (Clientes, Máquinas, Usuários, Forms)
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.dbClientes = []; let html = '';
                 snap.forEach(d => { const c = d.data(); window.dbClientes.push(c); const n = c.fantasia || c.razao_social || ''; if(n) html += `<option value="${n}">`; });
                 document.getElementById('list-clientes').innerHTML = html;
             });
+            
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => { window.parqueMaquinas = []; snap.forEach(d => window.parqueMaquinas.push(d.data())); });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => { window.dbMaquinas = []; snap.forEach(d => window.dbMaquinas.push(d.data())); });
             
-            // CARREGA A ESTRUTURA COMPLETA DOS FORMS
+            // FORMCRAFT
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => { 
-                window.dbForms = []; 
-                snap.forEach(d => window.dbForms.push(d.data())); 
+                window.dbForms = []; snap.forEach(d => window.dbForms.push(d.data())); 
+            });
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
+                window.formSubmissions = []; snap.forEach(d => window.formSubmissions.push(d.data()));
             });
             
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
@@ -463,13 +473,11 @@
                 document.getElementById('os-tecnico').innerHTML = htmlTec;
             });
 
-            // Ler as OS e Renderizar
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.tickets = [];
                 snap.forEach(dSnap => {
                     const d = dSnap.data();
                     let tStatus = d.status || 'ABERTURA';
-                    // Tratamento legado
                     if(tStatus === 'ENTRADA') tStatus = 'ABERTURA';
                     if(tStatus === 'TRIAGEM') tStatus = 'DIAGNOSTICO';
                     
@@ -480,15 +488,13 @@
                         clienteOS: d.clienteOS || d.cliente || '',
                         tecnicoOS: d.tecnicoOS || d.tecnico || '',
                         dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || (d.timestamp ? new Date(d.timestamp).toISOString().split('T')[0] : ''),
-                        equipamentosOS: d.equipamentosOS || d.equipamentos || (d.maquina ? [{maquina: `[SN: ${d.serial||'S/N'}] ${d.maquina}`, defeito: d.defeito, formulario: ''}] : []),
+                        equipamentosOS: d.equipamentosOS || d.equipamentos || (d.maquina ? [{maquina: `[SN: ${d.serial||'S/N'}] ${d.maquina}`, defeito: d.defeito, formularios: []}] : []),
                         orcamentosOS: d.orcamentosOS || d.orcamentos || [],
                         conclusao: d.conclusao || '',
                         timestampOriginal: d.timestamp || Date.now()
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
-                
-                // Força Kanban na inicialização
                 window.mudarVisao('kanban'); 
             });
         };
@@ -496,7 +502,7 @@
         window.mostrarNotificacao = function(msg, isError = false) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = msg;
-            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
+            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400 text-lg' : 'fa-solid fa-circle-check text-emerald-400 text-lg';
             toast.classList.remove('hidden'); 
             setTimeout(() => toast.classList.add('hidden'), 3500);
         };
@@ -530,27 +536,27 @@
                 const conf = STATUSES_OS[fase];
                 const set = window.alertSettings[fase] || [];
                 html += `
-                    <div class="mb-4 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                        <div class="p-3 border-b border-slate-200 bg-slate-50">
-                            <h4 class="text-[11px] font-bold uppercase text-slate-700">Quando entrar na coluna: <span class="text-blue-600">${conf.label}</span></h4>
+                    <div class="mb-5 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="p-4 border-b border-slate-200 bg-slate-50">
+                            <h4 class="text-xs font-black uppercase text-slate-700">Ao entrar na coluna: <span class="text-blue-600">${conf.label}</span></h4>
                         </div>
-                        <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <span class="block text-[10px] font-bold text-slate-500 mb-2">Notificar Equipes/Perfis:</span>
-                                <div class="space-y-1.5">
+                                <span class="block text-[11px] font-bold text-slate-500 mb-2 uppercase">Notificar Equipes:</span>
+                                <div class="space-y-2">
                 `;
                 perfis.forEach(p => { 
                     const isChecked = set.includes('perfil_'+p) ? 'checked' : '';
-                    html += `<label class="flex items-center gap-2 text-[10px] font-medium text-slate-700 cursor-pointer"><input type="checkbox" class="cb-alerta w-3 h-3 text-blue-600 rounded" data-fase="${fase}" value="perfil_${p}" ${isChecked}> ${p}</label>`; 
+                    html += `<label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer"><input type="checkbox" class="cb-alerta w-4 h-4 text-blue-600 rounded" data-fase="${fase}" value="perfil_${p}" ${isChecked}> ${p}</label>`; 
                 });
                 html += `       </div>
                             </div>
                             <div>
-                                <span class="block text-[10px] font-bold text-slate-500 mb-2">Notificar Usuários Específicos:</span>
-                                <div class="max-h-24 overflow-y-auto custom-scrollbar border border-slate-100 p-2 rounded-lg space-y-1.5">`;
+                                <span class="block text-[11px] font-bold text-slate-500 mb-2 uppercase">Notificar Específicos:</span>
+                                <div class="max-h-32 overflow-y-auto custom-scrollbar border border-slate-200 p-3 rounded-xl space-y-2 bg-slate-50">`;
                 window.usersList.forEach(u => { 
                     const isChecked = set.includes(u.email) ? 'checked' : '';
-                    html += `<label class="flex items-center gap-2 text-[10px] font-medium text-slate-700 cursor-pointer truncate"><input type="checkbox" class="cb-alerta w-3 h-3 text-blue-600 rounded" data-fase="${fase}" value="${u.email}" ${isChecked}> ${u.nome}</label>`; 
+                    html += `<label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer truncate"><input type="checkbox" class="cb-alerta w-4 h-4 text-blue-600 rounded" data-fase="${fase}" value="${u.email}" ${isChecked}> ${u.nome}</label>`; 
                 });
                 html += `       </div>
                             </div>
@@ -584,10 +590,10 @@
                     options += `<option value="${key}" ${mapAtual === key ? 'selected' : ''}>${STATUSES_OS[key].label}</option>`;
                 });
                 html += `
-                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 mb-2 gap-3">
-                    <span class="text-xs font-bold text-slate-700 w-1/2">${etapa}</span>
-                    <i class="fa-solid fa-arrow-right-long text-slate-300"></i>
-                    <select class="map-select input-delicate w-1/2 cursor-pointer font-bold text-blue-700" data-etapa="${etapa}">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 mb-3 gap-3">
+                    <span class="text-xs font-bold text-slate-700 w-full sm:w-1/2">${etapa}</span>
+                    <i class="fa-solid fa-arrow-right-long text-slate-300 hidden sm:block"></i>
+                    <select class="map-select w-full sm:w-1/2 px-3 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 rounded-lg outline-none focus:border-blue-500 cursor-pointer shadow-sm" data-etapa="${etapa}">
                         ${options}
                     </select>
                 </div>`;
@@ -611,18 +617,38 @@
         };
 
         // =====================================
+        // EXCLUSÃO DE OS
+        // =====================================
+        window.ticketToDelete = null;
+        window.confirmarExclusao = function(id) {
+            window.ticketToDelete = id;
+            document.getElementById('modal-delete-id').innerText = id;
+            document.getElementById('modal-delete-confirm').classList.remove('hidden');
+        };
+        window.fecharModalDelete = () => document.getElementById('modal-delete-confirm').classList.add('hidden');
+        
+        window.executarExclusao = async function() {
+            if(!window.ticketToDelete) return;
+            try {
+                await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.ticketToDelete));
+                window.mostrarNotificacao('OS excluída com sucesso!');
+                window.fecharModalDelete();
+            } catch(e) { window.mostrarNotificacao('Erro ao excluir', 'error'); }
+        };
+
+        // =====================================
         // GERENCIADOR DE VISÕES (LISTA / KANBAN)
         // =====================================
         window.mudarVisao = function(visao) {
             window.visaoAtual = visao;
             if(visao === 'lista') {
-                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer";
-                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
+                document.getElementById('btn-visao-lista').className = "px-4 py-2 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm transition";
+                document.getElementById('btn-visao-kanban').className = "px-4 py-2 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition";
                 document.getElementById('visao-lista').classList.remove('hidden');
                 document.getElementById('visao-kanban').classList.add('hidden');
             } else {
-                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer";
-                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
+                document.getElementById('btn-visao-kanban').className = "px-4 py-2 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm transition";
+                document.getElementById('btn-visao-lista').className = "px-4 py-2 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition";
                 document.getElementById('visao-kanban').classList.remove('hidden');
                 document.getElementById('visao-lista').classList.add('hidden');
             }
@@ -632,9 +658,12 @@
         window.getFiltrados = function() {
             const busca = document.getElementById('filtro-busca').value.toLowerCase();
             const statusFiltro = document.getElementById('filtro-status').value;
+            const tipoFiltro = document.getElementById('filtro-tipo').value;
 
             return window.tickets.filter(t => {
                 if(statusFiltro !== 'ALL' && t.status !== statusFiltro) return false;
+                if(tipoFiltro === 'OS' && !t.id.startsWith('OS-')) return false;
+                if(tipoFiltro === 'OSR' && !t.id.startsWith('OSR-')) return false;
                 if(busca) {
                     const str = `${t.id} ${t.clienteOS} ${t.tecnicoOS}`.toLowerCase();
                     if(!str.includes(busca)) return false;
@@ -659,13 +688,14 @@
 
                 return `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition cursor-pointer" onclick="window.abrirModalOS('${t.id}')">
-                    <td class="p-3"><span class="block font-bold text-blue-600">${t.id}</span><span class="text-[9px] text-slate-400">${window.formatarDataBR(t.dataAgendamentoOS)}</span></td>
-                    <td class="p-3 font-semibold text-slate-800">${t.clienteOS || 'S/N'}</td>
-                    <td class="p-3 text-slate-600">${t.tecnicoOS || 'Pendente'}</td>
-                    <td class="p-3 text-center"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">${t.etapa_global || '-'}</span></td>
-                    <td class="p-3 text-right font-semibold text-emerald-600">${window.formatarMoeda(totalOrcs)}</td>
-                    <td class="p-3 text-center"><span class="px-2 py-0.5 text-[9px] font-bold uppercase rounded border ${stConf.color}">${stConf.label}</span></td>
-                    <td class="p-3 text-center text-blue-500 font-medium text-xs hover:underline">Abrir</td>
+                    <td class="p-3"><span class="block font-black text-blue-600">${t.id}</span><span class="text-[10px] text-slate-400 font-bold">${window.formatarDataBR(t.dataAgendamentoOS)}</span></td>
+                    <td class="p-3 font-bold text-slate-800">${t.clienteOS || 'S/N'}</td>
+                    <td class="p-3 text-slate-600 font-medium">${t.tecnicoOS || 'Pendente'}</td>
+                    <td class="p-3 text-center"><span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase">${t.etapa_global || '-'}</span></td>
+                    <td class="p-3 text-right font-black text-emerald-600">${window.formatarMoeda(totalOrcs)}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="event.stopPropagation(); window.confirmarExclusao('${t.id}')" class="text-slate-300 hover:text-red-500 transition px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
                 </tr>`;
             }).join('');
         };
@@ -677,8 +707,8 @@
             Object.keys(STATUSES_OS).forEach(key => {
                 const conf = STATUSES_OS[key];
                 const colDiv = document.createElement('div');
-                // flex-1 e min-w garantem que as colunas caibam na tela
-                colDiv.className = 'kanban-col flex-1 min-w-[170px] max-w-[320px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
+                // Kanban Coluna: largura fixa de 320px, proibida de encolher (shrink-0)
+                colDiv.className = 'kanban-col w-[320px] min-w-[320px] shrink-0 flex flex-col bg-slate-100/60 rounded-2xl border border-slate-200 transition-colors h-full overflow-hidden';
                 
                 colDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 colDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
@@ -698,43 +728,55 @@
                 let myTks = filtrados.filter(t => t.status === key);
 
                 colDiv.innerHTML = `
-                    <div class="p-3 border-b border-slate-200 bg-white rounded-t-xl flex justify-between items-center shrink-0">
+                    <div class="p-4 border-b border-slate-200 bg-white rounded-t-2xl flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${conf.badgeDot}"></span>
-                            <h4 class="text-[10px] font-black uppercase tracking-wider text-slate-700 truncate">${conf.label}</h4>
+                            <span class="w-2.5 h-2.5 rounded-full ${conf.badgeDot} shadow-inner"></span>
+                            <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 truncate">${conf.label}</h4>
                         </div>
-                        <span class="text-[10px] font-bold bg-slate-100 px-1.5 rounded text-slate-600 border border-slate-200">${myTks.length}</span>
+                        <span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 border border-slate-200">${myTks.length}</span>
                     </div>
                 `;
 
                 const cardsCont = document.createElement('div');
-                cardsCont.className = 'flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar min-h-0';
+                cardsCont.className = 'flex-1 min-h-0 overflow-y-auto p-3 space-y-3 custom-scrollbar';
                 
                 myTks.forEach(t => {
                     const card = document.createElement('div');
                     card.draggable = true;
-                    card.className = 'bg-white p-3 rounded-lg border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-400 transition text-xs flex flex-col justify-between';
+                    card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-400 transition flex flex-col justify-between group relative';
                     card.ondragstart = e => { e.dataTransfer.setData('text/plain', t.id); card.classList.add('dragging'); };
                     card.ondragend = () => card.classList.remove('dragging');
                     card.onclick = () => window.abrirModalOS(t.id);
 
                     const maqStr = t.equipamentosOS && t.equipamentosOS.length > 0 ? (t.equipamentosOS.length > 1 ? `${t.equipamentosOS.length} equipamentos` : t.equipamentosOS[0].maquina) : 'Sem máquina';
+                    let defStr = t.equipamentosOS && t.equipamentosOS.length > 0 ? t.equipamentosOS[0].defeito : 'Sem relato de defeito';
                     
+                    const borderId = t.id.startsWith('OS-') ? 'border-blue-200 text-blue-700 bg-blue-50' : 'border-indigo-200 text-indigo-700 bg-indigo-50';
+
                     card.innerHTML = `
                         <div>
-                            <div class="flex justify-between items-start mb-1.5">
-                                <span class="font-bold text-blue-600 text-[10px]">${t.id}</span>
-                                <span class="text-[9px] text-slate-400"><i class="fa-regular fa-calendar"></i> ${window.formatarDataBR(t.dataAgendamentoOS)}</span>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-black text-[10px] px-2 py-0.5 rounded border ${borderId}">${t.id}</span>
+                                <span class="text-[10px] font-bold text-slate-400"><i class="fa-regular fa-calendar"></i> ${window.formatarDataBR(t.dataAgendamentoOS)}</span>
                             </div>
-                            <h5 class="font-bold text-slate-800 line-clamp-1 mb-1" title="${t.clienteOS}">${t.clienteOS || 'Sem Nome'}</h5>
-                            <p class="text-[10px] text-slate-500 truncate bg-slate-50 p-1 rounded border border-slate-100 mb-2"><i class="fa-solid fa-print mr-1"></i>${maqStr}</p>
+                            <h5 class="font-black text-slate-900 text-sm line-clamp-1 mb-1" title="${t.clienteOS}">${t.clienteOS || 'Sem Nome'}</h5>
+                            <p class="text-[11px] font-medium text-slate-500 line-clamp-1 mb-3"><i class="fa-solid fa-print text-slate-400 mr-1.5"></i>${maqStr}</p>
                             
-                            <div class="mb-2 bg-blue-50 p-1.5 rounded-md border border-blue-100 flex items-center justify-center">
-                                <span class="text-[9px] font-bold text-blue-800 uppercase truncate" title="${t.etapa_global || 'Sem Etapa'}">${t.etapa_global || 'Sem Etapa'}</span>
+                            <div class="mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Defeito Reportado:</span>
+                                <span class="text-[11px] font-medium text-slate-700 line-clamp-2">${defStr}</span>
+                            </div>
+
+                            <div class="mb-3 bg-blue-50/50 p-1.5 rounded-lg border border-blue-100 flex items-center justify-center shadow-inner">
+                                <span class="text-[10px] font-black text-blue-800 uppercase truncate" title="${t.etapa_global || 'Sem Etapa'}">${t.etapa_global || 'Sem Etapa'}</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[9px] font-medium text-slate-500 border-t border-slate-100 pt-1 mt-1">
-                            <span>Tec: <strong class="text-slate-600">${t.tecnicoOS || 'Pendente'}</strong></span>
+                        <div class="flex justify-between items-center text-[10px] font-medium text-slate-500 border-t border-slate-100 pt-2 mt-auto">
+                            <span class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center text-slate-500"><i class="fa-solid fa-user text-[9px]"></i></div>
+                                <strong class="text-slate-700">${t.tecnicoOS || 'Pendente'}</strong>
+                            </span>
+                            <button onclick="event.stopPropagation(); window.confirmarExclusao('${t.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition cursor-pointer p-1"><i class="fa-solid fa-trash text-[11px]"></i></button>
                         </div>
                     `;
                     cardsCont.appendChild(card);
@@ -746,7 +788,7 @@
         };
 
         // =====================================
-        // MODAL DE O.S. E ENDEREÇO
+        // MODAL DE O.S. (GIGANTE, FIXO E DELICADO)
         // =====================================
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4'].forEach(a => {
@@ -788,7 +830,7 @@
 
                         let eqs = osCompleta.equipamentosOS || osCompleta.equipamentos || [];
                         if(eqs.length === 0 && osCompleta.maquina) {
-                            eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, servico: osCompleta.solucao, formulario: ''}];
+                            eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, servico: osCompleta.solucao, formularios: []}];
                         }
                         
                         if(eqs.length > 0) eqs.forEach(maq => window.adicionarEquipamentoNaOS(maq));
@@ -868,9 +910,28 @@
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
-            
-            // Usa as propriedades do form (id, title)
-            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
+
+            // Tratamento retrocompatível (Array de formulários ou único)
+            let formulariosIniciaisHtml = '';
+            if (dadosSalvos) {
+                if (dadosSalvos.formularios && dadosSalvos.formularios.length > 0) {
+                    formulariosIniciaisHtml = dadosSalvos.formularios.map(f => `
+                        <div class="flex items-center gap-2 mb-2 form-row">
+                            <input type="text" class="inp-formulario flex-1 input-delicate font-bold" value="${f.titulo}" readonly>
+                            <input type="hidden" class="inp-form-submission-id" value="${f.resposta_id || ''}">
+                            <button type="button" onclick="this.parentElement.remove(); window.atualizarAbaFormularios();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    `).join('');
+                } else if (dadosSalvos.formulario && dadosSalvos.formulario !== '') {
+                    formulariosIniciaisHtml = `
+                        <div class="flex items-center gap-2 mb-2 form-row">
+                            <input type="text" class="inp-formulario flex-1 input-delicate font-bold" value="${dadosSalvos.formulario}" readonly>
+                            <input type="hidden" class="inp-form-submission-id" value="${dadosSalvos.formulario_resposta_id || ''}">
+                            <button type="button" onclick="this.parentElement.remove(); window.atualizarAbaFormularios();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    `;
+                }
+            }
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
@@ -882,68 +943,99 @@
                             <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Defeito *</label><textarea rows="2" class="inp-defeito input-delicate resize-none" placeholder="Relato do cliente...">${dadosSalvos ? (dadosSalvos.defeito||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
                             <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Serviço / Laudo (Técnico)</label><textarea rows="2" class="inp-servico input-delicate resize-none" placeholder="Laudo do técnico...">${dadosSalvos ? (dadosSalvos.servico||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
                         </div>
-                        <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col justify-center">
+                        <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col justify-start">
                             <div class="grid grid-cols-2 gap-3">
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Início</label><input type="time" class="inp-hora-inicio input-delicate" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fim</label><input type="time" class="inp-hora-fim input-delicate" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Check-list / Formulário</label>
-                                <select class="inp-formulario input-delicate cursor-pointer" onchange="window.atualizarAbaFormularios()"><option value="">Nenhum formulário</option>${formsOptions}</select>
+                            
+                            <div class="pt-2 border-t border-slate-200 mt-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Formulários / Check-lists Vinculados</label>
+                                <div class="forms-lista space-y-2 mb-2">
+                                    ${formulariosIniciaisHtml}
+                                </div>
+                                <div class="flex gap-2">
+                                    <select class="form-selector input-delicate flex-1 cursor-pointer">
+                                        <option value="">Selecione um form para adicionar...</option>
+                                        ${window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('')}
+                                    </select>
+                                    <button type="button" onclick="window.addFormToEquip(this)" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer shrink-0"><i class="fa-solid fa-plus"></i></button>
+                                </div>
                             </div>
                             <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas).replace(/'/g, "&#39;") : "[]"}'>
-                            <input type="hidden" class="inp-form-submission-id" value="${dadosSalvos && dadosSalvos.formulario_resposta_id ? dadosSalvos.formulario_resposta_id : ''}">
                         </div>
                     </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
-            if (dadosSalvos) {
-                const cardNode = document.getElementById(`equip-card-${window.contadorEquips}`);
-                cardNode.querySelector('.inp-formulario').value = dadosSalvos.formulario || '';
-            }
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
             window.atualizarAbaFormularios();
         };
 
-        // ABA 4: FORMULÁRIOS
+        window.addFormToEquip = function(btnElement) {
+            const containerInfo = btnElement.closest('.bg-slate-50');
+            const selectEl = containerInfo.querySelector('.form-selector');
+            const listEl = containerInfo.querySelector('.forms-lista');
+            const formTitle = selectEl.value;
+            
+            if(!formTitle) return;
+
+            // Evita duplicação visual do mesmo formulário na mesma máquina
+            const existentes = Array.from(listEl.querySelectorAll('.inp-formulario')).map(i => i.value);
+            if(existentes.includes(formTitle)) { window.mostrarNotificacao('Este formulário já está na lista!', 'warning'); return; }
+
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 mb-2 form-row';
+            row.innerHTML = `
+                <input type="text" class="inp-formulario flex-1 input-delicate font-bold bg-blue-50 text-blue-900 border-blue-200" value="${formTitle}" readonly>
+                <input type="hidden" class="inp-form-submission-id" value="">
+                <button type="button" onclick="this.parentElement.remove(); window.atualizarAbaFormularios();" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+            `;
+            listEl.appendChild(row);
+            selectEl.value = '';
+            window.atualizarAbaFormularios();
+        };
+
+        // ABA 4: FORMULÁRIOS INTEGRAÇÃO FORMCRAFT
         window.atualizarAbaFormularios = function() {
             const container = document.getElementById('container-formularios-os');
-            const selectsForms = document.querySelectorAll('.inp-formulario');
-            const selectMaquinas = document.querySelectorAll('.inp-maquina');
-            const subIds = document.querySelectorAll('.inp-form-submission-id');
+            const equipCards = document.querySelectorAll('.equip-card');
             
             let html = '';
             let count = 0;
 
-            selectsForms.forEach((sel, i) => {
-                const formNome = sel.value;
-                const maqNome = selectMaquinas[i] ? selectMaquinas[i].value : 'Máquina Indefinida';
-                const subId = subIds[i] ? subIds[i].value : '';
+            equipCards.forEach((card, equipIndex) => {
+                const maqNome = card.querySelector('.inp-maquina').value || 'Máquina Indefinida';
+                const formRows = card.querySelectorAll('.form-row');
                 
-                if(formNome) {
-                    count++;
-                    const isFilled = subId !== '';
-                    const badge = isFilled ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider"><i class="fa-solid fa-check mr-1"></i> Preenchido</span>` : `<span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pendente</span>`;
-                    const btnText = isFilled ? 'Ver / Editar Laudo' : 'Preencher Laudo';
-                    const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200' : 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-200';
+                formRows.forEach((row, formIndex) => {
+                    const formNome = row.querySelector('.inp-formulario').value;
+                    const subId = row.querySelector('.inp-form-submission-id').value;
                     
-                    html += `
-                    <div class="bg-white border border-slate-200 rounded-lg p-4 flex justify-between items-center shadow-sm transition hover:shadow-md">
-                        <div>
-                            ${badge}
-                            <h5 class="text-sm font-bold text-slate-800 mt-2">${formNome}</h5>
-                            <p class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome || 'S/M'}</p>
-                        </div>
-                        <button type="button" onclick="window.abrirModalFormulario('${formNome}', ${i}, '${maqNome.replace(/'/g, "\\'")}')" class="${btnClass} px-4 py-2 rounded-xl text-xs font-bold transition border cursor-pointer shadow-sm">
-                            ${btnText}
-                        </button>
-                    </div>`;
-                }
+                    if(formNome) {
+                        count++;
+                        const isFilled = subId !== '';
+                        const badge = isFilled ? `<span class="text-[9px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-200"><i class="fa-solid fa-check mr-1"></i> Preenchido</span>` : `<span class="text-[9px] bg-purple-100 text-purple-700 font-black px-2 py-0.5 rounded uppercase tracking-wider border border-purple-200">Pendente</span>`;
+                        const btnText = isFilled ? 'Ver / Editar Laudo' : 'Preencher Laudo';
+                        const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200' : 'bg-purple-600 text-white hover:bg-purple-700 border-purple-700';
+                        
+                        html += `
+                        <div class="bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-sm transition hover:border-purple-300">
+                            <div>
+                                ${badge}
+                                <h5 class="text-sm font-black text-slate-800 mt-2">${formNome}</h5>
+                                <p class="text-[10px] font-bold text-slate-500 mt-0.5"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: <span class="text-blue-600">${maqNome}</span></p>
+                            </div>
+                            <button type="button" onclick="window.abrirModalFormulario('${formNome}', ${equipIndex}, ${formIndex}, '${maqNome.replace(/'/g, "\\'")}')" class="${btnClass} px-4 py-2.5 rounded-xl text-xs font-bold transition border cursor-pointer shadow-sm flex items-center gap-2">
+                                <i class="fa-solid fa-clipboard-check"></i> ${btnText}
+                            </button>
+                        </div>`;
+                    }
+                });
             });
 
             if(count === 0) {
-                container.innerHTML = '<div class="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum formulário exigido para as máquinas atuais.</p></div>';
+                container.innerHTML = '<div class="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50"><p class="text-xs text-slate-400 font-medium">Nenhum formulário vinculado ainda.</p></div>';
             } else {
                 container.innerHTML = html;
             }
@@ -956,18 +1048,21 @@
         window.escapeHtml = (s) => (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         window.currentActiveForm = null;
         window.currentActiveEquipIndex = null;
+        window.currentActiveFormIndex = null;
         window.currentActiveSubmissionId = null;
 
-        window.abrirModalFormulario = async function(formTitle, equipIndex, maqNome) {
+        window.abrirModalFormulario = async function(formTitle, equipIndex, formIndex, maqNome) {
             const formObj = window.dbForms.find(f => f.title === formTitle);
             if (!formObj) { window.mostrarNotificacao('Formulário não encontrado na base.', 'error'); return; }
             
             window.currentActiveForm = formObj;
             window.currentActiveEquipIndex = equipIndex;
+            window.currentActiveFormIndex = formIndex;
             
-            const osId = document.getElementById('os-id-oculto').value || 'OS Não Salva (Salvar antes de preencher)';
-            const subIds = document.querySelectorAll('.inp-form-submission-id');
-            window.currentActiveSubmissionId = subIds[equipIndex] ? subIds[equipIndex].value : '';
+            const osId = document.getElementById('os-id-oculto').value || 'OS Não Salva';
+            const cardMaquina = document.querySelectorAll('.equip-card')[equipIndex];
+            const rowForm = cardMaquina.querySelectorAll('.form-row')[formIndex];
+            window.currentActiveSubmissionId = rowForm.querySelector('.inp-form-submission-id').value;
 
             document.getElementById('titulo-modal-form').innerText = formObj.title;
             document.getElementById('desc-modal-form').innerText = formObj.description || 'Preencha os campos abaixo de acordo com a avaliação técnica.';
@@ -991,17 +1086,17 @@
                 
                 let val = existingAnswers[f.label] || '';
                 
-                if(f.type === 'short_text') html += `<input type="text" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm">`;
-                if(f.type === 'long_text') html += `<textarea name="${f.id}" rows="3" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-medium border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm resize-none">${window.escapeHtml(val)}</textarea>`;
-                if(f.type === 'number') html += `<input type="number" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm">`;
-                if(f.type === 'date') html += `<input type="date" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm cursor-pointer">`;
+                if(f.type === 'short_text') html += `<input type="text" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm bg-slate-50 focus:bg-white">`;
+                if(f.type === 'long_text') html += `<textarea name="${f.id}" rows="3" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-medium border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm resize-none bg-slate-50 focus:bg-white">${window.escapeHtml(val)}</textarea>`;
+                if(f.type === 'number') html += `<input type="number" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm bg-slate-50 focus:bg-white">`;
+                if(f.type === 'date') html += `<input type="date" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm cursor-pointer bg-slate-50 focus:bg-white">`;
                 
                 if(f.type === 'single_select') {
-                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition"><input type="radio" name="${f.id}" value="${window.escapeHtml(o)}" ${val === o ? 'checked' : ''} ${f.required?'required':''} ${eventHandlers} class="w-4 h-4 text-purple-600 cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
+                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-white transition shadow-sm"><input type="radio" name="${f.id}" value="${window.escapeHtml(o)}" ${val === o ? 'checked' : ''} ${f.required?'required':''} ${eventHandlers} class="w-4 h-4 text-purple-600 cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
                 }
                 if(f.type === 'multi_select') {
                     const valArr = Array.isArray(val) ? val : (val.split ? val.split(', ') : []);
-                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition"><input type="checkbox" name="${f.id}" value="${window.escapeHtml(o)}" ${valArr.includes(o) ? 'checked' : ''} ${eventHandlers} class="w-4 h-4 text-purple-600 rounded cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
+                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-white transition shadow-sm"><input type="checkbox" name="${f.id}" value="${window.escapeHtml(o)}" ${valArr.includes(o) ? 'checked' : ''} ${eventHandlers} class="w-4 h-4 text-purple-600 rounded cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
                 }
                 
                 return `<div id="pw-${f.id}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
@@ -1105,10 +1200,10 @@
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
                 
-                const subIds = document.querySelectorAll('.inp-form-submission-id');
-                if (subIds[window.currentActiveEquipIndex]) {
-                    subIds[window.currentActiveEquipIndex].value = subId;
-                }
+                // Grava o ID da resposta de volta no input hidden da máquina na OS
+                const cardMaquina = document.querySelectorAll('.equip-card')[window.currentActiveEquipIndex];
+                const rowForm = cardMaquina.querySelectorAll('.form-row')[window.currentActiveFormIndex];
+                rowForm.querySelector('.inp-form-submission-id').value = subId;
                 
                 window.atualizarAbaFormularios();
                 window.mostrarNotificacao('Laudo salvo com sucesso!', 'success');
@@ -1135,8 +1230,8 @@
             const sDeslQtd = dadosSalvos ? (dadosSalvos.desl_qtd || 1) : 1; const sDeslUnit = dadosSalvos ? (dadosSalvos.desl_unit || '') : '';
 
             const cardHtml = `
-                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border border-emerald-200 rounded-xl p-4 relative mb-4">
-                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border border-emerald-200 rounded-xl p-4 relative mb-4 shadow-sm">
+                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
                     
                     <div class="mb-3 w-1/2 pr-8">
                         <label class="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1">Máquina Alvo</label>
@@ -1151,8 +1246,8 @@
                             <tbody id="tbody-itens-orc-${window.contadorOrcs}" class="divide-y divide-slate-100">${itensHtml}</tbody>
                         </table>
                         <div class="bg-slate-50 p-2 flex justify-between items-center border-t border-slate-200">
-                            <button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-[10px] font-semibold text-blue-600 hover:text-blue-800 transition"><i class="fa-solid fa-plus mr-1"></i> Add Linha</button>
-                            <span class="text-[10px] text-slate-500 font-bold">Sub Peças: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-800">R$ 0,00</span></span>
+                            <button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-[10px] font-semibold text-blue-600 hover:text-blue-800 transition bg-blue-100 px-2 py-1 rounded"><i class="fa-solid fa-plus mr-1"></i> Add Linha</button>
+                            <span class="text-[10px] text-slate-500 font-bold">Sub Peças: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-800 ml-1 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm">R$ 0,00</span></span>
                         </div>
                     </div>
                     
@@ -1216,14 +1311,21 @@
 
             const arrayEquips = [];
             equipCards.forEach(c => {
+                const formsData = [];
+                c.querySelectorAll('.form-row').forEach(row => {
+                    formsData.push({
+                        titulo: row.querySelector('.inp-formulario').value,
+                        resposta_id: row.querySelector('.inp-form-submission-id').value
+                    });
+                });
+
                 arrayEquips.push({
                     maquina: c.querySelector('.inp-maquina').value.trim() || 'S/N', 
                     defeito: c.querySelector('.inp-defeito').value.trim() || 'S/D', 
                     servico: c.querySelector('.inp-servico').value, 
                     horaInicio: c.querySelector('.inp-hora-inicio').value, 
                     horaFim: c.querySelector('.inp-hora-fim').value, 
-                    formulario: c.querySelector('.inp-formulario').value,
-                    formulario_resposta_id: c.querySelector('.inp-form-submission-id').value,
+                    formularios: formsData, // Nova estrutura de Array
                     pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
                 });
             });
@@ -1244,11 +1346,16 @@
             
             // Define o status do Kanban base da OS usando Automação
             let targetStatus = 'ABERTURA'; // Default
-            if (window.kanbanMapping && window.kanbanMapping[etapaGlobal]) {
-                targetStatus = window.kanbanMapping[etapaGlobal];
+            if (window.alertSettings) {
+                for (const [fase, etapas] of Object.entries(window.alertSettings)) {
+                    if (etapas.includes(etapaGlobal)) {
+                        targetStatus = fase;
+                        break;
+                    }
+                }
             }
 
-            // Paylod que o App do Técnico compreende
+            // Paylod que o App do Técnico compreende (campos duplicados por retrocompatibilidade com BD original)
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
                 solicitanteOS: document.getElementById('os-solicitante').value.trim(), 
@@ -1269,14 +1376,10 @@
                 conclusao: ''
             };
 
-            try {
-                let osFinalId = idOculto;
-                let isNew = !idOculto;
-                let oldStatus = null;
+            let osFinalId = idOculto;
 
-                if (!isNew) {
-                    const oldOS = window.tickets.find(t => t.id === idOculto);
-                    if(oldOS) oldStatus = oldOS.status;
+            try {
+                if (idOculto) {
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', idOculto), payload, {merge: true});
                 } else {
                     const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
@@ -1290,10 +1393,10 @@
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
                 }
 
-                // Dispara o alerta se a OS for nova ou mudou de coluna
-                if (isNew || targetStatus !== oldStatus) {
-                    const stConf = STATUSES_OS[targetStatus] || STATUSES_OS['ABERTURA'];
-                    window.dispararAlertaAutomatico(targetStatus, `A O.S. ${osFinalId} entrou na fase: ${stConf.label}.`);
+                // Dispara o alerta se for nova ou se mudou de coluna (e não for o evento de criação no ondrop do kanban)
+                const oldOS = window.tickets.find(t => t.id === osFinalId);
+                if (!oldOS || oldOS.status !== targetStatus) {
+                    window.dispararAlertaAutomatico(targetStatus, `A O.S. ${osFinalId} entrou na fase: ${STATUSES_OS[targetStatus].label}.`);
                 }
 
                 // AGENDA INTEGRADA
