@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,21 +24,22 @@
     </script>
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 700; }
-        .etapa-color { transition: all 0.3s ease; }
+        /* Base travada na altura da tela (viewport) */
+        html, body { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 800; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .glass-header {
-            background: rgba(255, 255, 255, 0.94);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        .modal-overlay { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); }
 
         .timeline-item { position: relative; padding-left: 1.5rem; }
         .timeline-item::before {
@@ -51,7 +52,7 @@
         }
 
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
-        .dragging { opacity: 0.4; transform: scale(0.98); }
+        .dragging { opacity: 0.4; transform: scale(0.95); }
 
         .pulse-critical { animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
@@ -61,200 +62,326 @@
         }
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .toast-animate { animation: fadeIn 0.25s ease-out forwards; }
         .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden text-slate-800 bg-slate-100 antialiased selection:bg-blue-600 selection:text-white">
+<body class="flex flex-col text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
 
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
-    <datalist id="mock-clientes"></datalist>
-    <datalist id="mock-maquinas"></datalist>
 
-    <div class="glass-header border-b border-slate-200 flex-shrink-0 z-30 sticky top-0 shadow-xs">
-        <div class="px-4 lg:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+    <!-- CABEÇALHO FIXO -->
+    <header class="glass-header border-b border-slate-200 shrink-0 z-30 shadow-sm relative">
+        <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
             
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-xl text-white shadow-glow shrink-0">S</div>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-2xl text-white shadow-glow shrink-0">S</div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-base font-extrabold tracking-tight text-slate-900">ServiceFlow</h1>
-                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">v4.3 OS</span>
+                        <h1 class="text-lg font-black tracking-tight text-slate-900">ServiceFlow</h1>
+                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">v5.0 OS</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Gestão Integrada de Triagem e Suporte</p>
+                    <p class="text-xs text-slate-500 font-medium">Gestão Integrada de Triagem e Suporte</p>
                 </div>
             </div>
 
-            <div class="hidden md:flex items-center relative flex-1 max-w-xs mx-2">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="headerQuickSearch" oninput="window.syncHeaderSearch(this.value)" placeholder="Busca rápida..." class="w-full pl-8 pr-8 py-1.5 text-xs bg-slate-100/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+            <div class="hidden md:flex items-center relative flex-1 max-w-sm mx-4">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="headerQuickSearch" oninput="window.syncHeaderSearch(this.value)" placeholder="Busca rápida por cliente, SN ou OS..." class="w-full pl-9 pr-8 py-2 text-sm bg-slate-100 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-medium">
                 <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">F</span>
             </div>
 
-            <nav class="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl border border-slate-300/60 overflow-x-auto">
-                <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap" id="nav-kanban"><i class="fa-solid fa-table-columns text-xs"></i><span>Kanban</span></button>
-                <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox text-xs"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span></button>
-                <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-xs font-semibold text-slate-600 hover:text-blue-700 hover:bg-white/80 whitespace-nowrap" id="nav-indicadores"><i class="fa-solid fa-chart-line text-xs"></i><span>Indicadores</span></button>
+            <nav class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto">
+                <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap" id="nav-kanban"><i class="fa-solid fa-table-columns"></i><span>Kanban</span></button>
+                <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></button>
+                <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-indicadores"><i class="fa-solid fa-chart-line"></i><span>Indicadores</span></button>
             </nav>
 
             <div class="flex items-center gap-2 ml-auto">
-                <button onclick="window.abrirModalConfigAlertas()" id="btnConfigAlertas" title="Configurar Automações de Alerta" class="hidden bg-slate-800 hover:bg-slate-900 text-amber-400 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all items-center gap-1.5 shadow-xs cursor-pointer">
+                <button onclick="window.abrirModalConfigAlertas()" id="btnConfigAlertas" title="Configurar Alertas" class="bg-slate-800 hover:bg-slate-900 text-amber-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition-all items-center gap-1.5 shadow-sm cursor-pointer flex">
                     <i class="fa-solid fa-bell"></i><span class="hidden xl:inline">Alertas</span>
                 </button>
 
-                <button onclick="window.abrirModalAutomacao()" id="btnAutomacao" title="Configurar Automações OS -> Kanban" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                <button onclick="window.abrirModalAutomacao()" id="btnAutomacao" title="Configurar Automação" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-code-branch"></i><span class="hidden xl:inline">Automação</span>
                 </button>
 
-                <button onclick="window.exportToCSV()" title="Exportar CSV" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
-                    <i class="fa-solid fa-file-excel text-emerald-600 text-xs"></i><span class="hidden xl:inline">Exportar</span>
+                <button onclick="window.toggleFilterPanel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-filter text-blue-600"></i><span>Filtros</span><span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
                 </button>
 
-                <button onclick="window.toggleFilterPanel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer">
-                    <i class="fa-solid fa-filter text-blue-600 text-xs"></i><span>Filtros</span><span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
-                </button>
-
-                <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-plus text-xs"></i><span class="hidden sm:inline">Nova O.S.</span>
+                <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-black shadow-md transition-all flex items-center gap-2 cursor-pointer ml-2">
+                    <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Nova O.S.</span>
                 </button>
             </div>
         </div>
 
-        <div id="filterPanel" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 shadow-xs hidden transition-all">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+        <div id="filterPanel" class="bg-white border-t border-slate-200 px-4 lg:px-6 py-4 shadow-md hidden transition-all absolute w-full z-40">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Geral</label>
-                    <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="filterSearch" oninput="window.applyFilters()" placeholder="Pesquisar..." class="w-full pl-7 pr-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Geral</label>
+                    <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="filterSearch" oninput="window.applyFilters()" placeholder="Pesquisar..." class="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente</label><input type="text" id="filterClient" oninput="window.applyFilters()" placeholder="Nome..." class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nº Série</label><input type="text" id="filterSerial" oninput="window.applyFilters()" placeholder="SN-..." class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Inicial</label><input type="date" id="filterDateStart" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Final</label><input type="date" id="filterDateEnd" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente</label><input type="text" id="filterClient" oninput="window.applyFilters()" placeholder="Nome..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nº Série</label><input type="text" id="filterSerial" oninput="window.applyFilters()" placeholder="SN-..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono font-bold"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Inicial</label><input type="date" id="filterDateStart" onchange="window.applyFilters()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Final</label><input type="date" id="filterDateEnd" onchange="window.applyFilters()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div>
                 <div class="flex gap-2">
-                    <button onclick="window.resetFilters()" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300/70 transition-all flex items-center justify-center gap-1 cursor-pointer"><i class="fa-solid fa-eraser text-slate-500"></i> Limpar</button>
+                    <button onclick="window.resetFilters()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-all flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-eraser text-slate-500"></i> Limpar Filtros</button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2.5 pt-2.5 border-t border-slate-100">
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Status</label><select id="filterStatus" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos</option><option value="ENTRADA">Suporte Remoto</option><option value="TRIAGEM">Triagem Técnica</option><option value="ORCAMENTO">Orçamentos</option><option value="AGENDAMENTO">Agendamento / Execução</option><option value="CONCLUIDO">Finalizados</option></select></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Modalidade</label><select id="filterType" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todas</option><option value="REMOTO">Somente Remoto</option><option value="PRESENCIAL">Requer Visita Presencial</option></select></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Responsável</label><select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos os Responsáveis</option></select></div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3 pt-3 border-t border-slate-100">
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Status Kanban</label><select id="filterStatus" onchange="window.applyFilters()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none cursor-pointer font-bold text-slate-700"><option value="ALL">Todos</option><option value="ENTRADA">Suporte Remoto</option><option value="TRIAGEM">Triagem Técnica</option><option value="ORCAMENTO">Orçamentos</option><option value="AGENDAMENTO">Agendamento / Execução</option><option value="CONCLUIDO">Finalizados</option></select></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Modalidade</label><select id="filterType" onchange="window.applyFilters()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none cursor-pointer font-bold text-slate-700"><option value="ALL">Todas</option><option value="REMOTO">Somente Remoto</option><option value="PRESENCIAL">Requer Visita Presencial</option></select></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Responsável</label><select id="filterTech" onchange="window.applyFilters()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none cursor-pointer font-bold text-slate-700"><option value="ALL">Todos os Responsáveis</option></select></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL (FLEX-1 COM OVERFLOW BLINDADO) -->
+    <main class="flex-1 min-h-0 flex flex-col relative w-full overflow-hidden">
+        <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
+            <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
+            <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
+        </div>
+
+        <!-- VISÃO: KANBAN -->
+        <div id="view-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-4 view-section bg-slate-100 w-full">
+            <!-- Container flexível que segura as 5 colunas com largura fixa -->
+            <div id="kanban-grid" class="flex gap-4 h-full w-max min-w-full pb-2">
+                <!-- Colunas Injetadas via JS -->
             </div>
         </div>
 
-        <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 relative">
-            <div class="px-4 pt-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
-                <span class="hidden sm:inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
-                <div class="flex items-center gap-3 ml-auto text-[10px] font-mono"><span>[N] Novo</span><span>[F] Filtros</span><span>[ESC] Fechar Modais</span></div>
+        <!-- VISÃO: PENDÊNCIAS -->
+        <div id="view-pendencias" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 hidden view-section bg-slate-50 w-full">
+            <div class="max-w-5xl mx-auto space-y-4">
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                    <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
+                    <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
+                </div>
+                <div id="pendenciasList" class="space-y-3"></div>
             </div>
+        </div>
 
-            <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col min-h-0 min-w-0">
-                <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4 min-h-0"></div>
+        <!-- VISÃO: INDICADORES -->
+        <div id="view-indicadores" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 hidden view-section bg-slate-50 w-full">
+            <div class="max-w-6xl mx-auto space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
+                    <div id="indicadoresBarList" class="space-y-4"></div>
+                </div>
             </div>
+        </div>
+    </main>
 
-            <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100 min-h-0">
-                <div class="max-w-4xl mx-auto space-y-4">
-                    <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
-                        <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
-                        <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">0 itens</span>
-                    </div>
-                    <div id="pendenciasList" class="space-y-3"></div>
+    <!-- ========================================== -->
+    <!-- MODAL GIGANTE E BLINDADO: NOVA O.S. (3 ABAS) -->
+    <!-- ========================================== -->
+    <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+        <!-- O Modal está cravado em 95vh (95% da tela) e largura máxima 1400px, com flex-col para scroll interno perfeito -->
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-[1400px] h-[95vh] flex flex-col overflow-hidden relative">
+            
+            <!-- Cabeçalho (Fixo) -->
+            <div class="bg-slate-900 text-white px-6 py-5 flex justify-between items-center shrink-0">
+                <h3 class="font-black text-base flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400 text-lg"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
+                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+                
+            <!-- Abas (Fixas) -->
+            <div class="px-6 pt-5 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div class="flex gap-8 text-sm font-bold overflow-x-auto custom-scrollbar">
+                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building text-blue-600"></i> Dados e Agendamento</button>
+                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-xs ml-1 shadow-inner">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded text-xs ml-1 shadow-inner">0</span></button>
                 </div>
             </div>
 
-            <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100 min-h-0">
-                <div class="max-w-6xl mx-auto space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Distribuição Operacional</h3>
-                        <div id="indicadoresBarList" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <!-- Corpo (Rolagem Interna Flexível) -->
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white">
+                <form id="form-nova-os" onsubmit="event.preventDefault();" class="h-full">
+                    <input type="hidden" id="os-id-oculto" value="">
+                    
+                    <div id="aba1" class="space-y-6 max-w-5xl mx-auto">
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Cliente *</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-300 text-sm font-black rounded-xl outline-none focus:border-blue-600 transition shadow-sm text-slate-900">
+                            </div>
+                            
+                            <div id="card-cliente-info" class="hidden mt-4 bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row gap-5 justify-between items-start sm:items-center shadow-sm">
+                                <div class="space-y-1.5">
+                                    <p class="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-1"><i class="fa-solid fa-address-card mr-1"></i> Dados do Cadastro Oficial</p>
+                                    <p id="card-end" class="text-sm font-bold text-slate-700"><i class="fa-solid fa-location-dot w-5 text-blue-400"></i> <span id="card-end-txt"></span></p>
+                                    <p id="card-tel" class="text-sm font-bold text-slate-700"><i class="fa-solid fa-phone w-5 text-blue-400"></i> <span id="card-tel-txt"></span></p>
+                                    <p id="card-con" class="text-sm font-bold text-slate-700"><i class="fa-solid fa-user w-5 text-blue-400"></i> Contato Base: <span id="card-con-txt" class="text-blue-900"></span></p>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- DRAWER: DETALHES DO CHAMADO -->
-    <div id="ticketModal" class="fixed inset-0 modal-overlay z-[9999] hidden flex justify-end">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 shadow-sm"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tipo de Atendimento *</label>
+                                <select id="os-tipo" class="w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 cursor-pointer shadow-sm">
+                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 cursor-pointer shadow-sm"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Técnico Designado *</label>
+                                <select id="os-tecnico" required class="w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3 rounded-xl outline-none focus:border-blue-600 cursor-pointer shadow-sm"></select>
+                            </div>
+                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria, horário de almoço..." class="w-full bg-white border border-slate-300 text-sm font-medium text-slate-700 p-3 rounded-xl outline-none focus:border-blue-600 resize-none shadow-sm"></textarea></div>
+                        </div>
+
+                        <div class="flex justify-end pt-6">
+                            <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-900 hover:bg-black text-white font-black px-8 py-3.5 rounded-xl text-sm flex items-center gap-2 shadow-lg transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="aba2" class="hidden space-y-6 max-w-6xl mx-auto">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <div>
+                                <h4 class="text-base font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-server text-blue-600"></i> Equipamentos da OS</h4>
+                                <p class="text-xs text-slate-500 mt-1 font-medium">Adicione as máquinas, descreva os defeitos e vincule as etapas de serviço.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="w-full sm:w-auto bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-sm border border-blue-300 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Adicionar Máquina
+                            </button>
+                        </div>
+
+                        <div id="container-equipamentos-os" class="space-y-5 pb-12"></div>
+
+                        <div class="flex justify-between pt-6 border-t border-slate-200">
+                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-600 hover:text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition cursor-pointer bg-slate-100 hover:bg-slate-200 border border-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar</button>
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-900 hover:bg-black text-white font-black px-8 py-3.5 rounded-xl text-sm flex items-center gap-2 shadow-lg transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="aba3" class="hidden space-y-6 max-w-6xl mx-auto">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 bg-emerald-50 p-5 rounded-2xl border border-emerald-200">
+                            <div>
+                                <h4 class="text-base font-black text-emerald-900 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Orçamentos e Faturamento</h4>
+                                <p class="text-xs text-emerald-700 mt-1 font-medium">Crie propostas comerciais vinculadas às máquinas. As peças usadas pelo técnico aparecem aqui automaticamente.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-md cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Novo Orçamento
+                            </button>
+                        </div>
+
+                        <div id="container-orcamentos-os" class="space-y-6 min-h-[250px]"></div>
+                        
+                        <div class="bg-slate-900 rounded-3xl p-6 flex flex-col sm:flex-row justify-between items-center text-white mt-8 shadow-2xl relative overflow-hidden">
+                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                            <span class="text-sm font-bold uppercase tracking-widest text-slate-300 z-10">Total Geral da Ordem de Serviço:</span>
+                            <span id="valor-total-geral-os" class="text-3xl font-black text-emerald-400 z-10 mt-2 sm:mt-0">R$ 0,00</span>
+                        </div>
+
+                        <div class="flex justify-start pt-6 border-t border-slate-200 mt-6">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-600 hover:text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition cursor-pointer bg-slate-100 hover:bg-slate-200 border border-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar p/ Equipamentos</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Rodapé (Fixo) -->
+            <div class="bg-slate-50 border-t border-slate-200 px-6 py-5 shrink-0 flex justify-end gap-3">
+                <button type="button" onclick="window.fecharModalOS()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-sm transition cursor-pointer shadow-sm">Cancelar</button>
+                <button type="button" onclick="window.salvarOS()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5"><i class="fa-solid fa-cloud-arrow-up text-lg"></i> Salvar Ordem de Serviço</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DRAWER: DETALHES DO CHAMADO (KANBAN) -->
+    <!-- ========================================== -->
+    <div id="ticketModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex justify-end transition-opacity">
         <div class="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl drawer-animate" id="ticketDrawer">
-            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white text-slate-900 shrink-0">
+            <!-- Header Fixo -->
+            <div class="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-mono font-black bg-blue-600/30 text-blue-300 px-3 py-1 rounded-lg border border-blue-500/50" id="tm-id">ATD-#00000</span>
+                    <span id="tm-status-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border">STATUS</span>
+                </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-xs font-mono font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-lg border border-blue-200" id="tm-id">ATD-#00000</span>
-                    <span id="tm-status-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold">STATUS</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <!-- NOVO BOTÃO: Abrir OS Completa pelo Modal -->
-                    <button onclick="window.abrirModalOS(window.currentTicketId)" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-indigo-200">
-                        <i class="fa-solid fa-file-invoice"></i><span class="hidden sm:inline">Abrir OS Completa</span>
+                    <button onclick="window.abrirModalOS(window.currentTicketId)" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-file-invoice text-sm"></i><span class="hidden sm:inline">Abrir OS Completa</span>
                     </button>
-                    <button onclick="window.abrirModalNotificar()" title="Cobrar/Avisar Equipe" class="text-amber-600 hover:bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-bell text-sm"></i><span class="hidden sm:inline">Notificar</span>
-                    </button>
-                    <button onclick="window.confirmDeleteTicket(window.currentTicketId)" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors p-1.5 rounded-lg border border-transparent hover:border-rose-200 cursor-pointer"><i class="fa-solid fa-trash-can text-sm"></i></button>
-                    <button onclick="window.closeTicketModal()" class="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    <button onclick="window.closeTicketModal()" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
             </div>
 
-            <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-2 text-xs">
-                    <span class="text-slate-500 font-medium">Responsável:</span>
-                    <span class="font-bold text-slate-800 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs" id="tm-assignee">Nome</span>
+            <!-- Sub-Header Info -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-slate-500 font-bold">Responsável:</span>
+                    <span class="font-black text-slate-800 bg-white px-3 py-1.5 rounded-lg border border-slate-300 shadow-sm" id="tm-assignee">Nome</span>
                 </div>
-                <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1" id="tm-created-time"></div>
+                <div class="text-xs font-bold text-slate-500 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm" id="tm-created-time"></div>
             </div>
 
-            <div class="px-6 border-b border-slate-200 shrink-0 bg-white">
-                <nav class="flex gap-6 text-xs font-semibold text-slate-500 overflow-x-auto">
-                    <button onclick="window.switchTab('tab-dados')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors tab-active" data-target="tab-dados"><i class="fa-solid fa-file-lines mr-1.5"></i>Dados Básicos</button>
-                    <button onclick="window.switchTab('tab-historico')" class="tab-btn py-3.5 hover:text-blue-600 relative transition-colors" data-target="tab-historico"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Histórico</button>
+            <!-- Tabs -->
+            <div class="px-6 border-b border-slate-200 shrink-0 bg-white shadow-sm z-10">
+                <nav class="flex gap-6 text-sm font-bold text-slate-500 overflow-x-auto custom-scrollbar">
+                    <button onclick="window.switchTab('tab-dados')" class="tab-btn py-4 hover:text-blue-600 relative transition-colors tab-active" data-target="tab-dados"><i class="fa-solid fa-file-lines mr-2"></i>Dados Básicos</button>
+                    <button onclick="window.switchTab('tab-historico')" class="tab-btn py-4 hover:text-blue-600 relative transition-colors" data-target="tab-historico"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Histórico & Timeline</button>
                 </nav>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
-                <div id="tab-dados" class="tab-content space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-building text-blue-600"></i> Cliente</h3>
-                            <div class="space-y-1.5 text-xs">
-                                <div><span class="text-slate-400 block text-[10px]">Nome</span> <span id="td-client" class="font-bold text-slate-900 text-sm"></span></div>
-                                <div><span class="text-slate-400 block text-[10px]">Cidade</span> <span id="td-city" class="font-semibold text-slate-700"></span></div>
-                                <div><span class="text-slate-400 block text-[10px]">Contato</span> <span id="td-contact" class="font-semibold text-slate-700"></span> • <span id="td-phone" class="font-semibold text-slate-700 font-mono"></span></div>
-                            </div>
+            <!-- Content Area (Scrollable) -->
+            <div class="flex-1 min-h-0 overflow-y-auto p-6 bg-slate-100 custom-scrollbar">
+                
+                <div id="tab-dados" class="tab-content space-y-5">
+                    <!-- Cliente Box -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-black text-blue-700 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2"><i class="fa-solid fa-building text-blue-500"></i> Informações do Cliente</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                            <div class="sm:col-span-2"><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Nome / Razão</span> <span id="td-client" class="font-black text-slate-900 text-base"></span></div>
+                            <div><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Cidade</span> <span id="td-city" class="font-bold text-slate-700"></span></div>
+                            <div class="sm:col-span-2"><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Contato Responsável</span> <span id="td-contact" class="font-bold text-slate-700"></span></div>
+                            <div><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Telefone / Whats</span> <span id="td-phone" class="font-bold font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100"></span></div>
                         </div>
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                            <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-print text-blue-600"></i> Resumo Equipamento</h3>
-                            <div class="space-y-1.5 text-xs">
-                                <div><span class="text-slate-400 block text-[10px]">Modelo / Info</span> <span id="td-equip" class="font-bold text-slate-900 text-sm"></span></div>
-                            </div>
-                            <div class="mt-2 p-2 bg-slate-100 border border-slate-200 rounded-lg text-[10px] text-slate-500 font-medium">
-                                <i class="fa-solid fa-circle-info text-blue-400"></i> Clique em "Abrir OS Completa" no topo para ver os equipamentos detalhados.
-                            </div>
+                    </div>
+                    
+                    <!-- Máquina Resumo Box -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-print text-3xl text-slate-200"></i></div>
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2 relative z-10"><i class="fa-solid fa-server text-slate-500"></i> Resumo do Equipamento (Ticket)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm relative z-10">
+                            <div><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Modelo da Máquina</span> <span id="td-equip" class="font-black text-slate-900"></span></div>
+                            <div><span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Número de Série (SN)</span> <span id="td-serial" class="font-mono font-black text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200"></span></div>
+                        </div>
+                        <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 font-bold flex items-start gap-2 relative z-10 shadow-inner">
+                            <i class="fa-solid fa-circle-info mt-0.5 text-blue-600"></i>
+                            <p>Para ver o detalhamento completo de defeitos, laudos e múltiplas máquinas, clique em <strong>"Abrir OS Completa"</strong> no topo da tela.</p>
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                        <h3 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2"><i class="fa-solid fa-wrench text-blue-600"></i> Resumo Diagnóstico</h3>
-                        <div class="grid grid-cols-1 gap-3.5 text-xs">
-                            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
-                                <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-amber-500"></i> Problema Principal</span>
-                                <p id="td-problem" class="text-slate-800 font-medium leading-relaxed pt-0.5 whitespace-pre-line"></p>
-                            </div>
-                        </div>
+                    <!-- Defeito Rápido -->
+                    <div class="bg-rose-50 p-5 rounded-2xl border border-rose-200 shadow-sm space-y-2">
+                        <h3 class="text-xs font-black text-rose-800 uppercase tracking-widest flex items-center gap-2 mb-2"><i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Problema Relatado (Abertura)</h3>
+                        <p id="td-problem" class="text-sm font-semibold text-rose-950 leading-relaxed whitespace-pre-line"></p>
                     </div>
 
-                    <div id="td-foto-box" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 hidden">
-                        <h3 class="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-camera text-slate-500"></i> Evidência Fotográfica</h3>
-                        <img id="td-foto-img" src="" class="max-h-48 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:opacity-90 transition object-cover" onclick="window.abrirFotoFullscreen(this.src)">
+                    <div id="td-foto-box" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hidden">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-camera text-slate-500"></i> Evidência Fotográfica</h3>
+                        <img id="td-foto-img" src="" class="max-h-64 w-full rounded-xl border border-slate-300 shadow-md cursor-pointer hover:opacity-90 transition object-cover" onclick="window.abrirFotoFullscreen(this.src)">
                     </div>
                 </div>
 
                 <div id="tab-historico" class="tab-content hidden space-y-4">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                        <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">Linha do Tempo</h3>
-                        <div id="timeline-container" class="space-y-4 mb-6"></div>
-                        <div class="pt-4 border-t border-slate-200 flex gap-2">
-                            <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') window.addQuickNote()" class="flex-1 border border-slate-200 rounded-xl py-2 px-3 focus:outline-none focus:border-blue-500 text-xs" placeholder="Adicionar nota...">
-                            <button onclick="window.addQuickNote()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Registrar</button>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-6 pb-3 border-b border-slate-100"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
+                        <div id="timeline-container" class="space-y-5 mb-8"></div>
+                        
+                        <div class="pt-5 border-t border-slate-200 bg-slate-50 -mx-6 -mb-6 p-6 rounded-b-3xl">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Adicionar Nota Interna Rápida</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') window.addQuickNote()" class="flex-1 border border-slate-300 rounded-xl py-3 px-4 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 text-sm font-medium shadow-sm transition" placeholder="Escreva um recado para a equipe...">
+                                <button onclick="window.addQuickNote()" class="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Registrar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -263,202 +390,125 @@
     </div>
 
     <!-- MODAL FOTO FULLSCREEN -->
-    <div id="modal-foto-full" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4 cursor-pointer" onclick="this.classList.add('hidden')">
-        <button class="absolute top-6 right-6 text-white text-3xl hover:text-slate-300 transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-        <img id="img-fullscreen" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain">
+    <div id="modal-foto-full" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4 cursor-pointer" onclick="this.classList.add('hidden')">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-slate-300 transition cursor-pointer bg-black/50 w-12 h-12 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <img id="img-fullscreen" src="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain border border-white/10">
     </div>
 
     <!-- MODAL DELETAR -->
-    <div id="modal-delete-confirm" class="fixed inset-0 modal-overlay z-[99999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-200 space-y-4 text-center my-auto">
-            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div id="modal-delete-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 border border-slate-200 space-y-5 text-center my-auto">
+            <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-3xl shadow-inner border border-rose-200"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <div>
-                <h3 class="text-base font-bold text-slate-900">Excluir Atendimento?</h3>
-                <p class="text-xs text-slate-500 mt-1">Apagar o chamado <span id="deleteTicketTargetId" class="font-bold text-slate-800"></span>?</p>
+                <h3 class="text-lg font-black text-slate-900">Excluir Chamado / O.S.?</h3>
+                <p class="text-sm text-slate-500 mt-2 font-medium">Esta ação não pode ser desfeita. Apagar o registro <span id="deleteTicketTargetId" class="font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded"></span>?</p>
             </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="window.closeDeleteModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancelar</button>
-                <button onclick="window.executeDeleteTicket()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">Sim, Excluir</button>
+            <div class="flex gap-3 pt-3">
+                <button onclick="window.closeDeleteModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl cursor-pointer transition">Cancelar</button>
+                <button onclick="window.executeDeleteTicket()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white text-sm font-black rounded-xl shadow-md cursor-pointer transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash"></i> Sim, Excluir</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: Notificar Manual -->
-    <div id="modal-notificar" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+    <div id="modal-notificar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col my-auto">
-            <div class="px-6 py-4 bg-amber-500 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-bell"></i> Disparar Alerta / Cobrança</h3>
-                <button onclick="window.fecharModalNotificar()" class="text-amber-100 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="px-6 py-5 bg-amber-500 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-base font-black flex items-center gap-2"><i class="fa-solid fa-bell"></i> Disparar Alerta Push</h3>
+                <button onclick="window.fecharModalNotificar()" class="text-amber-100 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-5 bg-slate-50">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Destinatário</label>
-                    <select id="notif-target" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer">
-                        <optgroup label="Por Perfil / Equipe" id="notif-group-perfis">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Destinatário do Alerta</label>
+                    <select id="notif-target" class="w-full px-4 py-3 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer shadow-sm text-slate-800">
+                        <optgroup label="Por Equipe / Setor" id="notif-group-perfis">
                             <option value="perfil_Vendedor">Equipe: Vendas</option>
                             <option value="perfil_Técnico">Equipe: Técnica</option>
                             <option value="perfil_Financeiro">Equipe: Financeiro</option>
                             <option value="perfil_Administrativo">Equipe: Administrativo</option>
                         </optgroup>
-                        <optgroup label="Por Usuário Individual" id="notif-group-usuarios"></optgroup>
+                        <optgroup label="Por Usuário Específico" id="notif-group-usuarios"></optgroup>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Mensagem do Alerta</label>
-                    <textarea id="notif-msg" rows="3" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mensagem Personalizada</label>
+                    <textarea id="notif-msg" rows="3" class="w-full px-4 py-3 text-sm font-medium bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 resize-none shadow-sm"></textarea>
                 </div>
-                <button onclick="window.enviarNotificacaoManual()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">Enviar Notificação Push</button>
+                <div class="pt-2 border-t border-slate-200">
+                    <button onclick="window.enviarNotificacaoManual()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-3.5 rounded-xl text-sm transition cursor-pointer shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Enviar Notificação Direta</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- MODAL: Configurações de Alertas -->
-    <div id="modal-config-alertas" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col my-auto">
-            <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-amber-400"></i> Automação de Alertas do Kanban</h3>
-                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col my-auto max-h-[90vh]">
+            <div class="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-base font-black flex items-center gap-2"><i class="fa-solid fa-robot text-amber-400"></i> Automação de Alertas do Kanban</h3>
+                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition-colors cursor-pointer p-1"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50 space-y-5">
-                <p class="text-xs text-slate-600">Determine quem deve ser notificado automaticamente (computador e celular) quando um chamado entrar em cada fase.</p>
+            <div class="p-6 overflow-y-auto min-h-0 flex-1 custom-scrollbar bg-slate-50 space-y-5">
+                <p class="text-sm font-medium text-slate-600 bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-inner"><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> Determine quem deve ser notificado automaticamente no portal e no celular quando um chamado / OS entrar nas colunas abaixo.</p>
                 <div id="config-alertas-container" class="space-y-4"></div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
-                <button onclick="window.fecharModalConfigAlertas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button onclick="window.salvarConfigAlertas()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-md">Salvar Regras</button>
+            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0 shadow-inner">
+                <button onclick="window.fecharModalConfigAlertas()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition cursor-pointer">Cancelar</button>
+                <button onclick="window.salvarConfigAlertas()" class="px-8 py-3 bg-slate-900 hover:bg-black text-white font-black rounded-xl text-sm transition cursor-pointer shadow-lg flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Salvar Regras</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: Configurações de Automação (Mapeamento OS -> Kanban) -->
-    <div id="modal-config-automacao" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col my-auto">
-            <div class="px-6 py-4 bg-indigo-900 text-white flex justify-between items-center shrink-0">
-                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-code-branch text-indigo-300"></i> Automação de Etapas (OS -> Kanban)</h3>
-                <button onclick="window.fecharModalAutomacao()" class="text-indigo-200 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div id="modal-config-automacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden border border-slate-200 flex flex-col my-auto max-h-[90vh]">
+            <div class="px-6 py-5 bg-indigo-900 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-base font-black flex items-center gap-2"><i class="fa-solid fa-code-branch text-indigo-300"></i> Mapeamento de Fases (OS -> Kanban)</h3>
+                <button onclick="window.fecharModalAutomacao()" class="text-indigo-200 hover:text-white transition-colors cursor-pointer p-1"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50 space-y-4">
-                <p class="text-xs text-slate-600 mb-2">Defina para qual coluna do Kanban o atendimento deve ir automaticamente quando o técnico selecionar uma etapa da O.S.</p>
-                <div id="automacao-container" class="space-y-3"></div>
+            <div class="p-6 overflow-y-auto min-h-0 flex-1 custom-scrollbar bg-slate-50 space-y-5">
+                <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-inner">
+                    <p class="text-sm font-bold text-indigo-900 mb-1"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Como funciona a Automação?</p>
+                    <p class="text-xs text-indigo-700 font-medium">O App do Técnico permite escolher a <strong>"Etapa Atual"</strong> do equipamento (1 a 10). O painel do escritório trabalha com as <strong>"Colunas Visuais"</strong> do Kanban. Defina abaixo para qual coluna o cartão da OS deve pular automaticamente quando o técnico salvar o atendimento no celular.</p>
+                </div>
+                <div id="automacao-container" class="space-y-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"></div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-2 shrink-0">
-                <button onclick="window.fecharModalAutomacao()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button onclick="window.salvarConfigAutomacao()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-md">Salvar Regras</button>
+            <div class="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0 shadow-inner">
+                <button onclick="window.fecharModalAutomacao()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition cursor-pointer">Cancelar</button>
+                <button onclick="window.salvarConfigAutomacao()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-sm transition cursor-pointer shadow-lg flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Salvar Integração</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL GIGANTE: NOVA O.S. (3 ABAS) - ESTRUTURA BLINDADA -->
-    <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-6">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden relative">
-            
-            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
-                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <!-- MODAL: REVISAR E VINCULAR EQUIPAMENTO -->
+    <div id="modal-vincular-equip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col my-auto">
+            <div class="px-6 py-5 bg-blue-600 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-base font-black flex items-center gap-2"><i class="fa-solid fa-server"></i> Registrar no Parque</h3>
+                <button onclick="document.getElementById('modal-vincular-equip').classList.add('hidden')" class="text-blue-200 hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-                
-            <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                <div class="flex gap-6 text-xs font-semibold overflow-x-auto custom-scrollbar">
-                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building"></i> Dados e Agendamento</button>
-                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+            <div class="p-6 space-y-5 bg-slate-50">
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+                    <p class="text-xs font-bold text-blue-900 leading-relaxed"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A máquina informada não pertence oficialmente a este cliente no <strong>Parque de Máquinas</strong>. Verifique e cadastre-a abaixo.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Modelo do Equipamento</label>
+                    <input type="text" id="vinc-eq-modelo" class="w-full px-4 py-3 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 font-black text-slate-800 uppercase shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Número de Série (SN)</label>
+                    <input type="text" id="vinc-eq-serial" class="w-full px-4 py-3 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 font-mono font-black text-slate-800 uppercase shadow-sm">
+                </div>
+                <div class="flex gap-3 pt-3 border-t border-slate-200">
+                    <button onclick="document.getElementById('modal-vincular-equip').classList.add('hidden')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button onclick="window.confirmarVinculoParque()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl text-xs transition cursor-pointer shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Vincular e Salvar</button>
                 </div>
             </div>
-
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
-                <form id="form-nova-os" onsubmit="event.preventDefault();">
-                    <input type="hidden" id="os-id-oculto" value="">
-                    
-                    <div id="aba1" class="space-y-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente *</label>
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition shadow-sm">
-                            </div>
-                            
-                            <div id="card-cliente-info" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                                <div class="space-y-1">
-                                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Dados do Cadastro</p>
-                                    <p id="card-end" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> <span id="card-end-txt"></span></p>
-                                    <p id="card-tel" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-phone w-4 text-slate-400"></i> <span id="card-tel-txt"></span></p>
-                                    <p id="card-con" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-user w-4 text-slate-400"></i> Contato Base: <span id="card-con-txt" class="font-bold"></span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Atendimento *</label>
-                                <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
-                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
-                                </select>
-                            </div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></div>
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Técnico Designado *</label>
-                                <select id="os-tecnico" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></select>
-                            </div>
-                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria..." class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600 resize-none"></textarea></div>
-                        </div>
-
-                        <div class="flex justify-end pt-4">
-                            <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="aba2" class="hidden space-y-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Equipamentos da OS</h4>
-                                <p class="text-[10px] text-slate-500">Adicione as máquinas e defina formulários e etapas específicas para cada uma.</p>
-                            </div>
-                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Add Máquina
-                            </button>
-                        </div>
-
-                        <div id="container-equipamentos-os" class="space-y-4 pb-10"></div>
-
-                        <div class="flex justify-between pt-4 border-t border-slate-100">
-                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="aba3" class="hidden space-y-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Orçamentos e Faturamento</h4>
-                                <p class="text-[10px] text-slate-500">Adicione propostas, insira peças, horas e calcule totais.</p>
-                            </div>
-                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm border border-emerald-200 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i> Add Orçamento
-                            </button>
-                        </div>
-
-                        <div id="container-orcamentos-os" class="space-y-4 min-h-[200px]"></div>
-                        
-                        <div class="bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white mt-4 shadow-lg">
-                            <span class="text-sm font-bold uppercase tracking-wider text-slate-300">Total Geral da Ordem de Serviço:</span>
-                            <span id="valor-total-geral-os" class="text-xl font-black text-emerald-400">R$ 0,00</span>
-                        </div>
-
-                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
-                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar Equipamentos</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex justify-end gap-2">
-                <button type="button" onclick="window.fecharModalOS()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button type="button" onclick="window.salvarOS()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Ordem de Serviço</button>
-            </div>
-
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
+    <!-- TOASTS -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
 
     <script type="module" src="core.js"></script>
     <script type="module">
@@ -490,12 +540,13 @@
 
         window.filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
+        // COLUNAS OFICIAIS DO KANBAN
         const STATUSES = {
-            'ENTRADA': { label: 'Suporte Remoto', color: 'bg-blue-50 text-blue-900 border-blue-200', badgeDot: 'bg-blue-600' },
-            'TRIAGEM': { label: 'Triagem Técnica', color: 'bg-amber-50 text-amber-900 border-amber-200', badgeDot: 'bg-amber-500' },
-            'ORCAMENTO': { label: 'Orçamentos', color: 'bg-purple-50 text-purple-900 border-purple-200', badgeDot: 'bg-purple-600' },
+            'ENTRADA': { label: 'Suporte Remoto / Entrada', color: 'bg-blue-50 text-blue-900 border-blue-200', badgeDot: 'bg-blue-600' },
+            'TRIAGEM': { label: 'Triagem / Diagnóstico', color: 'bg-amber-50 text-amber-900 border-amber-200', badgeDot: 'bg-amber-500' },
+            'ORCAMENTO': { label: 'Orçamentos / Faturamento', color: 'bg-purple-50 text-purple-900 border-purple-200', badgeDot: 'bg-purple-600' },
             'AGENDAMENTO': { label: 'Agendamento / Execução', color: 'bg-cyan-50 text-cyan-900 border-cyan-200', badgeDot: 'bg-cyan-600' },
-            'CONCLUIDO': { label: 'Finalizados', color: 'bg-emerald-50 text-emerald-900 border-emerald-200', badgeDot: 'bg-emerald-600' }
+            'CONCLUIDO': { label: 'Finalizados (Checkout)', color: 'bg-emerald-50 text-emerald-900 border-emerald-200', badgeDot: 'bg-emerald-600' }
         };
 
         const ETAPAS_SERVICO = [
@@ -522,13 +573,14 @@
                 if (btnConfig) btnConfig.classList.remove('hidden');
             }
 
-            // BUSCA DO CONFIG DE AUTOMAÇÃO
+            // BUSCA DO CONFIG DE AUTOMAÇÃO KANBAN
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
                 if(snap.exists()) {
                     window.kanbanMapping = snap.data().mapping || {};
                 }
             });
 
+            // FORMCRAFT
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
                 window.dbForms = [];
                 snap.forEach(d => window.dbForms.push(d.data().title));
@@ -592,7 +644,7 @@
                         schedule: d.schedule || null,
                         timestampOriginal: d.timestamp || Date.now(),
                         
-                        // CAMPOS DA NOVA OS
+                        // CAMPOS DA NOVA OS GIGANTE
                         equipamentosOS: d.equipamentos || [],
                         orcamentosOS: d.orcamentos || [],
                         solicitanteOS: d.solicitante || '',
@@ -616,10 +668,11 @@
             });
         };
 
+        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3'].forEach(a => {
                 document.getElementById(a).classList.add('hidden');
-                document.getElementById('btn-' + a).className = "tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer";
+                document.getElementById('btn-' + a).className = "tab-inactive pb-3.5 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer";
             });
             document.getElementById(aba).classList.remove('hidden');
             const activeBtn = document.getElementById('btn-' + aba);
@@ -631,7 +684,7 @@
             document.getElementById('os-id-oculto').value = '';
             document.getElementById('card-cliente-info').classList.add('hidden');
             document.getElementById('container-equipamentos-os').innerHTML = '';
-            document.getElementById('container-orcamentos-os').innerHTML = '<div id="orcamentos-vazio" class="text-center py-10 border-2 border-dashed border-slate-200 rounded-2xl"><p class="text-xs font-bold text-slate-400">Nenhum orçamento adicionado.</p></div>';
+            document.getElementById('container-orcamentos-os').innerHTML = '<div id="orcamentos-vazio" class="text-center py-16 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50"><i class="fa-solid fa-file-invoice-dollar text-4xl text-slate-300 mb-3"></i><p class="text-sm font-bold text-slate-500">Nenhum orçamento adicionado nesta O.S.</p></div>';
             document.getElementById('valor-total-geral-os').innerText = 'R$ 0,00';
             window.contadorEquips = 0; window.contadorOrcs = 0;
 
@@ -648,10 +701,16 @@
                     document.getElementById('os-tecnico').value = os.tecnicoOS || os.assignee || '';
                     document.getElementById('os-obs').value = os.observacoesOS || '';
 
-                    if(os.equipamentosOS && os.equipamentosOS.length > 0) {
-                        os.equipamentosOS.forEach(maq => window.adicionarEquipamentoNaOS(maq));
-                    } else if (os.equipment && os.equipment.model) {
-                        window.adicionarEquipamentoNaOS({maquina: os.equipment.model, defeito: os.request.problem});
+                    // Converte formato antigo do OSR para os cards novos
+                    let eqs = os.equipamentosOS || [];
+                    if(eqs.length === 0 && os.equipment && os.equipment.model) {
+                        eqs = [{maquina: `[SN: ${os.equipment.serial}] ${os.equipment.model}`, defeito: os.request.problem}];
+                    }
+                    
+                    if(eqs.length > 0) {
+                        eqs.forEach(maq => window.adicionarEquipamentoNaOS(maq));
+                    } else {
+                        window.adicionarEquipamentoNaOS();
                     }
 
                     if(os.orcamentosOS && os.orcamentosOS.length > 0) {
@@ -684,7 +743,7 @@
             dlMaq.innerHTML = '';
 
             if (cli) {
-                document.getElementById('card-end-txt').innerText = cli.endereco ? `${cli.endereco}, ${cli.cidade || ''}` : 'Sem endereço';
+                document.getElementById('card-end-txt').innerText = cli.endereco ? `${cli.endereco}, ${cli.cidade || ''}` : 'Sem endereço cadastrado';
                 let contatoStr = cli.contato || ''; let telStr = cli.telefone || '';
                 if(cli.contatos && cli.contatos.length > 0) { contatoStr = cli.contatos[0].nome; telStr = cli.contatos[0].telefone; }
                 
@@ -701,6 +760,8 @@
             }
         };
 
+        // ... O restante das funções do Modal Gigante da OS (adicionarEquipamentoNaOS, orçamentos, salvarOS) seguem exatamente a mesma lógica construída no protótipo seguro ...
+
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
@@ -708,22 +769,33 @@
             const etapasOptions = ETAPAS_SERVICO.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
 
             const cardHtml = `
-                <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-2xl p-4 shadow-sm relative">
-                    <button type="button" onclick="document.getElementById('equip-card-${window.contadorEquips}').remove(); window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
-                        <div class="space-y-3">
-                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Equipamento *</label><input type="text" list="mock-maquinas" class="inp-maquina w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition" value="${dadosSalvos ? dadosSalvos.maquina : ''}"></div>
-                            <div><label class="block text-[10px] font-bold text-rose-500 uppercase mb-1">Defeito *</label><textarea rows="2" class="inp-defeito w-full bg-rose-50 border border-rose-200 text-xs p-2.5 rounded-xl outline-none focus:border-rose-400 resize-none">${dadosSalvos ? dadosSalvos.defeito : ''}</textarea></div>
-                            <div><label class="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Serviço Realizado</label><textarea rows="2" class="inp-servico w-full bg-emerald-50 border border-emerald-200 text-xs p-2.5 rounded-xl outline-none focus:border-emerald-400 resize-none">${dadosSalvos ? dadosSalvos.servico || '' : ''}</textarea></div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Hora Início</label><input type="time" class="inp-hora-inicio w-full bg-slate-50 border text-xs p-2 rounded-xl" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Hora Fim</label><input type="time" class="inp-hora-fim w-full bg-slate-50 border text-xs p-2 rounded-xl" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
+                <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative transition hover:border-blue-300">
+                    <div class="absolute -left-3 -top-3 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-lg border-2 border-white">${window.contadorEquips}</div>
+                    <button type="button" onclick="document.getElementById('equip-card-${window.contadorEquips}').remove(); window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash-can"></i></button>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-3">
+                        <div class="space-y-4">
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-print text-blue-500"></i> Equipamento / Modelo / SN *</label><input type="text" list="mock-maquinas" class="inp-maquina w-full px-4 py-3 bg-slate-50 border border-slate-300 text-sm font-black text-slate-900 rounded-xl outline-none focus:border-blue-600 focus:bg-white transition shadow-inner" placeholder="Ex: [SN: 1234] Datador..." value="${dadosSalvos ? (dadosSalvos.maquina||'').replace(/"/g, '&quot;') : ''}"></div>
+                            <div><label class="block text-[11px] font-bold text-rose-600 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Defeito Relatado *</label><textarea rows="2" class="inp-defeito w-full bg-rose-50/50 border border-rose-200 text-sm text-slate-800 font-medium p-3 rounded-xl outline-none focus:border-rose-400 focus:bg-white resize-none shadow-sm" placeholder="O que o cliente informou?">${dadosSalvos ? (dadosSalvos.defeito||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
+                            <div><label class="block text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-wrench"></i> Serviço Realizado / Laudo</label><textarea rows="2" class="inp-servico w-full bg-emerald-50/50 border border-emerald-200 text-sm text-slate-800 font-medium p-3 rounded-xl outline-none focus:border-emerald-400 focus:bg-white resize-none shadow-sm" placeholder="O que o técnico fez?">${dadosSalvos ? (dadosSalvos.servico||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Início (Técnico)</label><input type="time" class="inp-hora-inicio w-full bg-white border border-slate-300 text-sm font-bold text-slate-700 p-2.5 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-flag-checkered"></i> Fim (Técnico)</label><input type="time" class="inp-hora-fim w-full bg-white border border-slate-300 text-sm font-bold text-slate-700 p-2.5 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
                             </div>
                         </div>
-                        <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col justify-center">
-                            <div><label class="block text-[10px] font-black text-slate-700 uppercase mb-1">Formulário</label><select class="inp-formulario w-full bg-white border text-xs font-semibold p-2.5 rounded-xl cursor-pointer"><option value="">Nenhum</option>${formsOptions}</select></div>
-                            <div class="mt-4"><label class="block text-[10px] font-black text-slate-700 uppercase mb-1">Etapa Atual</label><select onchange="window.mudarCorEtapa(this)" class="inp-etapa etapa-color w-full border text-xs font-bold p-2.5 rounded-xl cursor-pointer shadow-inner ${ETAPAS_SERVICO[0].cor}">${etapasOptions}</select></div>
-                            <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas) : "[]"}'>
+                        <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-center shadow-inner relative overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+                            <div class="relative z-10">
+                                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2"><i class="fa-solid fa-clipboard-list text-blue-600 text-base align-middle mr-1"></i> Check-list / Formulário Obrigatório</label>
+                                <select class="inp-formulario w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 p-3.5 rounded-xl cursor-pointer shadow-sm focus:outline-none focus:border-blue-600 transition"><option value="">Nenhum formulário exigido</option>${formsOptions}</select>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-slate-200 relative z-10">
+                                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-amber-500 text-base align-middle mr-1"></i> Etapa Atual do Serviço (Gatilho)</label>
+                                <select onchange="window.mudarCorEtapa(this)" class="inp-etapa etapa-color w-full border text-sm font-black p-3.5 rounded-xl cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${ETAPAS_SERVICO[0].cor}">${etapasOptions}</select>
+                                <p class="text-[10px] text-slate-500 font-medium mt-2 leading-relaxed">Mudar esta etapa move o cartão da OS automaticamente no Kanban dependendo das regras de automação ativas.</p>
+                            </div>
+                            <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas).replace(/'/g, "&#39;") : "[]"}'>
                         </div>
                     </div>
                 </div>
@@ -739,11 +811,11 @@
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
         };
 
-        window.mudarCorEtapa = function(s) { const cor = s.options[s.selectedIndex].getAttribute('data-cor'); s.className = `inp-etapa etapa-color w-full border text-xs font-bold p-2.5 rounded-xl cursor-pointer shadow-inner ${cor}`; };
+        window.mudarCorEtapa = function(s) { const cor = s.options[s.selectedIndex].getAttribute('data-cor'); s.className = `inp-etapa etapa-color w-full border text-sm font-black p-3.5 rounded-xl cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${cor}`; };
         
         window.validarAba1EAvancar = function() {
             const cli = document.getElementById('os-cliente').value.trim();
-            if(!cli) { window.showToast('Preencha o cliente.', 'warning'); document.getElementById('os-cliente').focus(); return; }
+            if(!cli) { window.showToast('Preencha o cliente para avançar.', 'warning'); document.getElementById('os-cliente').focus(); return; }
             window.mudarAbaOS('aba2');
         };
 
@@ -753,8 +825,8 @@
             
             const container = document.getElementById('container-orcamentos-os');
             const maqValues = Array.from(document.querySelectorAll('.inp-maquina')).map(inp => inp.value).filter(val => val !== '');
-            let opcoesAlvo = '<option value="Geral da OS">Geral da OS</option>';
-            maqValues.forEach(maq => { opcoesAlvo += `<option value="${maq}">${maq}</option>`; });
+            let opcoesAlvo = '<option value="Geral da OS">Orçamento Geral da O.S.</option>';
+            maqValues.forEach(maq => { opcoesAlvo += `<option value="${maq.replace(/"/g, '&quot;')}">${maq}</option>`; });
 
             let itensHtml = '';
             if (dadosSalvos && dadosSalvos.itens && dadosSalvos.itens.length > 0) {
@@ -765,21 +837,56 @@
             const sDeslQtd = dadosSalvos ? (dadosSalvos.desl_qtd || 1) : 1; const sDeslUnit = dadosSalvos ? (dadosSalvos.desl_unit || '') : '';
 
             const cardHtml = `
-                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border-2 border-emerald-200 rounded-2xl p-5 shadow-sm relative mb-4">
-                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
-                    <div class="mb-4 pr-10"><select class="inp-orc-alvo w-full md:w-1/2 bg-emerald-50 border border-emerald-200 text-xs font-bold p-2 rounded-xl text-emerald-900">${opcoesAlvo}</select></div>
-                    <table class="w-full text-left text-xs border mb-4">
-                        <thead class="bg-slate-50 border-b text-slate-500 font-bold uppercase text-[9px]"><tr><th class="p-2">Peça</th><th class="p-2 w-16 text-center">Qtd</th><th class="p-2 w-24 text-right">Val.</th><th class="p-2 w-28 text-right">Sub.</th><th class="p-2 w-10"></th></tr></thead>
-                        <tbody id="tbody-itens-orc-${window.contadorOrcs}" class="divide-y">${itensHtml}</tbody>
-                    </table>
-                    <div class="bg-slate-50 p-2 flex justify-between items-center mb-4"><button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-[10px] font-bold text-blue-600">Add Peça</button><span class="text-[10px] font-black text-slate-600">Subtotal: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-800 text-xs ml-1">R$ 0,00</span></span></div>
+                <div id="orc-card-${window.contadorOrcs}" class="orc-card bg-white border-2 border-emerald-300 rounded-3xl p-6 shadow-md relative mb-6">
+                    <button type="button" onclick="document.getElementById('orc-card-${window.contadorOrcs}').remove(); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os'); window.calcularTotalGeralOS();" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash-can"></i></button>
                     
-                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <div class="grid grid-cols-12 gap-2 items-center"><div class="col-span-5"><label class="text-[10px] font-bold text-slate-500">Mão de Obra</label></div><div class="col-span-2"><input type="number" step="0.5" class="inp-orc-mo-qtd w-full text-xs text-center p-1.5 border rounded" value="${sMoQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div><div class="col-span-2"><input type="number" step="0.01" class="inp-orc-mo-unit w-full text-xs text-right p-1.5 border rounded" value="${sMoUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div><div class="col-span-3 text-right font-bold text-xs" id="sub-mo-${window.contadorOrcs}">R$ 0,00</div></div>
-                        <div class="grid grid-cols-12 gap-2 items-center"><div class="col-span-5"><label class="text-[10px] font-bold text-slate-500">Deslocamento</label></div><div class="col-span-2"><input type="number" step="1" class="inp-orc-desl-qtd w-full text-xs text-center p-1.5 border rounded" value="${sDeslQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div><div class="col-span-2"><input type="number" step="0.01" class="inp-orc-desl-unit w-full text-xs text-right p-1.5 border rounded" value="${sDeslUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div><div class="col-span-3 text-right font-bold text-xs" id="sub-desl-${window.contadorOrcs}">R$ 0,00</div></div>
-                        <input type="text" class="inp-orc-obs w-full text-xs p-2 border rounded-xl mt-2" placeholder="Obs..." value="${dadosSalvos ? dadosSalvos.obs || '' : ''}">
+                    <div class="mb-5 pr-12">
+                        <label class="block text-[11px] font-black text-emerald-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-bullseye"></i> Máquina Vinculada (Alvo)</label>
+                        <select class="inp-orc-alvo w-full md:w-1/2 bg-emerald-50 border border-emerald-300 text-sm font-black p-3 rounded-xl text-emerald-900 shadow-sm focus:outline-none focus:border-emerald-600 cursor-pointer">${opcoesAlvo}</select>
                     </div>
-                    <div class="mt-4 pt-3 flex justify-end"><div class="bg-emerald-100 px-4 py-2 rounded-xl font-black text-emerald-800">Total: <span id="total-card-${window.contadorOrcs}" class="text-lg text-emerald-700">R$ 0,00</span></div></div>
+                    
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden mb-5 shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 font-black uppercase text-[10px] tracking-wider">
+                                <tr><th class="p-3 w-1/2">Produto / Peça Trocada</th><th class="p-3 w-20 text-center">Qtd</th><th class="p-3 w-32 text-right">Val. Unitário</th><th class="p-3 w-32 text-right">Subtotal</th><th class="p-3 w-12 text-center"><i class="fa-solid fa-gear"></i></th></tr>
+                            </thead>
+                            <tbody id="tbody-itens-orc-${window.contadorOrcs}" class="divide-y divide-slate-100 bg-white">${itensHtml}</tbody>
+                        </table>
+                        <div class="bg-slate-50 p-3 flex justify-between items-center border-t border-slate-200">
+                            <button type="button" onclick="window.addProdutoOrcamento(${window.contadorOrcs})" class="text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition cursor-pointer shadow-sm"><i class="fa-solid fa-plus mr-1"></i> Add Peça</button>
+                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Subtotal Peças: <span id="sub-prod-${window.contadorOrcs}" class="text-slate-900 text-sm ml-2 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-inner">R$ 0,00</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner">
+                        <h5 class="text-[11px] font-black uppercase text-slate-500 border-b border-slate-200 pb-2"><i class="fa-solid fa-toolbox mr-1"></i> Serviços e Deslocamento</h5>
+                        
+                        <div class="grid grid-cols-12 gap-3 items-center">
+                            <div class="col-span-12 sm:col-span-5"><label class="block text-xs font-bold text-slate-700">Mão de Obra Técnica</label></div>
+                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Horas</span><input type="number" step="0.5" class="inp-orc-mo-qtd w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-center p-2.5 pl-10 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sMoQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
+                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">R$/h</span><input type="number" step="0.01" class="inp-orc-mo-unit w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-right p-2.5 pl-10 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sMoUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
+                            <div class="col-span-12 sm:col-span-3 text-right font-black text-slate-900 text-sm bg-white border border-slate-200 p-2.5 rounded-xl shadow-inner" id="sub-mo-${window.contadorOrcs}">R$ 0,00</div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-3 items-center">
+                            <div class="col-span-12 sm:col-span-5"><label class="block text-xs font-bold text-slate-700">Taxa de Deslocamento</label></div>
+                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Km</span><input type="number" step="1" class="inp-orc-desl-qtd w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-center p-2.5 pl-8 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sDeslQtd}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
+                            <div class="col-span-6 sm:col-span-2 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">R$/Km</span><input type="number" step="0.01" class="inp-orc-desl-unit w-full bg-white border border-slate-300 text-sm font-bold text-slate-800 text-right p-2.5 pl-12 rounded-xl outline-none focus:border-emerald-500 shadow-sm" value="${sDeslUnit}" oninput="window.calcularTotaisCard(${window.contadorOrcs})"></div>
+                            <div class="col-span-12 sm:col-span-3 text-right font-black text-slate-900 text-sm bg-white border border-slate-200 p-2.5 rounded-xl shadow-inner" id="sub-desl-${window.contadorOrcs}">R$ 0,00</div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-200">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Observações Visíveis no Orçamento</label>
+                            <input type="text" class="inp-orc-obs w-full bg-white border border-slate-300 text-sm font-medium p-3 rounded-xl outline-none focus:border-emerald-500 shadow-sm" placeholder="Ex: Pagamento faturado em 28 dias..." value="${dadosSalvos ? (dadosSalvos.obs||'').replace(/"/g, '&quot;') : ''}">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-5 border-t border-emerald-200 flex justify-end">
+                        <div class="bg-emerald-100 border-2 border-emerald-400 px-6 py-3 rounded-2xl flex items-center shadow-md">
+                            <span class="text-xs font-black text-emerald-900 uppercase tracking-widest mr-4">Total Deste Orçamento:</span>
+                            <span id="total-card-${window.contadorOrcs}" class="text-2xl font-black text-emerald-700">R$ 0,00</span>
+                        </div>
+                    </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
@@ -787,7 +894,9 @@
             window.calcularTotaisCard(window.contadorOrcs); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os');
         };
 
-        window.gerarLinhaItemOrcamento = function(id, d, q, u) { return `<tr class="item-produto"><td class="p-1.5"><input type="text" class="inp-item-desc w-full text-xs p-1.5 border rounded" value="${d}"></td><td class="p-1.5"><input type="number" class="inp-item-qtd w-full text-xs p-1.5 border rounded text-center" value="${q}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-1.5"><input type="number" class="inp-item-unit w-full text-xs p-1.5 border rounded text-right" value="${u}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-1.5 text-right text-xs item-subtotal">R$ 0,00</td><td class="p-1.5 text-center"><button type="button" onclick="this.closest('tr').remove(); window.calcularTotaisCard(${id});"><i class="fa-solid fa-xmark"></i></button></td></tr>`; };
+        window.gerarLinhaItemOrcamento = function(id, d, q, u) { 
+            return `<tr class="item-produto"><td class="p-2.5"><input type="text" class="inp-item-desc w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none shadow-sm" placeholder="Ex: Filtro Principal Inkjet" value="${(d||'').replace(/"/g, '&quot;')}"></td><td class="p-2.5"><input type="number" class="inp-item-qtd w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none text-center shadow-sm" value="${q}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-2.5"><input type="number" class="inp-item-unit w-full text-sm font-bold text-slate-800 p-2.5 bg-white border border-slate-300 rounded-xl focus:border-emerald-500 outline-none text-right shadow-sm" value="${u}" oninput="window.calcularTotaisCard(${id})"></td><td class="p-2.5 text-right font-black text-emerald-700 item-subtotal text-sm align-middle">R$ 0,00</td><td class="p-2.5 text-center align-middle"><button type="button" onclick="this.closest('tr').remove(); window.calcularTotaisCard(${id});" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600 transition flex items-center justify-center cursor-pointer shadow-sm mx-auto"><i class="fa-solid fa-xmark"></i></button></td></tr>`; 
+        };
         window.addProdutoOrcamento = function(id) { document.getElementById(`tbody-itens-orc-${id}`).insertAdjacentHTML('beforeend', window.gerarLinhaItemOrcamento(id, '', 1, 0)); window.calcularTotaisCard(id); };
         window.formatarMoeda = function(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
 
@@ -804,18 +913,19 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
 
+        // --- SALVAMENTO INTEGRADO DA O.S. NA NUVEM ---
         window.salvarOS = async function() {
             const cliente = document.getElementById('os-cliente').value.trim();
-            if (!cliente) { window.showToast("Preencha o Cliente!", 'warning'); window.mudarAbaOS('aba1'); return; }
+            if (!cliente) { window.showToast("Preencha o Cliente Oficial!", 'warning'); window.mudarAbaOS('aba1'); return; }
 
             const equipCards = document.querySelectorAll('.equip-card');
-            if (equipCards.length === 0) { window.showToast("Adicione um equipamento!", 'warning'); window.mudarAbaOS('aba2'); return; }
+            if (equipCards.length === 0) { window.showToast("Adicione pelo menos um equipamento/máquina!", 'warning'); window.mudarAbaOS('aba2'); return; }
 
             let maqOk = true;
             const arrayEquips = [];
             
             equipCards.forEach(c => {
-                const mq = c.querySelector('.inp-maquina').value; const df = c.querySelector('.inp-defeito').value;
+                const mq = c.querySelector('.inp-maquina').value.trim(); const df = c.querySelector('.inp-defeito').value.trim();
                 if(!mq || !df) maqOk = false;
                 
                 arrayEquips.push({
@@ -824,9 +934,9 @@
                 });
             });
 
-            if(!maqOk) { window.showToast("Máquina e Defeito obrigatórios!", 'warning'); window.mudarAbaOS('aba2'); return; }
+            if(!maqOk) { window.showToast("A Máquina e o Defeito são obrigatórios em todos os equipamentos!", 'warning'); window.mudarAbaOS('aba2'); return; }
 
-            // PARQUE DE MÁQUINAS: ASSOCIAÇÃO INTELIGENTE
+            // LÓGICA DE ASSOCIAÇÃO INTELIGENTE NO PARQUE DE MÁQUINAS (SISTEMA ERP)
             for(let i=0; i<arrayEquips.length; i++) {
                 let eq = arrayEquips[i];
                 let sn = ''; let mod = eq.maquina;
@@ -839,24 +949,19 @@
                 );
 
                 if (!maqNoParque || (maqNoParque.cliente_atual && maqNoParque.cliente_atual.toLowerCase() !== cliente.toLowerCase())) {
-                    if (confirm(`A máquina "${mod}" ${sn ? '(SN: '+sn+') ' : ''}não consta no Parque de Máquinas do cliente "${cliente}".\nDeseja vinculá-la oficialmente agora?`)) {
+                    if (confirm(`Alerta Inteligente CIJ:\nA máquina "${mod}" ${sn ? '(SN: '+sn+') ' : ''}ainda não consta no Parque de Máquinas oficial do cliente "${cliente}".\n\nDeseja vinculá-la permanentemente agora?`)) {
                         const pmId = maqNoParque ? maqNoParque.id : 'pm_' + Date.now() + Math.floor(Math.random()*1000);
                         const pmData = maqNoParque ? { ...maqNoParque, cliente_atual: cliente.toUpperCase(), status: 'Ativo do Cliente' } : {
-                            id: pmId, serial: sn.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cliente.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via Ordem de Serviço', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+                            id: pmId, serial: sn.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cliente.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via Geração de O.S. (ServiceFlow)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
                         };
 
                         if(maqNoParque) {
                             if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
                             pmData.historico_transferencias.push({
-                                 id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maqNoParque.cliente_atual, cliente_novo: cliente.toUpperCase(), motivo: 'Abertura de OS', responsavel: window.currentUserStr, timestamp: Date.now()
+                                 id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maqNoParque.cliente_atual, cliente_novo: cliente.toUpperCase(), motivo: 'Correção de Vínculo via Abertura de O.S.', responsavel: window.currentUserStr, timestamp: Date.now()
                             });
                         }
-                        try {
-                            await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
-                            window.showToast('Máquina vinculada ao Parque!', 'success');
-                        } catch(err) {
-                            console.error(err);
-                        }
+                        try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData); window.showToast('Máquina vinculada ao Parque Oficial!', 'success'); } catch(err) { console.error(err); }
                     }
                 }
             }
@@ -864,12 +969,12 @@
             const arrayOrcs = [];
             document.querySelectorAll('.orc-card').forEach(c => {
                 const itens = [];
-                c.querySelectorAll('.item-produto').forEach(r => { const d = r.querySelector('.inp-item-desc').value; if(d) itens.push({desc: d, qtd: parseFloat(r.querySelector('.inp-item-qtd').value)||0, unit: parseFloat(r.querySelector('.inp-item-unit').value)||0}); });
+                c.querySelectorAll('.item-produto').forEach(r => { const d = r.querySelector('.inp-item-desc').value.trim(); if(d) itens.push({desc: d, qtd: parseFloat(r.querySelector('.inp-item-qtd').value)||0, unit: parseFloat(r.querySelector('.inp-item-unit').value)||0}); });
                 arrayOrcs.push({
                     alvo: c.querySelector('.inp-orc-alvo').value, itens: itens,
                     mo_qtd: parseFloat(c.querySelector('.inp-orc-mo-qtd').value)||0, mo_unit: parseFloat(c.querySelector('.inp-orc-mo-unit').value)||0,
                     desl_qtd: parseFloat(c.querySelector('.inp-orc-desl-qtd').value)||0, desl_unit: parseFloat(c.querySelector('.inp-orc-desl-unit').value)||0,
-                    obs: c.querySelector('.inp-orc-obs').value, total: parseFloat(c.getAttribute('data-total'))||0
+                    obs: c.querySelector('.inp-orc-obs').value.trim(), total: parseFloat(c.getAttribute('data-total'))||0
                 });
             });
 
@@ -877,6 +982,7 @@
             const dataAgendada = document.getElementById('os-data').value;
             const tecnicoDesignado = document.getElementById('os-tecnico').value;
             
+            // INTELIGÊNCIA: DESCOBRIR A COLUNA DO KANBAN COM BASE NA MENOR ETAPA TÉCNICA
             let lowestStageNum = 10;
             let lowestStageName = ETAPAS_SERVICO[9].nome;
 
@@ -888,17 +994,21 @@
                 }
             });
 
+            // Puxa a coluna do mapa (Automação configurada pelo Gestor). Se não achar, joga pra ENTRADA.
             const targetKanbanStatus = window.kanbanMapping[lowestStageName] || 'ENTRADA';
 
             const payload = {
-                cliente: cliente, solicitante: document.getElementById('os-solicitante').value, tipoAtendimento: document.getElementById('os-tipo').value, dataAgendamento: dataAgendada, tecnico: tecnicoDesignado, observacoes: document.getElementById('os-obs').value,
-                equipamentos: arrayEquips, orcamentos: arrayOrcs, status: targetKanbanStatus
+                clienteOS: cliente, cliente: cliente, // Salva duplicado por compatibilidade
+                solicitanteOS: document.getElementById('os-solicitante').value.trim(), tipoAtendimentoOS: document.getElementById('os-tipo').value, dataAgendamentoOS: dataAgendada, tecnicoOS: tecnicoDesignado, tecnico_kanban: tecnicoDesignado, tecnico: tecnicoDesignado, observacoesOS: document.getElementById('os-obs').value.trim(),
+                equipamentosOS: arrayEquips, orcamentosOS: arrayOrcs, status: targetKanbanStatus
             };
 
             try {
                 if (idOculto) {
+                    // Update
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', idOculto), payload, {merge: true});
                 } else {
+                    // Criar Nova (Gera número OS automático)
                     const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
                     const osIdSalva = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
                         const cDoc = await transaction.get(counterRef);
@@ -908,25 +1018,28 @@
                     });
                     payload.osr = osIdSalva;
                     payload.timestamp = Date.now();
+                    
+                    // Preenche campos legacy do ticket antigo para não quebrar a tela de Kanban original
                     payload.cidade = ''; payload.contato = ''; payload.telefone = ''; 
                     payload.maquina = arrayEquips[0].maquina; payload.serial = ''; payload.defeito = arrayEquips[0].defeito; 
-                    payload.solucao = ''; payload.pecas = ''; payload.urgencia = 'NORMAL'; payload.conclusao = ''; payload.tecnico_kanban = tecnicoDesignado;
+                    payload.solucao = ''; payload.pecas = ''; payload.urgencia = 'NORMAL'; payload.conclusao = ''; 
                     
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osIdSalva), payload);
                 }
 
-                window.fecharModalOS(); window.showToast('OS salva com sucesso!', 'success');
-            } catch(e) { window.showToast('Erro ao salvar.', 'error'); }
+                window.fecharModalOS(); window.showToast('Ordem de Serviço salva com sucesso! O cartão foi movido no Kanban.', 'success');
+            } catch(e) { window.showToast('Erro fatal ao salvar a OS no servidor.', 'error'); console.error(e); }
         };
 
+        // --- AUTOMAÇÃO MANUAL DE FASES DO KANBAN ---
         window.abrirModalAutomacao = function() {
             const container = document.getElementById('automacao-container');
             const colunas = [
-                {id: 'ENTRADA', nome: 'Suporte Remoto'},
-                {id: 'TRIAGEM', nome: 'Triagem Técnica'},
-                {id: 'ORCAMENTO', nome: 'Orçamentos'},
+                {id: 'ENTRADA', nome: 'Suporte Remoto / Entrada'},
+                {id: 'TRIAGEM', nome: 'Triagem / Diagnóstico'},
+                {id: 'ORCAMENTO', nome: 'Orçamentos / Faturamento'},
                 {id: 'AGENDAMENTO', nome: 'Agendamento / Execução'},
-                {id: 'CONCLUIDO', nome: 'Finalizados'}
+                {id: 'CONCLUIDO', nome: 'Finalizados (Checkout)'}
             ];
             
             let html = '';
@@ -935,12 +1048,15 @@
                 let options = colunas.map(c => `<option value="${c.id}" ${mapAtual === c.id ? 'selected' : ''}>${c.nome}</option>`).join('');
                 
                 html += `
-                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
-                    <span class="text-xs font-bold text-slate-700 w-1/2">${etapa.nome}</span>
-                    <i class="fa-solid fa-arrow-right text-slate-300 mx-2"></i>
-                    <select class="map-select w-1/2 px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-indigo-500 cursor-pointer" data-etapa="${etapa.nome}">
-                        ${options}
-                    </select>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 gap-3">
+                    <span class="text-xs font-black text-slate-700 w-full sm:w-1/2 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> ${etapa.nome}</span>
+                    <div class="hidden sm:block"><i class="fa-solid fa-arrow-right-long text-slate-300"></i></div>
+                    <div class="w-full sm:w-1/2 relative">
+                        <select class="map-select w-full px-4 py-3 text-xs font-bold text-indigo-900 bg-white border-2 border-indigo-100 rounded-xl outline-none focus:border-indigo-500 cursor-pointer shadow-sm appearance-none" data-etapa="${etapa.nome}">
+                            ${options}
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none text-[10px]"></i>
+                    </div>
                 </div>
                 `;
             });
@@ -960,13 +1076,14 @@
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), { mapping });
                 window.kanbanMapping = mapping;
-                window.showToast('Regras de automação salvas!', 'success');
+                window.showToast('Regras de inteligência artificial salvas!', 'success');
                 window.fecharModalAutomacao();
             } catch(e) {
-                window.showToast('Erro ao salvar.', 'error');
+                window.showToast('Erro ao salvar as regras.', 'error');
             }
         };
 
+        // --- SISTEMA DE RENDERIZAÇÃO DO KANBAN (COM BOTÕES BLINDADOS) ---
         window.renderKanban = function() {
             const cont = document.getElementById('kanban-grid');
             if(!cont) return;
@@ -974,8 +1091,11 @@
             
             Object.keys(STATUSES).forEach(colKey => {
                 const cDef = STATUSES[colKey];
+                
+                // CRÍTICO: w-[320px] e shrink-0 garantem que o kanban nunca suma da tela e force o scroll lateral no container pai.
                 const cDiv = document.createElement('div');
-                cDiv.className = 'kanban-col flex flex-col bg-slate-200/50 border border-slate-300/60 rounded-2xl h-full shadow-xs transition-colors min-w-[280px] sm:min-w-[0px] w-[280px] sm:w-auto flex-1';
+                cDiv.className = 'kanban-col flex flex-col bg-slate-200/60 border border-slate-300/60 rounded-2xl h-full shadow-sm transition-colors w-[320px] min-w-[320px] shrink-0 overflow-hidden relative';
+                
                 cDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 cDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
                 cDiv.ondrop = e => {
@@ -984,6 +1104,7 @@
                     const t = window.tickets.find(x => x.id === window.draggedTicketId);
                     if(t && t.status !== colKey) {
                         t.status = colKey;
+                        if(!t.history) t.history = [];
                         t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Movido para ${STATUSES[colKey].label}`});
                         window.saveTicketToDB(t);
                         window.dispararAlertaAutomatico(colKey, `Chamado ${t.id} movido para ${STATUSES[colKey].label}.`);
@@ -993,44 +1114,110 @@
 
                 let tks = window.tickets.filter(t => t.status === colKey && window.filterTicketByCriteria(t));
                 
-                cDiv.innerHTML = `<div class="p-3 border-b flex items-center justify-between shrink-0 ${cDef.color} rounded-t-2xl"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full ${cDef.badgeDot}"></span><span class="font-extrabold text-xs tracking-tight whitespace-nowrap">${cDef.label}</span></div><span class="bg-white/90 border border-slate-200 text-slate-800 font-bold text-[10px] px-2 py-0.5 rounded-full">${tks.length}</span></div>`;
+                cDiv.innerHTML = `
+                    <div class="p-3.5 border-b border-slate-300/80 flex items-center justify-between shrink-0 ${cDef.color} rounded-t-2xl shadow-sm z-10">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full ${cDef.badgeDot} shadow-inner"></span>
+                            <span class="font-black text-xs tracking-wider uppercase whitespace-nowrap">${cDef.label}</span>
+                        </div>
+                        <span class="bg-white border border-slate-300 text-slate-800 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow-sm">${tks.length}</span>
+                    </div>`;
                 
+                // A área que rola DEVE ter flex-1, min-h-0 e overflow-y-auto
                 const cardsCont = document.createElement('div');
-                cardsCont.className = 'flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-0 custom-scrollbar pb-12';
+                cardsCont.className = 'flex-1 min-h-0 overflow-y-auto p-3 space-y-3 custom-scrollbar bg-slate-200/30';
                 
                 tks.forEach(t => {
                     const isCritical = t.urgency === 'CRITICAL';
                     const card = document.createElement('div');
-                    card.className = `bg-white hover:bg-slate-50/80 p-3.5 rounded-xl border ${isCritical ? 'border-red-400 pulse-critical' : 'border-slate-200/80 hover:border-blue-500'} shadow-xs hover:shadow-card-hover transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between`;
-                    card.draggable = true; card.ondragstart = (e) => { window.draggedTicketId = t.id; e.currentTarget.classList.add('dragging'); }; card.ondragend = (e) => e.currentTarget.classList.remove('dragging');
+                    card.className = `bg-white hover:bg-blue-50/30 p-4 rounded-xl border ${isCritical ? 'border-red-400 pulse-critical ring-1 ring-red-300' : 'border-slate-300 hover:border-blue-400'} shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between`;
+                    card.draggable = true; 
+                    card.ondragstart = (e) => { window.draggedTicketId = t.id; e.currentTarget.classList.add('dragging'); }; 
+                    card.ondragend = (e) => e.currentTarget.classList.remove('dragging');
+                    
+                    // Click para abrir os detalhes resumidos (A Gaveta lateral)
                     card.onclick = (e) => { if(!e.target.closest('.quick-action-btn')) window.openTicketModal(t.id); };
 
+                    // Blindagem dos nomes
+                    const nomeCliente = t.client?.name || t.clienteOS || 'Cliente Indefinido';
+                    const nomeTecnico = t.assignee || t.tecnicoOS || 'Pendente';
+                    const iniTecnico = nomeTecnico.substring(0,1).toUpperCase();
+
+                    // Inteligência para exibir múltiplas máquinas ou máquina única
                     let textMaquinas = '';
-                    if (t.equipamentosOS && t.equipamentosOS.length > 1) {
-                        textMaquinas = `<i class="fa-solid fa-server text-[9px] mr-1 text-slate-400"></i> ${t.equipamentosOS.length} Equipamentos`;
-                    } else if (t.equipamentosOS && t.equipamentosOS.length === 1) {
-                        textMaquinas = `<i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i> ${t.equipamentosOS[0].maquina}`;
+                    let arrEqs = t.equipamentosOS || [];
+                    if (arrEqs.length > 1) {
+                        textMaquinas = `<i class="fa-solid fa-server text-blue-500 mr-1.5"></i> <span class="font-bold text-slate-700">${arrEqs.length} Equipamentos Cadastrados</span>`;
+                    } else if (arrEqs.length === 1) {
+                        const mStr = arrEqs[0].maquina || 'Equipamento Indefinido';
+                        textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[180px] inline-block align-bottom">${mStr}</span>`;
                     } else {
-                        textMaquinas = `<i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i> ${t.equipment.model} <span class="font-mono ml-1 shrink-0">${t.equipment.serial}</span>`;
+                        // Compatibilidade Legacy (OSR Antigo)
+                        const mStr = t.equipment?.model || 'Sem Equipamento';
+                        const sStr = t.equipment?.serial ? `[SN: ${t.equipment.serial}]` : '';
+                        textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[120px] inline-block align-bottom">${mStr}</span> <span class="font-mono text-[9px] text-slate-400 ml-1 shrink-0">${sStr}</span>`;
                     }
 
-                    const problemText = (t.equipamentosOS && t.equipamentosOS.length > 0) ? t.equipamentosOS[0].defeito : t.request.problem;
-                    const assignStr = t.assignee || 'Técnico';
-                    const assignChar = assignStr.substring(0,1).toUpperCase();
-
+                    // Ações Rápidas do Card
                     let qA = '';
-                    if (t.status === 'ENTRADA') qA = `<div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5"><button onclick="event.stopPropagation(); window.quickResolveTicket('${t.id}')" class="quick-action-btn flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] py-1 rounded-lg font-bold border border-emerald-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-check text-[9px]"></i> Resolvido</button><button onclick="event.stopPropagation(); window.quickTriageTicket('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] py-1 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-right text-[9px]"></i> Triagem</button></div>`;
-                    else if (t.status === 'CONCLUIDO') qA = `<div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5"><button onclick="event.stopPropagation(); window.reopenTicketToTriage('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] py-1 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-left text-[9px]"></i> Reabrir p/ Triagem</button></div>`;
+                    if (t.status === 'ENTRADA') qA = `<div class="mt-3 pt-3 border-t border-slate-100 flex gap-2"><button onclick="event.stopPropagation(); window.quickResolveTicket('${t.id}')" class="quick-action-btn flex-1 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 text-[10px] py-1.5 rounded-lg font-bold border border-emerald-200 transition-all flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-check"></i> Fechar</button><button onclick="event.stopPropagation(); window.quickTriageTicket('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-700 text-[10px] py-1.5 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-arrow-right"></i> Triagem</button></div>`;
+                    else if (t.status === 'CONCLUIDO') qA = `<div class="mt-3 pt-3 border-t border-slate-100 flex gap-2"><button onclick="event.stopPropagation(); window.reopenTicketToTriage('${t.id}')" class="quick-action-btn flex-1 bg-slate-100 hover:bg-slate-800 hover:text-white text-slate-700 text-[10px] py-1.5 rounded-lg font-bold border border-slate-300 transition-all flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-rotate-left"></i> Reabrir Chamado</button></div>`;
 
-                    const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-1.5 py-0.5 rounded border border-red-200 ml-2"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
+                    const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200 shadow-sm ml-2 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
 
-                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span><button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="quick-action-btn ml-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-xs transition flex items-center gap-1"><i class="fa-solid fa-file-invoice"></i> OS</button>${urgBadge}</div><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate">${textMaquinas}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${problemText || ''}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${assignChar}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${assignStr}</span></div></div>${qA}</div>`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center mb-2.5">
+                                <div class="flex items-center">
+                                    <span class="text-[10px] font-mono font-black text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-300 shadow-sm">${t.id}</span>
+                                    
+                                    <!-- NOVO BOTÃO DA O.S. DIRETAMENTE NO CARD -->
+                                    <button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="quick-action-btn ml-1.5 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-0.5 rounded text-[9px] font-black shadow-md transition flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-file-invoice"></i> OS</button>
+                                    
+                                    ${urgBadge}
+                                </div>
+                                <div class="flex gap-1.5 items-center">
+                                    <span class="text-[9px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-100"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
+                                    <button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button>
+                                </div>
+                            </div>
+                            <h4 class="font-black text-slate-900 text-sm mb-1.5 truncate group-hover:text-blue-700 transition-colors">${nomeCliente}</h4>
+                            
+                            <div class="flex items-center justify-between text-[10px] font-medium text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <span class="flex items-center w-full">${textMaquinas}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[9px] font-black border border-blue-200 shadow-sm">${iniTecnico}</div>
+                                    <span class="text-[10px] font-bold text-slate-700 truncate max-w-[120px]">${nomeTecnico}</span>
+                                </div>
+                            </div>
+                            ${qA}
+                        </div>
+                    `;
                     cardsCont.appendChild(card);
                 });
                 cDiv.appendChild(cardsCont);
                 cont.appendChild(cDiv);
             });
         };
+
+        // FECHAR MODAIS COM ESCAPE
+        document.addEventListener('keydown', e => { 
+            if(e.key === 'Escape') { 
+                window.closeTicketModal(); 
+                window.closeNewTicketModal(); 
+                window.closeDeleteModal(); 
+                window.fecharModalNotificar(); 
+                window.fecharModalConfigAlertas(); 
+                window.fecharModalAutomacao();
+                window.fecharModalOS();
+                document.getElementById('modal-foto-full').classList.add('hidden'); 
+                document.getElementById('modal-vincular-equip').classList.add('hidden'); 
+            } 
+        });
     </script>
 </body>
 </html>
