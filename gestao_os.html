@@ -71,7 +71,7 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <!-- Botões de Configuração e Automação (Sem ícone de pendências) -->
+                <!-- Botões de Configuração e Automação -->
                 <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer" title="Configurar Alertas Automáticos (Sininho)">
                     <i class="fa-regular fa-bell text-lg"></i>
                 </button>
@@ -140,9 +140,8 @@
             </div>
         </div>
 
-        <!-- VISÃO: KANBAN TELA CHEIA (SEM SCROLL LATERAL SE COUBER) -->
+        <!-- VISÃO: KANBAN TELA CHEIA -->
         <div id="visao-kanban" class="flex-1 min-h-0 w-full overflow-x-auto pb-2">
-            <!-- A classe w-full e flex-1 nos filhos faz eles se espremerem para caber -->
             <div id="kanban-board" class="flex gap-3 h-full w-full min-w-max md:min-w-full">
                 <!-- Colunas Geradas via JS -->
             </div>
@@ -192,7 +191,6 @@
                             </div>
                         </div>
 
-                        <!-- ETAPA TÉCNICA AGORA É GLOBAL DA O.S -->
                         <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                             <label class="block text-[10px] font-black text-blue-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-blue-500 mr-1"></i> Etapa Técnica Atual da O.S.</label>
                             <select id="os-etapa" class="input-delicate cursor-pointer font-bold text-slate-800 border-blue-300 shadow-sm"></select>
@@ -290,6 +288,32 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- MODAL DE PREENCHIMENTO DE FORMULÁRIO (FORMCRAFT INTEGRADO) -->
+    <div id="modal-preencher-form" class="fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden relative border border-slate-200">
+            <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0 border-b border-slate-800">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-purple-400"></i> <span id="titulo-modal-form">Preencher Laudo</span></h3>
+                <button onclick="window.fecharModalPreencherForm()" class="text-slate-400 hover:text-red-500 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="bg-slate-100 p-4 border-b border-slate-200 shrink-0">
+                <p id="desc-modal-form" class="text-xs text-slate-600 font-medium"></p>
+                <div class="mt-2 flex gap-2">
+                    <span class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200" id="badge-os-form"></span>
+                    <span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded border border-slate-300" id="badge-maq-form"></span>
+                </div>
+            </div>
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                <form id="interactive-preview-form" onsubmit="window.salvarPreenchimentoForm(event)" class="space-y-5">
+                    <div id="preview-fields-container" class="space-y-4 max-w-2xl mx-auto"></div>
+                </form>
+            </div>
+            <div class="bg-white border-t border-slate-200 px-5 py-4 shrink-0 flex justify-end gap-3">
+                <button type="button" onclick="window.fecharModalPreencherForm()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                <button type="submit" form="interactive-preview-form" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar Laudo</button>
+            </div>
         </div>
     </div>
 
@@ -426,7 +450,12 @@
             });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => { window.parqueMaquinas = []; snap.forEach(d => window.parqueMaquinas.push(d.data())); });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => { window.dbMaquinas = []; snap.forEach(d => window.dbMaquinas.push(d.data())); });
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => { window.dbForms = []; snap.forEach(d => window.dbForms.push(d.data().title)); });
+            
+            // CARREGA A ESTRUTURA COMPLETA DOS FORMS
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => { 
+                window.dbForms = []; 
+                snap.forEach(d => window.dbForms.push(d.data())); 
+            });
             
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
                 window.usersList = []; let htmlTec = '<option value="">Selecione...</option>';
@@ -587,13 +616,13 @@
         window.mudarVisao = function(visao) {
             window.visaoAtual = visao;
             if(visao === 'lista') {
-                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
-                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition";
+                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer";
+                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
                 document.getElementById('visao-lista').classList.remove('hidden');
                 document.getElementById('visao-kanban').classList.add('hidden');
             } else {
-                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
-                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition";
+                document.getElementById('btn-visao-kanban').className = "px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer";
+                document.getElementById('btn-visao-lista').className = "px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
                 document.getElementById('visao-kanban').classList.remove('hidden');
                 document.getElementById('visao-lista').classList.add('hidden');
             }
@@ -648,7 +677,7 @@
             Object.keys(STATUSES_OS).forEach(key => {
                 const conf = STATUSES_OS[key];
                 const colDiv = document.createElement('div');
-                // IMPORTANTE: flex-1 e min-w-[170px] garantem que as 6 colunas caibam e estiquem na tela
+                // flex-1 e min-w garantem que as colunas caibam na tela
                 colDiv.className = 'kanban-col flex-1 min-w-[170px] max-w-[320px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
                 
                 colDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
@@ -740,7 +769,6 @@
             window.contadorEquips = 0; window.contadorOrcs = 0;
 
             if (idEdit) {
-                // MODO EDIÇÃO COMPLETA
                 window.fsGetDocs(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr')).then(snap => {
                     let osCompleta = null;
                     snap.forEach(d => { if(d.id === idEdit) osCompleta = d.data(); });
@@ -778,7 +806,6 @@
                     }
                 });
             } else {
-                // NOVA
                 document.getElementById('titulo-modal-os').innerText = 'Nova Ordem de Serviço';
                 document.getElementById('os-data').value = new Date().toISOString().split('T')[0];
                 document.getElementById('os-etapa').value = '1. Abertura da OS';
@@ -793,7 +820,7 @@
 
         window.fecharModalOS = () => document.getElementById('modal-os').classList.add('hidden');
 
-        // CLIENTE (Busca Flexível e Endereço robusto)
+        // CLIENTE (Busca Flexível e Endereço)
         window.preencherCardCliente = function(nome) {
             if(!nome) {
                 document.getElementById('card-cliente-info').classList.add('hidden');
@@ -842,7 +869,8 @@
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
             
-            const formsOptions = window.dbForms.map(f => `<option value="${f}">${f}</option>`).join('');
+            // Usa as propriedades do form (id, title)
+            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
@@ -864,6 +892,7 @@
                                 <select class="inp-formulario input-delicate cursor-pointer" onchange="window.atualizarAbaFormularios()"><option value="">Nenhum formulário</option>${formsOptions}</select>
                             </div>
                             <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas).replace(/'/g, "&#39;") : "[]"}'>
+                            <input type="hidden" class="inp-form-submission-id" value="${dadosSalvos && dadosSalvos.formulario_resposta_id ? dadosSalvos.formulario_resposta_id : ''}">
                         </div>
                     </div>
                 </div>
@@ -882,6 +911,7 @@
             const container = document.getElementById('container-formularios-os');
             const selectsForms = document.querySelectorAll('.inp-formulario');
             const selectMaquinas = document.querySelectorAll('.inp-maquina');
+            const subIds = document.querySelectorAll('.inp-form-submission-id');
             
             let html = '';
             let count = 0;
@@ -889,29 +919,201 @@
             selectsForms.forEach((sel, i) => {
                 const formNome = sel.value;
                 const maqNome = selectMaquinas[i] ? selectMaquinas[i].value : 'Máquina Indefinida';
+                const subId = subIds[i] ? subIds[i].value : '';
                 
                 if(formNome) {
                     count++;
+                    const isFilled = subId !== '';
+                    const badge = isFilled ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider"><i class="fa-solid fa-check mr-1"></i> Preenchido</span>` : `<span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pendente</span>`;
+                    const btnText = isFilled ? 'Ver / Editar Laudo' : 'Preencher Laudo';
+                    const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200' : 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-200';
+                    
                     html += `
-                    <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-lg p-4 flex justify-between items-center shadow-sm transition hover:shadow-md">
                         <div>
-                            <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pendente</span>
-                            <h5 class="text-sm font-semibold text-slate-800 mt-1">${formNome}</h5>
-                            <p class="text-[10px] text-slate-500"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome || 'S/M'}</p>
+                            ${badge}
+                            <h5 class="text-sm font-bold text-slate-800 mt-2">${formNome}</h5>
+                            <p class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome || 'S/M'}</p>
                         </div>
-                        <button type="button" onclick="alert('Integração com o FormCraft Sandbox em breve!')" class="bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white px-3 py-1.5 rounded-md text-xs font-semibold transition border border-purple-200 cursor-pointer">
-                            Preencher Laudo
+                        <button type="button" onclick="window.abrirModalFormulario('${formNome}', ${i}, '${maqNome.replace(/'/g, "\\'")}')" class="${btnClass} px-4 py-2 rounded-xl text-xs font-bold transition border cursor-pointer shadow-sm">
+                            ${btnText}
                         </button>
                     </div>`;
                 }
             });
 
             if(count === 0) {
-                container.innerHTML = '<div class="text-center py-6 border border-dashed border-slate-300 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum formulário exigido para as máquinas atuais.</p></div>';
+                container.innerHTML = '<div class="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50"><p class="text-xs text-slate-400">Nenhum formulário exigido para as máquinas atuais.</p></div>';
             } else {
                 container.innerHTML = html;
             }
             document.getElementById('badge-form-count').innerText = count;
+        };
+
+        // ==========================================
+        // MOTOR DE EXECUÇÃO DE FORMULÁRIOS (FORMCRAFT)
+        // ==========================================
+        window.escapeHtml = (s) => (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        window.currentActiveForm = null;
+        window.currentActiveEquipIndex = null;
+        window.currentActiveSubmissionId = null;
+
+        window.abrirModalFormulario = async function(formTitle, equipIndex, maqNome) {
+            const formObj = window.dbForms.find(f => f.title === formTitle);
+            if (!formObj) { window.mostrarNotificacao('Formulário não encontrado na base.', 'error'); return; }
+            
+            window.currentActiveForm = formObj;
+            window.currentActiveEquipIndex = equipIndex;
+            
+            const osId = document.getElementById('os-id-oculto').value || 'OS Não Salva (Salvar antes de preencher)';
+            const subIds = document.querySelectorAll('.inp-form-submission-id');
+            window.currentActiveSubmissionId = subIds[equipIndex] ? subIds[equipIndex].value : '';
+
+            document.getElementById('titulo-modal-form').innerText = formObj.title;
+            document.getElementById('desc-modal-form').innerText = formObj.description || 'Preencha os campos abaixo de acordo com a avaliação técnica.';
+            document.getElementById('badge-os-form').innerText = `OS: ${osId}`;
+            document.getElementById('badge-maq-form').innerText = `Máquina: ${maqNome}`;
+
+            let existingAnswers = {};
+            if (window.currentActiveSubmissionId) {
+                try {
+                    const snap = await window.fsGetDocs(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'));
+                    snap.forEach(d => { if (d.id === window.currentActiveSubmissionId) existingAnswers = d.data().answers || {}; });
+                } catch(e) {}
+            }
+
+            const cont = document.getElementById('preview-fields-container');
+            const eventHandlers = `onchange="window.evaluatePreviewRules()" oninput="window.evaluatePreviewRules()"`;
+            
+            cont.innerHTML = formObj.fields.map(f => {
+                let html = `<label class="block text-sm font-black text-slate-800 mb-1 leading-tight">${window.escapeHtml(f.label)} ${f.required?'<span class="text-red-500">*</span>':''}</label>`;
+                if(f.instruction) html += `<p class="text-[11px] font-medium text-slate-500 mb-3">${window.escapeHtml(f.instruction)}</p>`;
+                
+                let val = existingAnswers[f.label] || '';
+                
+                if(f.type === 'short_text') html += `<input type="text" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm">`;
+                if(f.type === 'long_text') html += `<textarea name="${f.id}" rows="3" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-medium border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm resize-none">${window.escapeHtml(val)}</textarea>`;
+                if(f.type === 'number') html += `<input type="number" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm">`;
+                if(f.type === 'date') html += `<input type="date" name="${f.id}" value="${window.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-2.5 rounded-xl outline-none focus:border-purple-500 shadow-sm cursor-pointer">`;
+                
+                if(f.type === 'single_select') {
+                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition"><input type="radio" name="${f.id}" value="${window.escapeHtml(o)}" ${val === o ? 'checked' : ''} ${f.required?'required':''} ${eventHandlers} class="w-4 h-4 text-purple-600 cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
+                }
+                if(f.type === 'multi_select') {
+                    const valArr = Array.isArray(val) ? val : (val.split ? val.split(', ') : []);
+                    html += `<div class="space-y-1.5">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition"><input type="checkbox" name="${f.id}" value="${window.escapeHtml(o)}" ${valArr.includes(o) ? 'checked' : ''} ${eventHandlers} class="w-4 h-4 text-purple-600 rounded cursor-pointer"> ${window.escapeHtml(o)}</label>`).join('')}</div>`;
+                }
+                
+                return `<div id="pw-${f.id}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
+            }).join('');
+            
+            window.evaluatePreviewRules();
+            document.getElementById('modal-preencher-form').classList.remove('hidden');
+        };
+
+        window.fecharModalPreencherForm = function() {
+            document.getElementById('modal-preencher-form').classList.add('hidden');
+        };
+
+        window.evaluatePreviewRules = function() {
+            const formObj = window.currentActiveForm;
+            if (!formObj || !formObj.rules || formObj.rules.length === 0) return;
+            
+            const form = document.getElementById('interactive-preview-form');
+            const values = {};
+            
+            formObj.fields.forEach(f => {
+                if(f.type === 'single_select') { const r = form.querySelector(`input[name="${f.id}"]:checked`); values[f.id] = r ? r.value : ''; }
+                else if(f.type === 'multi_select') { values[f.id] = Array.from(form.querySelectorAll(`input[name="${f.id}"]:checked`)).map(e=>e.value); }
+                else { const el = form.querySelector(`[name="${f.id}"]`); values[f.id] = el ? el.value : ''; }
+            });
+            
+            const targetFields = new Set(formObj.rules.map(r => r.targetId));
+            const fieldsToShow = new Set();
+            
+            formObj.rules.forEach(r => {
+                const triggerVal = values[r.triggerId];
+                let isMatch = false;
+                
+                if (Array.isArray(triggerVal)) {
+                     if (r.operator === 'contains' || r.operator === 'equals') isMatch = triggerVal.includes(r.value);
+                     if (r.operator === 'not_contains' || r.operator === 'not_equals') isMatch = !triggerVal.includes(r.value);
+                } else {
+                     const tValStr = String(triggerVal || '').toLowerCase();
+                     const rValStr = String(r.value || '').toLowerCase();
+                     const tValNum = parseFloat(triggerVal);
+                     const rValNum = parseFloat(r.value);
+                     
+                     switch(r.operator) {
+                         case 'equals': isMatch = tValStr === rValStr; break;
+                         case 'not_equals': isMatch = tValStr !== rValStr; break;
+                         case 'contains': isMatch = tValStr.includes(rValStr); break;
+                         case 'not_contains': isMatch = !tValStr.includes(rValStr); break;
+                         case 'greater_than': isMatch = !isNaN(tValNum) && tValNum > rValNum; break;
+                         case 'less_than': isMatch = !isNaN(tValNum) && tValNum < rValNum; break;
+                         case 'greater_or_equal': isMatch = !isNaN(tValNum) && tValNum >= rValNum; break;
+                         case 'less_or_equal': isMatch = !isNaN(tValNum) && tValNum <= rValNum; break;
+                     }
+                }
+                if (isMatch) fieldsToShow.add(r.targetId);
+            });
+            
+            formObj.fields.forEach(f => {
+                const el = document.getElementById(`pw-${f.id}`);
+                if (!el) return;
+                
+                if (targetFields.has(f.id)) {
+                    if (fieldsToShow.has(f.id)) {
+                        el.style.display = 'block';
+                        const inp = el.querySelector(`[name="${f.id}"]`);
+                        if(inp && f.required) inp.required = true;
+                    } else {
+                        el.style.display = 'none';
+                        const inps = el.querySelectorAll(`[name="${f.id}"]`);
+                        inps.forEach(i => i.required = false);
+                    }
+                }
+            });
+        };
+
+        window.salvarPreenchimentoForm = async function(e) {
+            e.preventDefault();
+            const formObj = window.currentActiveForm;
+            const answers = {};
+            
+            formObj.fields.forEach(f => {
+                const elContainer = document.getElementById(`pw-${f.id}`);
+                if (elContainer && elContainer.style.display === 'none') return;
+                
+                if(f.type === 'single_select') { const r = document.querySelector(`input[name="${f.id}"]:checked`); answers[f.label] = r ? r.value : ''; }
+                else if(f.type === 'multi_select') { answers[f.label] = Array.from(document.querySelectorAll(`input[name="${f.id}"]:checked`)).map(e=>e.value).join(', '); }
+                else { const el = document.querySelector(`[name="${f.id}"]`); answers[f.label] = el ? el.value : ''; }
+            });
+
+            const osId = document.getElementById('os-id-oculto').value;
+            const subId = window.currentActiveSubmissionId || 's_' + Date.now() + Math.floor(Math.random()*1000);
+            
+            const sub = { 
+                id: subId, 
+                formId: formObj.id, 
+                osId: osId,
+                submittedAt: new Date().toISOString(), 
+                answers: answers,
+                tecnico: window.currentUserStr
+            };
+            
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
+                
+                const subIds = document.querySelectorAll('.inp-form-submission-id');
+                if (subIds[window.currentActiveEquipIndex]) {
+                    subIds[window.currentActiveEquipIndex].value = subId;
+                }
+                
+                window.atualizarAbaFormularios();
+                window.mostrarNotificacao('Laudo salvo com sucesso!', 'success');
+                window.fecharModalPreencherForm();
+            } catch(err) { window.mostrarNotificacao('Erro no envio.', 'error'); console.error(err); }
         };
 
         // ORÇAMENTOS
@@ -1020,7 +1222,8 @@
                     servico: c.querySelector('.inp-servico').value, 
                     horaInicio: c.querySelector('.inp-hora-inicio').value, 
                     horaFim: c.querySelector('.inp-hora-fim').value, 
-                    formulario: c.querySelector('.inp-formulario').value, 
+                    formulario: c.querySelector('.inp-formulario').value,
+                    formulario_resposta_id: c.querySelector('.inp-form-submission-id').value,
                     pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
                 });
             });
