@@ -71,12 +71,8 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <!-- Botões de Alerta e Automação Separados -->
-                <button onclick="window.abrirModalAlertasPendentes()" class="relative p-2 text-slate-400 hover:text-red-500 transition cursor-pointer" title="Ver Alertas Pendentes">
-                    <i class="fa-solid fa-bell text-lg"></i>
-                    <span id="badge-alertas" class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
-                </button>
-                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer" title="Configurar Alertas Puxados (Sininho)">
+                <!-- Botões de Configuração e Automação (Sem ícone de pendências) -->
+                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer" title="Configurar Alertas Automáticos (Sininho)">
                     <i class="fa-regular fa-bell text-lg"></i>
                 </button>
                 <button onclick="window.abrirModalAutomacao()" class="p-2 text-slate-400 hover:text-blue-600 transition cursor-pointer" title="Configurar Automação Kanban (Robô)">
@@ -87,10 +83,10 @@
 
                 <!-- Botões de View (Lista / Kanban) -->
                 <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                    <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition">
+                    <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition cursor-pointer">
                         <i class="fa-solid fa-columns"></i> Kanban
                     </button>
-                    <button onclick="window.mudarVisao('lista')" id="btn-visao-lista" class="px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition">
+                    <button onclick="window.mudarVisao('lista')" id="btn-visao-lista" class="px-3 py-1.5 text-xs font-semibold rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer">
                         <i class="fa-solid fa-list-check"></i> Lista
                     </button>
                 </div>
@@ -304,19 +300,6 @@
     <!-- MODAIS DE AUTOMAÇÃO E ALERTAS -->
     <!-- ========================================== -->
 
-    <!-- MODAL: ALERTAS PENDENTES -->
-    <div id="modal-notificar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex justify-center items-start pt-20 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
-            <div class="bg-red-500 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm"><i class="fa-solid fa-bell mr-2"></i> O.S.s Abertas (Pendentes)</h3>
-                <button onclick="window.fecharModalNotificar()" class="text-red-200 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-3" id="lista-alertas-pendentes">
-                <!-- Gerado via JS -->
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: CONFIGURAR NOTIFICAÇÕES (Sininho) -->
     <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
@@ -475,7 +458,6 @@
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
-                window.checkNotificacoes();
                 
                 // Força Kanban na inicialização
                 window.mudarVisao('kanban'); 
@@ -506,38 +488,6 @@
                 if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(msgBase, emails, perfis, 'info');
             }
         };
-
-        // =====================================
-        // ALERTAS PENDENTES
-        // =====================================
-        window.checkNotificacoes = function() {
-            let count = window.tickets.filter(t => t.status === 'ABERTURA').length;
-            const badge = document.getElementById('badge-alertas');
-            if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } 
-            else { badge.classList.add('hidden'); }
-        };
-
-        window.abrirModalAlertasPendentes = function() {
-            const list = document.getElementById('lista-alertas-pendentes');
-            let pendentes = window.tickets.filter(t => t.status === 'ABERTURA');
-            
-            if(pendentes.length === 0) {
-                list.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs"><i class="fa-solid fa-mug-hot text-2xl mb-2"></i><br>Nenhum alerta pendente.</div>`;
-            } else {
-                list.innerHTML = pendentes.map(t => `
-                    <div class="bg-red-50 border border-red-200 p-3 rounded-xl flex justify-between items-center cursor-pointer hover:bg-red-100 transition" onclick="window.fecharModalNotificar(); window.abrirModalOS('${t.id}')">
-                        <div>
-                            <span class="font-bold text-red-700 text-xs block"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${t.id} - Nova Entrada</span>
-                            <span class="text-[10px] text-red-600">${t.clienteOS || 'Sem Cliente'}</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-red-400"></i>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('modal-notificar').classList.remove('hidden');
-        };
-
-        window.fecharModalNotificar = () => document.getElementById('modal-notificar').classList.add('hidden');
 
         // =====================================
         // MODAIS DE CONFIGURAÇÃO (NOTIFICAÇÕES E AUTOMAÇÃO)
@@ -843,7 +793,7 @@
 
         window.fecharModalOS = () => document.getElementById('modal-os').classList.add('hidden');
 
-        // CLIENTE (Busca Flexível e Endereço)
+        // CLIENTE (Busca Flexível e Endereço robusto)
         window.preencherCardCliente = function(nome) {
             if(!nome) {
                 document.getElementById('card-cliente-info').classList.add('hidden');
@@ -859,10 +809,23 @@
             dlMaq.innerHTML = '';
 
             if (cli) {
-                document.getElementById('card-end-txt').innerText = cli.endereco ? `${cli.endereco}, ${cli.cidade || ''}` : 'Endereço não cadastrado';
+                const endereco = cli.endereco || cli.rua || cli.logradouro || '';
+                const bairro = cli.bairro || '';
+                const cidade = cli.cidade || cli.municipio || '';
+                const uf = cli.estado || cli.uf || '';
+                
+                let partesEnd = [];
+                if(endereco) partesEnd.push(endereco);
+                if(bairro) partesEnd.push(bairro);
+                if(cidade) partesEnd.push(uf ? `${cidade}/${uf}` : cidade);
+
+                const endText = partesEnd.length > 0 ? partesEnd.join(', ') : 'Endereço não cadastrado';
+                document.getElementById('card-end-txt').innerText = endText;
+                
                 let telTxt = cli.telefone || '-';
                 if(cli.contatos && cli.contatos.length > 0) telTxt = cli.contatos[0].telefone || telTxt;
                 document.getElementById('card-tel-txt').innerText = telTxt;
+                
                 card.classList.remove('hidden');
 
                 const maqsDoCli = window.parqueMaquinas.filter(m => m.cliente_atual === cli.fantasia || m.cliente_atual === cli.razao_social);
@@ -1082,7 +1045,7 @@
                 targetStatus = window.kanbanMapping[etapaGlobal];
             }
 
-            // Paylod que o App do Técnico compreende (campos duplicados por retrocompatibilidade com BD original)
+            // Paylod que o App do Técnico compreende
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
                 solicitanteOS: document.getElementById('os-solicitante').value.trim(), 
@@ -1105,7 +1068,12 @@
 
             try {
                 let osFinalId = idOculto;
-                if (idOculto) {
+                let isNew = !idOculto;
+                let oldStatus = null;
+
+                if (!isNew) {
+                    const oldOS = window.tickets.find(t => t.id === idOculto);
+                    if(oldOS) oldStatus = oldOS.status;
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', idOculto), payload, {merge: true});
                 } else {
                     const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
@@ -1117,6 +1085,12 @@
                     });
                     payload.osr = osFinalId; payload.timestamp = Date.now();
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
+                }
+
+                // Dispara o alerta se a OS for nova ou mudou de coluna
+                if (isNew || targetStatus !== oldStatus) {
+                    const stConf = STATUSES_OS[targetStatus] || STATUSES_OS['ABERTURA'];
+                    window.dispararAlertaAutomatico(targetStatus, `A O.S. ${osFinalId} entrou na fase: ${stConf.label}.`);
                 }
 
                 // AGENDA INTEGRADA
