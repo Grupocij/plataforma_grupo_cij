@@ -97,6 +97,10 @@
                     <i class="fa-solid fa-filter text-blue-600 text-xs"></i><span>Filtros</span><span id="activeFilterBadge" class="hidden w-2 h-2 rounded-full bg-blue-600"></span>
                 </button>
 
+                <button onclick="window.openNewTicketModal()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-headset text-blue-600"></i><span class="hidden sm:inline">Nova OSR</span>
+                </button>
+
                 <button onclick="window.abrirModalOS()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-plus text-xs"></i><span class="hidden sm:inline">Nova O.S.</span>
                 </button>
@@ -122,10 +126,6 @@
                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Modalidade</label><select id="filterType" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todas</option><option value="REMOTO">Somente Remoto</option><option value="PRESENCIAL">Requer Visita Presencial</option></select></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Responsável</label><select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos os Responsáveis</option></select></div>
             </div>
-        </div>
-
-        <div class="px-4 pt-2 pb-1 flex items-center justify-between text-[11px] text-slate-500 shrink-0 bg-slate-100">
-            <span class="hidden sm:inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
         </div>
     </div>
 
@@ -162,7 +162,7 @@
             <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[95vh] overflow-hidden transform transition-all">
                 
                 <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
-                    <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Nova Ordem de Serviço</span></h3>
+                    <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
                     <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 
@@ -355,6 +355,64 @@
         </div>
     </div>
 
+    <!-- MODAL: NOVO CHAMADO MANUAL OSR (Preservado do seu ServiceFlow original) -->
+    <div id="modal-new-ticket" class="fixed inset-0 modal-overlay z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 my-auto">
+            <div class="px-6 py-4 bg-white border-b border-slate-200 text-slate-900 flex justify-between items-center shrink-0">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-headset text-blue-600"></i> Registro de Atendimento Manual (OSR)</h3>
+                <button onclick="window.closeNewTicketModal()" class="text-slate-400 hover:text-slate-700 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-slate-50 custom-scrollbar">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Cliente & Equipamento</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cliente *</label>
+                            <input type="text" id="new-cli-name" list="list-clientes" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Cidade / Estado</label>
+                            <input type="text" id="new-cli-city" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Contato</label>
+                            <input type="text" id="new-cli-contato" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Telefone / Whats</label>
+                            <input type="text" id="new-cli-tel" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="col-span-1 md:col-span-2 grid grid-cols-2 gap-3">
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Equipamento *</label>
+                                <input type="text" id="new-eq-modelo" list="list-maquinas" required placeholder="Selecione..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nº Série *</label>
+                                <input type="text" id="new-eq-serial" required placeholder="SN..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                    <h4 class="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider">Problema e Relato</h4>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Problema *</label>
+                        <textarea id="new-problem" required rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Procedimentos Iniciais</label>
+                        <textarea id="new-procedures" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+                <button onclick="window.closeNewTicketModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">Cancelar</button>
+                <button onclick="window.createNewTicket()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"><i class="fa-solid fa-check"></i> Cadastrar OSR</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed top-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script type="module" src="core.js"></script>
@@ -383,6 +441,7 @@
 
         window.filters = { search: '', client: '', serial: '', dateStart: '', dateEnd: '', status: 'ALL', type: 'ALL', tech: 'ALL' };
 
+        // Mantidas as 5 colunas do ServiceFlow original
         const COLUNAS_KANBAN = [
             { id: 'ENTRADA', nome: 'Entrada / Agendamento', color: 'bg-slate-100 text-slate-900 border-slate-200', badgeDot: 'bg-slate-500' },
             { id: 'TRIAGEM', nome: 'Diagnóstico / Triagem', color: 'bg-blue-50 text-blue-900 border-blue-200', badgeDot: 'bg-blue-500' },
@@ -494,7 +553,7 @@
                         client: { name: d.cliente || '', city: d.cidade || '', contact: d.contato || '', phone: d.telefone || '' },
                         equipment: { model: d.maquina || '', serial: d.serial || '' },
                         request: { problem: d.defeito || '', procedures: d.solucao || '', materiais: d.pecas || '', isPresencial: d.conclusao === 'Marcar atendimento' },
-                        urgency: d.urgencia === 'CRITICA' || d.urgencia === 'CRITICAL' ? 'CRITICAL' : 'NORMAL',
+                        urgency: d.urgency === 'CRITICA' || d.urgency === 'CRITICAL' ? 'CRITICAL' : 'NORMAL',
                         timestampOriginal: d.timestamp || Date.now()
                     });
                 });
@@ -616,6 +675,7 @@
                         <div class="space-y-3">
                             <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Equipamento *</label><input type="text" list="mock-maquinas" class="inp-maquina w-full px-3 py-2.5 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition" value="${dadosSalvos ? dadosSalvos.maquina : ''}"></div>
                             <div><label class="block text-[10px] font-bold text-rose-500 uppercase mb-1">Defeito *</label><textarea rows="2" class="inp-defeito w-full bg-rose-50 border border-rose-200 text-xs p-2.5 rounded-xl outline-none focus:border-rose-400 resize-none">${dadosSalvos ? dadosSalvos.defeito : ''}</textarea></div>
+                            <div><label class="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Serviço Realizado</label><textarea rows="2" class="inp-servico w-full bg-emerald-50 border border-emerald-200 text-xs p-2.5 rounded-xl outline-none focus:border-emerald-400 resize-none">${dadosSalvos ? dadosSalvos.servico || '' : ''}</textarea></div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Hora Início</label><input type="time" class="inp-hora-inicio w-full bg-slate-50 border text-xs p-2 rounded-xl" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Hora Fim</label><input type="time" class="inp-hora-fim w-full bg-slate-50 border text-xs p-2 rounded-xl" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
@@ -624,7 +684,6 @@
                         <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col justify-center">
                             <div><label class="block text-[10px] font-black text-slate-700 uppercase mb-1">Formulário</label><select class="inp-formulario w-full bg-white border text-xs font-semibold p-2.5 rounded-xl cursor-pointer"><option value="">Nenhum</option>${formsOptions}</select></div>
                             <div class="mt-4"><label class="block text-[10px] font-black text-slate-700 uppercase mb-1">Etapa Atual</label><select onchange="window.mudarCorEtapa(this)" class="inp-etapa etapa-color w-full border text-xs font-bold p-2.5 rounded-xl cursor-pointer shadow-inner ${ETAPAS_SERVICO[0].cor}">${etapasOptions}</select></div>
-                            <textarea class="inp-servico hidden">${dadosSalvos ? dadosSalvos.servico || '' : ''}</textarea>
                             <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas) : "[]"}'>
                         </div>
                     </div>
@@ -724,8 +783,8 @@
                 if(match && parseInt(match[1]) < lowestStageNum) { lowestStageNum = parseInt(match[1]); lowestStageName = etStr; }
                 
                 arrayEquips.push({
-                    maquina: mq, defeito: df, horaInicio: c.querySelector('.inp-hora-inicio').value, horaFim: c.querySelector('.inp-hora-fim').value,
-                    formulario: c.querySelector('.inp-formulario').value, etapa: etStr, servico: c.querySelector('.inp-servico').value, pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas').value || "[]")
+                    maquina: mq, defeito: df, servico: c.querySelector('.inp-servico').value, horaInicio: c.querySelector('.inp-hora-inicio').value, horaFim: c.querySelector('.inp-hora-fim').value,
+                    formulario: c.querySelector('.inp-formulario').value, etapa: etStr, pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas').value || "[]")
                 });
             });
 
@@ -826,6 +885,7 @@
             const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'export_os.csv'; link.click();
         };
 
+        // --- RENDERIZAÇÃO DO KANBAN ORIGINAL COM O BOTÃO DE OS INJETADO ---
         window.renderKanban = function() {
             const cont = document.getElementById('kanban-grid');
             if(!cont) return;
@@ -859,7 +919,6 @@
                     const card = document.createElement('div');
                     card.className = `bg-white hover:bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 hover:border-blue-500 shadow-xs hover:shadow-card-hover transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between`;
                     card.draggable = true; card.ondragstart = (e) => { window.draggedTicketId = t.id; e.currentTarget.classList.add('dragging'); }; card.ondragend = (e) => e.currentTarget.classList.remove('dragging');
-                    card.onclick = () => window.abrirModalOS(t.id);
 
                     let equipInfo = '';
                     if (t.equipamentosOS && t.equipamentosOS.length > 1) {
@@ -870,13 +929,24 @@
                         equipInfo = `<i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i> ${t.equipment.model || 'Geral'}`;
                     }
 
-                    let orcBadge = '';
-                    if (t.orcamentosOS && t.orcamentosOS.length > 0) {
-                        const total = t.orcamentosOS.reduce((acc, curr) => acc + (curr.total || 0), 0);
-                        orcBadge = `<span class="mt-1 block text-[9px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded w-max">R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>`;
-                    }
-
-                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate">${t.clienteOS || t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate">${equipInfo}</span></div>${orcBadge}</div>`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span>
+                                <button onclick="window.abrirModalOS('${t.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-0.5 rounded text-[10px] shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-solid fa-file-invoice text-[9px]"></i> OS
+                                </button>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate">${t.clienteOS || t.client.name}</h4>
+                            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2">
+                                <span class="truncate">${equipInfo}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100">${t.request.problem || t.observacoesOS || 'Sem observações'}</p>
+                        </div>
+                        <div class="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-bold">
+                            <span><i class="fa-solid fa-user-gear mr-1 text-slate-400"></i> ${t.tecnicoOS || t.assignee || 'Não designado'}</span>
+                        </div>
+                    `;
                     cardsCont.appendChild(card);
                 });
                 cDiv.appendChild(cardsCont);
@@ -895,12 +965,18 @@
         window.toggleFilterPanel = function() { document.getElementById('filterPanel').classList.toggle('hidden'); };
         window.resetFilters = function() { window.applyFilters(); };
         window.applyFilters = function() { window.renderKanban(); };
+        
         window.switchView = function(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-link').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-600'); });
             document.getElementById(`nav-${viewName}`).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            document.getElementById(`nav-${viewName}`).classList.remove('text-slate-600');
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             if(viewName === 'kanban') window.renderKanban();
+        };
+
+        window.openNewTicketModal = function() {
+            window.abrirModalOS();
         };
     </script>
 </body>
