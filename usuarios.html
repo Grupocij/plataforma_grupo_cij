@@ -50,7 +50,6 @@
         </div>
     </main>
 
-    <!-- MODAL DE CADASTRO/EDIÇÃO DE USUÁRIO -->
     <div id="modalUser" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl border border-slate-200 my-auto transform transition-all">
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
@@ -60,7 +59,6 @@
 
             <form id="userForm" onsubmit="window.salvarUsuario(event)" class="p-6 space-y-6">
                 
-                <!-- Ajustado para 4 colunas para comportar a Senha Inicial -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase">Nome Completo *</label>
@@ -108,7 +106,6 @@
     <!-- MOTOR CENTRAL DO SISTEMA -->
     <script type="module" src="core.js"></script>
 
-    <!-- MOTOR SECUNDÁRIO DE AUTENTICAÇÃO (MÁGICA DE CRIAÇÃO) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -140,6 +137,7 @@
         const TODOS_MODULOS = [
             { id: 'index.html', nome: 'Agenda (Página Inicial)', cat: 'Geral' },
             { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
+            { id: 'gestao_os.html', nome: 'Gestão de O.S. (Homologação)', cat: 'Serviços' },
             { id: 'servicos_osr.html', nome: 'Gestão de OSR (Painel)', cat: 'Serviços' },
             { id: 'serviceflow_app.html', nome: 'ServiceFlow Kanban', cat: 'Serviços' },
             { id: 'app_tecnico.html', nome: 'App do Técnico (Mobile)', cat: 'Serviços' },
@@ -373,7 +371,7 @@
                 }
             }
 
-            // SALVA AS PERMISSÕES (O CRACHÁ DO USUÁRIO) NO FIRESTORE
+            // SALVA AS PERMISSÕES NO FIRESTORE
             document.querySelectorAll('.mod-checkbox').forEach(cb => {
                 if (cb.checked) {
                     modulosSelecionados.push(cb.value);

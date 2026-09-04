@@ -4,7 +4,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// REGISTRO DO SERVICE WORKER E MANIFESTO (PWA / OFFLINE)
 if (!document.querySelector('link[rel="manifest"]')) {
     const manifestLink = document.createElement('link');
     manifestLink.rel = 'manifest';
@@ -109,6 +108,7 @@ const injectLayout = () => {
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
                                 <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo Chamado Mobile</p></div></a>
+                                <a href="gestao_os.html" data-module="gestao_os.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-file-invoice"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de O.S.</h4><p class="text-[10px] text-slate-500">Homologação</p></div></a>
                                 <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de Atendimentos</p></div></a>
                                 <a href="serviceflow_app.html" data-module="serviceflow_app.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-columns"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">ServiceFlow Kanban</h4><p class="text-[10px] text-slate-500">Fluxo Integrado</p></div></a>
                                 <a href="app_tecnico.html" data-module="app_tecnico.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">App do Técnico</h4><p class="text-[10px] text-slate-500">Execução de OS</p></div></a>
@@ -263,6 +263,7 @@ window.fsGetDocs = getDocs;
 
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
+    { name: 'Gestão de O.S. (Homologação)', url: 'gestao_os.html', icon: 'fa-file-invoice text-sky-500' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
     { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
     { name: 'App do Técnico', url: 'app_tecnico.html', icon: 'fa-mobile-screen-button text-sky-500' },
