@@ -38,7 +38,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        .modal-overlay { background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(5px); }
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); }
 
         .timeline-item { position: relative; padding-left: 1.5rem; }
         .timeline-item::before {
@@ -81,7 +81,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-base font-extrabold tracking-tight text-slate-900">ServiceFlow</h1>
-                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">v4.2 OS</span>
+                        <span class="bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">v4.3 OS</span>
                     </div>
                     <p class="text-[11px] text-slate-500 font-medium">Gestão Integrada de Triagem e Suporte</p>
                 </div>
@@ -149,11 +149,11 @@
                 <div class="flex items-center gap-3 ml-auto text-[10px] font-mono"><span>[N] Novo</span><span>[F] Filtros</span><span>[ESC] Fechar Modais</span></div>
             </div>
 
-            <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col">
-                <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4"></div>
+            <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col min-h-0 min-w-0">
+                <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4 min-h-0"></div>
             </div>
 
-            <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+            <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100 min-h-0">
                 <div class="max-w-4xl mx-auto space-y-4">
                     <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
                         <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
@@ -163,7 +163,7 @@
                 </div>
             </div>
 
-            <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+            <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100 min-h-0">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
@@ -348,114 +348,113 @@
         </div>
     </div>
 
-    <!-- MODAL GIGANTE: NOVA O.S. (3 ABAS) -->
-    <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-7xl flex flex-col h-[95vh] lg:h-[90vh] overflow-hidden transform transition-all">
+    <!-- MODAL GIGANTE: NOVA O.S. (3 ABAS) - ESTRUTURA BLINDADA -->
+    <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-6">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden relative">
             
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
                 <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
-                    <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                
-                <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                    <div class="flex gap-6 text-xs font-semibold overflow-x-auto custom-scrollbar">
-                        <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building"></i> Dados e Agendamento</button>
-                        <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                        <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
-                    </div>
-                </div>
-
-                <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
-                    <form id="form-nova-os" onsubmit="event.preventDefault();">
-                        <input type="hidden" id="os-id-oculto" value="">
-                        
-                        <div id="aba1" class="space-y-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente *</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                    <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition shadow-sm">
-                                </div>
-                                
-                                <div id="card-cliente-info" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                                    <div class="space-y-1">
-                                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Dados do Cadastro</p>
-                                        <p id="card-end" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> <span id="card-end-txt"></span></p>
-                                        <p id="card-tel" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-phone w-4 text-slate-400"></i> <span id="card-tel-txt"></span></p>
-                                        <p id="card-con" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-user w-4 text-slate-400"></i> Contato Base: <span id="card-con-txt" class="font-bold"></span></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Atendimento *</label>
-                                    <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
-                                        <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
-                                    </select>
-                                </div>
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></div>
-                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Técnico Designado *</label>
-                                    <select id="os-tecnico" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></select>
-                                </div>
-                                <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria..." class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600 resize-none"></textarea></div>
-                            </div>
-
-                            <div class="flex justify-end pt-4">
-                                <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
-                            </div>
-                        </div>
-
-                        <div id="aba2" class="hidden space-y-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <div>
-                                    <h4 class="text-sm font-bold text-slate-800">Equipamentos da OS</h4>
-                                    <p class="text-[10px] text-slate-500">Adicione as máquinas e defina formulários e etapas específicas para cada uma.</p>
-                                </div>
-                                <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
-                                    <i class="fa-solid fa-plus"></i> Add Máquina
-                                </button>
-                            </div>
-
-                            <div id="container-equipamentos-os" class="space-y-4 pb-10"></div>
-
-                            <div class="flex justify-between pt-4 border-t border-slate-100">
-                                <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                                <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
-                            </div>
-                        </div>
-
-                        <div id="aba3" class="hidden space-y-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <div>
-                                    <h4 class="text-sm font-bold text-slate-800">Orçamentos e Faturamento</h4>
-                                    <p class="text-[10px] text-slate-500">Adicione propostas, insira peças, horas e calcule totais.</p>
-                                </div>
-                                <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm border border-emerald-200 cursor-pointer">
-                                    <i class="fa-solid fa-plus"></i> Add Orçamento
-                                </button>
-                            </div>
-
-                            <div id="container-orcamentos-os" class="space-y-4 min-h-[200px]"></div>
-                            
-                            <div class="bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white mt-4 shadow-lg">
-                                <span class="text-sm font-bold uppercase tracking-wider text-slate-300">Total Geral da Ordem de Serviço:</span>
-                                <span id="valor-total-geral-os" class="text-xl font-black text-emerald-400">R$ 0,00</span>
-                            </div>
-
-                            <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
-                                <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar Equipamentos</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex justify-end gap-2">
-                    <button type="button" onclick="window.fecharModalOS()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                    <button type="button" onclick="window.salvarOS()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Ordem de Serviço</button>
-                </div>
-
+                <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+                
+            <div class="px-6 pt-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div class="flex gap-6 text-xs font-semibold overflow-x-auto custom-scrollbar">
+                    <button type="button" onclick="window.mudarAbaOS('aba1')" id="btn-aba1" class="tab-active pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-building"></i> Dados e Agendamento</button>
+                    <button type="button" onclick="window.mudarAbaOS('aba2')" id="btn-aba2" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-print"></i> Equipamentos e Etapas <span id="badge-equip-count" class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                    <button type="button" onclick="window.mudarAbaOS('aba3')" id="btn-aba3" class="tab-inactive pb-3 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"><i class="fa-solid fa-sack-dollar text-emerald-600"></i> Orçamentos e Custos <span id="badge-orc-count" class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1">0</span></button>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
+                <form id="form-nova-os" onsubmit="event.preventDefault();">
+                    <input type="hidden" id="os-id-oculto" value="">
+                    
+                    <div id="aba1" class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente *</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="os-cliente" list="mock-clientes" required oninput="window.preencherCardCliente(this.value)" placeholder="Digite o nome do cliente..." class="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-300 text-xs font-bold rounded-xl outline-none focus:border-blue-600 transition shadow-sm">
+                            </div>
+                            
+                            <div id="card-cliente-info" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                                <div class="space-y-1">
+                                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Dados do Cadastro</p>
+                                    <p id="card-end" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> <span id="card-end-txt"></span></p>
+                                    <p id="card-tel" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-phone w-4 text-slate-400"></i> <span id="card-tel-txt"></span></p>
+                                    <p id="card-con" class="text-xs font-medium text-slate-700"><i class="fa-solid fa-user w-4 text-slate-400"></i> Contato Base: <span id="card-con-txt" class="font-bold"></span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="os-solicitante" placeholder="Quem pediu o conserto?" class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Atendimento *</label>
+                                <select id="os-tipo" class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer">
+                                    <option value="Externo">Externo (No Cliente)</option><option value="Interno">Interno (Laboratório)</option><option value="Remoto">Remoto (Online)</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data do Agendamento *</label><input type="date" id="os-data" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Técnico Designado *</label>
+                                <select id="os-tecnico" required class="w-full bg-slate-50 border border-slate-300 text-xs font-bold p-2.5 rounded-xl outline-none focus:border-blue-600 cursor-pointer"></select>
+                            </div>
+                            <div class="sm:col-span-2 lg:col-span-4"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Observações de Rota / Gerais</label><textarea id="os-obs" rows="2" placeholder="Ex: Falar com portaria..." class="w-full bg-slate-50 border border-slate-300 text-xs p-2.5 rounded-xl outline-none focus:border-blue-600 resize-none"></textarea></div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button type="button" onclick="window.validarAba1EAvancar()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Equipamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="aba2" class="hidden space-y-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Equipamentos da OS</h4>
+                                <p class="text-[10px] text-slate-500">Adicione as máquinas e defina formulários e etapas específicas para cada uma.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarEquipamentoNaOS()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Add Máquina
+                            </button>
+                        </div>
+
+                        <div id="container-equipamentos-os" class="space-y-4 pb-10"></div>
+
+                        <div class="flex justify-between pt-4 border-t border-slate-100">
+                            <button type="button" onclick="window.mudarAbaOS('aba1')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                            <button type="button" onclick="window.mudarAbaOS('aba3')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-md transition cursor-pointer">Avançar para Orçamentos <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="aba3" class="hidden space-y-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Orçamentos e Faturamento</h4>
+                                <p class="text-[10px] text-slate-500">Adicione propostas, insira peças, horas e calcule totais.</p>
+                            </div>
+                            <button type="button" onclick="window.adicionarOrcamentoNaOS()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm border border-emerald-200 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Add Orçamento
+                            </button>
+                        </div>
+
+                        <div id="container-orcamentos-os" class="space-y-4 min-h-[200px]"></div>
+                        
+                        <div class="bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white mt-4 shadow-lg">
+                            <span class="text-sm font-bold uppercase tracking-wider text-slate-300">Total Geral da Ordem de Serviço:</span>
+                            <span id="valor-total-geral-os" class="text-xl font-black text-emerald-400">R$ 0,00</span>
+                        </div>
+
+                        <div class="flex justify-start pt-4 border-t border-slate-100 mt-4">
+                            <button type="button" onclick="window.mudarAbaOS('aba2')" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Voltar Equipamentos</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 shrink-0 flex justify-end gap-2">
+                <button type="button" onclick="window.fecharModalOS()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                <button type="button" onclick="window.salvarOS()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Ordem de Serviço</button>
+            </div>
+
         </div>
     </div>
 
@@ -968,101 +967,6 @@
             }
         };
 
-        window.populateTechSelects = function() {
-            const techsHtml = '<option value="ALL">Todos</option>' + window.usersList.map(u => `<option value="${u.nome}">${u.nome}</option>`).join('');
-            document.getElementById('filterTech').innerHTML = techsHtml;
-            
-            const gUsuarios = document.getElementById('notif-group-usuarios');
-            if(gUsuarios) {
-                gUsuarios.innerHTML = window.usersList.map(u => `<option value="${u.email}">Usuário: ${u.nome}</option>`).join('');
-            }
-        };
-
-        window.saveTicketToDB = async function(t) {
-            const data = {
-                osr: t.id, timestamp: t.timestampOriginal, status: t.status, cliente: t.client.name, cidade: t.client.city, contato: t.client.contact, telefone: t.client.phone, maquina: t.equipment.model, serial: t.equipment.serial, defeito: t.request.problem, solucao: t.request.procedures, pecas: t.request.materiais, urgencia: t.urgency === 'CRITICAL' ? 'CRITICA' : 'NORMAL', conclusao: t.status === 'CONCLUIDO' ? 'Resolvido' : (t.request.isPresencial ? 'Marcar atendimento' : ''), fotoBase64: t.fotoBase64 || null, tecnico_kanban: t.assignee, tecnico: t.assignee, nextAction: t.nextAction, history: t.history, triage: t.triage, quote: t.quote, schedule: t.schedule, equipamentos: t.equipamentosOS || [], orcamentos: t.orcamentosOS || []
-            };
-            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), data, {merge: true}); } catch(e){}
-        };
-
-        window.dispararAlertaAutomatico = function(fase, msgBase) {
-            const regras = window.alertSettings[fase];
-            if(!regras || regras.length === 0) return;
-            
-            const perfis = regras.filter(r => r.startsWith('perfil_')).map(r => r.replace('perfil_', ''));
-            const emails = regras.filter(r => r.includes('@'));
-            
-            if(perfis.length > 0 || emails.length > 0) {
-                window.enviarNotificacaoApp(msgBase, emails, perfis, 'info');
-            }
-        };
-
-        window.formatElapsedTime = function(msOriginal) {
-            if(!msOriginal) return '';
-            const diffHours = Math.floor((Date.now() - msOriginal) / (1000 * 60 * 60));
-            if (diffHours < 1) return 'Hoje';
-            if (diffHours < 24) return `${diffHours}h atrás`;
-            return `${Math.floor(diffHours / 24)}d atrás`;
-        };
-
-        window.showToast = function(msg, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            if(!container) return;
-            const toast = document.createElement('div');
-            const bgColors = { 'success': 'bg-emerald-50 text-emerald-800 border-emerald-300', 'warning': 'bg-amber-50 text-amber-800 border-amber-300', 'info': 'bg-blue-50 text-blue-900 border-blue-300' };
-            toast.className = `toast-animate pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border text-xs font-semibold shadow-lg ${bgColors[type]}`;
-            toast.innerHTML = `<span>${msg}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
-        };
-
-        window.switchView = function(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-link').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-600', 'hover:text-blue-700'); });
-            document.getElementById(`nav-${viewName}`).classList.add('bg-blue-600', 'text-white', 'shadow-md');
-            document.getElementById(`nav-${viewName}`).classList.remove('text-slate-600', 'hover:text-blue-700');
-            document.getElementById(`view-${viewName}`).classList.remove('hidden');
-            if(viewName === 'kanban') window.renderKanban();
-            if(viewName === 'pendencias') window.updatePendencias();
-            if(viewName === 'indicadores') window.updateIndicadores();
-        };
-
-        window.syncHeaderSearch = function(val) { document.getElementById('filterSearch').value = val; window.applyFilters(); };
-        window.toggleFilterPanel = function() { document.getElementById('filterPanel').classList.toggle('hidden'); };
-        
-        window.applyFilters = function() {
-            window.filters.search = document.getElementById('filterSearch').value.toLowerCase().trim();
-            window.filters.client = document.getElementById('filterClient').value.toLowerCase().trim();
-            window.filters.serial = document.getElementById('filterSerial').value.toLowerCase().trim();
-            window.filters.dateStart = document.getElementById('filterDateStart').value;
-            window.filters.dateEnd = document.getElementById('filterDateEnd').value;
-            window.filters.status = document.getElementById('filterStatus').value;
-            window.filters.type = document.getElementById('filterType').value;
-            window.filters.tech = document.getElementById('filterTech').value;
-            window.renderKanban(); window.updatePendencias(); window.updateIndicadores();
-        };
-        window.resetFilters = function() {
-            document.getElementById('filterSearch').value = ''; document.getElementById('headerQuickSearch').value = '';
-            document.getElementById('filterClient').value = ''; document.getElementById('filterSerial').value = '';
-            document.getElementById('filterDateStart').value = ''; document.getElementById('filterDateEnd').value = '';
-            document.getElementById('filterStatus').value = 'ALL'; document.getElementById('filterType').value = 'ALL'; document.getElementById('filterTech').value = 'ALL';
-            window.applyFilters();
-        };
-
-        window.filterTicketByCriteria = function(t) {
-            const f = window.filters;
-            if(f.search && !(t.id.toLowerCase().includes(f.search) || t.client.name.toLowerCase().includes(f.search) || t.equipment.model.toLowerCase().includes(f.search) || t.equipment.serial.toLowerCase().includes(f.search) || (t.request.problem && t.request.problem.toLowerCase().includes(f.search)))) return false;
-            if(f.client && !t.client.name.toLowerCase().includes(f.client)) return false;
-            if(f.serial && !t.equipment.serial.toLowerCase().includes(f.serial)) return false;
-            if(f.dateStart && new Date(t.createdAt).setHours(0,0,0,0) < new Date(f.dateStart).setHours(0,0,0,0)) return false;
-            if(f.dateEnd && new Date(t.createdAt).setHours(23,59,59,999) > new Date(f.dateEnd).setHours(23,59,59,999)) return false;
-            if(f.status !== 'ALL' && t.status !== f.status) return false;
-            if(f.type === 'REMOTO' && t.request.isPresencial) return false;
-            if(f.type === 'PRESENCIAL' && !t.request.isPresencial) return false;
-            if(f.tech !== 'ALL' && t.assignee !== f.tech && (!t.schedule || t.schedule.tech !== f.tech)) return false;
-            return true;
-        };
-
         window.renderKanban = function() {
             const cont = document.getElementById('kanban-grid');
             if(!cont) return;
@@ -1127,412 +1031,6 @@
                 cont.appendChild(cDiv);
             });
         };
-
-        window.updatePendencias = function() {
-            const list = document.getElementById('pendenciasList');
-            if(!list) return;
-            const myT = window.tickets.filter(t => t.status !== 'CONCLUIDO' && window.filterTicketByCriteria(t));
-            document.getElementById('badge-pendencias').innerText = myT.length;
-            document.getElementById('badge-pendencias').classList.toggle('hidden', myT.length === 0);
-            document.getElementById('pendenciasCountTag').innerText = `${myT.length} itens`;
-
-            if(myT.length === 0) { list.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">Nenhum atendimento pendente.</div>`; return; }
-            list.innerHTML = myT.map(t => `<div class="bg-white hover:bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between cursor-pointer shadow-xs" onclick="window.openTicketModal('${t.id}')"><div class="space-y-1"><div class="flex items-center gap-2"><span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">${t.id}</span><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${STATUSES[t.status].color}">${STATUSES[t.status].label}</span></div><h4 class="text-xs font-bold text-slate-900">${t.client.name}</h4><p class="text-[11px] text-slate-600">${t.request.problem || ''}</p></div><button class="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">Abrir</button></div>`).join('');
-        };
-
-        window.updateIndicadores = function() {
-            const grid = document.getElementById('statsGrid');
-            const bars = document.getElementById('indicadoresBarList');
-            if(!grid) return;
-            const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
-            const tot = f.length; const c = f.filter(t=>t.status==='CONCLUIDO').length; const tr = f.filter(t=>t.status==='TRIAGEM').length; const or = f.filter(t=>t.status==='ORCAMENTO').length; const ag = f.filter(t=>t.status==='AGENDAMENTO').length;
-            
-            grid.innerHTML = `<div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-blue-600 uppercase block">Total</span><span class="text-3xl font-extrabold text-slate-900">${tot}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-amber-600 uppercase block">Em Triagem</span><span class="text-3xl font-extrabold text-amber-600">${tr}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-purple-600 uppercase block">Orçamento</span><span class="text-3xl font-extrabold text-purple-600">${or}</span></div><div class="bg-white p-5 rounded-2xl border border-slate-200"><span class="text-[11px] font-bold text-emerald-600 uppercase block">Finalizados</span><span class="text-3xl font-extrabold text-emerald-600">${c}</span></div>`;
-            
-            if(bars) {
-                const gp = v => tot>0 ? Math.round((v/tot)*100) : 0;
-                bars.innerHTML = `<div class="mb-2"><div class="flex justify-between text-xs font-bold text-amber-700 mb-1"><span>Triagem</span><span>${gp(tr)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:${gp(tr)}%"></div></div></div><div class="mb-2"><div class="flex justify-between text-xs font-bold text-purple-700 mb-1"><span>Orçamentos</span><span>${gp(or)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width:${gp(or)}%"></div></div></div><div><div class="flex justify-between text-xs font-bold text-emerald-700 mb-1"><span>Concluídos</span><span>${gp(c)}%</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-600 h-2 rounded-full" style="width:${gp(c)}%"></div></div></div>`;
-            }
-        };
-
-        window.openTicketModal = function(id) {
-            window.currentTicketId = id;
-            const t = window.tickets.find(x => x.id === id);
-            if(!t) return;
-
-            document.getElementById('tm-id').innerText = t.id;
-            document.getElementById('tm-status-badge').innerText = STATUSES[t.status].label;
-            document.getElementById('tm-status-badge').className = `px-3 py-0.5 rounded-full text-[11px] font-bold ${STATUSES[t.status].color}`;
-            document.getElementById('tm-assignee').innerText = t.assignee;
-            document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock"></i> Aberto ${window.formatElapsedTime(t.timestampOriginal)}`;
-
-            if(document.getElementById('td-client')) document.getElementById('td-client').innerText = t.client.name;
-            if(document.getElementById('td-city')) document.getElementById('td-city').innerText = t.client.city || '-';
-            if(document.getElementById('td-contact')) document.getElementById('td-contact').innerText = t.client.contact || '-';
-            if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client.phone || '-';
-            
-            // LÓGICA DO ALERTA DE EQUIPAMENTO DESVINCULADO E EXIBIÇÃO DE MÁQUINAS NA GAVETA
-            let textMaquinas = '';
-            let defFinal = '';
-            if (t.equipamentosOS && t.equipamentosOS.length > 1) {
-                textMaquinas = `${t.equipamentosOS.length} Equipamentos Cadastrados`;
-                defFinal = t.equipamentosOS[0].defeito;
-            } else if (t.equipamentosOS && t.equipamentosOS.length === 1) {
-                textMaquinas = t.equipamentosOS[0].maquina;
-                defFinal = t.equipamentosOS[0].defeito;
-            } else {
-                textMaquinas = t.equipment.model;
-                defFinal = t.request.problem;
-            }
-            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = textMaquinas;
-
-            const warningBox = document.getElementById('td-parque-warning');
-            if(warningBox) {
-                if (t.equipment.serial && t.equipment.serial.trim() !== '') {
-                    const maq = window.parqueMaquinas.find(m => m.serial.toLowerCase() === t.equipment.serial.toLowerCase());
-                    if (!maq || maq.cliente_atual.toLowerCase() !== t.client.name.toLowerCase()) {
-                        warningBox.classList.remove('hidden');
-                    } else {
-                        warningBox.classList.add('hidden');
-                    }
-                } else {
-                    warningBox.classList.add('hidden'); // Se não tiver serial, não tem como vincular
-                }
-            }
-
-            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = defFinal || '';
-            if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum.';
-
-            const matBox = document.getElementById('td-materials-box');
-            if (matBox) {
-                if(t.request && t.request.materiais) { 
-                    document.getElementById('td-materials').innerText = t.request.materiais; 
-                    matBox.classList.remove('hidden'); 
-                } else matBox.classList.add('hidden');
-            }
-
-            const fotoBox = document.getElementById('td-foto-box');
-            if (fotoBox) {
-                if (t.fotoBase64) {
-                    document.getElementById('td-foto-img').src = t.fotoBase64;
-                    fotoBox.classList.remove('hidden');
-                } else {
-                    fotoBox.classList.add('hidden');
-                    document.getElementById('td-foto-img').src = '';
-                }
-            }
-
-            if(document.getElementById('remote-actions-bar')) document.getElementById('remote-actions-bar').classList.toggle('hidden', t.status !== 'ENTRADA');
-            if(document.getElementById('reopen-actions-bar')) document.getElementById('reopen-actions-bar').classList.toggle('hidden', t.status !== 'CONCLUIDO');
-
-            if(document.getElementById('tab-nav-triagem')) document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM','ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
-            if(document.getElementById('tab-nav-orcamento')) document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
-            if(document.getElementById('tab-nav-agendamento')) document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO','CONCLUIDO'].includes(t.status));
-
-            if(t.triage) {
-                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = t.triage.needs ? t.triage.needs.join(', ') : 'Nenhum item marcado';
-                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = t.triage.desc || '';
-                if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = t.triage.desc || '';
-                document.querySelectorAll('.triage-need').forEach(cb => cb.checked = t.triage.needs ? t.triage.needs.includes(cb.value) : false);
-            }
-
-            if(t.quote) {
-                if(document.getElementById('orc-numero')) document.getElementById('orc-numero').value = t.quote.number || '';
-                if(document.getElementById('orc-valor')) document.getElementById('orc-valor').value = t.quote.amount || '';
-                if(document.getElementById('orc-desc')) document.getElementById('orc-desc').value = t.quote.desc || '';
-            }
-
-            if(t.schedule) {
-                if(document.getElementById('sch-os')) document.getElementById('sch-os').value = t.schedule.os || '';
-                if(document.getElementById('sch-date')) document.getElementById('sch-date').value = t.schedule.date || '';
-                if(document.getElementById('sch-tech')) document.getElementById('sch-tech').value = t.schedule.tech || '';
-            }
-
-            window.renderTimeline(t);
-            window.switchTab('tab-dados');
-            document.getElementById('ticketModal').classList.remove('hidden');
-        };
-
-        window.abrirFotoFullscreen = function(src) {
-            if(!src) return;
-            document.getElementById('img-fullscreen').src = src;
-            document.getElementById('modal-foto-full').classList.remove('hidden');
-        };
-
-        window.closeTicketModal = function() {
-            document.getElementById('ticketModal').classList.add('hidden');
-        };
-
-        // --- FUNÇÃO PARA VINCULAR MÁQUINA QUE VEIO DO SUPORTE OSR ---
-        window.vincularMaquinaParqueApp = function() {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            
-            // Abre o modal de revisão com os dados atuais da OSR
-            document.getElementById('vinc-eq-modelo').value = t.equipment.model || '';
-            document.getElementById('vinc-eq-serial').value = t.equipment.serial || '';
-            document.getElementById('modal-vincular-equip').classList.remove('hidden');
-        };
-
-        window.confirmarVinculoParque = async function() {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            
-            const cli = t.client.name;
-            const mod = document.getElementById('vinc-eq-modelo').value.trim().toUpperCase();
-            const ser = document.getElementById('vinc-eq-serial').value.trim().toUpperCase();
-
-            if(!mod || !ser) { alert("Preencha o modelo e o número de série para continuar."); return; }
-
-            // 1. Corrige o ticket OSR localmente e no banco de dados (se houve alteração)
-            t.equipment.model = mod;
-            t.equipment.serial = ser;
-            await window.saveTicketToDB(t);
-
-            // 2. Atualiza a tela de detalhes da OSR instantaneamente
-            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = mod;
-            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = ser;
-
-            // 3. Processa a vinculação/transferência no Parque de Máquinas
-            const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
-            
-            const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
-            const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
-                id: pmId, serial: ser, modelo: mod, cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via ServiceFlow (Atendimento Revisado)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
-            };
-            
-            if(maquinaNoParque) {
-                if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
-                pmData.historico_transferencias.push({
-                     id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Transferência via ServiceFlow (Correção Gestor)', responsavel: window.currentUserStr, timestamp: Date.now()
-                });
-            }
-            
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
-                window.showToast('Equipamento revisado e vinculado com sucesso!', 'success');
-                document.getElementById('td-parque-warning').classList.add('hidden');
-                document.getElementById('modal-vincular-equip').classList.add('hidden');
-            } catch(err) {
-                alert("Erro ao salvar no Parque de Máquinas.");
-            }
-        };
-
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            const aBtn = document.querySelector(`[data-target="${tabId}"]`);
-            const aCont = document.getElementById(tabId);
-            if(aBtn) aBtn.classList.add('tab-active');
-            if(aCont) aCont.classList.remove('hidden');
-        };
-
-        window.renderTimeline = function(t) {
-            const cont = document.getElementById('timeline-container');
-            if(!cont) return;
-            cont.innerHTML = '';
-            if(!t.history || t.history.length === 0) return;
-            t.history.forEach(item => {
-                cont.innerHTML += `<div class="timeline-item"><div class="timeline-dot"></div><div class="text-xs"><div class="flex items-center gap-2 mb-0.5"><span class="font-bold text-slate-800">${item.user}</span><span class="text-[10px] text-slate-400">${new Date(item.date).toLocaleString('pt-BR')}</span></div><p class="text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/60">${item.text}</p></div></div>`;
-            });
-        };
-
-        window.addQuickNote = function() {
-            const inp = document.getElementById('quickNoteInput');
-            if(!inp || !inp.value.trim() || !window.currentTicketId) return;
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(t) {
-                if(!t.history) t.history = [];
-                t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: inp.value.trim() });
-                inp.value = ''; window.saveTicketToDB(t); window.renderTimeline(t); window.showToast('Nota salva.', 'success');
-            }
-        };
-
-        window.quickResolveTicket = function(id) {
-            const t = window.tickets.find(x => x.id === id);
-            if(!t) return;
-            t.status = 'CONCLUIDO';
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via remoto.' });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Resolvido!', 'success');
-            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado (Remoto).`);
-        };
-
-        window.quickTriageTicket = function(id) {
-            const t = window.tickets.find(x => x.id === id);
-            if(!t) return;
-            t.status = 'TRIAGEM';
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem.' });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Triagem!', 'warning');
-            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} encaminhado para Triagem Técnica.`);
-        };
-
-        window.reopenTicketToTriage = function(id) {
-            const t = window.tickets.find(x => x.id === id);
-            if(!t) return;
-            t.status = 'TRIAGEM';
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto para Triagem.' });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Reaberto!', 'info');
-            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} REABERTO para Triagem.`);
-        };
-
-        window.toggleTriageFields = function(np) {
-            if(document.getElementById('triage-needs-container')) document.getElementById('triage-needs-container').classList.toggle('hidden', !np);
-            if(document.getElementById('triage-resolve-container')) document.getElementById('triage-resolve-container').classList.toggle('hidden', np);
-        };
-
-        window.processTriage = function() {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            const needs = Array.from(document.querySelectorAll('.triage-need:checked')).map(cb => cb.value);
-            t.status = 'ORCAMENTO';
-            t.triage = { needs: needs, desc: document.getElementById('triage-desc').value.trim() };
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Triagem salva. Enviado para Orçamento.' });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Orçamentos!', 'success');
-            window.dispararAlertaAutomatico('ORCAMENTO', `Chamado ${t.id} requer Orçamento. Avaliação: ${needs.join(', ')}`);
-        };
-
-        window.resolveTicketFromTriage = function() {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            t.status = 'CONCLUIDO';
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encerrado na Triagem: ' + document.getElementById('triage-solution').value });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Encerrado na Triagem!', 'success');
-            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Encerrado na Triagem.`);
-        };
-
-        window.sendQuoteToClient = function() {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            t.quote = { number: document.getElementById('orc-numero').value, amount: parseFloat(document.getElementById('orc-valor').value), desc: document.getElementById('orc-desc').value };
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento elaborado.' });
-            window.saveTicketToDB(t); window.showToast('Orçamento salvo!', 'success');
-        };
-
-        window.processQuoteResponse = function(apv) {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            t.status = apv ? 'AGENDAMENTO' : 'CONCLUIDO';
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: apv ? 'Orçamento Aprovado. Liberado para Agendamento.' : 'Reprovado. Encerrado.' });
-            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast(apv ? 'Aprovado!' : 'Reprovado e Encerrado.', 'info');
-            if(apv) {
-                window.dispararAlertaAutomatico('AGENDAMENTO', `Orçamento Aprovado (${t.id}). Necessário Agendar OS.`);
-            } else {
-                window.dispararAlertaAutomatico('CONCLUIDO', `Orçamento Reprovado (${t.id}). Chamado Encerrado.`);
-            }
-        };
-
-        window.saveSchedule = async function(complete) {
-            const t = window.tickets.find(x => x.id === window.currentTicketId);
-            if(!t) return;
-            const os = document.getElementById('sch-os').value; const dt = document.getElementById('sch-date').value; const tc = document.getElementById('sch-tech').value;
-            if(!os || !dt || !tc) { alert('Preencha OS, Data e Técnico.'); return; }
-            
-            t.schedule = { os: os, date: dt, tech: tc };
-            t.status = complete ? 'CONCLUIDO' : t.status;
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: complete ? `OS ${os} concluída pelo técnico ${tc}.` : `OS ${os} agendada para ${dt} (${tc}).` });
-            
-            await window.saveTicketToDB(t);
-
-            if(!complete) {
-                const u = window.usersList.find(x => x.nome === tc);
-                if(u && u.email) {
-                    window.enviarNotificacaoApp(`OS ${os} agendada para você no dia ${dt.split('-').reverse().join('/')}. Cliente: ${t.client.name}`, [u.email]);
-                    
-                    const tId = 't_' + Date.now();
-                    try {
-                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', tId), {
-                            id: tId, osNumber: os, client: t.client.name, title: t.client.name, type: 'TECHNICAL', location: t.client.city, techIds: [tc], techId: tc,
-                            urgency: t.urgency === 'CRITICAL' ? 'CRITICAL' : 'MEDIUM', scheduledDate: dt, dueDate: dt, status: 'PENDING', description: `Gerado via ServiceFlow OSR: ${t.id}`
-                        });
-                    } catch(e) {}
-                }
-            } else {
-                window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado com Sucesso (OS: ${os}).`);
-            }
-            
-            window.closeTicketModal(); window.showToast('Salvo com sucesso!', 'success');
-        };
-
-        window.confirmDeleteTicket = function(id) { window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
-        window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
-        window.executeDeleteTicket = async function() {
-            if(!window.pendingDeleteTicketId) return;
-            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteTicketId)); window.closeDeleteModal(); window.closeTicketModal(); window.showToast('Excluído.', 'warning'); } catch(e){}
-        };
-
-        window.exportToCSV = function() {
-            const f = window.tickets.filter(t => window.filterTicketByCriteria(t));
-            let csv = "\uFEFFID;Data;Status;Cliente;Maquina;Problema;Responsavel\n";
-            f.forEach(t => { csv += `${t.id};${new Date(t.timestampOriginal).toLocaleDateString('pt-BR')};${STATUSES[t.status].label};"${t.client.name}";"${t.equipment.model}";"${t.request.problem || ''}";${t.assignee}\n`; });
-            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'export.csv'; link.click();
-        };
-
-        window.openNewTicketModal = function() { document.getElementById('modal-new-ticket').classList.remove('hidden'); };
-        window.closeNewTicketModal = function() { document.getElementById('modal-new-ticket').classList.add('hidden'); };
-        
-        window.createNewTicket = async function() {
-            const cli = document.getElementById('new-cli-name').value.trim();
-            const mod = document.getElementById('new-eq-modelo').value.trim();
-            const ser = document.getElementById('new-eq-serial').value.trim();
-            const prob = document.getElementById('new-problem').value.trim();
-            if(!cli || !mod || !ser || !prob) { alert('Preencha os campos obrigatórios (*)'); return; }
-
-            // INTEGRAÇÃO: PARQUE DE MÁQUINAS (TRAVA DO GESTOR)
-            const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
-            
-            if (!maquinaNoParque || maquinaNoParque.cliente_atual.toLowerCase() !== cli.toLowerCase()) {
-                if(confirm(`Atenção Gestor: A máquina ${mod} (SN: ${ser}) não consta no Parque de Máquinas do cliente "${cli}".\n\nDeseja cadastrá-la e vinculá-la oficialmente agora?`)) {
-                    
-                    const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
-                    const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
-                        id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Cadastrado automaticamente via Kanban', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
-                    };
-                    
-                    if(maquinaNoParque) {
-                        if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
-                        pmData.historico_transferencias.push({
-                             id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Abertura de OSR / Kanban', responsavel: window.currentUserStr, timestamp: Date.now()
-                        });
-                    }
-                    
-                    try {
-                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
-                        window.showToast('Máquina vinculada ao Parque com sucesso!', 'success');
-                    } catch(err) {
-                        alert("Erro ao salvar no Parque de Máquinas.");
-                    }
-                }
-            }
-
-            const numFmt = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
-                const ref = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
-                const doc = await transaction.get(ref);
-                let cur = doc.exists() ? doc.data().current : 1000;
-                transaction.set(ref, { current: cur + 1 }, { merge: true });
-                return `OSR-${new Date().getFullYear()}-${cur + 1}`;
-            });
-
-            const data = {
-                osr: numFmt, timestamp: Date.now(), status: 'ENTRADA',
-                cliente: cli, cidade: document.getElementById('new-cli-city').value, contato: document.getElementById('new-cli-contato').value, telefone: document.getElementById('new-cli-tel').value,
-                maquina: mod, serial: ser, defeito: prob, solucao: document.getElementById('new-procedures').value, pecas: '', urgencia: 'NORMAL', conclusao: '', tecnico: window.currentUserStr, history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado manual criado no Kanban.' }]
-            };
-
-            await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', numFmt), data);
-            window.closeNewTicketModal();
-            document.getElementById('new-cli-name').value = ''; document.getElementById('new-eq-modelo').value = ''; document.getElementById('new-eq-serial').value = ''; document.getElementById('new-problem').value = ''; document.getElementById('new-procedures').value = '';
-            window.showToast('Chamado criado com sucesso!', 'success');
-        };
-
-        document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); window.fecharModalOS(); window.fecharModalAutomacao(); document.getElementById('modal-foto-full').classList.add('hidden'); document.getElementById('modal-vincular-equip').classList.add('hidden'); } });
     </script>
 </body>
 </html>
