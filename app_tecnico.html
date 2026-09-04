@@ -129,9 +129,9 @@
                         <select id="maq-inp-etapa" onchange="window.app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white"></select>
                     </div>
 
-                    <!-- Módulo FormCraft Integrado na Máquina -->
-                    <div>
-                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-list-check"></i> Checklist / Formulário</h4>
+                    <!-- MÓDULO DE FORMULÁRIOS DINÂMICOS -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-list-check"></i> Laudos e Check-lists da Máquina</h4>
                         <div id="maq-det-forms" class="space-y-2"></div>
                     </div>
 
@@ -228,6 +228,20 @@
             </div>
         </div>
 
+        <!-- MODAL: ESCOLHER NOVO FORMULÁRIO -->
+        <div id="modal-add-form" class="fixed inset-0 bg-slate-900/70 z-[99999] flex flex-col justify-end hidden opacity-0 transition-opacity">
+            <div id="modal-add-form-content" class="bg-slate-100 rounded-t-3xl h-[60vh] flex flex-col transform translate-y-full transition-transform duration-300">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-3xl shrink-0">
+                    <div>
+                        <h3 class="font-black text-sm text-blue-800"><i class="fa-solid fa-plus-circle mr-1"></i> Adicionar Formulário</h3>
+                        <p class="text-[9px] text-slate-500 font-bold">Escolha um laudo para anexar à máquina</p>
+                    </div>
+                    <button onclick="window.app.fecharModalAddForm()" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500 flex items-center justify-center cursor-pointer hover:bg-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-2" id="lista-forms-disponiveis"></div>
+            </div>
+        </div>
+
         <!-- MODAL FORMCRAFT: PREENCHER LAUDO -->
         <div id="modal-preencher-form" class="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-sm hidden flex flex-col justify-end opacity-0 transition-opacity duration-300">
             <div id="modal-form-content" class="bg-slate-50 rounded-t-3xl w-full h-[90vh] flex flex-col overflow-hidden transform translate-y-full transition-transform duration-300">
@@ -262,7 +276,6 @@
 
     <!-- LÓGICA DO APLICATIVO DO TÉCNICO -->
     <script>
-        // O objeto do App é declarado globalmente para garantir que o onClick no HTML o encontre sempre
         window.app = {
             nomeTecnico: "",
             emailTecnico: "",
@@ -280,6 +293,7 @@
             
             currentActiveForm: null,
             currentActiveSubmissionId: null,
+            currentFormIndex: null,
 
             etapasOficiais: [
                 { nome: '1. Abertura da OS', cor: 'bg-slate-100 text-slate-600 border-slate-300' },
@@ -296,16 +310,8 @@
 
             init: function() { 
                 this.initAssinatura(); 
-                
-                // Sistema de Verificação de Conexão (Internet)
-                window.addEventListener('online', () => {
-                    this.showToast('Conexão restabelecida. Sincronizando dados...', 'success');
-                    this.atualizarStatusSinal(true);
-                });
-                window.addEventListener('offline', () => {
-                    this.showToast('Você está offline. O aplicativo salvará as ações na memória local e enviará depois.', 'warning');
-                    this.atualizarStatusSinal(false);
-                });
+                window.addEventListener('online', () => { this.showToast('Conexão restabelecida. Sincronizando dados...', 'success'); this.atualizarStatusSinal(true); });
+                window.addEventListener('offline', () => { this.showToast('Você está offline. O aplicativo salvará localmente.', 'warning'); this.atualizarStatusSinal(false); });
                 this.atualizarStatusSinal(navigator.onLine);
                 setInterval(() => this.atualizarStatusSinal(navigator.onLine), 5000);
             },
@@ -313,31 +319,17 @@
             atualizarStatusSinal: function(isOnline) {
                 const sub = document.getElementById('header-subtitle');
                 if(!sub) return;
-                if(isOnline) {
-                    sub.innerText = 'Conectado (Online)';
-                    sub.className = 'text-[10px] text-blue-200 font-medium transition-colors';
-                } else {
-                    sub.innerText = 'Trabalhando Offline';
-                    sub.className = 'text-[10px] text-amber-300 font-bold transition-colors';
-                }
+                if(isOnline) { sub.innerText = 'Conectado (Online)'; sub.className = 'text-[10px] text-blue-200 font-medium transition-colors'; } 
+                else { sub.innerText = 'Trabalhando Offline'; sub.className = 'text-[10px] text-amber-300 font-bold transition-colors'; }
             },
 
-            // --- HELPER DE SALVAMENTO OTIMISTA (OFFLINE SUPPORT) ---
             salvarNoBanco: function(collectionName, docId, data, successMsg, callback) {
-                // 1. Clona e limpa os dados para evitar o erro "undefined" do Firestore
                 const cleanData = JSON.parse(JSON.stringify(data));
-                
-                // 2. Dispara o salvamento pro Firebase em Background (NÃO BLOQUEIA A TELA)
                 const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', collectionName, docId);
-                window.fsSetDoc(docRef, cleanData).catch(e => {
-                    console.error("Erro no sincronismo em segundo plano:", e);
-                });
-
-                // 3. Mostra o sucesso otimista para o técnico imediatamente
+                window.fsSetDoc(docRef, cleanData).catch(e => console.error("Erro background:", e));
                 const finalMsg = navigator.onLine ? successMsg : `${successMsg} (Salvo Offline)`;
                 this.showToast(finalMsg, 'success');
-                
-                if (callback) setTimeout(callback, 800);
+                if (callback) setTimeout(callback, 500);
             },
 
             initAssinatura: function() {
@@ -349,19 +341,11 @@
                 const resize = () => {
                     canvas.width = canvas.offsetWidth;
                     canvas.height = canvas.offsetHeight;
-                    ctx.strokeStyle = '#0f172a';
-                    ctx.lineWidth = 3;
-                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
                 };
-                window.addEventListener('resize', resize);
-                resize();
+                window.addEventListener('resize', resize); resize();
 
-                const getPos = (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const evt = e.touches ? e.touches[0] : e;
-                    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-                };
-
+                const getPos = (e) => { const rect = canvas.getBoundingClientRect(); const evt = e.touches ? e.touches[0] : e; return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; };
                 const start = (e) => { this.isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
                 const draw = (e) => { if(!this.isDrawing) return; e.preventDefault(); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
                 const stop = () => { this.isDrawing = false; };
@@ -410,11 +394,7 @@
                         const t2 = (os.tecnico || '').toLowerCase().trim();
                         const t3 = (os.tecnico_kanban || '').toLowerCase().trim();
                         const t4 = (os.assignee || '').toLowerCase().trim();
-                        
-                        const matchNome = (t1 === euNome || t2 === euNome || t3 === euNome || t4 === euNome);
-                        const matchEmail = (t1 === euEmail || t2 === euEmail || t3 === euEmail || t4 === euEmail);
-                        
-                        return matchNome || matchEmail;
+                        return (t1 === euNome || t2 === euNome || t3 === euNome || t4 === euNome || t1 === euEmail || t2 === euEmail || t3 === euEmail || t4 === euEmail);
                     });
                 }
 
@@ -433,16 +413,11 @@
                     const qtd = arrayEquips.length > 0 ? arrayEquips.length : 1;
                     const urgColor = os.urgency === 'CRITICA' || os.urgency === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
                     
-                    // Prevenção de quebra do Date
                     let dataBR = '--/--/----';
                     let rawDate = os.dataAgendamento || os.dataAgendamentoOS || os.createdAt || '';
-                    if (typeof rawDate === 'string' && rawDate.includes('T')) {
-                        dataBR = rawDate.split('T')[0].split('-').reverse().join('/');
-                    } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
-                        dataBR = rawDate.split('-').reverse().join('/');
-                    } else if (rawDate) {
-                        dataBR = rawDate;
-                    }
+                    if (typeof rawDate === 'string' && rawDate.includes('T')) { dataBR = rawDate.split('T')[0].split('-').reverse().join('/'); } 
+                    else if (typeof rawDate === 'string' && rawDate.includes('-')) { dataBR = rawDate.split('-').reverse().join('/'); } 
+                    else if (rawDate) { dataBR = rawDate; }
 
                     const cliName = os.cliente || os.clienteOS || (os.client ? os.client.name : '') || 'Cliente Indefinido';
                     const nomeT = os.tecnicoOS || os.tecnico || os.tecnico_kanban || '-';
@@ -490,15 +465,10 @@
                     const container = document.getElementById('lista-maquinas-os');
                     
                     let arrayEquips = [];
-                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) {
-                        arrayEquips = this.osAtual.equipamentosOS;
-                    } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) {
-                        arrayEquips = this.osAtual.equipamentos;
-                    } else if (this.osAtual.equipment && this.osAtual.equipment.model) {
-                        arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS' }];
-                    } else if (this.osAtual.maquina) {
-                        arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS' }];
-                    }
+                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { arrayEquips = this.osAtual.equipamentosOS; } 
+                    else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) { arrayEquips = this.osAtual.equipamentos; } 
+                    else if (this.osAtual.equipment && this.osAtual.equipment.model) { arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS' }]; } 
+                    else if (this.osAtual.maquina) { arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS' }]; }
 
                     this.osAtual.equipamentos = arrayEquips; 
 
@@ -543,27 +513,53 @@
                 selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
                 this.atualizarCorEtapaSelect();
 
-                // INTEGRAÇÃO FORMCRAFT MOBILE
-                const containerForms = document.getElementById('maq-det-forms');
-                if (maq.formulario && maq.formulario.trim() !== '') {
-                    const isFilled = maq.formulario_resposta_id && maq.formulario_resposta_id !== '';
-                    const btnText = isFilled ? 'Ver/Editar Laudo' : 'Preencher Laudo';
-                    const btnClass = isFilled ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-600 text-white border-blue-700';
-
-                    containerForms.innerHTML = `
-                        <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
-                            <span class="text-[11px] font-bold text-slate-700 truncate pr-2"><i class="fa-solid fa-clipboard-check text-slate-400 mr-1.5"></i> ${maq.formulario}</span>
-                            <button onclick="window.app.abrirModalFormulario('${maq.formulario}')" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer">
-                                ${btnText}
-                            </button>
-                        </div>`;
-                } else {
-                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum formulário exigido.</p>';
+                // NORMALIZAÇÃO PARA MÚLTIPLOS FORMULÁRIOS
+                if (!maq.formularios) {
+                    maq.formularios = [];
+                    if (maq.formulario && maq.formulario.trim() !== '') {
+                        maq.formularios.push({ titulo: maq.formulario, resposta_id: maq.formulario_resposta_id || '' });
+                    }
                 }
+                
+                this.renderizarFormulariosMaquina();
 
                 this.pecasTemporarias = maq.pecasUtilizadas ? [...maq.pecasUtilizadas] : [];
                 this.renderizarPecasUtilizadas();
                 this.navigate('screen-maquina', `Execução Técnica`, true);
+            },
+
+            renderizarFormulariosMaquina: function() {
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                const containerForms = document.getElementById('maq-det-forms');
+                let html = '';
+
+                if (maq.formularios && maq.formularios.length > 0) {
+                    html = maq.formularios.map((f, idx) => {
+                        const isFilled = f.resposta_id && f.resposta_id !== '';
+                        const btnText = isFilled ? 'Ver/Editar' : 'Preencher';
+                        const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-600 text-white border-blue-700';
+                        const iconClass = isFilled ? 'fa-check-double text-emerald-500' : 'fa-pen-to-square text-blue-200';
+
+                        return `
+                            <div class="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm mb-2">
+                                <span class="text-[11px] font-bold text-slate-700 truncate pr-2 flex-1"><i class="fa-solid fa-file-lines text-slate-400 mr-1.5"></i> ${f.titulo}</span>
+                                <button onclick="window.app.abrirModalFormulario(${idx})" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer flex items-center gap-1">
+                                    <i class="fa-solid ${iconClass}"></i> ${btnText}
+                                </button>
+                            </div>`;
+                    }).join('');
+                } else {
+                    html = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200 mb-2">Nenhum formulário vinculado à máquina.</p>';
+                }
+
+                // Adiciona o botão de "Mais Formulários" sempre no final
+                html += `
+                    <button onclick="window.app.abrirModalAddForm()" class="w-full bg-slate-50 hover:bg-slate-100 text-blue-600 border border-blue-200 border-dashed py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-1">
+                        <i class="fa-solid fa-plus-circle"></i> Adicionar Outro Formulário
+                    </button>
+                `;
+
+                containerForms.innerHTML = html;
             },
 
             atualizarCorEtapaSelect: function() {
@@ -572,15 +568,58 @@
                 sel.className = `w-full text-xs font-bold p-3.5 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
             },
 
+            abrirModalAddForm: function() {
+                const lista = document.getElementById('lista-forms-disponiveis');
+                if (this.dbForms.length === 0) {
+                    lista.innerHTML = '<div class="text-center py-8"><i class="fa-solid fa-folder-open text-slate-300 text-3xl mb-2"></i><p class="text-xs text-slate-500 font-bold">Nenhum formulário disponível no sistema.</p></div>';
+                } else {
+                    lista.innerHTML = this.dbForms.map(f => `
+                        <div onclick="window.app.addFormNaMaquina('${f.title}')" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm active:bg-blue-50 transition cursor-pointer flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-bold text-slate-700"><i class="fa-solid fa-file-lines text-blue-500 mr-2"></i> ${f.title}</span>
+                            <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-plus text-[10px]"></i></div>
+                        </div>
+                    `).join('');
+                }
+                
+                const modal = document.getElementById('modal-add-form');
+                const content = document.getElementById('modal-add-form-content');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+            },
+
+            fecharModalAddForm: function() {
+                const modal = document.getElementById('modal-add-form');
+                const content = document.getElementById('modal-add-form-content');
+                modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            },
+
+            addFormNaMaquina: function(formTitle) {
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                if (!maq.formularios) maq.formularios = [];
+                
+                maq.formularios.push({ titulo: formTitle, resposta_id: '' });
+                
+                // Se for o primeiro, copia pra legacy pra não quebrar a gestao_os
+                if (maq.formularios.length === 1) { maq.formulario = formTitle; }
+                
+                this.renderizarFormulariosMaquina();
+                this.fecharModalAddForm();
+                this.showToast('Novo formulário anexado!', 'success');
+            },
+
             escapeHtml: function(s) { return (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); },
 
-            abrirModalFormulario: function(formTitle) {
-                const formObj = this.dbForms.find(f => f.title === formTitle);
+            abrirModalFormulario: function(formIndex) {
+                this.currentFormIndex = formIndex;
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                const formObjItem = maq.formularios[formIndex];
+                
+                const formObj = this.dbForms.find(f => f.title === formObjItem.titulo);
                 if (!formObj) { this.showToast('Formulário não encontrado no sistema.', 'error'); return; }
                 
                 this.currentActiveForm = formObj;
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
-                this.currentActiveSubmissionId = maq.formulario_resposta_id || '';
+                this.currentActiveSubmissionId = formObjItem.resposta_id || '';
 
                 document.getElementById('titulo-modal-form').innerText = formObj.title;
 
@@ -714,11 +753,18 @@
                 const cleanSub = JSON.parse(JSON.stringify(sub));
                 window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), cleanSub).catch(err => console.error("Sync Form Error: ", err));
                 
-                this.osAtual.equipamentos[this.maquinaIndex].formulario_resposta_id = subId;
+                // Atualiza o slot específico do array de formulários
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                maq.formularios[this.currentFormIndex].resposta_id = subId;
                 
-                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Laudo preenchido com sucesso!', () => {
+                // Se for o primeiro formulário do array, copia para a variável raiz para o painel antigo enxergar
+                if (this.currentFormIndex === 0) {
+                    maq.formulario_resposta_id = subId;
+                }
+                
+                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Laudo salvo com sucesso!', () => {
                     window.app.fecharModalFormulario();
-                    window.app.abrirMaquina(this.maquinaIndex); 
+                    window.app.renderizarFormulariosMaquina();
                 });
             },
 
