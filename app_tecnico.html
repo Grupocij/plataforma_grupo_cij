@@ -25,6 +25,7 @@
 </head>
 <body>
 
+    <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-4">
             <h1 class="text-xl font-black text-[#002d72]">App do Técnico CIJ</h1>
@@ -34,6 +35,7 @@
 
     <div class="app-container" id="main-content" style="display: none;">
         
+        <!-- CABEÇALHO DO APP -->
         <header class="bg-blue-700 text-white pt-10 pb-4 px-4 shadow-md flex items-center justify-between z-30 shrink-0">
             <div class="flex items-center gap-3">
                 <button id="btn-back" onclick="app.goBack()" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-800/50 hover:bg-blue-800 transition hidden cursor-pointer">
@@ -51,6 +53,7 @@
 
         <main class="flex-1 relative overflow-hidden bg-slate-100">
             
+            <!-- TELA: FILA DE OS -->
             <div id="screen-home" class="screen active flex flex-col">
                 <div class="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 space-y-4">
                     <div class="flex items-center justify-between mb-2">
@@ -61,6 +64,7 @@
                 </div>
             </div>
 
+            <!-- TELA: DETALHES DA OS -->
             <div id="screen-os" class="screen flex flex-col">
                 <div class="bg-white p-4 border-b border-slate-200 shadow-sm shrink-0">
                     <div class="flex justify-between items-start mb-2">
@@ -95,6 +99,7 @@
                 </div>
             </div>
 
+            <!-- TELA: EXECUÇÃO NA MÁQUINA (Edição) -->
             <div id="screen-maquina" class="screen flex flex-col bg-white">
                 <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20 space-y-5">
                     
@@ -124,6 +129,7 @@
                         <select id="maq-inp-etapa" onchange="app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white"></select>
                     </div>
 
+                    <!-- Módulo FormCraft Integrado na Máquina -->
                     <div>
                         <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-list-check"></i> Checklist / Formulário</h4>
                         <div id="maq-det-forms" class="space-y-2"></div>
@@ -137,7 +143,7 @@
                     <div class="border border-purple-200 rounded-xl p-3 bg-purple-50/50">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[10px] font-bold text-purple-700 uppercase tracking-wider"><i class="fa-solid fa-box-open"></i> Peças Utilizadas</label>
-                            <button onclick="app.abrirModalPecas()" class="bg-purple-600 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer hover:bg-purple-700 transition shadow-sm"><i class="fa-solid fa-plus"></i> Usar da Mochila</button>
+                            <button onclick="app.abrirModalPecas()" class="bg-purple-600 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer hover:bg-purple-700 transition shadow-sm"><i class="fa-solid fa-plus"></i> Mochila</button>
                         </div>
                         <ul id="maq-lista-pecas" class="space-y-1.5 min-h-[30px]">
                             <li class="text-[10px] text-slate-400 italic text-center py-2">Nenhuma peça utilizada.</li>
@@ -152,6 +158,7 @@
                 </div>
             </div>
 
+            <!-- TELA: CHECKOUT E ASSINATURA -->
             <div id="screen-checkout" class="screen flex flex-col bg-white">
                 <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20 space-y-6">
                     <div class="text-center space-y-1 mt-4">
@@ -186,6 +193,7 @@
 
         </main>
 
+        <!-- MENU INFERIOR NATIVO -->
         <nav class="bg-white border-t border-slate-200 flex items-center justify-around pb-5 pt-2 px-2 shrink-0 z-40 relative">
             <button onclick="app.goHome()" class="flex flex-col items-center gap-1 p-2 text-blue-600 w-16 cursor-pointer">
                 <i class="fa-solid fa-clipboard-list text-xl"></i>
@@ -206,6 +214,7 @@
             </div>
         </nav>
 
+        <!-- MODAL DE PEÇAS (MOCHILA) -->
         <div id="modal-pecas" class="fixed inset-0 bg-slate-900/70 z-[9999] flex flex-col justify-end hidden opacity-0 transition-opacity">
             <div class="bg-white rounded-t-3xl h-[70vh] flex flex-col transform translate-y-full transition-transform duration-300" id="modal-pecas-content">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
@@ -219,6 +228,28 @@
             </div>
         </div>
 
+        <!-- MODAL FORMCRAFT: PREENCHER LAUDO -->
+        <div id="modal-preencher-form" class="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-sm hidden flex flex-col justify-end opacity-0 transition-opacity duration-300">
+            <div id="modal-form-content" class="bg-slate-50 rounded-t-3xl w-full h-[90vh] flex flex-col overflow-hidden transform translate-y-full transition-transform duration-300">
+                <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0">
+                    <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-blue-400"></i> <span id="titulo-modal-form">Formulário</span></h3>
+                    <button onclick="app.fecharModalFormulario()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                
+                <div class="p-4 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                    <form id="interactive-preview-form" onsubmit="app.salvarPreenchimentoForm(event)" class="space-y-4">
+                        <div id="preview-fields-container" class="space-y-4"></div>
+                    </form>
+                </div>
+                
+                <div class="bg-white border-t border-slate-200 px-5 py-4 shrink-0 flex gap-3 pb-8">
+                    <button type="button" onclick="app.fecharModalFormulario()" class="flex-1 py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
+                    <button type="submit" form="interactive-preview-form" class="flex-1 py-3.5 bg-blue-600 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-check"></i> Salvar Laudo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOAST NATIVO MOBILE -->
         <div id="custom-toast" class="fixed top-10 left-4 right-4 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl z-[99999] flex items-center gap-3 hidden opacity-0 transform -translate-y-10 transition-all duration-300">
             <div id="toast-icon-bg" class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                 <i id="toast-icon" class="fa-solid fa-check"></i>
@@ -227,8 +258,10 @@
         </div>
     </div>
 
+    <!-- MOTOR CENTRAL DO SISTEMA E FIREBASE -->
     <script type="module" src="core.js"></script>
 
+    <!-- LÓGICA DO APLICATIVO DO TÉCNICO -->
     <script>
         const app = {
             nomeTecnico: "",
@@ -237,11 +270,17 @@
             dbOrdens: [],
             estoqueCarro: [],
             kanbanMapping: {},
+            dbForms: [],
+            formSubmissions: [],
             osAtual: null,
             maquinaIndex: null,
             assinaturaPad: null,
             isDrawing: false,
             pecasTemporarias: [],
+            
+            // Variáveis de controle do FormCraft
+            currentActiveForm: null,
+            currentActiveSubmissionId: null,
 
             etapasOficiais: [
                 { nome: '1. Abertura da OS', cor: 'bg-slate-100 text-slate-600 border-slate-300' },
@@ -316,8 +355,15 @@
                 const btnGlobal = document.getElementById('dev-visao-global').checked;
 
                 let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO');
+                
+                // Filtro para exibir apenas as O.S. designadas para o Técnico Logado
                 if (!this.temVisaoGlobal && !btnGlobal) {
-                    minhasOS = minhasOS.filter(os => os.tecnico === this.nomeTecnico || os.tecnico === this.emailTecnico || os.tecnico_kanban === this.nomeTecnico);
+                    minhasOS = minhasOS.filter(os => 
+                        os.tecnicoOS === this.nomeTecnico || 
+                        os.tecnico === this.nomeTecnico || 
+                        os.tecnico === this.emailTecnico || 
+                        os.tecnico_kanban === this.nomeTecnico
+                    );
                 }
 
                 document.getElementById('badge-os-count').innerText = minhasOS.length;
@@ -328,25 +374,25 @@
                 }
 
                 container.innerHTML = minhasOS.map(os => {
-                    // SUPORTE BLINDADO PARA FORMATOS ANTIGOS E NOVOS
                     const arrayEquips = os.equipamentos || os.equipamentosOS || [];
                     const qtd = arrayEquips.length > 0 ? arrayEquips.length : 1;
                     const urgColor = os.urgency === 'CRITICA' || os.urgency === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
                     const dataBR = os.dataAgendamento || os.dataAgendamentoOS ? (os.dataAgendamento || os.dataAgendamentoOS).split('-').reverse().join('/') : '-';
                     const cliName = os.cliente || os.clienteOS || os.client?.name || 'Cliente';
+                    const nomeT = os.tecnicoOS || os.tecnico || os.tecnico_kanban || '-';
 
                     return `
                     <div onclick="app.abrirOS('${os.id}')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 active:scale-95 transition-transform cursor-pointer relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 ${urgColor}"></div>
                         <div class="flex justify-between items-start mb-1.5">
-                            <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">${os.id}</span>
+                            <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 shadow-sm">${os.id}</span>
                             <span class="text-[9px] font-bold text-slate-400"><i class="fa-regular fa-calendar"></i> ${dataBR}</span>
                         </div>
                         <h3 class="text-sm font-black text-slate-900 leading-tight mb-1">${cliName}</h3>
                         <p class="text-[10px] text-slate-500 font-medium mb-3"><i class="fa-solid fa-location-dot"></i> Atendimento Técnico</p>
                         <div class="flex justify-between items-center text-[10px] font-bold">
-                            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-100"><i class="fa-solid fa-server mr-1"></i> ${qtd} Máquinas</span>
-                            <span class="text-slate-400 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">Tec: ${os.tecnico || os.tecnico_kanban || '-'}</span>
+                            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg border border-blue-100 shadow-sm"><i class="fa-solid fa-server mr-1"></i> ${qtd} Máquinas</span>
+                            <span class="text-slate-500 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200 shadow-sm"><i class="fa-solid fa-user-gear mr-1"></i> ${nomeT}</span>
                         </div>
                     </div>
                     `;
@@ -364,7 +410,6 @@
 
                 const container = document.getElementById('lista-maquinas-os');
                 
-                // CONVERTE FORMATO ANTIGO SE NECESSÁRIO
                 let arrayEquips = this.osAtual.equipamentos || this.osAtual.equipamentosOS || [];
                 if (arrayEquips.length === 0 && this.osAtual.equipment) {
                     arrayEquips = [{ maquina: this.osAtual.equipment.model, defeito: this.osAtual.request.problem, etapa: '1. Abertura da OS' }];
@@ -377,13 +422,13 @@
                     container.innerHTML = arrayEquips.map((maq, index) => {
                         const objEtapa = this.etapasOficiais.find(e => e.nome === maq.etapa) || this.etapasOficiais[0];
                         return `
-                        <div onclick="app.abrirMaquina(${index})" class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
+                        <div onclick="app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
                             <div class="flex-1 pr-3">
-                                <h4 class="text-xs font-black text-blue-800 mb-1 leading-tight line-clamp-1">${maq.maquina || 'Máquina S/N'}</h4>
-                                <p class="text-[9px] text-slate-500 line-clamp-1 mb-2">Defeito: ${maq.defeito || 'Sem relato'}</p>
+                                <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
+                                <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 leading-tight"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
                                 <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${objEtapa.cor}">${objEtapa.nome}</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 shadow-inner"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
                         </div>
                         `;
                     }).join('');
@@ -407,11 +452,22 @@
                 selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
                 this.atualizarCorEtapaSelect();
 
+                // INTEGRAÇÃO COM O FORMCRAFT NA TELA DA MÁQUINA
                 const containerForms = document.getElementById('maq-det-forms');
-                if(maq.formulario) {
-                    containerForms.innerHTML = `<div class="bg-white border border-blue-200 p-3 rounded-xl flex items-center justify-between shadow-sm"><span class="text-[11px] font-bold text-blue-800"><i class="regular fa-file-lines text-blue-500 mr-1.5"></i> ${maq.formulario}</span><span class="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Ativo</span></div>`;
+                if (maq.formulario && maq.formulario.trim() !== '') {
+                    const isFilled = maq.formulario_resposta_id && maq.formulario_resposta_id !== '';
+                    const btnText = isFilled ? 'Ver/Editar Laudo' : 'Preencher Laudo';
+                    const btnClass = isFilled ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-blue-600 text-white border-blue-700';
+
+                    containerForms.innerHTML = `
+                        <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                            <span class="text-[11px] font-bold text-slate-700 truncate pr-2"><i class="fa-solid fa-clipboard-check text-slate-400 mr-1.5"></i> ${maq.formulario}</span>
+                            <button onclick="app.abrirModalFormulario('${maq.formulario}')" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer">
+                                ${btnText}
+                            </button>
+                        </div>`;
                 } else {
-                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-2 rounded-lg border border-slate-200">Nenhum formulário exigido.</p>';
+                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum formulário ou check-list exigido.</p>';
                 }
 
                 this.pecasTemporarias = maq.pecasUtilizadas ? [...maq.pecasUtilizadas] : [];
@@ -422,21 +478,188 @@
             atualizarCorEtapaSelect: function() {
                 const sel = document.getElementById('maq-inp-etapa');
                 const opt = sel.options[sel.selectedIndex];
-                sel.className = `w-full text-xs font-bold p-3 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors ${opt.getAttribute('data-cor')}`;
+                sel.className = `w-full text-xs font-bold p-3.5 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
             },
 
+            // ==========================================
+            // FORMCRAFT SANDBOX (Motor de Preenchimento Mobile)
+            // ==========================================
+            escapeHtml: function(s) { return (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); },
+
+            abrirModalFormulario: function(formTitle) {
+                const formObj = this.dbForms.find(f => f.title === formTitle);
+                if (!formObj) { this.showToast('Formulário não encontrado no sistema.', 'error'); return; }
+                
+                this.currentActiveForm = formObj;
+                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                this.currentActiveSubmissionId = maq.formulario_resposta_id || '';
+
+                document.getElementById('titulo-modal-form').innerText = formObj.title;
+
+                let existingAnswers = {};
+                if (this.currentActiveSubmissionId) {
+                    const sub = this.formSubmissions.find(s => s.id === this.currentActiveSubmissionId);
+                    if(sub) existingAnswers = sub.answers || {};
+                }
+
+                const cont = document.getElementById('preview-fields-container');
+                const eventHandlers = `onchange="app.evaluatePreviewRules()" oninput="app.evaluatePreviewRules()"`;
+                
+                cont.innerHTML = formObj.fields.map(f => {
+                    let html = `<label class="block text-xs font-black text-slate-800 mb-1.5 leading-tight">${this.escapeHtml(f.label)} ${f.required?'<span class="text-red-500">*</span>':''}</label>`;
+                    if(f.instruction) html += `<p class="text-[10px] font-medium text-slate-500 mb-3">${this.escapeHtml(f.instruction)}</p>`;
+                    
+                    let val = existingAnswers[f.label] || '';
+                    
+                    if(f.type === 'short_text') html += `<input type="text" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white">`;
+                    if(f.type === 'long_text') html += `<textarea name="${f.id}" rows="3" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-medium border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white resize-none">${this.escapeHtml(val)}</textarea>`;
+                    if(f.type === 'number') html += `<input type="number" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white">`;
+                    if(f.type === 'date') html += `<input type="date" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white cursor-pointer">`;
+                    
+                    if(f.type === 'single_select') {
+                        html += `<div class="space-y-2">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200 active:bg-blue-50 transition"><input type="radio" name="${f.id}" value="${this.escapeHtml(o)}" ${val === o ? 'checked' : ''} ${f.required?'required':''} ${eventHandlers} class="w-4 h-4 text-blue-600 cursor-pointer"> ${this.escapeHtml(o)}</label>`).join('')}</div>`;
+                    }
+                    if(f.type === 'multi_select') {
+                        const valArr = Array.isArray(val) ? val : (val.split ? val.split(', ') : []);
+                        html += `<div class="space-y-2">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200 active:bg-blue-50 transition"><input type="checkbox" name="${f.id}" value="${this.escapeHtml(o)}" ${valArr.includes(o) ? 'checked' : ''} ${eventHandlers} class="w-4 h-4 text-blue-600 rounded cursor-pointer"> ${this.escapeHtml(o)}</label>`).join('')}</div>`;
+                    }
+                    
+                    return `<div id="pw-${f.id}" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
+                }).join('');
+                
+                this.evaluatePreviewRules();
+                
+                // Abre o Modal com Animação Mobile
+                const modal = document.getElementById('modal-preencher-form');
+                const content = document.getElementById('modal-form-content');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+            },
+
+            fecharModalFormulario: function() {
+                const modal = document.getElementById('modal-preencher-form');
+                const content = document.getElementById('modal-form-content');
+                modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            },
+
+            evaluatePreviewRules: function() {
+                const formObj = this.currentActiveForm;
+                if (!formObj || !formObj.rules || formObj.rules.length === 0) return;
+                
+                const form = document.getElementById('interactive-preview-form');
+                const values = {};
+                
+                formObj.fields.forEach(f => {
+                    if(f.type === 'single_select') { const r = form.querySelector(`input[name="${f.id}"]:checked`); values[f.id] = r ? r.value : ''; }
+                    else if(f.type === 'multi_select') { values[f.id] = Array.from(form.querySelectorAll(`input[name="${f.id}"]:checked`)).map(e=>e.value); }
+                    else { const el = form.querySelector(`[name="${f.id}"]`); values[f.id] = el ? el.value : ''; }
+                });
+                
+                const targetFields = new Set(formObj.rules.map(r => r.targetId));
+                const fieldsToShow = new Set();
+                
+                formObj.rules.forEach(r => {
+                    const triggerVal = values[r.triggerId];
+                    let isMatch = false;
+                    
+                    if (Array.isArray(triggerVal)) {
+                         if (r.operator === 'contains' || r.operator === 'equals') isMatch = triggerVal.includes(r.value);
+                         if (r.operator === 'not_contains' || r.operator === 'not_equals') isMatch = !triggerVal.includes(r.value);
+                    } else {
+                         const tValStr = String(triggerVal || '').toLowerCase();
+                         const rValStr = String(r.value || '').toLowerCase();
+                         const tValNum = parseFloat(triggerVal);
+                         const rValNum = parseFloat(r.value);
+                         
+                         switch(r.operator) {
+                             case 'equals': isMatch = tValStr === rValStr; break;
+                             case 'not_equals': isMatch = tValStr !== rValStr; break;
+                             case 'contains': isMatch = tValStr.includes(rValStr); break;
+                             case 'not_contains': isMatch = !tValStr.includes(rValStr); break;
+                             case 'greater_than': isMatch = !isNaN(tValNum) && tValNum > rValNum; break;
+                             case 'less_than': isMatch = !isNaN(tValNum) && tValNum < rValNum; break;
+                             case 'greater_or_equal': isMatch = !isNaN(tValNum) && tValNum >= rValNum; break;
+                             case 'less_or_equal': isMatch = !isNaN(tValNum) && tValNum <= rValNum; break;
+                         }
+                    }
+                    if (isMatch) fieldsToShow.add(r.targetId);
+                });
+                
+                formObj.fields.forEach(f => {
+                    const el = document.getElementById(`pw-${f.id}`);
+                    if (!el) return;
+                    
+                    if (targetFields.has(f.id)) {
+                        if (fieldsToShow.has(f.id)) {
+                            el.style.display = 'block';
+                            const inp = el.querySelector(`[name="${f.id}"]`);
+                            if(inp && f.required) inp.required = true;
+                        } else {
+                            el.style.display = 'none';
+                            const inps = el.querySelectorAll(`[name="${f.id}"]`);
+                            inps.forEach(i => i.required = false);
+                        }
+                    }
+                });
+            },
+
+            salvarPreenchimentoForm: async function(e) {
+                e.preventDefault();
+                const formObj = this.currentActiveForm;
+                const answers = {};
+                
+                formObj.fields.forEach(f => {
+                    const elContainer = document.getElementById(`pw-${f.id}`);
+                    if (elContainer && elContainer.style.display === 'none') return;
+                    
+                    if(f.type === 'single_select') { const r = document.querySelector(`input[name="${f.id}"]:checked`); answers[f.label] = r ? r.value : ''; }
+                    else if(f.type === 'multi_select') { answers[f.label] = Array.from(document.querySelectorAll(`input[name="${f.id}"]:checked`)).map(e=>e.value).join(', '); }
+                    else { const el = document.querySelector(`[name="${f.id}"]`); answers[f.label] = el ? el.value : ''; }
+                });
+
+                const subId = this.currentActiveSubmissionId || 's_' + Date.now() + Math.floor(Math.random()*1000);
+                
+                const sub = { 
+                    id: subId, 
+                    formId: formObj.id, 
+                    osId: this.osAtual.id,
+                    submittedAt: new Date().toISOString(), 
+                    answers: answers,
+                    tecnico: this.nomeTecnico
+                };
+                
+                try {
+                    // Salva as respostas no DB dos formulários
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
+                    
+                    // Vincula o ID da resposta à máquina dentro da O.S atual
+                    this.osAtual.equipamentos[this.maquinaIndex].formulario_resposta_id = subId;
+                    
+                    // Salva a O.S para garantir que ela não esqueça que o laudo foi preenchido
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
+                    
+                    this.showToast('Laudo preenchido com sucesso!', 'success');
+                    this.fecharModalFormulario();
+                    this.abrirMaquina(this.maquinaIndex); // Recarrega a tela para o botão ficar verde
+                } catch(err) { this.showToast('Erro ao salvar laudo.', 'error'); console.error(err); }
+            },
+
+            // ==========================================
+            // CONTINUAÇÃO DA LÓGICA DE MÁQUINAS/MOCHILA
+            // ==========================================
             abrirModalPecas: function() {
                 const modal = document.getElementById('modal-pecas');
                 const content = document.getElementById('modal-pecas-content');
                 const lista = document.getElementById('lista-estoque-modal');
                 
                 if (this.estoqueCarro.length === 0) {
-                    lista.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-box-open text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Sua mochila está vazia.</p></div>';
+                    lista.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-box-open text-4xl text-slate-300 mb-3"></i><p class="text-xs font-bold text-slate-500">Sua mochila está vazia.</p></div>';
                 } else {
                     lista.innerHTML = this.estoqueCarro.map(item => `
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
-                            <div><p class="text-[10px] font-bold text-slate-800">${item.material}</p><p class="text-[9px] text-slate-500">Disp: <strong>${item.qtd} un</strong></p></div>
-                            <button onclick="app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer"><i class="fa-solid fa-plus"></i></button>
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
+                            <div><p class="text-[11px] font-bold text-slate-800">${item.material}</p><p class="text-[10px] text-slate-500 mt-0.5">Disp: <strong>${item.qtd} un</strong></p></div>
+                            <button onclick="app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer shadow-md active:scale-95"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     `).join('');
                 }
@@ -467,13 +690,13 @@
             renderizarPecasUtilizadas: function() {
                 const ul = document.getElementById('maq-lista-pecas');
                 if(this.pecasTemporarias.length === 0) {
-                    ul.innerHTML = '<li class="text-[10px] text-slate-400 italic text-center py-2">Nenhuma peça utilizada.</li>';
+                    ul.innerHTML = '<li class="text-[10px] text-slate-400 italic text-center py-3 bg-white rounded-lg border border-slate-200">Nenhuma peça utilizada.</li>';
                     return;
                 }
                 ul.innerHTML = this.pecasTemporarias.map(p => `
-                    <li class="bg-white p-2 rounded-lg border border-purple-100 flex justify-between items-center shadow-sm">
-                        <span class="text-[10px] font-bold text-slate-700 truncate flex-1"><span class="text-purple-600 bg-purple-50 px-1.5 rounded mr-1">${p.qtd}x</span> ${p.nome}</span>
-                        <button onclick="app.removerPecaDaMaquina('${p.id}')" class="text-red-400 p-1 cursor-pointer"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    <li class="bg-white p-2.5 rounded-lg border border-purple-200 flex justify-between items-center shadow-sm">
+                        <span class="text-[11px] font-bold text-slate-700 truncate flex-1"><span class="text-purple-700 bg-purple-100 px-2 py-0.5 rounded mr-1.5 shadow-inner">${p.qtd}x</span> ${p.nome}</span>
+                        <button onclick="app.removerPecaDaMaquina('${p.id}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer transition bg-red-50 rounded-lg ml-2"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                     </li>
                 `).join('');
             },
@@ -580,6 +803,17 @@
             if (app.temVisaoGlobal) { document.getElementById('dev-visao-global').checked = true; }
             app.init();
 
+            // LER FORMS E RESPOSTAS (Integração com FormCraft Sandbox)
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
+                app.dbForms = [];
+                snap.forEach(d => app.dbForms.push(d.data()));
+            });
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
+                app.formSubmissions = [];
+                snap.forEach(d => app.formSubmissions.push(d.data()));
+            });
+
+            // LER OSs
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 app.dbOrdens = [];
                 snap.forEach(d => app.dbOrdens.push(d.data()));
@@ -592,6 +826,7 @@
                 app.carregarFilaOS();
             });
 
+            // LER PEÇAS DA LOGÍSTICA
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material'), snap => {
                 app.estoqueCarro = [];
                 snap.forEach(d => {
@@ -600,6 +835,7 @@
                 });
             });
 
+            // LER AUTOMAÇÃO DO KANBAN
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
                 if(snap.exists()) {
                     app.kanbanMapping = snap.data().mapping;
