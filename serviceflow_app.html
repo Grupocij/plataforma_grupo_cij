@@ -142,38 +142,37 @@
                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Responsável</label><select id="filterTech" onchange="window.applyFilters()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none cursor-pointer"><option value="ALL">Todos os Responsáveis</option></select></div>
             </div>
         </div>
-    </div>
 
-    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 relative">
-        <div class="px-4 pt-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
-            <span class="hidden sm:inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
-            <div class="flex items-center gap-3 ml-auto text-[10px] font-mono"><span>[N] Novo</span><span>[F] Filtros</span><span>[ESC] Fechar Modais</span></div>
-        </div>
-
-        <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col min-h-0">
-            <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4 min-h-0"></div>
-        </div>
-
-        <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
-            <div class="max-w-4xl mx-auto space-y-4">
-                <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
-                    <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
-                    <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">0 itens</span>
-                </div>
-                <div id="pendenciasList" class="space-y-3"></div>
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 relative">
+            <div class="px-4 pt-2 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-1 font-medium"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
+                <div class="flex items-center gap-3 ml-auto text-[10px] font-mono"><span>[N] Novo</span><span>[F] Filtros</span><span>[ESC] Fechar Modais</span></div>
             </div>
-        </div>
 
-        <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
-            <div class="max-w-6xl mx-auto space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                    <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Distribuição Operacional</h3>
-                    <div id="indicadoresBarList" class="space-y-3"></div>
+            <div id="view-kanban" class="flex-1 overflow-x-auto overflow-y-hidden p-3 md:p-4 view-section h-full flex flex-col">
+                <div id="kanban-grid" class="flex gap-3.5 h-full min-w-max pb-4"></div>
+            </div>
+
+            <div id="view-pendencias" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+                <div class="max-w-4xl mx-auto space-y-4">
+                    <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm flex items-center justify-between">
+                        <div><h3 class="text-sm font-bold text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-xs text-slate-500">Chamados pendentes de ação.</p></div>
+                        <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">0 itens</span>
+                    </div>
+                    <div id="pendenciasList" class="space-y-3"></div>
                 </div>
             </div>
-        </div>
-    </main>
+
+            <div id="view-indicadores" class="flex-1 overflow-y-auto p-4 md:p-6 hidden view-section bg-slate-100">
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                        <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Distribuição Operacional</h3>
+                        <div id="indicadoresBarList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
 
     <!-- DRAWER: DETALHES DO CHAMADO -->
     <div id="ticketModal" class="fixed inset-0 modal-overlay z-[9999] hidden flex justify-end">
@@ -184,6 +183,7 @@
                     <span id="tm-status-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold">STATUS</span>
                 </div>
                 <div class="flex items-center gap-2">
+                    <!-- NOVO BOTÃO: Abrir OS Completa pelo Modal -->
                     <button onclick="window.abrirModalOS(window.currentTicketId)" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-indigo-200">
                         <i class="fa-solid fa-file-invoice"></i><span class="hidden sm:inline">Abrir OS Completa</span>
                     </button>
@@ -348,6 +348,7 @@
         </div>
     </div>
 
+    <!-- MODAL GIGANTE: NOVA O.S. (3 ABAS) -->
     <div id="modal-os" class="fixed inset-0 z-[9999] hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4">
             <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full flex flex-col max-h-[95vh] overflow-hidden transform transition-all">
@@ -878,7 +879,6 @@
             const dataAgendada = document.getElementById('os-data').value;
             const tecnicoDesignado = document.getElementById('os-tecnico').value;
             
-            // Determinar o Kanban Status baseado na Etapa
             let lowestStageNum = 10;
             let lowestStageName = ETAPAS_SERVICO[9].nome;
 
@@ -969,6 +969,101 @@
             }
         };
 
+        window.populateTechSelects = function() {
+            const techsHtml = '<option value="ALL">Todos</option>' + window.usersList.map(u => `<option value="${u.nome}">${u.nome}</option>`).join('');
+            document.getElementById('filterTech').innerHTML = techsHtml;
+            
+            const gUsuarios = document.getElementById('notif-group-usuarios');
+            if(gUsuarios) {
+                gUsuarios.innerHTML = window.usersList.map(u => `<option value="${u.email}">Usuário: ${u.nome}</option>`).join('');
+            }
+        };
+
+        window.saveTicketToDB = async function(t) {
+            const data = {
+                osr: t.id, timestamp: t.timestampOriginal, status: t.status, cliente: t.client.name, cidade: t.client.city, contato: t.client.contact, telefone: t.client.phone, maquina: t.equipment.model, serial: t.equipment.serial, defeito: t.request.problem, solucao: t.request.procedures, pecas: t.request.materiais, urgencia: t.urgency === 'CRITICAL' ? 'CRITICA' : 'NORMAL', conclusao: t.status === 'CONCLUIDO' ? 'Resolvido' : (t.request.isPresencial ? 'Marcar atendimento' : ''), fotoBase64: t.fotoBase64 || null, tecnico_kanban: t.assignee, tecnico: t.assignee, nextAction: t.nextAction, history: t.history, triage: t.triage, quote: t.quote, schedule: t.schedule, equipamentos: t.equipamentosOS || [], orcamentos: t.orcamentosOS || []
+            };
+            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), data, {merge: true}); } catch(e){}
+        };
+
+        window.dispararAlertaAutomatico = function(fase, msgBase) {
+            const regras = window.alertSettings[fase];
+            if(!regras || regras.length === 0) return;
+            
+            const perfis = regras.filter(r => r.startsWith('perfil_')).map(r => r.replace('perfil_', ''));
+            const emails = regras.filter(r => r.includes('@'));
+            
+            if(perfis.length > 0 || emails.length > 0) {
+                window.enviarNotificacaoApp(msgBase, emails, perfis, 'info');
+            }
+        };
+
+        window.formatElapsedTime = function(msOriginal) {
+            if(!msOriginal) return '';
+            const diffHours = Math.floor((Date.now() - msOriginal) / (1000 * 60 * 60));
+            if (diffHours < 1) return 'Hoje';
+            if (diffHours < 24) return `${diffHours}h atrás`;
+            return `${Math.floor(diffHours / 24)}d atrás`;
+        };
+
+        window.showToast = function(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const toast = document.createElement('div');
+            const bgColors = { 'success': 'bg-emerald-50 text-emerald-800 border-emerald-300', 'warning': 'bg-amber-50 text-amber-800 border-amber-300', 'info': 'bg-blue-50 text-blue-900 border-blue-300' };
+            toast.className = `toast-animate pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border text-xs font-semibold shadow-lg ${bgColors[type]}`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
+        };
+
+        window.switchView = function(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-600', 'hover:text-blue-700'); });
+            document.getElementById(`nav-${viewName}`).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            document.getElementById(`nav-${viewName}`).classList.remove('text-slate-600', 'hover:text-blue-700');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            if(viewName === 'kanban') window.renderKanban();
+            if(viewName === 'pendencias') window.updatePendencias();
+            if(viewName === 'indicadores') window.updateIndicadores();
+        };
+
+        window.syncHeaderSearch = function(val) { document.getElementById('filterSearch').value = val; window.applyFilters(); };
+        window.toggleFilterPanel = function() { document.getElementById('filterPanel').classList.toggle('hidden'); };
+        
+        window.applyFilters = function() {
+            window.filters.search = document.getElementById('filterSearch').value.toLowerCase().trim();
+            window.filters.client = document.getElementById('filterClient').value.toLowerCase().trim();
+            window.filters.serial = document.getElementById('filterSerial').value.toLowerCase().trim();
+            window.filters.dateStart = document.getElementById('filterDateStart').value;
+            window.filters.dateEnd = document.getElementById('filterDateEnd').value;
+            window.filters.status = document.getElementById('filterStatus').value;
+            window.filters.type = document.getElementById('filterType').value;
+            window.filters.tech = document.getElementById('filterTech').value;
+            window.renderKanban(); window.updatePendencias(); window.updateIndicadores();
+        };
+        window.resetFilters = function() {
+            document.getElementById('filterSearch').value = ''; document.getElementById('headerQuickSearch').value = '';
+            document.getElementById('filterClient').value = ''; document.getElementById('filterSerial').value = '';
+            document.getElementById('filterDateStart').value = ''; document.getElementById('filterDateEnd').value = '';
+            document.getElementById('filterStatus').value = 'ALL'; document.getElementById('filterType').value = 'ALL'; document.getElementById('filterTech').value = 'ALL';
+            window.applyFilters();
+        };
+
+        window.filterTicketByCriteria = function(t) {
+            const f = window.filters;
+            if(f.search && !(t.id.toLowerCase().includes(f.search) || t.client.name.toLowerCase().includes(f.search) || t.equipment.model.toLowerCase().includes(f.search) || t.equipment.serial.toLowerCase().includes(f.search) || (t.request.problem && t.request.problem.toLowerCase().includes(f.search)))) return false;
+            if(f.client && !t.client.name.toLowerCase().includes(f.client)) return false;
+            if(f.serial && !t.equipment.serial.toLowerCase().includes(f.serial)) return false;
+            if(f.dateStart && new Date(t.createdAt).setHours(0,0,0,0) < new Date(f.dateStart).setHours(0,0,0,0)) return false;
+            if(f.dateEnd && new Date(t.createdAt).setHours(23,59,59,999) > new Date(f.dateEnd).setHours(23,59,59,999)) return false;
+            if(f.status !== 'ALL' && t.status !== f.status) return false;
+            if(f.type === 'REMOTO' && t.request.isPresencial) return false;
+            if(f.type === 'PRESENCIAL' && !t.request.isPresencial) return false;
+            if(f.tech !== 'ALL' && t.assignee !== f.tech && (!t.schedule || t.schedule.tech !== f.tech)) return false;
+            return true;
+        };
+
         window.renderKanban = function() {
             const cont = document.getElementById('kanban-grid');
             if(!cont) return;
@@ -1005,8 +1100,8 @@
                     const card = document.createElement('div');
                     card.className = `bg-white hover:bg-slate-50/80 p-3.5 rounded-xl border ${isCritical ? 'border-red-400 pulse-critical' : 'border-slate-200/80 hover:border-blue-500'} shadow-xs hover:shadow-card-hover transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between`;
                     card.draggable = true; card.ondragstart = (e) => { window.draggedTicketId = t.id; e.currentTarget.classList.add('dragging'); }; card.ondragend = (e) => e.currentTarget.classList.remove('dragging');
-                    
-                    // Ajuste de Dados de Máquina (Exibe Múltiplas ou a Única)
+                    card.onclick = (e) => { if(!e.target.closest('.quick-action-btn')) window.openTicketModal(t.id); };
+
                     let textMaquinas = '';
                     if (t.equipamentosOS && t.equipamentosOS.length > 1) {
                         textMaquinas = `<i class="fa-solid fa-server text-[9px] mr-1 text-slate-400"></i> ${t.equipamentosOS.length} Equipamentos`;
@@ -1016,8 +1111,9 @@
                         textMaquinas = `<i class="fa-solid fa-print text-[9px] mr-1 text-slate-400"></i> ${t.equipment.model} <span class="font-mono ml-1 shrink-0">${t.equipment.serial}</span>`;
                     }
 
-                    // Verifica se a OS veio do Mobile ou da Nova Estrutura
-                    const defFinal = (t.equipamentosOS && t.equipamentosOS.length > 0) ? t.equipamentosOS[0].defeito : t.request.problem;
+                    const problemText = (t.equipamentosOS && t.equipamentosOS.length > 0) ? t.equipamentosOS[0].defeito : t.request.problem;
+                    const assignStr = t.assignee || 'Técnico';
+                    const assignChar = assignStr.substring(0,1).toUpperCase();
 
                     let qA = '';
                     if (t.status === 'ENTRADA') qA = `<div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5"><button onclick="event.stopPropagation(); window.quickResolveTicket('${t.id}')" class="quick-action-btn flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] py-1 rounded-lg font-bold border border-emerald-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-check text-[9px]"></i> Resolvido</button><button onclick="event.stopPropagation(); window.quickTriageTicket('${t.id}')" class="quick-action-btn flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] py-1 rounded-lg font-bold border border-amber-200 transition-all flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-right text-[9px]"></i> Triagem</button></div>`;
@@ -1025,35 +1121,7 @@
 
                     const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-1.5 py-0.5 rounded border border-red-200 ml-2"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
 
-                    card.innerHTML = `
-                    <div onclick="window.openTicketModal('${t.id}')">
-                        <div class="flex justify-between items-center mb-1.5">
-                            <div class="flex items-center gap-1">
-                                <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span>
-                                <button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="quick-action-btn bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-xs transition flex items-center gap-1"><i class="fa-solid fa-file-invoice"></i> OS</button>
-                                ${urgBadge}
-                            </div>
-                            <div class="flex gap-1.5">
-                                <span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
-                                <button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button>
-                            </div>
-                        </div>
-                        <h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4>
-                        <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2">
-                            <span class="truncate">${textMaquinas}</span>
-                        </div>
-                        <p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${defFinal || ''}</p>
-                    </div>
-                    <div>
-                        <div class="flex items-center text-[10px] text-slate-500 pt-1">
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${t.assignee.substring(0,1).toUpperCase()}</div>
-                                <span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${t.assignee}</span>
-                            </div>
-                        </div>
-                        ${qA}
-                    </div>`;
-                    
+                    card.innerHTML = `<div><div class="flex justify-between items-center mb-1.5"><div class="flex items-center"><span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${t.id}</span><button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="quick-action-btn ml-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-xs transition flex items-center gap-1"><i class="fa-solid fa-file-invoice"></i> OS</button>${urgBadge}</div><div class="flex gap-1.5"><span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-clock text-[9px]"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span><button onclick="event.stopPropagation(); window.confirmDeleteTicket('${t.id}')" class="quick-action-btn opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-0.5 rounded transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-[11px]"></i></button></div></div><h4 class="font-bold text-slate-900 text-xs mb-0.5 truncate group-hover:text-blue-600 transition-colors">${t.client.name}</h4><div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-2"><span class="truncate">${textMaquinas}</span></div><p class="text-[11px] text-slate-700 line-clamp-2 mb-2.5 bg-slate-50 p-2 rounded-lg border border-slate-200/70 font-normal leading-relaxed">${problemText || ''}</p></div><div><div class="flex items-center text-[10px] text-slate-500 pt-1"><div class="flex items-center gap-1.5"><div class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-extrabold border border-blue-200">${assignChar}</div><span class="text-[10px] text-slate-600 truncate max-w-[120px] font-medium">${assignStr}</span></div></div>${qA}</div>`;
                     cardsCont.appendChild(card);
                 });
                 cDiv.appendChild(cardsCont);
@@ -1104,21 +1172,36 @@
             if(document.getElementById('td-contact')) document.getElementById('td-contact').innerText = t.client.contact || '-';
             if(document.getElementById('td-phone')) document.getElementById('td-phone').innerText = t.client.phone || '-';
             
-            // Ajuste do resumo da máquina
+            // LÓGICA DO ALERTA DE EQUIPAMENTO DESVINCULADO E EXIBIÇÃO DE MÁQUINAS NA GAVETA
             let textMaquinas = '';
+            let defFinal = '';
             if (t.equipamentosOS && t.equipamentosOS.length > 1) {
                 textMaquinas = `${t.equipamentosOS.length} Equipamentos Cadastrados`;
+                defFinal = t.equipamentosOS[0].defeito;
             } else if (t.equipamentosOS && t.equipamentosOS.length === 1) {
-                textMaquinas = `${t.equipamentosOS[0].maquina}`;
+                textMaquinas = t.equipamentosOS[0].maquina;
+                defFinal = t.equipamentosOS[0].defeito;
             } else {
-                textMaquinas = `${t.equipment.model}`;
+                textMaquinas = t.equipment.model;
+                defFinal = t.request.problem;
             }
             if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = textMaquinas;
-            
-            // Verifica se a OS veio do Mobile ou da Nova Estrutura
-            const defFinal = (t.equipamentosOS && t.equipamentosOS.length > 0) ? t.equipamentosOS[0].defeito : t.request.problem;
-            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = defFinal || '';
 
+            const warningBox = document.getElementById('td-parque-warning');
+            if(warningBox) {
+                if (t.equipment.serial && t.equipment.serial.trim() !== '') {
+                    const maq = window.parqueMaquinas.find(m => m.serial.toLowerCase() === t.equipment.serial.toLowerCase());
+                    if (!maq || maq.cliente_atual.toLowerCase() !== t.client.name.toLowerCase()) {
+                        warningBox.classList.remove('hidden');
+                    } else {
+                        warningBox.classList.add('hidden');
+                    }
+                } else {
+                    warningBox.classList.add('hidden'); // Se não tiver serial, não tem como vincular
+                }
+            }
+
+            if(document.getElementById('td-problem')) document.getElementById('td-problem').innerText = defFinal || '';
             if(document.getElementById('td-procedures')) document.getElementById('td-procedures').innerText = t.request.procedures || 'Nenhum.';
 
             const matBox = document.getElementById('td-materials-box');
@@ -1140,6 +1223,32 @@
                 }
             }
 
+            if(document.getElementById('remote-actions-bar')) document.getElementById('remote-actions-bar').classList.toggle('hidden', t.status !== 'ENTRADA');
+            if(document.getElementById('reopen-actions-bar')) document.getElementById('reopen-actions-bar').classList.toggle('hidden', t.status !== 'CONCLUIDO');
+
+            if(document.getElementById('tab-nav-triagem')) document.getElementById('tab-nav-triagem').classList.toggle('hidden', !['TRIAGEM','ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-orcamento')) document.getElementById('tab-nav-orcamento').classList.toggle('hidden', !['ORCAMENTO','AGENDAMENTO','CONCLUIDO'].includes(t.status));
+            if(document.getElementById('tab-nav-agendamento')) document.getElementById('tab-nav-agendamento').classList.toggle('hidden', !['AGENDAMENTO','CONCLUIDO'].includes(t.status));
+
+            if(t.triage) {
+                if(document.getElementById('orcamento-triage-needs')) document.getElementById('orcamento-triage-needs').innerText = t.triage.needs ? t.triage.needs.join(', ') : 'Nenhum item marcado';
+                if(document.getElementById('orcamento-triage-desc')) document.getElementById('orcamento-triage-desc').innerText = t.triage.desc || '';
+                if(document.getElementById('triage-desc')) document.getElementById('triage-desc').value = t.triage.desc || '';
+                document.querySelectorAll('.triage-need').forEach(cb => cb.checked = t.triage.needs ? t.triage.needs.includes(cb.value) : false);
+            }
+
+            if(t.quote) {
+                if(document.getElementById('orc-numero')) document.getElementById('orc-numero').value = t.quote.number || '';
+                if(document.getElementById('orc-valor')) document.getElementById('orc-valor').value = t.quote.amount || '';
+                if(document.getElementById('orc-desc')) document.getElementById('orc-desc').value = t.quote.desc || '';
+            }
+
+            if(t.schedule) {
+                if(document.getElementById('sch-os')) document.getElementById('sch-os').value = t.schedule.os || '';
+                if(document.getElementById('sch-date')) document.getElementById('sch-date').value = t.schedule.date || '';
+                if(document.getElementById('sch-tech')) document.getElementById('sch-tech').value = t.schedule.tech || '';
+            }
+
             window.renderTimeline(t);
             window.switchTab('tab-dados');
             document.getElementById('ticketModal').classList.remove('hidden');
@@ -1153,6 +1262,61 @@
 
         window.closeTicketModal = function() {
             document.getElementById('ticketModal').classList.add('hidden');
+        };
+
+        // --- FUNÇÃO PARA VINCULAR MÁQUINA QUE VEIO DO SUPORTE OSR ---
+        window.vincularMaquinaParqueApp = function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            
+            // Abre o modal de revisão com os dados atuais da OSR
+            document.getElementById('vinc-eq-modelo').value = t.equipment.model || '';
+            document.getElementById('vinc-eq-serial').value = t.equipment.serial || '';
+            document.getElementById('modal-vincular-equip').classList.remove('hidden');
+        };
+
+        window.confirmarVinculoParque = async function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            
+            const cli = t.client.name;
+            const mod = document.getElementById('vinc-eq-modelo').value.trim().toUpperCase();
+            const ser = document.getElementById('vinc-eq-serial').value.trim().toUpperCase();
+
+            if(!mod || !ser) { alert("Preencha o modelo e o número de série para continuar."); return; }
+
+            // 1. Corrige o ticket OSR localmente e no banco de dados (se houve alteração)
+            t.equipment.model = mod;
+            t.equipment.serial = ser;
+            await window.saveTicketToDB(t);
+
+            // 2. Atualiza a tela de detalhes da OSR instantaneamente
+            if(document.getElementById('td-equip')) document.getElementById('td-equip').innerText = mod;
+            if(document.getElementById('td-serial')) document.getElementById('td-serial').innerText = ser;
+
+            // 3. Processa a vinculação/transferência no Parque de Máquinas
+            const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
+            
+            const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
+            const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
+                id: pmId, serial: ser, modelo: mod, cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Vinculado via ServiceFlow (Atendimento Revisado)', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+            };
+            
+            if(maquinaNoParque) {
+                if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
+                pmData.historico_transferencias.push({
+                     id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Transferência via ServiceFlow (Correção Gestor)', responsavel: window.currentUserStr, timestamp: Date.now()
+                });
+            }
+            
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
+                window.showToast('Equipamento revisado e vinculado com sucesso!', 'success');
+                document.getElementById('td-parque-warning').classList.add('hidden');
+                document.getElementById('modal-vincular-equip').classList.add('hidden');
+            } catch(err) {
+                alert("Erro ao salvar no Parque de Máquinas.");
+            }
         };
 
         window.switchTab = function(tabId) {
@@ -1185,6 +1349,119 @@
             }
         };
 
+        window.quickResolveTicket = function(id) {
+            const t = window.tickets.find(x => x.id === id);
+            if(!t) return;
+            t.status = 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Resolvido via remoto.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Resolvido!', 'success');
+            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado (Remoto).`);
+        };
+
+        window.quickTriageTicket = function(id) {
+            const t = window.tickets.find(x => x.id === id);
+            if(!t) return;
+            t.status = 'TRIAGEM';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encaminhado para Triagem.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Triagem!', 'warning');
+            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} encaminhado para Triagem Técnica.`);
+        };
+
+        window.reopenTicketToTriage = function(id) {
+            const t = window.tickets.find(x => x.id === id);
+            if(!t) return;
+            t.status = 'TRIAGEM';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Reaberto para Triagem.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Reaberto!', 'info');
+            window.dispararAlertaAutomatico('TRIAGEM', `Chamado ${t.id} REABERTO para Triagem.`);
+        };
+
+        window.toggleTriageFields = function(np) {
+            if(document.getElementById('triage-needs-container')) document.getElementById('triage-needs-container').classList.toggle('hidden', !np);
+            if(document.getElementById('triage-resolve-container')) document.getElementById('triage-resolve-container').classList.toggle('hidden', np);
+        };
+
+        window.processTriage = function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            const needs = Array.from(document.querySelectorAll('.triage-need:checked')).map(cb => cb.value);
+            t.status = 'ORCAMENTO';
+            t.triage = { needs: needs, desc: document.getElementById('triage-desc').value.trim() };
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Triagem salva. Enviado para Orçamento.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Enviado para Orçamentos!', 'success');
+            window.dispararAlertaAutomatico('ORCAMENTO', `Chamado ${t.id} requer Orçamento. Avaliação: ${needs.join(', ')}`);
+        };
+
+        window.resolveTicketFromTriage = function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            t.status = 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Encerrado na Triagem: ' + document.getElementById('triage-solution').value });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast('Encerrado na Triagem!', 'success');
+            window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Encerrado na Triagem.`);
+        };
+
+        window.sendQuoteToClient = function() {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            t.quote = { number: document.getElementById('orc-numero').value, amount: parseFloat(document.getElementById('orc-valor').value), desc: document.getElementById('orc-desc').value };
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Orçamento elaborado.' });
+            window.saveTicketToDB(t); window.showToast('Orçamento salvo!', 'success');
+        };
+
+        window.processQuoteResponse = function(apv) {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            t.status = apv ? 'AGENDAMENTO' : 'CONCLUIDO';
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: apv ? 'Orçamento Aprovado. Liberado para Agendamento.' : 'Reprovado. Encerrado.' });
+            window.saveTicketToDB(t); window.closeTicketModal(); window.showToast(apv ? 'Aprovado!' : 'Reprovado e Encerrado.', 'info');
+            if(apv) {
+                window.dispararAlertaAutomatico('AGENDAMENTO', `Orçamento Aprovado (${t.id}). Necessário Agendar OS.`);
+            } else {
+                window.dispararAlertaAutomatico('CONCLUIDO', `Orçamento Reprovado (${t.id}). Chamado Encerrado.`);
+            }
+        };
+
+        window.saveSchedule = async function(complete) {
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            const os = document.getElementById('sch-os').value; const dt = document.getElementById('sch-date').value; const tc = document.getElementById('sch-tech').value;
+            if(!os || !dt || !tc) { alert('Preencha OS, Data e Técnico.'); return; }
+            
+            t.schedule = { os: os, date: dt, tech: tc };
+            t.status = complete ? 'CONCLUIDO' : t.status;
+            if(!t.history) t.history = [];
+            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: complete ? `OS ${os} concluída pelo técnico ${tc}.` : `OS ${os} agendada para ${dt} (${tc}).` });
+            
+            await window.saveTicketToDB(t);
+
+            if(!complete) {
+                const u = window.usersList.find(x => x.nome === tc);
+                if(u && u.email) {
+                    window.enviarNotificacaoApp(`OS ${os} agendada para você no dia ${dt.split('-').reverse().join('/')}. Cliente: ${t.client.name}`, [u.email]);
+                    
+                    const tId = 't_' + Date.now();
+                    try {
+                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', tId), {
+                            id: tId, osNumber: os, client: t.client.name, title: t.client.name, type: 'TECHNICAL', location: t.client.city, techIds: [tc], techId: tc,
+                            urgency: t.urgency === 'CRITICAL' ? 'CRITICAL' : 'MEDIUM', scheduledDate: dt, dueDate: dt, status: 'PENDING', description: `Gerado via ServiceFlow OSR: ${t.id}`
+                        });
+                    } catch(e) {}
+                }
+            } else {
+                window.dispararAlertaAutomatico('CONCLUIDO', `Chamado ${t.id} Finalizado com Sucesso (OS: ${os}).`);
+            }
+            
+            window.closeTicketModal(); window.showToast('Salvo com sucesso!', 'success');
+        };
+
         window.confirmDeleteTicket = function(id) { window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id; document.getElementById('modal-delete-confirm').classList.remove('hidden'); };
         window.closeDeleteModal = function() { document.getElementById('modal-delete-confirm').classList.add('hidden'); window.pendingDeleteTicketId = null; };
         window.executeDeleteTicket = async function() {
@@ -1209,20 +1486,30 @@
             const prob = document.getElementById('new-problem').value.trim();
             if(!cli || !mod || !ser || !prob) { alert('Preencha os campos obrigatórios (*)'); return; }
 
+            // INTEGRAÇÃO: PARQUE DE MÁQUINAS (TRAVA DO GESTOR)
             const maquinaNoParque = window.parqueMaquinas.find(m => m.serial.toLowerCase() === ser.toLowerCase());
+            
             if (!maquinaNoParque || maquinaNoParque.cliente_atual.toLowerCase() !== cli.toLowerCase()) {
                 if(confirm(`Atenção Gestor: A máquina ${mod} (SN: ${ser}) não consta no Parque de Máquinas do cliente "${cli}".\n\nDeseja cadastrá-la e vinculá-la oficialmente agora?`)) {
+                    
                     const pmId = maquinaNoParque ? maquinaNoParque.id : 'pm_' + Date.now();
                     const pmData = maquinaNoParque ? { ...maquinaNoParque, cliente_atual: cli.toUpperCase(), status: 'Ativo do Cliente' } : {
-                        id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Cadastrado via Kanban', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
+                        id: pmId, serial: ser.toUpperCase(), modelo: mod.toUpperCase(), cliente_atual: cli.toUpperCase(), data_instalacao: new Date().toISOString().split('T')[0], status: 'Ativo do Cliente', observacoes: 'Cadastrado automaticamente via Kanban', historico_transferencias: [], cadastrado_por: window.currentUserStr, timestamp: Date.now()
                     };
+                    
                     if(maquinaNoParque) {
                         if(!pmData.historico_transferencias) pmData.historico_transferencias = [];
                         pmData.historico_transferencias.push({
-                             id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Abertura de OSR', responsavel: window.currentUserStr, timestamp: Date.now()
+                             id_log: 'tr_' + Date.now(), data: new Date().toISOString().split('T')[0], cliente_antigo: maquinaNoParque.cliente_atual, cliente_novo: cli.toUpperCase(), motivo: 'Abertura de OSR / Kanban', responsavel: window.currentUserStr, timestamp: Date.now()
                         });
                     }
-                    try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData); window.showToast('Máquina vinculada!', 'success'); } catch(err) { console.error(err); }
+                    
+                    try {
+                        await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', pmId), pmData);
+                        window.showToast('Máquina vinculada ao Parque com sucesso!', 'success');
+                    } catch(err) {
+                        alert("Erro ao salvar no Parque de Máquinas.");
+                    }
                 }
             }
 
@@ -1237,66 +1524,13 @@
             const data = {
                 osr: numFmt, timestamp: Date.now(), status: 'ENTRADA',
                 cliente: cli, cidade: document.getElementById('new-cli-city').value, contato: document.getElementById('new-cli-contato').value, telefone: document.getElementById('new-cli-tel').value,
-                maquina: mod, serial: ser, defeito: prob, solucao: document.getElementById('new-procedures').value, pecas: '', urgencia: 'NORMAL', conclusao: '', tecnico: window.currentUserStr, history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado criado.' }]
+                maquina: mod, serial: ser, defeito: prob, solucao: document.getElementById('new-procedures').value, pecas: '', urgencia: 'NORMAL', conclusao: '', tecnico: window.currentUserStr, history: [{ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: 'Chamado manual criado no Kanban.' }]
             };
 
             await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', numFmt), data);
             window.closeNewTicketModal();
             document.getElementById('new-cli-name').value = ''; document.getElementById('new-eq-modelo').value = ''; document.getElementById('new-eq-serial').value = ''; document.getElementById('new-problem').value = ''; document.getElementById('new-procedures').value = '';
-            window.showToast('Chamado criado!', 'success');
-        };
-
-        window.abrirModalNotificar = function() {
-            if(!window.currentTicketId) return;
-            document.getElementById('notif-msg').value = `Por favor, verificar o chamado ${window.currentTicketId}.`;
-            document.getElementById('modal-notificar').classList.remove('hidden');
-        };
-        window.fecharModalNotificar = function() { document.getElementById('modal-notificar').classList.add('hidden'); };
-        
-        window.enviarNotificacaoManual = function() {
-            const tg = document.getElementById('notif-target').value;
-            const msg = document.getElementById('notif-msg').value.trim();
-            if(!msg) return;
-            if(tg.startsWith('perfil_')) { window.enviarNotificacaoApp(msg, [], [tg.replace('perfil_', '')], 'warning'); }
-            else { window.enviarNotificacaoApp(msg, [tg], [], 'info'); }
-            window.fecharModalNotificar(); window.showToast('Notificação enviada!', 'success');
-        };
-
-        window.abrirModalConfigAlertas = function() {
-            const cont = document.getElementById('config-alertas-container');
-            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
-            let html = '';
-            ['ENTRADA','TRIAGEM', 'ORCAMENTO', 'AGENDAMENTO', 'CONCLUIDO'].forEach(fase => {
-                const faseNome = STATUSES[fase]?.label || fase;
-                const set = window.alertSettings[fase] || [];
-                html += `
-                    <div class="bg-white p-4 border border-slate-200 rounded-xl">
-                        <h4 class="text-xs font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">Quando entrar em: <span class="text-blue-600 uppercase">${faseNome}</span></h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Equipes:</span>`;
-                            perfis.forEach(p => { html += `<label class="flex items-center gap-1.5 text-[10px]"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="perfil_${p}" ${set.includes('perfil_'+p) ? 'checked' : ''}> ${p}</label>`; });
-                html += `   </div>
-                            <div><span class="block text-[10px] font-bold text-slate-500 mb-1">Avisar Indivíduos:</span>
-                                <div class="max-h-24 overflow-y-auto custom-scrollbar border border-slate-100 p-1 rounded">`;
-                                window.usersList.forEach(u => { html += `<label class="flex items-center gap-1.5 text-[10px] truncate"><input type="checkbox" class="cb-alerta" data-fase="${fase}" value="${u.email}" ${set.includes(u.email) ? 'checked' : ''}> ${u.nome}</label>`; });
-                html += `       </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            cont.innerHTML = html;
-            document.getElementById('modal-config-alertas').classList.remove('hidden');
-        };
-        
-        window.fecharModalConfigAlertas = function() { document.getElementById('modal-config-alertas').classList.add('hidden'); };
-        
-        window.salvarConfigAlertas = async function() {
-            const config = { 'ENTRADA': [], 'TRIAGEM': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'CONCLUIDO': [] };
-            document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
-                window.alertSettings = config; window.fecharModalConfigAlertas(); window.showToast('Regras salvas!', 'success');
-            } catch(e) {}
+            window.showToast('Chamado criado com sucesso!', 'success');
         };
 
         document.addEventListener('keydown', e => { if(e.key === 'Escape') { window.closeTicketModal(); window.closeNewTicketModal(); window.closeDeleteModal(); window.fecharModalNotificar(); window.fecharModalConfigAlertas(); window.fecharModalOS(); window.fecharModalAutomacao(); document.getElementById('modal-foto-full').classList.add('hidden'); document.getElementById('modal-vincular-equip').classList.add('hidden'); } });
