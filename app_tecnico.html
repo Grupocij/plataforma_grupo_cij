@@ -339,14 +339,16 @@
                     else s.className = 'screen';
                 });
                 const target = document.getElementById(screenId);
-                target.className = 'screen active';
+                if(target) target.className = 'screen active';
                 document.getElementById('header-title').innerText = title;
                 document.getElementById('btn-back').style.display = showBack ? 'flex' : 'none';
             },
 
             goHome: function() { this.carregarFilaOS(); this.navigate('screen-home', 'Minha Fila', false); },
             goBack: function() {
-                const active = document.querySelector('.screen.active').id;
+                const activeEl = document.querySelector('.screen.active');
+                if(!activeEl) { this.goHome(); return; }
+                const active = activeEl.id;
                 if(active === 'screen-maquina' || active === 'screen-checkout') { this.abrirOS(this.osAtual.id); } else { this.goHome(); }
             },
 
@@ -354,22 +356,30 @@
                 const container = document.getElementById('lista-os-home');
                 const btnGlobal = document.getElementById('dev-visao-global').checked;
 
-                let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO');
+                let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO' && os.status !== '8. Check-out / Finalização');
                 
-                // Filtro para exibir apenas as O.S. designadas para o Técnico Logado
-                if (!this.temVisaoGlobal && !btnGlobal) {
-                    minhasOS = minhasOS.filter(os => 
-                        os.tecnicoOS === this.nomeTecnico || 
-                        os.tecnico === this.nomeTecnico || 
-                        os.tecnico === this.emailTecnico || 
-                        os.tecnico_kanban === this.nomeTecnico
-                    );
+                // Filtro Criterioso e Seguro para Técnico vs Equipe
+                if (!btnGlobal) {
+                    const euNome = (this.nomeTecnico || '').toLowerCase().trim();
+                    const euEmail = (this.emailTecnico || '').toLowerCase().trim();
+                    
+                    minhasOS = minhasOS.filter(os => {
+                        const t1 = (os.tecnicoOS || '').toLowerCase().trim();
+                        const t2 = (os.tecnico || '').toLowerCase().trim();
+                        const t3 = (os.tecnico_kanban || '').toLowerCase().trim();
+                        const t4 = (os.assignee || '').toLowerCase().trim();
+                        
+                        const matchNome = (t1 === euNome || t2 === euNome || t3 === euNome || t4 === euNome);
+                        const matchEmail = (t1 === euEmail || t2 === euEmail || t3 === euEmail || t4 === euEmail);
+                        
+                        return matchNome || matchEmail;
+                    });
                 }
 
                 document.getElementById('badge-os-count').innerText = minhasOS.length;
 
                 if (minhasOS.length === 0) {
-                    container.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-mug-hot text-4xl text-slate-400 mb-3"></i><h3 class="text-sm font-bold text-slate-600">Sua fila está vazia!</h3><p class="text-[10px] text-slate-500 mt-1">Aguarde novos chamados do Gestor.</p></div>`;
+                    container.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-mug-hot text-4xl text-slate-400 mb-3"></i><h3 class="text-sm font-bold text-slate-600">Sua fila está vazia!</h3><p class="text-[10px] text-slate-500 mt-1">Aguarde novos chamados do Gestor ou desmarque "Visão Equipe".</p></div>`;
                     return;
                 }
 
@@ -377,7 +387,16 @@
                     const arrayEquips = os.equipamentos || os.equipamentosOS || [];
                     const qtd = arrayEquips.length > 0 ? arrayEquips.length : 1;
                     const urgColor = os.urgency === 'CRITICA' || os.urgency === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
-                    const dataBR = os.dataAgendamento || os.dataAgendamentoOS ? (os.dataAgendamento || os.dataAgendamentoOS).split('-').reverse().join('/') : '-';
+                    
+                    // Prevenção de quebra de .split() com datas em formatos variados
+                    let dataBR = '-';
+                    let rawDate = os.dataAgendamento || os.dataAgendamentoOS || '';
+                    if (typeof rawDate === 'string' && rawDate.includes('-')) {
+                        dataBR = rawDate.split('-').reverse().join('/');
+                    } else if (rawDate) {
+                        dataBR = rawDate;
+                    }
+
                     const cliName = os.cliente || os.clienteOS || os.client?.name || 'Cliente';
                     const nomeT = os.tecnicoOS || os.tecnico || os.tecnico_kanban || '-';
 
@@ -400,41 +419,64 @@
             },
 
             abrirOS: function(id) {
-                this.osAtual = this.dbOrdens.find(x => x.id === id);
-                if(!this.osAtual) return;
+                try {
+                    this.osAtual = this.dbOrdens.find(x => x.id === id);
+                    if(!this.osAtual) return;
 
-                document.getElementById('os-det-id').innerText = this.osAtual.id;
-                document.getElementById('os-det-cliente').innerText = this.osAtual.cliente || this.osAtual.clienteOS || this.osAtual.client?.name || '';
-                document.getElementById('os-det-data').innerText = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS ? (this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS).split('-').reverse().join('/') : '';
-                document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
+                    document.getElementById('os-det-id').innerText = this.osAtual.id;
+                    document.getElementById('os-det-cliente').innerText = this.osAtual.cliente || this.osAtual.clienteOS || this.osAtual.client?.name || 'Cliente Indefinido';
+                    
+                    // Proteção extra na data para não quebrar a tela
+                    let rawDate = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS || '';
+                    let dt = '--/--/----';
+                    if (typeof rawDate === 'string' && rawDate.includes('-')) {
+                        dt = rawDate.split('-').reverse().join('/');
+                    } else if (rawDate) {
+                        dt = rawDate;
+                    }
+                    document.getElementById('os-det-data').innerText = dt;
+                    
+                    document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
 
-                const container = document.getElementById('lista-maquinas-os');
-                
-                let arrayEquips = this.osAtual.equipamentos || this.osAtual.equipamentosOS || [];
-                if (arrayEquips.length === 0 && this.osAtual.equipment) {
-                    arrayEquips = [{ maquina: this.osAtual.equipment.model, defeito: this.osAtual.request.problem, etapa: '1. Abertura da OS' }];
-                    this.osAtual.equipamentos = arrayEquips;
-                }
+                    const container = document.getElementById('lista-maquinas-os');
+                    
+                    // Consolidando os equipamentos para blindar o JSON
+                    let arrayEquips = [];
+                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) {
+                        arrayEquips = this.osAtual.equipamentosOS;
+                    } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) {
+                        arrayEquips = this.osAtual.equipamentos;
+                    } else if (this.osAtual.equipment && this.osAtual.equipment.model) {
+                        arrayEquips = [{ maquina: this.osAtual.equipment.model, defeito: this.osAtual.request?.problem || 'Sem relato', etapa: '1. Abertura da OS' }];
+                    }
 
-                if(arrayEquips.length === 0) {
-                    container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum equipamento cadastrado.</p>';
-                } else {
-                    container.innerHTML = arrayEquips.map((maq, index) => {
-                        const objEtapa = this.etapasOficiais.find(e => e.nome === maq.etapa) || this.etapasOficiais[0];
-                        return `
-                        <div onclick="app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
-                            <div class="flex-1 pr-3">
-                                <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
-                                <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 leading-tight"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${objEtapa.cor}">${objEtapa.nome}</span>
+                    if(arrayEquips.length === 0) {
+                        container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum equipamento cadastrado.</p>';
+                    } else {
+                        // Força salvamento local do array tratado
+                        this.osAtual.equipamentos = arrayEquips;
+
+                        container.innerHTML = arrayEquips.map((maq, index) => {
+                            const etapaName = maq.etapa || '1. Abertura da OS';
+                            const objEtapa = this.etapasOficiais.find(e => e.nome === etapaName) || this.etapasOficiais[0];
+                            return `
+                            <div onclick="app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-slate-50 transition cursor-pointer hover:border-blue-300">
+                                <div class="flex-1 pr-3">
+                                    <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
+                                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-2 leading-tight"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${objEtapa.cor}">${objEtapa.nome}</span>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 shadow-inner"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 shadow-inner"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
-                        </div>
-                        `;
-                    }).join('');
-                }
+                            `;
+                        }).join('');
+                    }
 
-                this.navigate('screen-os', `Chamado Ativo`, true);
+                    this.navigate('screen-os', `Chamado Ativo`, true);
+                } catch(e) {
+                    console.error("Erro Crítico ao Abrir O.S: ", e);
+                    this.showToast('Erro ao ler O.S. (Formato Incompatível)', 'error');
+                }
             },
 
             abrirMaquina: function(index) {
@@ -798,9 +840,15 @@
 
             app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
             app.emailTecnico = window.currentUser.email;
-            app.temVisaoGlobal = window.userVisaoGlobal;
+            
+            // O botão do técnico define se a visão é global
+            if (perfil === 'Master' || perfil === 'Administrativo') {
+                app.temVisaoGlobal = true;
+                document.getElementById('dev-visao-global').checked = true;
+            } else {
+                app.temVisaoGlobal = false;
+            }
 
-            if (app.temVisaoGlobal) { document.getElementById('dev-visao-global').checked = true; }
             app.init();
 
             // LER FORMS E RESPOSTAS (Integração com FormCraft Sandbox)
