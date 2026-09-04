@@ -43,7 +43,7 @@
                 </button>
                 <div>
                     <h1 id="header-title" class="font-black text-lg leading-tight tracking-tight">Minha Fila</h1>
-                    <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium">Conectado (Online)</p>
+                    <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium transition-colors">Conectado (Online)</p>
                 </div>
             </div>
             <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border border-blue-400 shrink-0 shadow-inner">
@@ -258,12 +258,11 @@
         </div>
     </div>
 
-    <!-- MOTOR CENTRAL DO SISTEMA E FIREBASE -->
     <script type="module" src="core.js"></script>
 
     <!-- LÓGICA DO APLICATIVO DO TÉCNICO -->
     <script>
-        // O objeto do App é declarado globalmente para garantir que o onClick no HTML o encontre 100% das vezes
+        // O objeto do App é declarado globalmente para garantir que o onClick no HTML o encontre sempre
         window.app = {
             nomeTecnico: "",
             emailTecnico: "",
@@ -295,7 +294,51 @@
                 { nome: '10. Pós-Venda', cor: 'bg-emerald-100 text-emerald-800 border-emerald-400' }
             ],
 
-            init: function() { this.initAssinatura(); },
+            init: function() { 
+                this.initAssinatura(); 
+                
+                // Sistema de Verificação de Conexão (Internet)
+                window.addEventListener('online', () => {
+                    this.showToast('Conexão restabelecida. Sincronizando dados...', 'success');
+                    this.atualizarStatusSinal(true);
+                });
+                window.addEventListener('offline', () => {
+                    this.showToast('Você está offline. O aplicativo salvará as ações na memória local e enviará depois.', 'warning');
+                    this.atualizarStatusSinal(false);
+                });
+                this.atualizarStatusSinal(navigator.onLine);
+                setInterval(() => this.atualizarStatusSinal(navigator.onLine), 5000);
+            },
+
+            atualizarStatusSinal: function(isOnline) {
+                const sub = document.getElementById('header-subtitle');
+                if(!sub) return;
+                if(isOnline) {
+                    sub.innerText = 'Conectado (Online)';
+                    sub.className = 'text-[10px] text-blue-200 font-medium transition-colors';
+                } else {
+                    sub.innerText = 'Trabalhando Offline';
+                    sub.className = 'text-[10px] text-amber-300 font-bold transition-colors';
+                }
+            },
+
+            // --- HELPER DE SALVAMENTO OTIMISTA (OFFLINE SUPPORT) ---
+            salvarNoBanco: function(collectionName, docId, data, successMsg, callback) {
+                // 1. Clona e limpa os dados para evitar o erro "undefined" do Firestore
+                const cleanData = JSON.parse(JSON.stringify(data));
+                
+                // 2. Dispara o salvamento pro Firebase em Background (NÃO BLOQUEIA A TELA)
+                const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', collectionName, docId);
+                window.fsSetDoc(docRef, cleanData).catch(e => {
+                    console.error("Erro no sincronismo em segundo plano:", e);
+                });
+
+                // 3. Mostra o sucesso otimista para o técnico imediatamente
+                const finalMsg = navigator.onLine ? successMsg : `${successMsg} (Salvo Offline)`;
+                this.showToast(finalMsg, 'success');
+                
+                if (callback) setTimeout(callback, 800);
+            },
 
             initAssinatura: function() {
                 const canvas = document.getElementById('signature-pad');
@@ -358,8 +401,6 @@
 
                 let minhasOS = this.dbOrdens.filter(os => os.status !== 'CONCLUIDO' && os.status !== '8. Check-out / Finalização');
                 
-                // Se a chave no rodapé NÃO estiver ligada (ou ele nem tiver acesso a ela),
-                // o sistema vai forçar a filtrar somente as OS do técnico logado.
                 if (!btnGlobal) {
                     const euNome = (this.nomeTecnico || '').toLowerCase().trim();
                     const euEmail = (this.emailTecnico || '').toLowerCase().trim();
@@ -385,7 +426,6 @@
                 }
 
                 container.innerHTML = minhasOS.map(os => {
-                    // Blindagem de compatibilidade para máquinas
                     let arrayEquips = [];
                     if (Array.isArray(os.equipamentosOS) && os.equipamentosOS.length > 0) arrayEquips = os.equipamentosOS;
                     else if (Array.isArray(os.equipamentos) && os.equipamentos.length > 0) arrayEquips = os.equipamentos;
@@ -393,8 +433,8 @@
                     const qtd = arrayEquips.length > 0 ? arrayEquips.length : 1;
                     const urgColor = os.urgency === 'CRITICA' || os.urgency === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500';
                     
-                    // Prevenção de quebra de .split() com datas em formatos nulos
-                    let dataBR = '-';
+                    // Prevenção de quebra do Date
+                    let dataBR = '--/--/----';
                     let rawDate = os.dataAgendamento || os.dataAgendamentoOS || os.createdAt || '';
                     if (typeof rawDate === 'string' && rawDate.includes('T')) {
                         dataBR = rawDate.split('T')[0].split('-').reverse().join('/');
@@ -427,39 +467,28 @@
 
             abrirOS: function(id) {
                 try {
-                    // Limpa espaços no ID para evitar erros de busca invisíveis
                     this.osAtual = this.dbOrdens.find(x => String(x.id).trim() === String(id).trim());
-                    if(!this.osAtual) {
-                        this.showToast('Erro: OS não localizada no banco.', 'error');
-                        return;
-                    }
+                    if(!this.osAtual) { this.showToast('Erro: OS não localizada.', 'error'); return; }
 
-                    // Nome do Cliente c/ Fallbacks
                     let cName = 'Cliente Indefinido';
                     if (this.osAtual.clienteOS) cName = this.osAtual.clienteOS;
                     else if (this.osAtual.cliente) cName = this.osAtual.cliente;
                     else if (this.osAtual.client && this.osAtual.client.name) cName = this.osAtual.client.name;
+                    
                     document.getElementById('os-det-cliente').innerText = cName;
+                    document.getElementById('os-det-id').innerText = this.osAtual.id;
                     
-                    document.getElementById('os-det-id').innerText = this.osAtual.id || id;
-                    
-                    // Tratamento Super Blindado na Data
                     let rawDate = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS || this.osAtual.createdAt || '';
                     let dt = '--/--/----';
-                    if (typeof rawDate === 'string' && rawDate.includes('T')) {
-                        dt = rawDate.split('T')[0].split('-').reverse().join('/');
-                    } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
-                        dt = rawDate.split('-').reverse().join('/');
-                    } else if (rawDate) {
-                        dt = rawDate;
-                    }
-                    document.getElementById('os-det-data').innerText = dt;
+                    if (typeof rawDate === 'string' && rawDate.includes('T')) { dt = rawDate.split('T')[0].split('-').reverse().join('/'); } 
+                    else if (typeof rawDate === 'string' && rawDate.includes('-')) { dt = rawDate.split('-').reverse().join('/'); } 
+                    else if (rawDate) { dt = rawDate; }
                     
+                    document.getElementById('os-det-data').innerText = dt;
                     document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
 
                     const container = document.getElementById('lista-maquinas-os');
                     
-                    // Consolidando os equipamentos para blindar as versões do JSON
                     let arrayEquips = [];
                     if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) {
                         arrayEquips = this.osAtual.equipamentosOS;
@@ -471,7 +500,6 @@
                         arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS' }];
                     }
 
-                    // Salva na memória do App
                     this.osAtual.equipamentos = arrayEquips; 
 
                     if(arrayEquips.length === 0) {
@@ -495,7 +523,7 @@
 
                     this.navigate('screen-os', `Chamado Ativo`, true);
                 } catch(e) {
-                    console.error("Erro Crítico ao Abrir O.S: ", e);
+                    console.error("Erro ao Abrir O.S: ", e);
                     this.showToast('Erro interno ao ler dados da OS.', 'error');
                 }
             },
@@ -515,7 +543,7 @@
                 selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
                 this.atualizarCorEtapaSelect();
 
-                // INTEGRAÇÃO COM O FORMCRAFT NA TELA DA MÁQUINA
+                // INTEGRAÇÃO FORMCRAFT MOBILE
                 const containerForms = document.getElementById('maq-det-forms');
                 if (maq.formulario && maq.formulario.trim() !== '') {
                     const isFilled = maq.formulario_resposta_id && maq.formulario_resposta_id !== '';
@@ -530,7 +558,7 @@
                             </button>
                         </div>`;
                 } else {
-                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum formulário ou check-list exigido.</p>';
+                    containerForms.innerHTML = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum formulário exigido.</p>';
                 }
 
                 this.pecasTemporarias = maq.pecasUtilizadas ? [...maq.pecasUtilizadas] : [];
@@ -544,9 +572,6 @@
                 sel.className = `w-full text-xs font-bold p-3.5 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
             },
 
-            // ==========================================
-            // FORMCRAFT SANDBOX (Motor de Preenchimento Mobile)
-            // ==========================================
             escapeHtml: function(s) { return (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); },
 
             abrirModalFormulario: function(formTitle) {
@@ -592,7 +617,6 @@
                 
                 this.evaluatePreviewRules();
                 
-                // Abre o Modal com Animação Mobile
                 const modal = document.getElementById('modal-preencher-form');
                 const content = document.getElementById('modal-form-content');
                 modal.classList.remove('hidden');
@@ -667,7 +691,7 @@
                 });
             },
 
-            salvarPreenchimentoForm: async function(e) {
+            salvarPreenchimentoForm: function(e) {
                 e.preventDefault();
                 const formObj = this.currentActiveForm;
                 const answers = {};
@@ -682,30 +706,20 @@
                 });
 
                 const subId = this.currentActiveSubmissionId || 's_' + Date.now() + Math.floor(Math.random()*1000);
-                
                 const sub = { 
-                    id: subId, 
-                    formId: formObj.id, 
-                    osId: this.osAtual.id,
-                    submittedAt: new Date().toISOString(), 
-                    answers: answers,
-                    tecnico: this.nomeTecnico
+                    id: subId, formId: formObj.id, osId: this.osAtual.id,
+                    submittedAt: new Date().toISOString(), answers: answers, tecnico: this.nomeTecnico
                 };
                 
-                try {
-                    // Salva as respostas no DB dos formulários
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
-                    
-                    // Vincula o ID da resposta à máquina dentro da O.S atual
-                    this.osAtual.equipamentos[this.maquinaIndex].formulario_resposta_id = subId;
-                    
-                    // Salva a O.S para garantir que ela não esqueça que o laudo foi preenchido
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
-                    
-                    this.showToast('Laudo preenchido com sucesso!', 'success');
-                    this.fecharModalFormulario();
-                    this.abrirMaquina(this.maquinaIndex); // Recarrega a tela para o botão ficar verde
-                } catch(err) { this.showToast('Erro ao salvar laudo.', 'error'); console.error(err); }
+                const cleanSub = JSON.parse(JSON.stringify(sub));
+                window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), cleanSub).catch(err => console.error("Sync Form Error: ", err));
+                
+                this.osAtual.equipamentos[this.maquinaIndex].formulario_resposta_id = subId;
+                
+                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Laudo preenchido com sucesso!', () => {
+                    window.app.fecharModalFormulario();
+                    window.app.abrirMaquina(this.maquinaIndex); 
+                });
             },
 
             abrirModalPecas: function() {
@@ -761,7 +775,7 @@
                 `).join('');
             },
 
-            salvarMaquinaAtual: async function() {
+            salvarMaquinaAtual: function() {
                 const maq = this.osAtual.equipamentos[this.maquinaIndex];
                 maq.etapa = document.getElementById('maq-inp-etapa').value;
                 maq.servico = document.getElementById('maq-inp-servico').value;
@@ -773,7 +787,7 @@
                 if (this.pecasTemporarias.length > 0 || maq.horaInicio) {
                     let orc = this.osAtual.orcamentos.find(o => o.alvo === maq.maquina);
                     if (!orc) {
-                        orc = { alvo: maq.maquina, itens: [], mo_qtd: 1, mo_unit: 0, desl_qtd: 1, desl_unit: 0, obs: "Gerado pelo App do Técnico", total: 0 };
+                        orc = { alvo: maq.maquina, itens: [], mo_qtd: 1, mo_unit: 0, desl_qtd: 1, desl_unit: 0, obs: "Apontamento do Técnico (App)", total: 0 };
                         this.osAtual.orcamentos.push(orc);
                     }
                     this.pecasTemporarias.forEach(p => {
@@ -794,13 +808,12 @@
                 });
 
                 this.osAtual.status = this.kanbanMapping[lowestStageName] || 'ENTRADA';
+                this.osAtual.etapa_global = lowestStageName;
                 this.osAtual.kanbanStatus = this.osAtual.status;
 
-                try {
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
-                    this.showToast('Apontamentos Salvos!', 'success');
-                    setTimeout(() => { window.app.abrirOS(this.osAtual.id); }, 800);
-                } catch(e) { this.showToast('Erro ao salvar.', 'error'); }
+                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Apontamentos Salvos!', () => {
+                    window.app.abrirOS(this.osAtual.id);
+                });
             },
 
             iniciarCheckout: function() {
@@ -812,7 +825,7 @@
                 this.navigate('screen-checkout', 'Coletar Assinatura', true);
             },
 
-            finalizarOS: async function() {
+            finalizarOS: function() {
                 if(!this.assinaturaPad) return;
                 const canvas = document.getElementById('signature-pad');
                 this.osAtual.assinaturaDigital = canvas.toDataURL('image/png');
@@ -824,18 +837,21 @@
                     });
                 }
                 this.osAtual.status = this.kanbanMapping['8. Check-out / Finalização'] || 'CONCLUIDO';
+                this.osAtual.etapa_global = '8. Check-out / Finalização';
                 this.osAtual.kanbanStatus = this.osAtual.status;
 
-                try {
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', this.osAtual.id), this.osAtual);
-                    this.showToast('OS Finalizada com Sucesso!', 'success');
-                    setTimeout(() => { window.app.goHome(); }, 1500);
-                } catch(e) { this.showToast('Erro ao sincronizar.', 'error'); }
+                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'OS Finalizada com Sucesso!', () => {
+                    window.app.goHome();
+                });
             },
 
             sincronizar: function() {
-                this.showToast('Sincronizando...', 'info');
-                setTimeout(() => { window.app.carregarFilaOS(); this.showToast('Sincronizado!', 'success'); }, 800);
+                if(navigator.onLine) {
+                    this.showToast('Sincronizando com o escritório...', 'info');
+                    setTimeout(() => { window.app.carregarFilaOS(); this.showToast('Tudo Sincronizado!', 'success'); }, 800);
+                } else {
+                    this.showToast('Você está offline. Os dados serão enviados automaticamente quando houver sinal de internet.', 'warning');
+                }
             },
 
             abrirGPS: function() { this.showToast('Abrindo GPS...', 'info'); },
@@ -850,7 +866,7 @@
             }
         };
 
-        // Torna o Objeto App e Suas Funções acessíveis globalmente pela Interface
+        // Torna o Objeto App acessível globalmente
         window.app = app;
 
         // Função Construtora Iniciada pelo CORE.js
@@ -864,19 +880,17 @@
             // Controle de Visão (Técnico vs Gestor)
             if (perfil === 'Master' || perfil === 'Administrativo' || window.userVisaoGlobal) {
                 window.app.temVisaoGlobal = true;
-                // Deixa a chave ligada por padrão para a Diretoria/Admins
                 document.getElementById('dev-visao-global').checked = true;
                 document.getElementById('container-visao-equipe').style.display = 'flex';
             } else {
                 window.app.temVisaoGlobal = false;
                 document.getElementById('dev-visao-global').checked = false;
-                // Oculta o botão de Visão Equipe para o técnico comum
                 document.getElementById('container-visao-equipe').style.display = 'none';
             }
 
             window.app.init();
 
-            // Ler Forms Sandbox (Integração Direta)
+            // Ler Forms Sandbox
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
                 window.app.dbForms = [];
                 snap.forEach(d => window.app.dbForms.push(d.data()));
