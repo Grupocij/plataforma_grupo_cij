@@ -71,16 +71,16 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <!-- Botões de Alerta e Automação (Retornados do ServiceFlow) -->
-                <button onclick="window.abrirModalAlertas()" class="relative p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer">
-                    <i class="fa-solid fa-bell text-lg"></i>
-                    <span id="badge-alertas" class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                
+                <!-- Botões Oficiais de Configuração (Alertas e Automação) -->
+                <button onclick="window.abrirModalConfigAlertas()" class="bg-white hover:bg-amber-50 text-amber-500 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-bell"></i> Alertas
                 </button>
-                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-blue-600 transition cursor-pointer" title="Configurar Automação Kanban">
-                    <i class="fa-solid fa-robot text-lg"></i>
+                <button onclick="window.abrirModalAutomacao()" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-robot"></i> Automação
                 </button>
 
-                <div class="w-px h-6 bg-slate-200 mx-1"></div>
+                <div class="w-px h-6 bg-slate-200 mx-1 hidden sm:block"></div>
 
                 <!-- Botões de View (Lista / Kanban) -->
                 <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
@@ -115,7 +115,8 @@
                 <select id="filtro-status" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700 w-full md:w-48">
                     <option value="ALL">Todos os Status</option>
                     <option value="ABERTURA">Abertura OS</option>
-                    <option value="DIAGNOSTICO">Diagnóstico / Orçamento</option>
+                    <option value="DIAGNOSTICO">Diagnóstico</option>
+                    <option value="ORCAMENTO">Orçamento</option>
                     <option value="AGENDAMENTO">Agendamento</option>
                     <option value="EXECUCAO">Execução</option>
                     <option value="CONCLUIDO">Concluído</option>
@@ -149,7 +150,7 @@
 
         <!-- VISÃO: KANBAN -->
         <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-2 w-full">
-            <!-- gap-2 (8px) em vez de gap-4 (16px) para as colunas ficarem mais próximas -->
+            <!-- gap-2 em vez de gap-4 para as colunas ganharem espaço -->
             <div id="kanban-board" class="flex gap-2 h-full w-full">
                 <!-- Colunas Geradas via JS -->
             </div>
@@ -345,35 +346,45 @@
         </div>
     </div>
 
-    <!-- MODAL: ALERTAS (Sininho com Lista) -->
-    <div id="modal-notificar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-start justify-center pt-20 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
-            <div class="bg-red-500 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm"><i class="fa-solid fa-bell mr-2"></i> Centro de Alertas</h3>
-                <button onclick="window.fecharModalNotificar()" class="text-red-200 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-3 bg-slate-50" id="lista-alertas-pendentes">
-                <!-- Gerado via JS -->
-            </div>
-        </div>
-    </div>
+    <!-- MODAIS DE AUTOMAÇÃO -->
 
-    <!-- MODAL: CONFIGURAÇÃO DE AUTOMAÇÃO -->
+    <!-- MODAL: Configurações de Alertas (SININHO) -->
     <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-slate-800 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm"><i class="fa-solid fa-robot mr-2 text-blue-400"></i> Automação: Etapas vs Kanban</h3>
-                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <h3 class="font-bold text-sm"><i class="fa-solid fa-bell text-amber-400 mr-2"></i> Configuração de Alertas do Kanban</h3>
+                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-5 bg-slate-50 border-b border-slate-200 shrink-0">
-                <p class="text-xs text-slate-600 font-medium">Defina quais Etapas Técnicas (que o técnico preenche na OS) devem mover o cartão para qual coluna no Kanban.</p>
+                <p class="text-xs text-slate-600 font-medium">Defina quais Etapas Técnicas disparam notificações sonoras no sistema quando o cartão chegar na coluna.</p>
             </div>
             <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-alertas-content">
                 <!-- Gerado dinamicamente via JS -->
             </div>
             <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-                <button onclick="window.salvarConfigAlertas()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-save"></i> Salvar Automação
+                <button onclick="window.salvarConfigAlertas()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-save"></i> Salvar Alertas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Configurações de Automação (ROBÔ) -->
+    <div id="modal-config-automacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-indigo-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
+                <h3 class="font-bold text-sm"><i class="fa-solid fa-robot text-indigo-300 mr-2"></i> Automação: Etapas vs Kanban</h3>
+                <button onclick="window.fecharModalAutomacao()" class="text-indigo-200 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 bg-slate-50 border-b border-slate-200 shrink-0">
+                <p class="text-xs text-slate-600 font-medium">Mapeie para qual coluna do Kanban o sistema deve enviar a O.S. automaticamente dependendo da etapa preenchida pelo técnico.</p>
+            </div>
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white" id="automacao-container">
+                <!-- Gerado dinamicamente via JS -->
+            </div>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+                <button onclick="window.salvarConfigAutomacao()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-save"></i> Salvar Mapeamento
                 </button>
             </div>
         </div>
@@ -406,6 +417,7 @@
         window.formSubmissions = [];
         
         window.alertSettings = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
+        window.kanbanMapping = {};
         
         window.contadorEquips = 0;
         window.contadorOrcs = 0;
@@ -444,18 +456,26 @@
             const etapaSelect = document.getElementById('os-etapa');
             etapaSelect.innerHTML = ETAPAS_SERVICO.map(e => `<option value="${e}">${e}</option>`).join('');
 
-            // Automação Kanban
-            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
+            // ALERTAS (Sininho)
+            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_os'), snap => {
                 if(snap.exists()) {
                     const data = snap.data();
                     window.alertSettings = {
-                        'ABERTURA': data['ENTRADA'] || data['ABERTURA'] || [], 
-                        'DIAGNOSTICO': data['TRIAGEM'] || data['DIAGNOSTICO'] || [],
+                        'ABERTURA': data['ABERTURA'] || [], 
+                        'DIAGNOSTICO': data['DIAGNOSTICO'] || [],
                         'ORCAMENTO': data['ORCAMENTO'] || [],
                         'AGENDAMENTO': data['AGENDAMENTO'] || [],
                         'EXECUCAO': data['EXECUCAO'] || [],
                         'CONCLUIDO': data['CONCLUIDO'] || []
                     };
+                }
+            });
+
+            // AUTOMAÇÃO (Robô)
+            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping_os'), snap => {
+                if(snap.exists()) {
+                    window.kanbanMapping = snap.data().mapping || {};
+                    window.renderizarVisoes();
                 }
             });
 
@@ -488,6 +508,8 @@
                 snap.forEach(dSnap => {
                     const d = dSnap.data();
                     let tStatus = d.status || 'ABERTURA';
+                    
+                    // Fallback para OSR antigo
                     if(tStatus === 'ENTRADA') tStatus = 'ABERTURA';
                     if(tStatus === 'TRIAGEM') tStatus = 'DIAGNOSTICO';
                     
@@ -505,7 +527,6 @@
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
-                window.checkNotificacoes();
                 window.mudarVisao('kanban'); 
             });
         };
@@ -526,37 +547,8 @@
         window.formatarMoeda = function(v) { return (v||0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
 
         // =====================================
-        // ALERTAS E AUTOMAÇÃO (ServiceFlow)
+        // ALERTAS (Sininho)
         // =====================================
-        window.checkNotificacoes = function() {
-            let count = window.tickets.filter(t => t.status === 'ABERTURA').length;
-            const badge = document.getElementById('badge-alertas');
-            if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } 
-            else { badge.classList.add('hidden'); }
-        };
-
-        window.abrirModalAlertas = function() {
-            const list = document.getElementById('lista-alertas-pendentes');
-            let pendentes = window.tickets.filter(t => t.status === 'ABERTURA');
-            
-            if(pendentes.length === 0) {
-                list.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs"><i class="fa-solid fa-mug-hot text-2xl mb-2"></i><br>Nenhuma OS recente na Abertura.</div>`;
-            } else {
-                list.innerHTML = pendentes.map(t => `
-                    <div class="bg-red-50 border border-red-200 p-3 rounded-xl flex justify-between items-center cursor-pointer hover:bg-red-100 transition" onclick="window.fecharModalNotificar(); window.abrirModalOS('${t.id}')">
-                        <div>
-                            <span class="font-bold text-red-700 text-xs block"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${t.id} - Em Aberto</span>
-                            <span class="text-[10px] text-red-600">${t.clienteOS || 'Sem Cliente'}</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-red-400"></i>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('modal-notificar').classList.remove('hidden');
-        };
-
-        window.fecharModalNotificar = () => document.getElementById('modal-notificar').classList.add('hidden');
-
         window.abrirModalConfigAlertas = function() {
             const cont = document.getElementById('config-alertas-content');
             let html = '';
@@ -569,14 +561,14 @@
                             <h4 class="text-[11px] font-bold uppercase text-slate-700">${conf.label} (Coluna Kanban)</h4>
                         </div>
                         <div class="p-3">
-                            <p class="text-[10px] text-slate-500 mb-2">Quais Etapas da O.S movem o card para cá?</p>
+                            <p class="text-[10px] text-slate-500 mb-2">Quais Etapas ativam alerta sonoro/push no sistema quando o cartão chegar aqui?</p>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 `;
                 ETAPAS_SERVICO.forEach(etapa => {
                     const isChecked = (window.alertSettings[fase] && window.alertSettings[fase].includes(etapa)) ? 'checked' : '';
                     html += `
                         <label class="flex items-center gap-2 text-[10px] font-medium text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded border border-transparent hover:border-slate-200 transition">
-                            <input type="checkbox" class="cb-alerta w-3.5 h-3.5 text-blue-600 rounded" data-fase="${fase}" value="${etapa}" ${isChecked}>
+                            <input type="checkbox" class="cb-alerta w-3.5 h-3.5 text-amber-500 rounded" data-fase="${fase}" value="${etapa}" ${isChecked}>
                             <span class="truncate">${etapa}</span>
                         </label>
                     `;
@@ -595,9 +587,56 @@
             const config = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
             document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
             try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
-                window.alertSettings = config; window.fecharModalConfigAlertas(); window.mostrarNotificacao('Automação Kanban salva!');
-            } catch(e) { window.mostrarNotificacao('Erro ao salvar automação.', 'error'); }
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_os'), config);
+                window.alertSettings = config; window.fecharModalConfigAlertas(); window.mostrarNotificacao('Configuração de Alertas salva!');
+            } catch(e) { window.mostrarNotificacao('Erro ao salvar alertas.', 'error'); }
+        };
+
+        // =====================================
+        // AUTOMAÇÃO (Robô)
+        // =====================================
+        window.abrirModalAutomacao = function() {
+            const container = document.getElementById('automacao-container');
+            const colunas = Object.entries(STATUSES_OS).map(([id, conf]) => ({ id, nome: conf.label }));
+            
+            let html = '';
+            ETAPAS_SERVICO.forEach(etapa => {
+                const mapAtual = window.kanbanMapping[etapa] || 'ABERTURA';
+                let options = colunas.map(c => `<option value="${c.id}" ${mapAtual === c.id ? 'selected' : ''}>${c.nome}</option>`).join('');
+                
+                html += `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-200 gap-3 mb-2">
+                    <span class="text-xs font-bold text-slate-700 w-full sm:w-1/2">${etapa}</span>
+                    <div class="w-full sm:w-1/2 relative">
+                        <select class="map-select w-full px-3 py-2 text-xs font-bold text-indigo-900 bg-white border border-indigo-200 rounded-lg outline-none focus:border-indigo-500 cursor-pointer shadow-sm appearance-none" data-etapa="${etapa}">
+                            ${options}
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none text-[10px]"></i>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.getElementById('modal-config-automacao').classList.remove('hidden');
+        };
+
+        window.fecharModalAutomacao = () => document.getElementById('modal-config-automacao').classList.add('hidden');
+
+        window.salvarConfigAutomacao = async function() {
+            const selects = document.querySelectorAll('.map-select');
+            const mapping = {};
+            selects.forEach(sel => {
+                mapping[sel.getAttribute('data-etapa')] = sel.value;
+            });
+            
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping_os'), { mapping });
+                window.kanbanMapping = mapping;
+                window.mostrarNotificacao('Mapeamento de Automação salvo!');
+                window.fecharModalAutomacao();
+            } catch(e) {
+                window.mostrarNotificacao('Erro ao salvar as regras.', 'error');
+            }
         };
 
         // =====================================
@@ -753,7 +792,6 @@
 
                         <div class="flex justify-between items-center text-[9px] font-medium text-slate-500 border-t border-slate-100 pt-1">
                             <span><i class="fa-solid fa-user mr-1 text-slate-400"></i><strong class="text-slate-600">${t.tecnicoOS || 'Pendente'}</strong></span>
-                            <!-- LIXEIRA MÁGICA AO PASSAR O MOUSE -->
                             <button onclick="event.stopPropagation(); window.confirmarExclusao('${t.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition cursor-pointer p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                         </div>
                     `;
@@ -889,7 +927,7 @@
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
-            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
+            const formsOptions = window.dbForms.map(f => `<option value="${f}">${f}</option>`).join('');
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
@@ -1269,13 +1307,8 @@
             
             // Define o status do Kanban base da OS usando Automação
             let targetStatus = 'ABERTURA'; // Default
-            if (window.alertSettings) {
-                for (const [fase, etapas] of Object.entries(window.alertSettings)) {
-                    if (etapas.includes(etapaGlobal)) {
-                        targetStatus = fase;
-                        break;
-                    }
-                }
+            if (window.kanbanMapping) {
+                targetStatus = window.kanbanMapping[etapaGlobal] || 'ABERTURA';
             }
 
             // Paylod que o App do Técnico compreende
@@ -1317,11 +1350,14 @@
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
                 }
 
-                // Dispara o alerta apenas se a OS mudar de coluna (ou for nova)
+                // Dispara o alerta apenas se a OS mudar de coluna (ou for nova) e se a etapa estiver configurada no Sininho
                 if (targetStatus !== statusAtual && targetStatus !== 'ABERTURA') {
-                    window.dispararAlertaGlobal(`A O.S. ${osFinalId} mudou de etapa para: ${STATUSES_OS[targetStatus].label}.`, true);
+                    if(window.alertSettings && window.alertSettings[targetStatus] && window.alertSettings[targetStatus].includes(etapaGlobal)){
+                        window.dispararAlertaGlobal(`A O.S. ${osFinalId} mudou para: ${STATUSES_OS[targetStatus].label}.`, true);
+                    }
                 } else if (!idOculto) {
-                     window.dispararAlertaGlobal(`Nova O.S. ${osFinalId} criada para ${cliente}.`, true);
+                    // Se a OS for recém criada, dispara o aviso!
+                    window.dispararAlertaGlobal(`Nova O.S. ${osFinalId} criada para ${cliente}.`, true);
                 }
 
                 // AGENDA INTEGRADA
