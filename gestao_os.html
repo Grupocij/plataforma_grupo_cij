@@ -16,12 +16,15 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
         
+        /* Estilo sutil para as abas */
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
         .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 500; }
 
+        /* Estilos Drag and Drop do Kanban */
         .kanban-col.drag-over { background-color: #f1f5f9 !important; border-color: #3b82f6 !important; border-style: dashed; }
         .dragging { opacity: 0.5; transform: scale(0.98); }
 
+        /* Inputs mais finos e delicados */
         .input-delicate {
             width: 100%; padding: 0.5rem 0.75rem; font-size: 0.75rem; line-height: 1rem;
             color: #334155; background-color: #ffffff; border: 1px solid #cbd5e1; 
@@ -52,13 +55,12 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <!-- Removido max-w para a tela usar 100% da largura -->
-    <main class="flex-1 w-full flex flex-col p-4 md:p-6 relative gap-5 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
+    <!-- MAIN CONTENT - Ajustado para usar 100% da largura, com padding menor -->
+    <main class="flex-1 w-full flex flex-col p-2 md:p-4 relative gap-4 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO -->
-        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
-            <div class="flex items-center gap-4">
+        <div class="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 shrink-0">
+            <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100">
                     <i class="fa-solid fa-file-invoice"></i>
                 </div>
@@ -69,15 +71,18 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer" title="Configurar Alertas e Notificações (Sininho)">
+                <!-- Botões de Alerta e Automação (Retornados do ServiceFlow) -->
+                <button onclick="window.abrirModalAlertas()" class="relative p-2 text-slate-400 hover:text-amber-500 transition cursor-pointer">
                     <i class="fa-solid fa-bell text-lg"></i>
+                    <span id="badge-alertas" class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
                 </button>
-                <button onclick="window.abrirModalAutomacao()" class="p-2 text-slate-400 hover:text-blue-600 transition cursor-pointer" title="Configurar Automação Kanban (Robô)">
+                <button onclick="window.abrirModalConfigAlertas()" class="p-2 text-slate-400 hover:text-blue-600 transition cursor-pointer" title="Configurar Automação Kanban">
                     <i class="fa-solid fa-robot text-lg"></i>
                 </button>
 
                 <div class="w-px h-6 bg-slate-200 mx-1"></div>
 
+                <!-- Botões de View (Lista / Kanban) -->
                 <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
                     <button onclick="window.mudarVisao('kanban')" id="btn-visao-kanban" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition">
                         <i class="fa-solid fa-columns"></i> Kanban
@@ -110,8 +115,7 @@
                 <select id="filtro-status" onchange="window.renderizarVisoes()" class="input-delicate cursor-pointer text-slate-700 w-full md:w-48">
                     <option value="ALL">Todos os Status</option>
                     <option value="ABERTURA">Abertura OS</option>
-                    <option value="DIAGNOSTICO">Diagnóstico</option>
-                    <option value="ORCAMENTO">Orçamento</option>
+                    <option value="DIAGNOSTICO">Diagnóstico / Orçamento</option>
                     <option value="AGENDAMENTO">Agendamento</option>
                     <option value="EXECUCAO">Execução</option>
                     <option value="CONCLUIDO">Concluído</option>
@@ -119,7 +123,7 @@
             </div>
         </div>
 
-        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- CONTEÚDO PRINCIPAL (ALTERNÂNCIA ENTRE LISTA E KANBAN) -->
         
         <!-- VISÃO: LISTA (TABELA) -->
         <div id="visao-lista" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[300px] hidden">
@@ -144,8 +148,9 @@
         </div>
 
         <!-- VISÃO: KANBAN -->
-        <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 w-full">
-            <div id="kanban-board" class="flex gap-4 h-full min-w-full w-max">
+        <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-2 w-full">
+            <!-- gap-2 (8px) em vez de gap-4 (16px) para as colunas ficarem mais próximas -->
+            <div id="kanban-board" class="flex gap-2 h-full w-full">
                 <!-- Colunas Geradas via JS -->
             </div>
         </div>
@@ -194,6 +199,7 @@
                             </div>
                         </div>
 
+                        <!-- ETAPA TÉCNICA GLOBAL -->
                         <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                             <label class="block text-[10px] font-black text-blue-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-stairs text-blue-500 mr-1"></i> Etapa Técnica Atual da O.S.</label>
                             <select id="os-etapa" class="input-delicate cursor-pointer font-bold text-slate-800 border-blue-300 shadow-sm"></select>
@@ -263,7 +269,7 @@
                         </div>
                     </div>
 
-                    <!-- ABA 4: FORMULÁRIOS / LAUDOS -->
+                    <!-- ABA 4: FORMULÁRIOS / LAUDOS (FORMCRAFT) -->
                     <div id="aba4" class="hidden space-y-4 max-w-4xl mx-auto pb-6">
                         <div class="mb-2 bg-purple-50 p-3 rounded-lg border border-purple-200">
                             <h4 class="text-sm font-semibold text-purple-900">Formulários e Check-lists da O.S.</h4>
@@ -339,42 +345,34 @@
         </div>
     </div>
 
-    <!-- MODAL: ALERTAS E NOTIFICAÇÕES (SININHO) -->
-    <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-regular fa-bell text-amber-400"></i> Notificações do Kanban</h3>
-                <button onclick="window.fecharModalConfigAlertas2()" class="text-slate-400 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL: ALERTAS (Sininho com Lista) -->
+    <div id="modal-notificar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-start justify-center pt-20 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="bg-red-500 text-white px-5 py-4 flex items-center justify-between shrink-0">
+                <h3 class="font-bold text-sm"><i class="fa-solid fa-bell mr-2"></i> Centro de Alertas</h3>
+                <button onclick="window.fecharModalNotificar()" class="text-red-200 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                <p class="text-xs text-slate-600 font-medium">Quem deve receber um alerta no App/Computador quando um cartão entrar nessas colunas do Kanban?</p>
-            </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-alertas2-content">
-                <!-- Gerado dinamicamente via JS -->
-            </div>
-            <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-                <button onclick="window.salvarConfigAlertas2()" class="bg-slate-900 hover:bg-black text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-save"></i> Salvar Alertas
-                </button>
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-3 bg-slate-50" id="lista-alertas-pendentes">
+                <!-- Gerado via JS -->
             </div>
         </div>
     </div>
 
-    <!-- MODAL: CONFIGURAÇÃO DE AUTOMAÇÃO (ROBÔ) -->
-    <div id="modal-config-automacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-blue-800 text-white px-5 py-4 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-robot text-blue-300"></i> Automação: Etapas vs Kanban</h3>
-                <button onclick="window.fecharModalAutomacao()" class="text-blue-300 hover:text-white transition cursor-pointer p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL: CONFIGURAÇÃO DE AUTOMAÇÃO -->
+    <div id="modal-config-alertas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-800 text-white px-5 py-4 flex items-center justify-between shrink-0">
+                <h3 class="font-bold text-sm"><i class="fa-solid fa-robot mr-2 text-blue-400"></i> Automação: Etapas vs Kanban</h3>
+                <button onclick="window.fecharModalConfigAlertas()" class="text-slate-400 hover:text-white transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-slate-50 border-b border-slate-200 shrink-0">
-                <p class="text-xs text-slate-600 font-medium">Defina quais Etapas Técnicas (que o técnico preenche) devem mover o cartão para qual coluna no Kanban automaticamente.</p>
+            <div class="p-5 bg-slate-50 border-b border-slate-200 shrink-0">
+                <p class="text-xs text-slate-600 font-medium">Defina quais Etapas Técnicas (que o técnico preenche na OS) devem mover o cartão para qual coluna no Kanban.</p>
             </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-automacao-content">
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-white" id="config-alertas-content">
                 <!-- Gerado dinamicamente via JS -->
             </div>
             <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-                <button onclick="window.salvarConfigAutomacao()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
+                <button onclick="window.salvarConfigAlertas()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-xs flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-save"></i> Salvar Automação
                 </button>
             </div>
@@ -405,10 +403,9 @@
         window.parqueMaquinas = [];
         window.usersList = [];
         window.dbForms = []; 
-        window.formSubmissions = []; // Buffer de respostas
+        window.formSubmissions = [];
         
         window.alertSettings = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
-        window.kanbanMapping = {};
         
         window.contadorEquips = 0;
         window.contadorOrcs = 0;
@@ -417,12 +414,12 @@
 
         // AS 6 FASES DO KANBAN DE GESTÃO DA O.S
         const STATUSES_OS = {
-            'ABERTURA': { label: 'Abertura OS', color: 'bg-slate-100 border-slate-300 text-slate-700', badgeDot: 'bg-slate-500' },
-            'DIAGNOSTICO': { label: 'Diagnóstico', color: 'bg-amber-50 border-amber-200 text-amber-700', badgeDot: 'bg-amber-500' },
-            'ORCAMENTO': { label: 'Orçamento', color: 'bg-purple-50 border-purple-200 text-purple-700', badgeDot: 'bg-purple-500' },
-            'AGENDAMENTO': { label: 'Agendamento', color: 'bg-blue-50 border-blue-200 text-blue-700', badgeDot: 'bg-blue-500' },
-            'EXECUCAO': { label: 'Execução', color: 'bg-rose-50 border-rose-200 text-rose-700', badgeDot: 'bg-rose-500' },
-            'CONCLUIDO': { label: 'Concluído', color: 'bg-emerald-50 border-emerald-200 text-emerald-700', badgeDot: 'bg-emerald-500' }
+            'ABERTURA': { label: 'Abertura OS', color: 'bg-slate-100 border-slate-300 text-slate-700' },
+            'DIAGNOSTICO': { label: 'Diagnóstico', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+            'ORCAMENTO': { label: 'Orçamento', color: 'bg-purple-50 border-purple-200 text-purple-700' },
+            'AGENDAMENTO': { label: 'Agendamento', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+            'EXECUCAO': { label: 'Execução', color: 'bg-rose-50 border-rose-200 text-rose-700' },
+            'CONCLUIDO': { label: 'Concluído', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' }
         };
 
         const ETAPAS_SERVICO = [
@@ -447,39 +444,45 @@
             const etapaSelect = document.getElementById('os-etapa');
             etapaSelect.innerHTML = ETAPAS_SERVICO.map(e => `<option value="${e}">${e}</option>`).join('');
 
-            // NOTIFICAÇÕES (Sininho)
+            // Automação Kanban
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), snap => {
-                if(snap.exists()) { window.alertSettings = snap.data(); }
+                if(snap.exists()) {
+                    const data = snap.data();
+                    window.alertSettings = {
+                        'ABERTURA': data['ENTRADA'] || data['ABERTURA'] || [], 
+                        'DIAGNOSTICO': data['TRIAGEM'] || data['DIAGNOSTICO'] || [],
+                        'ORCAMENTO': data['ORCAMENTO'] || [],
+                        'AGENDAMENTO': data['AGENDAMENTO'] || [],
+                        'EXECUCAO': data['EXECUCAO'] || [],
+                        'CONCLUIDO': data['CONCLUIDO'] || []
+                    };
+                }
             });
 
-            // AUTOMAÇÃO (Robô)
-            window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
-                if(snap.exists()) { window.kanbanMapping = snap.data().mapping || {}; }
-            });
-
+            // Cadastros
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.dbClientes = []; let html = '';
                 snap.forEach(d => { const c = d.data(); window.dbClientes.push(c); const n = c.fantasia || c.razao_social || ''; if(n) html += `<option value="${n}">`; });
                 document.getElementById('list-clientes').innerHTML = html;
             });
-            
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => { window.parqueMaquinas = []; snap.forEach(d => window.parqueMaquinas.push(d.data())); });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => { window.dbMaquinas = []; snap.forEach(d => window.dbMaquinas.push(d.data())); });
             
-            // FORMCRAFT
+            // Formulários e Respostas do FormCraft
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => { 
                 window.dbForms = []; snap.forEach(d => window.dbForms.push(d.data())); 
             });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
                 window.formSubmissions = []; snap.forEach(d => window.formSubmissions.push(d.data()));
             });
-            
+
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'), snap => {
                 window.usersList = []; let htmlTec = '<option value="">Selecione...</option>';
                 snap.forEach(d => { const u = d.data(); window.usersList.push(u); htmlTec += `<option value="${u.nome}">${u.nome}</option>`; });
                 document.getElementById('os-tecnico').innerHTML = htmlTec;
             });
 
+            // Buscar OSs
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.tickets = [];
                 snap.forEach(dSnap => {
@@ -502,6 +505,7 @@
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
+                window.checkNotificacoes();
                 window.mudarVisao('kanban'); 
             });
         };
@@ -521,108 +525,83 @@
         };
         window.formatarMoeda = function(v) { return (v||0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
 
-        window.dispararAlertaAutomatico = function(fase, msgBase) {
-            const regras = window.alertSettings[fase];
-            if(!regras || regras.length === 0) return;
-            const perfis = regras.filter(r => r.startsWith('perfil_')).map(r => r.replace('perfil_', ''));
-            const emails = regras.filter(r => r.includes('@'));
-            if(perfis.length > 0 || emails.length > 0) {
-                if (window.enviarNotificacaoApp) window.enviarNotificacaoApp(msgBase, emails, perfis, 'info');
-            }
+        // =====================================
+        // ALERTAS E AUTOMAÇÃO (ServiceFlow)
+        // =====================================
+        window.checkNotificacoes = function() {
+            let count = window.tickets.filter(t => t.status === 'ABERTURA').length;
+            const badge = document.getElementById('badge-alertas');
+            if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } 
+            else { badge.classList.add('hidden'); }
         };
 
-        // =====================================
-        // MODAIS DE CONFIGURAÇÃO (NOTIFICAÇÕES E AUTOMAÇÃO)
-        // =====================================
+        window.abrirModalAlertas = function() {
+            const list = document.getElementById('lista-alertas-pendentes');
+            let pendentes = window.tickets.filter(t => t.status === 'ABERTURA');
+            
+            if(pendentes.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs"><i class="fa-solid fa-mug-hot text-2xl mb-2"></i><br>Nenhuma OS recente na Abertura.</div>`;
+            } else {
+                list.innerHTML = pendentes.map(t => `
+                    <div class="bg-red-50 border border-red-200 p-3 rounded-xl flex justify-between items-center cursor-pointer hover:bg-red-100 transition" onclick="window.fecharModalNotificar(); window.abrirModalOS('${t.id}')">
+                        <div>
+                            <span class="font-bold text-red-700 text-xs block"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${t.id} - Em Aberto</span>
+                            <span class="text-[10px] text-red-600">${t.clienteOS || 'Sem Cliente'}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-red-400"></i>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('modal-notificar').classList.remove('hidden');
+        };
+
+        window.fecharModalNotificar = () => document.getElementById('modal-notificar').classList.add('hidden');
+
         window.abrirModalConfigAlertas = function() {
-            const cont = document.getElementById('config-alertas2-content');
-            const perfis = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
+            const cont = document.getElementById('config-alertas-content');
             let html = '';
             
             Object.keys(STATUSES_OS).forEach(fase => {
                 const conf = STATUSES_OS[fase];
-                const set = window.alertSettings[fase] || [];
                 html += `
                     <div class="mb-4 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                         <div class="p-3 border-b border-slate-200 bg-slate-50">
-                            <h4 class="text-[11px] font-bold uppercase text-slate-700">Ao entrar na coluna: <span class="text-blue-600">${conf.label}</span></h4>
+                            <h4 class="text-[11px] font-bold uppercase text-slate-700">${conf.label} (Coluna Kanban)</h4>
                         </div>
-                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-500 mb-2 uppercase">Notificar Equipes:</span>
-                                <div class="space-y-1.5">
+                        <div class="p-3">
+                            <p class="text-[10px] text-slate-500 mb-2">Quais Etapas da O.S movem o card para cá?</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 `;
-                perfis.forEach(p => { 
-                    const isChecked = set.includes('perfil_'+p) ? 'checked' : '';
-                    html += `<label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer"><input type="checkbox" class="cb-alerta w-3.5 h-3.5 text-blue-600 rounded" data-fase="${fase}" value="perfil_${p}" ${isChecked}> ${p}</label>`; 
+                ETAPAS_SERVICO.forEach(etapa => {
+                    const isChecked = (window.alertSettings[fase] && window.alertSettings[fase].includes(etapa)) ? 'checked' : '';
+                    html += `
+                        <label class="flex items-center gap-2 text-[10px] font-medium text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded border border-transparent hover:border-slate-200 transition">
+                            <input type="checkbox" class="cb-alerta w-3.5 h-3.5 text-blue-600 rounded" data-fase="${fase}" value="${etapa}" ${isChecked}>
+                            <span class="truncate">${etapa}</span>
+                        </label>
+                    `;
                 });
                 html += `       </div>
                             </div>
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-500 mb-2 uppercase">Notificar Específicos:</span>
-                                <div class="max-h-32 overflow-y-auto custom-scrollbar border border-slate-200 p-2 rounded-lg space-y-1.5 bg-slate-50">`;
-                window.usersList.forEach(u => { 
-                    const isChecked = set.includes(u.email) ? 'checked' : '';
-                    html += `<label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer truncate"><input type="checkbox" class="cb-alerta w-3.5 h-3.5 text-blue-600 rounded" data-fase="${fase}" value="${u.email}" ${isChecked}> ${u.nome}</label>`; 
-                });
-                html += `       </div>
-                            </div>
-                        </div>
                     </div>`;
             });
             cont.innerHTML = html;
             document.getElementById('modal-config-alertas').classList.remove('hidden');
         };
 
-        window.fecharModalConfigAlertas2 = () => document.getElementById('modal-config-alertas').classList.add('hidden');
+        window.fecharModalConfigAlertas = () => document.getElementById('modal-config-alertas').classList.add('hidden');
 
-        window.salvarConfigAlertas2 = async function() {
+        window.salvarConfigAlertas = async function() {
             const config = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
             document.querySelectorAll('.cb-alerta:checked').forEach(cb => { config[cb.getAttribute('data-fase')].push(cb.value); });
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_serviceflow'), config);
-                window.alertSettings = config; window.fecharModalConfigAlertas2(); window.mostrarNotificacao('Alertas salvos com sucesso!');
-            } catch(e) { window.mostrarNotificacao('Erro ao salvar.', 'error'); }
-        };
-
-        window.abrirModalAutomacao = function() {
-            const cont = document.getElementById('config-automacao-content');
-            let html = '';
-            ETAPAS_SERVICO.forEach(etapa => {
-                const mapAtual = window.kanbanMapping[etapa] || 'ABERTURA';
-                let options = '';
-                Object.keys(STATUSES_OS).forEach(key => {
-                    options += `<option value="${key}" ${mapAtual === key ? 'selected' : ''}>${STATUSES_OS[key].label}</option>`;
-                });
-                html += `
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 mb-2 gap-3">
-                    <span class="text-[11px] font-bold text-slate-700 w-full sm:w-1/2">${etapa}</span>
-                    <i class="fa-solid fa-arrow-right-long text-slate-300 hidden sm:block"></i>
-                    <select class="map-select w-full sm:w-1/2 px-3 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 rounded-lg outline-none focus:border-blue-500 cursor-pointer shadow-sm" data-etapa="${etapa}">
-                        ${options}
-                    </select>
-                </div>`;
-            });
-            cont.innerHTML = html;
-            document.getElementById('modal-config-automacao').classList.remove('hidden');
-        };
-        
-        window.fecharModalAutomacao = () => document.getElementById('modal-config-automacao').classList.add('hidden');
-        
-        window.salvarConfigAutomacao = async function() {
-            const selects = document.querySelectorAll('.map-select');
-            const mapping = {};
-            selects.forEach(sel => { mapping[sel.getAttribute('data-etapa')] = sel.value; });
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), { mapping });
-                window.kanbanMapping = mapping;
-                window.fecharModalAutomacao();
-                window.mostrarNotificacao('Automação salva!');
-            } catch(e) { window.mostrarNotificacao('Erro.', 'error'); }
+                window.alertSettings = config; window.fecharModalConfigAlertas(); window.mostrarNotificacao('Automação Kanban salva!');
+            } catch(e) { window.mostrarNotificacao('Erro ao salvar automação.', 'error'); }
         };
 
         // =====================================
-        // EXCLUSÃO DE OS
+        // EXCLUSÃO DE OS (Lixeira no Kanban)
         // =====================================
         window.ticketToDelete = null;
         window.confirmarExclusao = function(id) {
@@ -630,6 +609,7 @@
             document.getElementById('modal-delete-id').innerText = id;
             document.getElementById('modal-delete-confirm').classList.remove('hidden');
         };
+
         window.fecharModalDelete = () => document.getElementById('modal-delete-confirm').classList.add('hidden');
         
         window.executarExclusao = async function() {
@@ -713,7 +693,9 @@
             Object.keys(STATUSES_OS).forEach(key => {
                 const conf = STATUSES_OS[key];
                 const colDiv = document.createElement('div');
-                colDiv.className = 'kanban-col flex-1 min-w-[280px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
+                
+                // MÁGICA DO FLEX-1 AQUI - TELA CHEIA E FLUIDA
+                colDiv.className = 'kanban-col flex-1 min-w-[250px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
                 
                 colDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 colDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
@@ -723,10 +705,7 @@
                     const t = window.tickets.find(x => x.id === id);
                     if(t && t.status !== key) {
                         t.status = key;
-                        try { 
-                            await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), {status: key}, {merge: true}); 
-                            window.dispararAlertaAutomatico(key, `A O.S. ${t.id} foi movida para a coluna ${conf.label}.`);
-                        } catch(err){}
+                        try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), {status: key}, {merge: true}); } catch(err){}
                     }
                 };
 
@@ -734,10 +713,7 @@
 
                 colDiv.innerHTML = `
                     <div class="p-3 border-b border-slate-200 bg-white rounded-t-xl flex justify-between items-center shrink-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full ${conf.badgeDot} shadow-inner"></span>
-                            <h4 class="text-[10px] font-bold uppercase text-slate-700 truncate" title="${conf.label}">${conf.label}</h4>
-                        </div>
+                        <h4 class="text-[10px] font-bold uppercase text-slate-700 truncate" title="${conf.label}">${conf.label}</h4>
                         <span class="text-[10px] font-bold bg-slate-100 px-1.5 rounded text-slate-500">${myTks.length}</span>
                     </div>
                 `;
@@ -777,6 +753,7 @@
 
                         <div class="flex justify-between items-center text-[9px] font-medium text-slate-500 border-t border-slate-100 pt-1">
                             <span><i class="fa-solid fa-user mr-1 text-slate-400"></i><strong class="text-slate-600">${t.tecnicoOS || 'Pendente'}</strong></span>
+                            <!-- LIXEIRA MÁGICA AO PASSAR O MOUSE -->
                             <button onclick="event.stopPropagation(); window.confirmarExclusao('${t.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition cursor-pointer p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                         </div>
                     `;
@@ -879,7 +856,7 @@
             dlMaq.innerHTML = '';
 
             if (cli) {
-                // Junção Inteligente do Endereço
+                // Inteligência robusta para exibir endereço não importa como a planilha foi importada
                 const endereco = cli.endereco || cli.rua || cli.logradouro || '';
                 const bairro = cli.bairro || '';
                 const cidade = cli.cidade || cli.municipio || '';
@@ -1301,7 +1278,7 @@
                 }
             }
 
-            // Paylod que o App do Técnico compreende (campos duplicados por retrocompatibilidade com BD original)
+            // Paylod que o App do Técnico compreende
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
                 solicitanteOS: document.getElementById('os-solicitante').value.trim(), 
@@ -1323,6 +1300,7 @@
             };
 
             let osFinalId = idOculto;
+            const statusAtual = window.tickets.find(t => t.id === osFinalId)?.status;
 
             try {
                 if (idOculto) {
@@ -1339,10 +1317,11 @@
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
                 }
 
-                // Dispara o alerta se for nova ou se mudou de coluna (e não for o evento de criação no ondrop do kanban)
-                const oldOS = window.tickets.find(t => t.id === osFinalId);
-                if (!oldOS || oldOS.status !== targetStatus) {
-                    window.dispararAlertaAutomatico(targetStatus, `A O.S. ${osFinalId} entrou na fase: ${STATUSES_OS[targetStatus].label}.`);
+                // Dispara o alerta apenas se a OS mudar de coluna (ou for nova)
+                if (targetStatus !== statusAtual && targetStatus !== 'ABERTURA') {
+                    window.dispararAlertaGlobal(`A O.S. ${osFinalId} mudou de etapa para: ${STATUSES_OS[targetStatus].label}.`, true);
+                } else if (!idOculto) {
+                     window.dispararAlertaGlobal(`Nova O.S. ${osFinalId} criada para ${cliente}.`, true);
                 }
 
                 // AGENDA INTEGRADA
