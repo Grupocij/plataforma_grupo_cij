@@ -927,7 +927,7 @@
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
-            const formsOptions = window.dbForms.map(f => `<option value="${f}">${f}</option>`).join('');
+            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
