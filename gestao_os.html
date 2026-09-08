@@ -53,6 +53,7 @@
     </div>
 
     <!-- MAIN CONTENT -->
+    <!-- Removido max-w para a tela usar 100% da largura -->
     <main class="flex-1 w-full flex flex-col p-4 md:p-6 relative gap-5 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO -->
@@ -144,7 +145,7 @@
 
         <!-- VISÃO: KANBAN -->
         <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 w-full">
-            <div id="kanban-board" class="flex gap-4 h-full w-full">
+            <div id="kanban-board" class="flex gap-4 h-full min-w-full w-max">
                 <!-- Colunas Geradas via JS -->
             </div>
         </div>
@@ -152,7 +153,7 @@
     </main>
 
     <!-- ========================================== -->
-    <!-- MODAL DE O.S. (REFINADO, MENOR E DELICADO) -->
+    <!-- MODAL DE O.S. (REFINADO E DELICADO) -->
     <!-- ========================================== -->
     <div id="modal-os" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-hidden">
         
@@ -176,6 +177,7 @@
                 <form id="form-nova-os" onsubmit="event.preventDefault();" class="h-full">
                     <input type="hidden" id="os-id-oculto" value="">
                     
+                    <!-- ABA 1: DADOS -->
                     <div id="aba1" class="space-y-5 max-w-4xl mx-auto pb-6">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente *</label>
@@ -711,7 +713,7 @@
             Object.keys(STATUSES_OS).forEach(key => {
                 const conf = STATUSES_OS[key];
                 const colDiv = document.createElement('div');
-                colDiv.className = 'kanban-col flex-1 flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
+                colDiv.className = 'kanban-col flex-1 min-w-[280px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
                 
                 colDiv.ondragover = e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
                 colDiv.ondragleave = e => e.currentTarget.classList.remove('drag-over');
@@ -910,7 +912,7 @@
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
-            const formsOptions = window.dbForms.map(f => `<option value="${f}">${f}</option>`).join('');
+            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
@@ -928,7 +930,7 @@
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fim</label><input type="time" class="inp-hora-fim input-delicate" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Check-list / Formulário</label>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Check-list / Formulário Principal</label>
                                 <select class="inp-formulario input-delicate cursor-pointer" onchange="window.atualizarAbaFormularios()"><option value="">Nenhum formulário</option>${formsOptions}</select>
                                 <input type="hidden" class="inp-form-submission-id" value="${dadosSalvos && dadosSalvos.formulario_resposta_id ? dadosSalvos.formulario_resposta_id : ''}">
                             </div>
