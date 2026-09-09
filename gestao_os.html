@@ -112,12 +112,11 @@
                 </select>
             </div>
 
-            <div class="w-full md:w-48 flex items-center border-b border-slate-300 focus-within:border-blue-600 transition">
+            <div class="w-full md:w-56 flex items-center border-b border-slate-300 focus-within:border-blue-600 transition">
                 <select id="filtro-status" onchange="window.renderizarVisoes()" class="w-full py-2 text-xs bg-transparent outline-none cursor-pointer text-slate-700 font-medium">
                     <option value="ALL">Todos os Status</option>
                     <option value="ABERTURA">Abertura OS</option>
-                    <option value="DIAGNOSTICO">Diagnóstico</option>
-                    <option value="ORCAMENTO">Orçamento</option>
+                    <option value="DIAGNOSTICO">Diagnóstico / Orçamento</option>
                     <option value="AGENDAMENTO">Agendamento</option>
                     <option value="EXECUCAO">Execução</option>
                     <option value="CONCLUIDO">Concluído</option>
@@ -359,13 +358,12 @@
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- TOAST E ÁREA DE IMPRESSÃO -->
     <div id="toast" class="fixed bottom-5 right-5 hidden z-[99999] bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 border border-slate-700 transition-opacity">
         <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
         <span id="toast-message" class="text-xs font-medium">Sucesso!</span>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO -->
     <div id="print-area"></div>
 
     <script type="module" src="core.js"></script>
@@ -385,7 +383,7 @@
         window.dbForms = []; // Array de Objetos Form
         window.formSubmissions = []; // Array de Respostas
         
-        window.alertSettings = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'ORCAMENTO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
+        window.alertSettings = { 'ABERTURA': [], 'DIAGNOSTICO': [], 'AGENDAMENTO': [], 'EXECUCAO': [], 'CONCLUIDO': [] };
         window.kanbanMapping = {};
         
         window.contadorEquips = 0;
@@ -394,10 +392,10 @@
         window.visaoAtual = 'kanban'; 
         window.pendingDeleteId = null;
 
+        // FASES ATUALIZADAS (5 COLUNAS)
         const STATUSES_OS = {
             'ABERTURA': { label: 'Abertura OS', color: 'bg-slate-100 border-slate-300 text-slate-700', badgeDot: 'bg-slate-500' },
-            'DIAGNOSTICO': { label: 'Diagnóstico', color: 'bg-amber-50 border-amber-200 text-amber-700', badgeDot: 'bg-amber-500' },
-            'ORCAMENTO': { label: 'Orçamento', color: 'bg-purple-50 border-purple-200 text-purple-700', badgeDot: 'bg-purple-500' },
+            'DIAGNOSTICO': { label: 'Diagnóstico / Orçamento', color: 'bg-amber-50 border-amber-200 text-amber-700', badgeDot: 'bg-amber-500' },
             'AGENDAMENTO': { label: 'Agendamento', color: 'bg-blue-50 border-blue-200 text-blue-700', badgeDot: 'bg-blue-500' },
             'EXECUCAO': { label: 'Execução', color: 'bg-rose-50 border-rose-200 text-rose-700', badgeDot: 'bg-rose-500' },
             'CONCLUIDO': { label: 'Concluído', color: 'bg-emerald-50 border-emerald-200 text-emerald-700', badgeDot: 'bg-emerald-500' }
@@ -444,11 +442,11 @@
             // FORMCRAFT DATA
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
                 window.dbForms = []; snap.forEach(d => window.dbForms.push(d.data()));
-                window.atualizarAbaFormularios(); // Re-render if open
+                window.atualizarAbaFormularios(); 
             });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
                 window.formSubmissions = []; snap.forEach(d => window.formSubmissions.push(d.data()));
-                window.atualizarAbaFormularios(); // Re-render if open
+                window.atualizarAbaFormularios(); 
             });
 
             // ORDENS DE SERVIÇO
@@ -457,9 +455,10 @@
                 snap.forEach(dSnap => {
                     const d = dSnap.data();
                     let tStatus = d.status || 'ABERTURA';
-                    // Tratamento antigo/legacy
+                    
+                    // Tratamento antigo/legacy para as 5 colunas
                     if(tStatus === 'ENTRADA') tStatus = 'ABERTURA';
-                    if(tStatus === 'TRIAGEM') tStatus = 'DIAGNOSTICO';
+                    if(tStatus === 'TRIAGEM' || tStatus === 'ORCAMENTO') tStatus = 'DIAGNOSTICO';
                     
                     window.tickets.push({
                         id: d.osr || dSnap.id,
@@ -558,7 +557,7 @@
             Object.keys(STATUSES_OS).forEach(key => {
                 const conf = STATUSES_OS[key];
                 
-                // FLUID COLUMNS -> flex-1 e min-w para se adaptarem perfeitamente à tela sem espremer demais
+                // FLUID COLUMNS -> flex-1 para autoajuste perfeito às 5 colunas
                 const colDiv = document.createElement('div');
                 colDiv.className = 'kanban-col flex-1 min-w-[250px] sm:min-w-[280px] flex flex-col bg-slate-100/50 rounded-xl border border-slate-200 transition-colors h-full';
                 
@@ -608,8 +607,6 @@
                         else { maqStr = arrEq[0].maquina || 'S/M'; defStr = arrEq[0].defeito || 'S/D'; }
                     }
                     
-                    const isUrgente = t.id.includes('-') && Math.random() < 0.1; // Simulated for visual effect if needed, normally comes from DB.
-
                     card.innerHTML = `
                         <button onclick="window.abrirModalExcluirOS('${t.id}')" class="btn-delete-card absolute top-3 right-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition cursor-pointer p-1"><i class="fa-solid fa-trash-can text-sm"></i></button>
                         <div class="flex justify-between items-start mb-2 pr-6">
@@ -751,7 +748,6 @@
             
             // Popula os formulários que vieram do banco
             if (dadosSalvos) {
-                // Compatibilidade com array ou string antiga
                 let arrForms = dadosSalvos.formularios || [];
                 if(arrForms.length === 0 && dadosSalvos.formulario) { arrForms = [{titulo: dadosSalvos.formulario, resposta_id: dadosSalvos.formulario_resposta_id || ''}]; }
                 if(arrForms.length > 0) {
@@ -763,7 +759,7 @@
 
         window.addFormSelectBox = function(equipId, titulo = '', respostaId = '') {
             const container = document.getElementById(`forms-maq-${equipId}`);
-            // Geração corrigida do Select Option puxando o objeto do banco corretamente
+            // Puxa do Formcraft 
             const formsOptions = window.dbForms.map(f => `<option value="${f.title}" ${f.title === titulo ? 'selected' : ''}>${f.title}</option>`).join('');
             
             const row = document.createElement('div');
@@ -822,10 +818,8 @@
             document.getElementById('badge-form-count').innerText = count;
         };
 
-        // ABERTURA DO FORMCRAFT DENTRO DO GESTÃO OS
         window.abrirModalFormulario = async function(formTitle, equipIndex, formIndex, maqNome) {
             let formObj = window.dbForms.find(f => f.title === formTitle);
-
             if (!formObj) { window.mostrarNotificacao('Formulário não encontrado na base.', 'error'); return; }
             
             window.currentActiveForm = formObj;
@@ -972,7 +966,6 @@
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
                 
-                // Grava o ID no input hidden da máquina para amarrar!
                 const cardMaquina = document.querySelectorAll('.equip-card')[window.currentActiveEquipIndex];
                 const formRow = cardMaquina.querySelectorAll('.form-row-item')[window.currentFormIndex];
                 formRow.querySelector('.inp-form-submission-id').value = subId;
@@ -1050,7 +1043,7 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { const val = document.getElementById(idC).querySelectorAll(`.${idC === 'container-equipamentos-os' ? 'equip-card' : 'orc-card'}`).length; document.getElementById(idB).innerText = val; };
 
-        // SALVAR O.S
+        // SALVAR O.S E GATILHOS
         window.salvarOS = async function() {
             const cliente = document.getElementById('os-cliente').value.trim();
             if (!cliente) { window.mostrarNotificacao("Preencha o Cliente!", 'warning'); window.mudarAbaOS('aba1'); return; }
@@ -1061,8 +1054,7 @@
             const arrayEquips = [];
             equipCards.forEach(c => {
                 const forms = Array.from(c.querySelectorAll('.inp-formulario')).map(sel => ({
-                    titulo: sel.value,
-                    resposta_id: sel.nextElementSibling.value // input hidden da submission id
+                    titulo: sel.value, resposta_id: sel.nextElementSibling.value 
                 })).filter(f => f.titulo !== '');
 
                 arrayEquips.push({
@@ -1088,7 +1080,7 @@
             const tecnicoDesignado = document.getElementById('os-tecnico').value;
             const etapaGlobal = document.getElementById('os-etapa').value;
             
-            // Automação Kanban
+            // Automação Kanban (Robô)
             let targetStatus = 'ABERTURA';
             for (const [fase, etapas] of Object.entries(window.kanbanMapping)) {
                 if (fase === etapaGlobal) { targetStatus = etapas; break; }
@@ -1104,15 +1096,17 @@
                 equipamentosOS: arrayEquips, equipamentos: arrayEquips, 
                 orcamentosOS: arrayOrcs, orcamentos: arrayOrcs, 
                 status: targetStatus, etapa_global: etapaGlobal,
-                
                 maquina: arrayEquips[0].maquina, defeito: arrayEquips[0].defeito, solucao: arrayEquips[0].servico || ''
             };
 
             try {
                 let osFinalId = idOculto;
+                let dispararAlerta = false;
+
                 if (idOculto) {
+                    const osOriginal = window.tickets.find(x => x.id === idOculto);
+                    if(osOriginal && osOriginal.status !== targetStatus) dispararAlerta = true;
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', idOculto), payload, {merge: true});
-                    window.dispararNotificacaoMudanca(payload, targetStatus);
                 } else {
                     const counterRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'counters', 'osr');
                     osFinalId = await window.FirebaseRunTransaction(window.AppDB, async (transaction) => {
@@ -1123,18 +1117,17 @@
                     });
                     payload.osr = osFinalId; payload.timestamp = Date.now();
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
-                    window.dispararNotificacaoMudanca({id: osFinalId, ...payload}, targetStatus);
+                    dispararAlerta = true;
                 }
 
+                if (dispararAlerta) window.dispararNotificacaoMudanca({id: osFinalId, ...payload}, targetStatus);
                 window.fecharModalOS(); window.mostrarNotificacao('O.S. salva com sucesso!');
             } catch(e) { window.mostrarNotificacao('Erro ao salvar.', 'error'); }
         };
 
-        // EXCLUSÃO
+        // EXCLUSÃO E DISPARO DE NOTIFICAÇÕES (Robô)
         window.abrirModalExcluirOS = function(id) {
-            window.pendingDeleteId = id;
-            document.getElementById('delete-os-id').innerText = id;
-            document.getElementById('modal-delete').classList.remove('hidden');
+            window.pendingDeleteId = id; document.getElementById('delete-os-id').innerText = id; document.getElementById('modal-delete').classList.remove('hidden');
         };
         window.closeDeleteModal = () => document.getElementById('modal-delete').classList.add('hidden');
         window.executeDeleteOS = async function() {
@@ -1142,68 +1135,6 @@
             try {
                 await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteId));
                 window.closeDeleteModal(); window.mostrarNotificacao('OS Excluída permanentemente!');
-            } catch(e) {}
-        };
-
-        // ALERTAS / ROBÔ
-        window.abrirModalAlertas = function() {
-            const list = document.getElementById('config-notificacoes-content');
-            let html = '';
-            Object.keys(STATUSES_OS).forEach(fase => {
-                const conf = STATUSES_OS[fase];
-                const checkedStr = (window.alertSettings[fase] && window.alertSettings[fase].length > 0) ? window.alertSettings[fase].join(', ') : 'Ninguém';
-                html += `
-                    <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
-                        <h4 class="text-[11px] font-bold uppercase text-slate-700 mb-2">${conf.label} (Coluna)</h4>
-                        <input type="text" class="inp-alerta input-delicate" data-fase="${fase}" placeholder="Ex: marcos@grupocij.com.br, Tecnico" value="${checkedStr !== 'Ninguém' ? checkedStr : ''}">
-                        <p class="text-[9px] text-slate-500 mt-1">E-mails ou Perfis separados por vírgula.</p>
-                    </div>
-                `;
-            });
-            list.innerHTML = html;
-            document.getElementById('modal-alertas').classList.remove('hidden');
-        };
-
-        window.fecharModalAlertas = () => document.getElementById('modal-alertas').classList.add('hidden');
-
-        window.salvarConfigAlertas = async function() {
-            const config = {};
-            document.querySelectorAll('.inp-alerta').forEach(inp => {
-                const fase = inp.getAttribute('data-fase');
-                config[fase] = inp.value.split(',').map(s => s.trim()).filter(s => s !== '');
-            });
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'notificacoes_os'), config);
-                window.alertSettings = config; window.fecharModalAlertas(); window.mostrarNotificacao('Alertas salvos!');
-            } catch(e) { window.mostrarNotificacao('Erro.', 'error'); }
-        };
-
-        window.abrirModalAutomacaoKanban = function() {
-            const cont = document.getElementById('config-automacao-content');
-            let html = '';
-            ETAPAS_SERVICO.forEach(etapa => {
-                const mapeado = window.kanbanMapping[etapa] || 'ABERTURA';
-                html += `
-                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm gap-2">
-                    <span class="text-[10px] font-bold text-slate-700 w-1/2">${etapa}</span>
-                    <i class="fa-solid fa-arrow-right text-slate-300"></i>
-                    <select class="map-select input-delicate w-1/2 cursor-pointer font-semibold text-indigo-800" data-etapa="${etapa}">
-                        ${Object.keys(STATUSES_OS).map(k => `<option value="${k}" ${mapeado===k?'selected':''}>${STATUSES_OS[k].label}</option>`).join('')}
-                    </select>
-                </div>`;
-            });
-            cont.innerHTML = html;
-            document.getElementById('modal-automacao').classList.remove('hidden');
-        };
-        
-        window.fecharModalAutomacaoKanban = () => document.getElementById('modal-automacao').classList.add('hidden');
-
-        window.salvarAutomacaoKanban = async function() {
-            const mapping = {};
-            document.querySelectorAll('.map-select').forEach(sel => { mapping[sel.getAttribute('data-etapa')] = sel.value; });
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping_os'), { mapping });
-                window.kanbanMapping = mapping; window.fecharModalAutomacaoKanban(); window.mostrarNotificacao('Automação salva!');
             } catch(e) {}
         };
 
