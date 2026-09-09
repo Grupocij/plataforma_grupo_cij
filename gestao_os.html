@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT - Ajustado para usar 100% da largura, com padding menor -->
+    <!-- MAIN CONTENT -->
     <main class="flex-1 w-full flex flex-col p-2 md:p-4 relative gap-4 overflow-hidden h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO -->
@@ -150,7 +150,6 @@
 
         <!-- VISÃO: KANBAN -->
         <div id="visao-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-2 w-full">
-            <!-- gap-2 em vez de gap-4 para as colunas ganharem espaço -->
             <div id="kanban-board" class="flex gap-2 h-full w-full">
                 <!-- Colunas Geradas via JS -->
             </div>
@@ -804,7 +803,7 @@
         };
 
         // =====================================
-        // MODAL DE O.S. (REFINADO E DELICADO)
+        // MODAL DE O.S. E MULTIPLOS FORMULÁRIOS
         // =====================================
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4'].forEach(a => {
@@ -846,7 +845,7 @@
 
                         let eqs = osCompleta.equipamentosOS || osCompleta.equipamentos || [];
                         if(eqs.length === 0 && osCompleta.maquina) {
-                            eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, servico: osCompleta.solucao, formulario: ''}];
+                            eqs = [{maquina: `[SN: ${osCompleta.serial||''}] ${osCompleta.maquina}`, defeito: osCompleta.defeito, servico: osCompleta.solucao, formularios: []}];
                         }
                         
                         if(eqs.length > 0) eqs.forEach(maq => window.adicionarEquipamentoNaOS(maq));
@@ -894,7 +893,6 @@
             dlMaq.innerHTML = '';
 
             if (cli) {
-                // Inteligência robusta para exibir endereço não importa como a planilha foi importada
                 const endereco = cli.endereco || cli.rua || cli.logradouro || '';
                 const bairro = cli.bairro || '';
                 const cidade = cli.cidade || cli.municipio || '';
@@ -927,7 +925,6 @@
         window.adicionarEquipamentoNaOS = function(dadosSalvos = null) {
             window.contadorEquips++;
             const container = document.getElementById('container-equipamentos-os');
-            const formsOptions = window.dbForms.map(f => `<option value="${f.title}">${f.title}</option>`).join('');
 
             const cardHtml = `
                 <div id="equip-card-${window.contadorEquips}" class="equip-card bg-white border border-slate-200 rounded-xl p-4 relative transition hover:border-blue-300">
@@ -944,22 +941,57 @@
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Início</label><input type="time" class="inp-hora-inicio input-delicate" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Fim</label><input type="time" class="inp-hora-fim input-delicate" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Check-list / Formulário Principal</label>
-                                <select class="inp-formulario input-delicate cursor-pointer" onchange="window.atualizarAbaFormularios()"><option value="">Nenhum formulário</option>${formsOptions}</select>
-                                <input type="hidden" class="inp-form-submission-id" value="${dadosSalvos && dadosSalvos.formulario_resposta_id ? dadosSalvos.formulario_resposta_id : ''}">
+                            
+                            <!-- NOVA ÁREA DE MÚLTIPLOS FORMULÁRIOS -->
+                            <div class="pt-2 border-t border-slate-200">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Formulários Exigidos</label>
+                                    <button type="button" onclick="window.addFormSelectBox(${window.contadorEquips})" class="text-[9px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition cursor-pointer"><i class="fa-solid fa-plus"></i> Add Form</button>
+                                </div>
+                                <div id="forms-maq-${window.contadorEquips}" class="space-y-1.5 min-h-[30px]"></div>
                             </div>
+
                             <input type="hidden" class="inp-pecas-utilizadas" value='${dadosSalvos && dadosSalvos.pecasUtilizadas ? JSON.stringify(dadosSalvos.pecasUtilizadas).replace(/'/g, "&#39;") : "[]"}'>
                         </div>
                     </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', cardHtml);
+            
+            // Popula os formulários que vieram do banco (Array novo ou campo único antigo)
             if (dadosSalvos) {
-                const cardNode = document.getElementById(`equip-card-${window.contadorEquips}`);
-                cardNode.querySelector('.inp-formulario').value = dadosSalvos.formulario || '';
+                let forms = dadosSalvos.formularios || [];
+                if (forms.length === 0 && dadosSalvos.formulario) {
+                    forms.push({ titulo: dadosSalvos.formulario, resposta_id: dadosSalvos.formulario_resposta_id || '' });
+                }
+                if (forms.length > 0) {
+                    forms.forEach(f => window.addFormSelectBox(window.contadorEquips, f.titulo, f.resposta_id));
+                } else {
+                    window.addFormSelectBox(window.contadorEquips);
+                }
+            } else {
+                window.addFormSelectBox(window.contadorEquips);
             }
+
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os');
+            window.atualizarAbaFormularios();
+        };
+
+        window.addFormSelectBox = function(equipId, titulo = '', respostaId = '') {
+            const container = document.getElementById(`forms-maq-${equipId}`);
+            const formsOptions = window.dbForms.map(fTitle => `<option value="${fTitle}" ${fTitle === titulo ? 'selected' : ''}>${fTitle}</option>`).join('');
+            
+            const row = document.createElement('div');
+            row.className = "flex items-center gap-1.5 form-row-item";
+            row.innerHTML = `
+                <select class="inp-formulario input-delicate cursor-pointer flex-1" onchange="window.atualizarAbaFormularios()">
+                    <option value="">Nenhum formulário</option>
+                    ${formsOptions}
+                </select>
+                <input type="hidden" class="inp-form-submission-id" value="${respostaId}">
+                <button type="button" onclick="this.parentElement.remove(); window.atualizarAbaFormularios();" class="w-7 h-7 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded transition shrink-0 cursor-pointer" title="Remover Formulário"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            `;
+            container.appendChild(row);
             window.atualizarAbaFormularios();
         };
 
@@ -971,30 +1003,34 @@
             let html = '';
             let count = 0;
 
-            cardsMaquinas.forEach((card, index) => {
-                const formNome = card.querySelector('.inp-formulario').value;
+            cardsMaquinas.forEach((card, equipIndex) => {
                 const maqNome = card.querySelector('.inp-maquina').value || 'Máquina Indefinida';
-                const subId = card.querySelector('.inp-form-submission-id').value;
+                const formRows = card.querySelectorAll('.form-row-item');
                 
-                if(formNome) {
-                    count++;
-                    const isFilled = subId !== '';
-                    const badge = isFilled ? `<span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-200"><i class="fa-solid fa-check mr-1"></i> Preenchido</span>` : `<span class="text-[9px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-purple-200">Pendente</span>`;
-                    const btnText = isFilled ? 'Ver / Editar Laudo' : 'Preencher Laudo';
-                    const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200' : 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-200';
+                formRows.forEach((row, formIndex) => {
+                    const formNome = row.querySelector('.inp-formulario').value;
+                    const subId = row.querySelector('.inp-form-submission-id').value;
                     
-                    html += `
-                    <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-sm transition hover:border-purple-300">
-                        <div>
-                            ${badge}
-                            <h5 class="text-sm font-semibold text-slate-800 mt-1">${formNome}</h5>
-                            <p class="text-[10px] text-slate-500"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome}</p>
-                        </div>
-                        <button type="button" onclick="window.abrirModalFormulario('${formNome}', ${index}, '${maqNome.replace(/'/g, "\\'")}')" class="${btnClass} px-3 py-1.5 rounded-md text-xs font-semibold transition border cursor-pointer shadow-sm">
-                            ${btnText}
-                        </button>
-                    </div>`;
-                }
+                    if(formNome) {
+                        count++;
+                        const isFilled = subId !== '';
+                        const badge = isFilled ? `<span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-200"><i class="fa-solid fa-check mr-1"></i> Preenchido</span>` : `<span class="text-[9px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-purple-200">Pendente</span>`;
+                        const btnText = isFilled ? 'Ver / Editar Laudo' : 'Preencher Laudo';
+                        const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200' : 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-200';
+                        
+                        html += `
+                        <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-sm transition hover:border-purple-300">
+                            <div>
+                                ${badge}
+                                <h5 class="text-sm font-semibold text-slate-800 mt-1">${formNome}</h5>
+                                <p class="text-[10px] text-slate-500"><i class="fa-solid fa-link text-slate-300"></i> Vinculado à: ${maqNome}</p>
+                            </div>
+                            <button type="button" onclick="window.abrirModalFormulario('${formNome}', ${equipIndex}, ${formIndex}, '${maqNome.replace(/'/g, "\\'")}')" class="${btnClass} px-3 py-1.5 rounded-md text-xs font-semibold transition border cursor-pointer shadow-sm">
+                                ${btnText}
+                            </button>
+                        </div>`;
+                    }
+                });
             });
 
             if(count === 0) {
@@ -1011,10 +1047,10 @@
         window.escapeHtml = (s) => (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         window.currentActiveForm = null;
         window.currentActiveEquipIndex = null;
+        window.currentFormIndex = null;
         window.currentActiveSubmissionId = null;
 
-        window.abrirModalFormulario = async function(formTitle, equipIndex, maqNome) {
-            // Busca o objeto completo do formulário do banco do FormCraft
+        window.abrirModalFormulario = async function(formTitle, equipIndex, formIndex, maqNome) {
             let formObj = null;
             try {
                 const snap = await window.fsGetDocs(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'));
@@ -1025,17 +1061,18 @@
             
             window.currentActiveForm = formObj;
             window.currentActiveEquipIndex = equipIndex;
+            window.currentFormIndex = formIndex;
             
             const osId = document.getElementById('os-id-oculto').value || 'OS Não Salva';
             const cardMaquina = document.querySelectorAll('.equip-card')[equipIndex];
-            window.currentActiveSubmissionId = cardMaquina.querySelector('.inp-form-submission-id').value;
+            const formRow = cardMaquina.querySelectorAll('.form-row-item')[formIndex];
+            window.currentActiveSubmissionId = formRow.querySelector('.inp-form-submission-id').value;
 
             document.getElementById('titulo-modal-form').innerText = formObj.title;
             document.getElementById('desc-modal-form').innerText = formObj.description || 'Preencha os campos abaixo de acordo com a avaliação técnica.';
             document.getElementById('badge-os-form').innerText = `OS: ${osId}`;
             document.getElementById('badge-maq-form').innerText = `Máquina: ${maqNome}`;
 
-            // Puxa as respostas existentes (se for edição)
             let existingAnswers = {};
             if (window.currentActiveSubmissionId) {
                 try {
@@ -1044,7 +1081,6 @@
                 } catch(e) {}
             }
 
-            // Renderiza os campos com suporte a lógicas condicionais
             const cont = document.getElementById('preview-fields-container');
             const eventHandlers = `onchange="window.evaluatePreviewRules()" oninput="window.evaluatePreviewRules()"`;
             
@@ -1070,7 +1106,7 @@
                 return `<div id="pw-${f.id}" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
             }).join('');
             
-            window.evaluatePreviewRules(); // Avalia regras iniciais
+            window.evaluatePreviewRules(); 
             document.getElementById('modal-preencher-form').classList.remove('hidden');
         };
 
@@ -1159,7 +1195,7 @@
             const sub = { 
                 id: subId, 
                 formId: formObj.id, 
-                osId: osId, // Vincula à OS
+                osId: osId,
                 submittedAt: new Date().toISOString(), 
                 answers: answers,
                 tecnico: window.currentUserStr
@@ -1168,9 +1204,10 @@
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
                 
-                // Grava o ID da resposta de volta no input hidden da máquina na OS
+                // Grava o ID da resposta de volta na linha exata do formulário
                 const cardMaquina = document.querySelectorAll('.equip-card')[window.currentActiveEquipIndex];
-                cardMaquina.querySelector('.inp-form-submission-id').value = subId;
+                const formRow = cardMaquina.querySelectorAll('.form-row-item')[window.currentFormIndex];
+                formRow.querySelector('.inp-form-submission-id').value = subId;
                 
                 window.atualizarAbaFormularios();
                 window.mostrarNotificacao('Laudo salvo com sucesso!', 'success');
@@ -1279,14 +1316,24 @@
 
             const arrayEquips = [];
             equipCards.forEach(c => {
+                const formRows = c.querySelectorAll('.form-row-item');
+                const formulariosArray = [];
+                formRows.forEach(row => {
+                    const fTitulo = row.querySelector('.inp-formulario').value;
+                    const fRes = row.querySelector('.inp-form-submission-id').value;
+                    if(fTitulo) formulariosArray.push({ titulo: fTitulo, resposta_id: fRes });
+                });
+
                 arrayEquips.push({
                     maquina: c.querySelector('.inp-maquina').value.trim() || 'S/N', 
                     defeito: c.querySelector('.inp-defeito').value.trim() || 'S/D', 
                     servico: c.querySelector('.inp-servico').value, 
                     horaInicio: c.querySelector('.inp-hora-inicio').value, 
                     horaFim: c.querySelector('.inp-hora-fim').value, 
-                    formulario: c.querySelector('.inp-formulario').value,
-                    formulario_resposta_id: c.querySelector('.inp-form-submission-id').value, // ID do Laudo preenchido
+                    formularios: formulariosArray,
+                    // Retrocompatibilidade
+                    formulario: formulariosArray.length > 0 ? formulariosArray[0].titulo : '',
+                    formulario_resposta_id: formulariosArray.length > 0 ? formulariosArray[0].resposta_id : '',
                     pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
                 });
             });
@@ -1305,13 +1352,11 @@
             const tecnicoDesignado = document.getElementById('os-tecnico').value;
             const etapaGlobal = document.getElementById('os-etapa').value;
             
-            // Define o status do Kanban base da OS usando Automação
-            let targetStatus = 'ABERTURA'; // Default
+            let targetStatus = 'ABERTURA'; 
             if (window.kanbanMapping) {
                 targetStatus = window.kanbanMapping[etapaGlobal] || 'ABERTURA';
             }
 
-            // Paylod que o App do Técnico compreende
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
                 solicitanteOS: document.getElementById('os-solicitante').value.trim(), 
@@ -1324,7 +1369,6 @@
                 status: targetStatus,
                 etapa_global: etapaGlobal,
                 
-                // Mapeamento específico para o App Técnico Antigo
                 maquina: arrayEquips[0].maquina,
                 defeito: arrayEquips[0].defeito,
                 solucao: arrayEquips[0].servico || '',
@@ -1350,17 +1394,14 @@
                     await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osFinalId), payload);
                 }
 
-                // Dispara o alerta apenas se a OS mudar de coluna (ou for nova) e se a etapa estiver configurada no Sininho
                 if (targetStatus !== statusAtual && targetStatus !== 'ABERTURA') {
                     if(window.alertSettings && window.alertSettings[targetStatus] && window.alertSettings[targetStatus].includes(etapaGlobal)){
                         window.dispararAlertaGlobal(`A O.S. ${osFinalId} mudou para: ${STATUSES_OS[targetStatus].label}.`, true);
                     }
                 } else if (!idOculto) {
-                    // Se a OS for recém criada, dispara o aviso!
                     window.dispararAlertaGlobal(`Nova O.S. ${osFinalId} criada para ${cliente}.`, true);
                 }
 
-                // AGENDA INTEGRADA
                 if (dataAgendada && tecnicoDesignado) {
                     const agendaRef = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2');
                     window.fsGetDocs(agendaRef).then(snap => {
