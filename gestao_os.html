@@ -365,6 +365,9 @@
         <span id="toast-message" class="text-xs font-medium">Sucesso!</span>
     </div>
 
+    <!-- ÁREA DE IMPRESSÃO -->
+    <div id="print-area"></div>
+
     <script type="module" src="core.js"></script>
     <script type="module">
         import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -1216,6 +1219,95 @@
                     id: nId, mensagem: msg, targetEmails: emails, targetProfiles: perfis, tipo: 'info', timestamp: Date.now()
                 });
             } catch(e) {}
+        };
+
+        // =====================================
+        // RECOLOCAÇÃO DAS FUNÇÕES IMPRIMIR E WPP
+        // =====================================
+        window.gerarDadosParaRelatorio = function() {
+            const osID = document.getElementById('os-id-oculto').value || 'Nova OS';
+            const cliente = document.getElementById('os-cliente').value || 'Não Informado';
+            const dt = document.getElementById('os-data').value ? document.getElementById('os-data').value.split('-').reverse().join('/') : '-';
+            const tec = document.getElementById('os-tecnico').value || 'A definir';
+            const endereco = document.getElementById('card-end-txt').innerText || '-';
+            
+            let maquinasStr = '';
+            document.querySelectorAll('.equip-card').forEach(card => {
+                const m = card.querySelector('.inp-maquina').value;
+                const d = card.querySelector('.inp-defeito').value;
+                const s = card.querySelector('.inp-servico').value;
+                if(m) {
+                    maquinasStr += `<div style="margin-bottom: 10px;"><strong>Equipamento:</strong> ${m}<br><strong>Defeito:</strong> ${d}<br><strong>Serviço:</strong> ${s || 'Pendente'}</div>`;
+                }
+            });
+
+            let orcamentosStr = ''; let totalGlobal = 0;
+            document.querySelectorAll('.orc-card').forEach(card => {
+                const alvo = card.querySelector('.inp-orc-alvo').value;
+                let produtosStr = ''; let tProd = 0;
+                card.querySelectorAll('.item-produto').forEach(row => {
+                    const desc = row.querySelector('.inp-item-desc').value;
+                    const qtd = parseFloat(row.querySelector('.inp-item-qtd').value) || 0;
+                    const un = parseFloat(row.querySelector('.inp-item-unit').value) || 0;
+                    if(desc) {
+                        const s = qtd * un; tProd += s;
+                        produtosStr += `<tr><td style="border:1px solid #ccc; padding:4px;">${desc}</td><td style="border:1px solid #ccc; padding:4px; text-align:center;">${qtd}</td><td style="border:1px solid #ccc; padding:4px; text-align:right;">${window.formatarMoeda(un)}</td><td style="border:1px solid #ccc; padding:4px; text-align:right;">${window.formatarMoeda(s)}</td></tr>`;
+                    }
+                });
+
+                const moTotal = (parseFloat(card.querySelector('.inp-orc-mo-qtd').value) || 0) * (parseFloat(card.querySelector('.inp-orc-mo-unit').value) || 0);
+                const deslTotal = (parseFloat(card.querySelector('.inp-orc-desl-qtd').value) || 0) * (parseFloat(card.querySelector('.inp-orc-desl-unit').value) || 0);
+                const totalCard = tProd + moTotal + deslTotal; totalGlobal += totalCard;
+
+                orcamentosStr += `
+                    <div style="margin-bottom: 20px; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px;">
+                        <h4 style="margin-top:0; margin-bottom:10px; color:#1e3a8a;">Ref: ${alvo}</h4>
+                        ${produtosStr ? `<table style="width:100%; border-collapse: collapse; font-size:10px; margin-bottom:10px;"><thead style="background:#f1f5f9;"><tr><th style="border:1px solid #ccc; padding:4px; text-align:left;">Produto/Peça</th><th style="border:1px solid #ccc; padding:4px; text-align:center;">Qtd</th><th style="border:1px solid #ccc; padding:4px; text-align:right;">V. Unit</th><th style="border:1px solid #ccc; padding:4px; text-align:right;">Subtotal</th></tr></thead><tbody>${produtosStr}</tbody></table>` : ''}
+                        <div style="font-size:11px; text-align: right; background:#f8fafc; padding: 5px; border-radius: 4px;"><strong>Mão de Obra + Desl:</strong> ${window.formatarMoeda(moTotal + deslTotal)}<br><h3 style="margin:5px 0 0 0; color:#047857; font-size: 14px;">Total do Item: ${window.formatarMoeda(totalCard)}</h3></div>
+                    </div>
+                `;
+            });
+
+            return { osID, cliente, dt, tec, endereco, maquinasStr, orcamentosStr, totalGlobal };
+        };
+
+        window.imprimirOS = function() {
+            const dados = window.gerarDadosParaRelatorio();
+            let pArea = document.getElementById('print-area');
+            if(!pArea) {
+                pArea = document.createElement('div');
+                pArea.id = 'print-area';
+                document.body.appendChild(pArea);
+            }
+
+            pArea.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #1e3a8a; padding-bottom:10px; margin-bottom:15px;">
+                    <div><h1 style="color:#1e3a8a; margin:0; font-size:24px; font-weight:900;">GRUPO CIJ</h1><p style="margin:0; font-size:10px; color:#64748b;">Soluções em Codificação Industrial</p></div>
+                    <div style="text-align:right;"><h2 style="margin:0; font-size:18px; color:#333;">ORDEM DE SERVIÇO / ORÇAMENTO</h2><h3 style="margin:0; color:#dc2626;">${dados.osID}</h3></div>
+                </div>
+                <table style="width:100%; font-size:12px; margin-bottom:15px; border-collapse:collapse;">
+                    <tr><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Cliente:</td><td style="padding:4px; border:1px solid #e2e8f0;">${dados.cliente}</td><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Data:</td><td style="padding:4px; border:1px solid #e2e8f0;">${dados.dt}</td></tr>
+                    <tr><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Endereço:</td><td style="padding:4px; border:1px solid #e2e8f0;">${dados.endereco}</td><td style="padding:4px; border:1px solid #e2e8f0; background:#f8fafc; font-weight:bold;">Técnico:</td><td style="padding:4px; border:1px solid #e2e8f0;">${dados.tec}</td></tr>
+                </table>
+                <h3 style="background:#1e3a8a; color:white; padding:5px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">Equipamentos e Serviços</h3>
+                <div style="font-size:11px; margin-bottom:20px;">${dados.maquinasStr || '<p>Nenhum equipamento listado.</p>'}</div>
+                <h3 style="background:#1e3a8a; color:white; padding:5px 10px; font-size:12px; border-radius:4px; margin-bottom:10px;">Proposta Financeira</h3>
+                <div>${dados.orcamentosStr || '<p>Sem orçamento lançado.</p>'}</div>
+                <div style="margin-top:20px; text-align:right; font-size:18px; border-top:2px solid #1e3a8a; padding-top:10px;"><strong>VALOR TOTAL DA O.S: <span style="color:#047857;">${window.formatarMoeda(dados.totalGlobal)}</span></strong></div>
+            `;
+            window.print();
+        };
+
+        window.enviarWhatsAppOS = function() {
+            const dados = window.gerarDadosParaRelatorio();
+            if(!dados.cliente || dados.cliente === 'Não Informado') { alert("Preencha o cliente antes de enviar!"); return; }
+
+            let texto = `*Ordem de Serviço: ${dados.osID}* 📄\n*Cliente:* ${dados.cliente}\n*Data:* ${dados.dt} | *Técnico:* ${dados.tec}\n\n`;
+            if(dados.totalGlobal > 0) { texto += `*RESUMO DO ORÇAMENTO:*\n💳 *Valor Total:* ${window.formatarMoeda(dados.totalGlobal)}\n\nAcesse a O.S para visualizar o detalhamento de peças, mão de obra e deslocamento.\n`; } 
+            else { texto += `Aguardando orçamentação técnica.\n`; }
+            
+            const link = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            window.open(link, '_blank');
         };
 
     </script>
