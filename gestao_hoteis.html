@@ -76,358 +76,370 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen flex overflow-hidden selection:bg-brand-100 selection:text-brand-900">
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden selection:bg-brand-100 selection:text-brand-900">
 
-    <!-- MENU LATERAL (Desktop) -->
-    <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col h-full shrink-0 shadow-xl z-20">
-        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-            <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center shadow-inner">
-                <i class="ph ph-buildings text-2xl text-white"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-base leading-tight tracking-wide">Hospedagens</h1>
-                <p class="text-xs text-brand-200 font-medium tracking-wider uppercase">Corporativo</p>
-            </div>
+    <!-- TELA DE LOGIN (Injetada pelo Core ou Local) -->
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
+            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
+            <p id="login-message" class="text-sm font-semibold text-slate-500">Sincronizando Hotéis Corporativos...</p>
         </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL (Exibido após Login) -->
+    <div id="main-content" class="flex-1 flex overflow-hidden w-full hidden">
         
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="Navigation.goTo('list')" id="nav-btn-list" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-600 text-white rounded-lg transition-all font-medium text-sm shadow-md">
-                <i class="ph ph-list-dashes text-lg"></i>
-                <span>Consultar Hotéis</span>
-            </button>
-            <button onclick="Navigation.goTo('map')" id="nav-btn-map" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all font-medium text-sm">
-                <i class="ph ph-map-pin-line text-lg text-amber-400"></i>
-                <span>Mapa de Hotéis</span>
-            </button>
-            <button onclick="Navigation.goTo('form')" id="nav-btn-form" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all font-medium text-sm">
-                <i class="ph ph-plus-circle text-lg"></i>
-                <span>Cadastrar Hotel</span>
-            </button>
-        </nav>
-    </aside>
-
-    <!-- ÁREA PRINCIPAL -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-        
-        <!-- HEADER MOBILE -->
-        <div class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center shadow-md z-20">
-            <div class="flex items-center gap-2">
-                <i class="ph ph-buildings text-xl text-brand-400"></i>
-                <h1 class="font-bold text-sm">Hospedagens Corporativas</h1>
+        <!-- MENU LATERAL (Desktop) -->
+        <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col h-full shrink-0 shadow-xl z-20">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center shadow-inner">
+                    <i class="ph ph-buildings text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight tracking-wide">Hospedagens</h1>
+                    <p class="text-xs text-brand-200 font-medium tracking-wider uppercase">Corporativo</p>
+                </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="Navigation.goTo('list')" class="p-2 bg-slate-800 rounded-lg text-slate-200 active:scale-95 transition-transform" title="Lista"><i class="ph ph-list-dashes text-lg"></i></button>
-                <button onclick="Navigation.goTo('map')" class="p-2 bg-slate-800 rounded-lg text-amber-400 active:scale-95 transition-transform" title="Mapa"><i class="ph ph-map-pin-line text-lg"></i></button>
-                <button onclick="Navigation.goTo('form')" class="p-2 bg-brand-600 rounded-lg text-white active:scale-95 transition-transform" title="Cadastrar"><i class="ph ph-plus text-lg"></i></button>
+            
+            <nav class="flex-1 p-4 space-y-2">
+                <button onclick="Navigation.goTo('list')" id="nav-btn-list" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-600 text-white rounded-lg transition-all font-medium text-sm shadow-md">
+                    <i class="ph ph-list-dashes text-lg"></i>
+                    <span>Consultar Hotéis</span>
+                </button>
+                <button onclick="Navigation.goTo('map')" id="nav-btn-map" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all font-medium text-sm">
+                    <i class="ph ph-map-pin-line text-lg text-amber-400"></i>
+                    <span>Mapa de Hotéis</span>
+                </button>
+                <button onclick="Navigation.goTo('form')" id="nav-btn-form" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all font-medium text-sm">
+                    <i class="ph ph-plus-circle text-lg"></i>
+                    <span>Cadastrar Hotel</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL -->
+        <div class="flex-1 flex flex-col h-full relative overflow-hidden">
+            
+            <!-- HEADER MOBILE CORRIGIDO (div em vez de header) -->
+            <div class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center shadow-md z-20">
+                <div class="flex items-center gap-2">
+                    <i class="ph ph-buildings text-xl text-brand-400"></i>
+                    <h1 class="font-bold text-sm">Hospedagens Corporativas</h1>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="Navigation.goTo('list')" class="p-2 bg-slate-800 rounded-lg text-slate-200 active:scale-95 transition-transform" title="Lista"><i class="ph ph-list-dashes text-lg"></i></button>
+                    <button onclick="Navigation.goTo('map')" class="p-2 bg-slate-800 rounded-lg text-amber-400 active:scale-95 transition-transform" title="Mapa"><i class="ph ph-map-pin-line text-lg"></i></button>
+                    <button onclick="Navigation.goTo('form')" class="p-2 bg-brand-600 rounded-lg text-white active:scale-95 transition-transform" title="Cadastrar"><i class="ph ph-plus text-lg"></i></button>
+                </div>
             </div>
-        </header>
 
-        <!-- CONTEÚDO ROLÁVEL -->
-        <div class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 w-full">
-            <div class="max-w-7xl mx-auto h-full">
+            <!-- CONTEÚDO ROLÁVEL -->
+            <div class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 w-full">
+                <div class="max-w-7xl mx-auto h-full">
 
-                <!-- TELA 1: LISTAGEM E CONSULTA -->
-                <section id="view-list" class="fade-enter space-y-6 block">
-                    
-                    <!-- Cabeçalho e Filtros Simplificados -->
-                    <div class="flex flex-col gap-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-2">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div>
-                                <h2 class="text-2xl font-bold text-slate-800">Consulta de Hotéis</h2>
-                                <p class="text-slate-500 text-sm mt-1">Gerencie a rede de hospedagens e solicite cotações rapidamente.</p>
-                            </div>
-                            <button onclick="Navigation.goTo('map')" class="px-4 py-2.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition shadow-sm">
-                                <i class="ph ph-map-trifold text-lg"></i>
-                                <span>Ver no Mapa Interativo</span>
-                            </button>
-                        </div>
+                    <!-- TELA 1: LISTAGEM E CONSULTA -->
+                    <section id="view-list" class="fade-enter space-y-6 block">
                         
-                        <!-- Filtros -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mt-2">
-                            <!-- 🔍 Buscar hotel pelo nome -->
-                            <div class="md:col-span-4 relative group">
-                                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
-                                <input type="text" id="filter-name" oninput="Filters.apply()" placeholder="Buscar hotel pelo nome..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner">
-                            </div>
-
-                            <!-- 📍 Localização (cidade ou estado) -->
-                            <div class="md:col-span-4 relative group">
-                                <i class="ph ph-map-pin absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
-                                <input type="text" id="filter-location" oninput="Filters.apply()" placeholder="Localização (cidade, estado ou UF)..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner">
-                            </div>
-
-                            <!-- ↕️ Ordenar por -->
-                            <div class="md:col-span-3 relative group">
-                                <i class="ph ph-arrows-down-up absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
-                                <select id="filter-sort" onchange="Sorting.changeFromSelect()" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner cursor-pointer appearance-none">
-                                    <option value="name_asc">Ordenar: Nome (A-Z)</option>
-                                    <option value="name_desc">Ordenar: Nome (Z-A)</option>
-                                    <option value="city_asc">Ordenar: Localização (A-Z)</option>
-                                    <option value="price_asc">Ordenar: Menor Preço</option>
-                                    <option value="price_desc">Ordenar: Maior Preço</option>
-                                </select>
-                            </div>
-
-                            <!-- Limpar busca -->
-                            <div class="md:col-span-1 flex items-center justify-end">
-                                <button onclick="Filters.resetAll()" class="w-full h-full px-2 py-2.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 rounded-lg transition-colors flex items-center justify-center gap-1 border border-slate-200">
-                                    <i class="ph ph-eraser text-base"></i> <span class="md:hidden lg:inline">Limpar</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabela de Dados -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[800px]">
-                                <thead>
-                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                                        <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('name')">
-                                            <div class="flex items-center gap-2">Hotel <i id="sort-icon-name" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
-                                        </th>
-                                        <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('city')">
-                                            <div class="flex items-center gap-2">Localização <i id="sort-icon-city" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
-                                        </th>
-                                        <th class="p-4">Contato</th>
-                                        <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('price')">
-                                            <div class="flex items-center gap-2">Diária / Pagto <i id="sort-icon-price" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
-                                        </th>
-                                        <th class="p-4 text-center">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body" class="divide-y divide-slate-100 text-sm">
-                                    <!-- Renderizado via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Estado Vazio -->
-                        <div id="empty-state" class="hidden p-16 text-center flex-col items-center justify-center bg-white">
-                            <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                <i class="ph ph-folder-open text-3xl"></i>
-                            </div>
-                            <h3 class="text-base font-semibold text-slate-700 mb-1">Nenhum hotel encontrado</h3>
-                            <p class="text-slate-500 text-sm mb-6">Tente alterar os termos da busca ou limpar os filtros aplicados.</p>
-                            <button onclick="Filters.resetAll()" class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition font-medium text-sm inline-flex items-center gap-2">
-                                Limpar Filtros
-                            </button>
-                        </div>
-
-                        <!-- Paginação -->
-                        <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <span id="pagination-info" class="text-xs text-slate-500 font-medium">Mostrando 0 a 0 de 0 resultados</span>
-                            <div id="pagination-controls" class="flex items-center gap-1">
-                                <!-- Renderizado via JS -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- TELA 2: MAPA INTERATIVO DE HOTÉIS -->
-                <section id="view-map" class="fade-enter hidden space-y-6">
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                            <div>
-                                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="ph ph-map-pin text-amber-500"></i> Mapa Interativo de Hotéis
-                                </h2>
-                                <p class="text-slate-500 text-sm mt-1">Localize o endereço de destino para encontrar as hospedagens mais próximas.</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-slate-500 font-semibold uppercase">Filtrar por Distância:</span>
-                                <select id="map-distance-filter" onchange="MapModule.filterByDistance()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
-                                    <option value="all">Todos os Hotéis</option>
-                                    <option value="5">Até 5 km</option>
-                                    <option value="10">Até 10 km</option>
-                                    <option value="20">Até 20 km</option>
-                                    <option value="50">Até 50 km</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Campo de Busca de Destino -->
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-                            <div class="md:col-span-8 relative">
-                                <i class="ph ph-magnifying-glass-plus absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
-                                <input type="text" id="map-dest-input" onkeypress="if(event.key === 'Enter') MapModule.searchDestination()" placeholder="🔎 Digite o endereço de destino (Ex: Rua Blumenau, 1000 - Joinville/SC)..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium transition-all shadow-inner">
-                            </div>
-                            <div class="md:col-span-4 flex gap-2">
-                                <button onclick="MapModule.searchDestination()" id="btn-map-search" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium text-sm px-4 py-3 shadow-sm transition flex items-center justify-center gap-2">
-                                    <i class="ph ph-navigation-arrow text-lg"></i> Buscar Localização
-                                </button>
-                                <button onclick="MapModule.clearDestination()" title="Limpar destino" class="px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center border border-slate-200">
-                                    <i class="ph ph-x-circle text-xl"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Layout Principal do Mapa e Lista -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                        <!-- Mapa Container -->
-                        <div class="lg:col-span-8 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-                            <div id="map-container" class="h-[480px] lg:h-[620px] w-full rounded-xl z-10"></div>
-                            <div id="map-loading" class="hidden absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-2xl">
-                                <div class="bg-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
-                                    <i class="ph ph-spinner-gap text-2xl text-brand-600 animate-spin"></i>
-                                    <span class="text-sm font-semibold text-slate-700">Buscando endereço...</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Sidebar da Lista de Proximidade -->
-                        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[480px] lg:h-[636px] overflow-hidden">
-                            <div class="p-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
-                                <div class="flex items-center gap-2">
-                                    <i class="ph ph-path text-amber-400 text-xl"></i>
-                                    <h3 class="font-bold text-sm">Hotéis Mais Próximos</h3>
-                                </div>
-                                <span id="map-results-count" class="text-xs bg-slate-800 text-amber-300 font-semibold px-2.5 py-1 rounded-full">0 hotéis</span>
-                            </div>
-
-                            <div id="map-hotel-list" class="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar bg-slate-50">
-                                <!-- Cards dos hotéis próximos renderizados via JS -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- TELA 3: CADASTRO / EDIÇÃO -->
-                <section id="view-form" class="fade-enter hidden max-w-4xl mx-auto pb-10">
-                    
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 id="form-title" class="text-2xl font-bold text-slate-800">Cadastrar Hotel</h2>
-                            <p class="text-slate-500 text-sm mt-1">Preencha os dados oficiais para a base corporativa.</p>
-                        </div>
-                        <button onclick="Navigation.goTo('list')" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition shadow-sm text-sm font-medium flex items-center gap-2">
-                            <i class="ph ph-arrow-left"></i> Voltar
-                        </button>
-                    </div>
-
-                    <form id="hotel-form" onsubmit="CRUD.save(event)" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                        <input type="hidden" id="input-id">
-                        <input type="hidden" id="input-lat">
-                        <input type="hidden" id="input-lng">
-                        
-                        <div class="p-6 md:p-8 space-y-8">
-                            
-                            <!-- Grupo: Identificação -->
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-                                    <i class="ph ph-identification-card text-brand-500"></i> Informações Principais
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-                                    <div class="md:col-span-12">
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nome do Estabelecimento <span class="text-red-500">*</span></label>
-                                        <input type="text" id="input-name" required placeholder="Ex: Hotel Plaza Executivo" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
-                                    </div>
-                                    <div class="md:col-span-12">
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Logradouro / Endereço (Rua, Nº, Bairro)</label>
-                                        <input type="text" id="input-address" placeholder="Ex: Av. Brasil, 1500 - Centro" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
-                                        <span class="text-[11px] text-slate-400 mt-1 block">Utilizado para posicionar o hotel com precisão no mapa.</span>
-                                    </div>
-                                    <div class="md:col-span-8">
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Cidade <span class="text-red-500">*</span></label>
-                                        <input type="text" id="input-city" required placeholder="Ex: Joinville" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
-                                    </div>
-                                    <div class="md:col-span-4">
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Estado (UF) <span class="text-red-500">*</span></label>
-                                        <select id="input-state" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm cursor-pointer">
-                                            <option value="">Selecione...</option>
-                                            <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option>
-                                            <option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option>
-                                            <option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
-                                            <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option>
-                                            <option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option>
-                                            <option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
-                                            <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Grupo: Comercial -->
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-                                    <i class="ph ph-currency-dollar text-brand-500"></i> Dados Comerciais
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Telefone / WhatsApp</label>
-                                        <input type="text" id="input-phone" placeholder="(00) 00000-0000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Valor Referência (R$)</label>
-                                        <input type="number" id="input-price" step="0.01" min="0" placeholder="0.00 (Opcional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Forma de Pagto. Padrão</label>
-                                        <select id="input-payment" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm cursor-pointer">
-                                            <option value="A Definir" selected>A Definir / Não Informado</option>
-                                            <option value="Cartão Corporativo">Cartão Corporativo</option>
-                                            <option value="Faturado na Empresa">Faturado na Empresa</option>
-                                            <option value="Reembolso">Reembolso (Técnico paga)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Grupo: Comodidades -->
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-                                    <i class="ph ph-star text-brand-500"></i> Comodidades Inclusas
-                                </h3>
-                                <div class="flex flex-wrap gap-4 md:gap-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                    <label class="flex items-center gap-2 cursor-pointer group">
-                                        <input type="checkbox" id="input-wifi" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
-                                        <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Wi-Fi</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer group">
-                                        <input type="checkbox" id="input-breakfast" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
-                                        <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Café da Manhã</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer group">
-                                        <input type="checkbox" id="input-parking" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
-                                        <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Estacionamento</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer group">
-                                        <input type="checkbox" id="input-air" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
-                                        <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Ar Condicionado</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer group">
-                                        <input type="checkbox" id="input-bed" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
-                                        <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Cama Casal</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Grupo: Observações -->
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
-                                    <i class="ph ph-text-align-left text-brand-500"></i> Observações Internas
-                                </h3>
+                        <!-- Cabeçalho e Filtros Simplificados -->
+                        <div class="flex flex-col gap-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-2">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div>
-                                    <textarea id="input-notes" rows="3" placeholder="Restrições, regras de faturamento, localização específica..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm resize-none"></textarea>
+                                    <h2 class="text-2xl font-bold text-slate-800">Consulta de Hotéis</h2>
+                                    <p class="text-slate-500 text-sm mt-1">Gerencie a rede de hospedagens e solicite cotações rapidamente.</p>
+                                </div>
+                                <button onclick="Navigation.goTo('map')" class="px-4 py-2.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition shadow-sm">
+                                    <i class="ph ph-map-trifold text-lg"></i>
+                                    <span>Ver no Mapa Interativo</span>
+                                </button>
+                            </div>
+                            
+                            <!-- Filtros -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mt-2">
+                                <!-- 🔍 Buscar hotel pelo nome -->
+                                <div class="md:col-span-4 relative group">
+                                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
+                                    <input type="text" id="filter-name" oninput="Filters.apply()" placeholder="Buscar hotel pelo nome..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner">
+                                </div>
+
+                                <!-- 📍 Localização (cidade ou estado) -->
+                                <div class="md:col-span-4 relative group">
+                                    <i class="ph ph-map-pin absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
+                                    <input type="text" id="filter-location" oninput="Filters.apply()" placeholder="Localização (cidade, estado ou UF)..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner">
+                                </div>
+
+                                <!-- ↕️ Ordenar por -->
+                                <div class="md:col-span-3 relative group">
+                                    <i class="ph ph-arrows-down-up absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-brand-500 transition-colors"></i>
+                                    <select id="filter-sort" onchange="Sorting.changeFromSelect()" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-all shadow-inner cursor-pointer appearance-none">
+                                        <option value="name_asc">Ordenar: Nome (A-Z)</option>
+                                        <option value="name_desc">Ordenar: Nome (Z-A)</option>
+                                        <option value="city_asc">Ordenar: Localização (A-Z)</option>
+                                        <option value="price_asc">Ordenar: Menor Preço</option>
+                                        <option value="price_desc">Ordenar: Maior Preço</option>
+                                    </select>
+                                </div>
+
+                                <!-- Limpar busca -->
+                                <div class="md:col-span-1 flex items-center justify-end">
+                                    <button onclick="Filters.resetAll()" class="w-full h-full px-2 py-2.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 rounded-lg transition-colors flex items-center justify-center gap-1 border border-slate-200">
+                                        <i class="ph ph-eraser text-base"></i> <span class="md:hidden lg:inline">Limpar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Dados -->
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                                            <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('name')">
+                                                <div class="flex items-center gap-2">Hotel <i id="sort-icon-name" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
+                                            </th>
+                                            <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('city')">
+                                                <div class="flex items-center gap-2">Localização <i id="sort-icon-city" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
+                                            </th>
+                                            <th class="p-4">Contato</th>
+                                            <th class="p-4 cursor-pointer hover:bg-slate-100 transition-colors group" onclick="Sorting.toggle('price')">
+                                                <div class="flex items-center gap-2">Diária / Pagto <i id="sort-icon-price" class="ph ph-arrows-down-up text-slate-300 group-hover:text-brand-500"></i></div>
+                                            </th>
+                                            <th class="p-4 text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body" class="divide-y divide-slate-100 text-sm">
+                                        <!-- Renderizado via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Estado Vazio -->
+                            <div id="empty-state" class="hidden p-16 text-center flex-col items-center justify-center bg-white">
+                                <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4 mx-auto">
+                                    <i class="ph ph-folder-open text-3xl"></i>
+                                </div>
+                                <h3 class="text-base font-semibold text-slate-700 mb-1">Nenhum hotel encontrado</h3>
+                                <p class="text-slate-500 text-sm mb-6">Tente alterar os termos da busca ou limpar os filtros aplicados.</p>
+                                <button onclick="Filters.resetAll()" class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition font-medium text-sm inline-flex items-center gap-2">
+                                    Limpar Filtros
+                                </button>
+                            </div>
+
+                            <!-- Paginação -->
+                            <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <span id="pagination-info" class="text-xs text-slate-500 font-medium">Mostrando 0 a 0 de 0 resultados</span>
+                                <div id="pagination-controls" class="flex items-center gap-1">
+                                    <!-- Renderizado via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- TELA 2: MAPA INTERATIVO DE HOTÉIS -->
+                    <section id="view-map" class="fade-enter hidden space-y-6">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                                        <i class="ph ph-map-pin text-amber-500"></i> Mapa Interativo de Hotéis
+                                    </h2>
+                                    <p class="text-slate-500 text-sm mt-1">Localize o endereço de destino para encontrar as hospedagens mais próximas.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-500 font-semibold uppercase">Filtrar por Distância:</span>
+                                    <select id="map-distance-filter" onchange="MapModule.filterByDistance()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                                        <option value="all">Todos os Hotéis</option>
+                                        <option value="5">Até 5 km</option>
+                                        <option value="10">Até 10 km</option>
+                                        <option value="20">Até 20 km</option>
+                                        <option value="50">Até 50 km</option>
+                                    </select>
                                 </div>
                             </div>
 
+                            <!-- Campo de Busca de Destino -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                                <div class="md:col-span-8 relative">
+                                    <i class="ph ph-magnifying-glass-plus absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+                                    <input type="text" id="map-dest-input" onkeypress="if(event.key === 'Enter') MapModule.searchDestination()" placeholder="🔎 Digite o endereço de destino (Ex: Rua Blumenau, 1000 - Joinville/SC)..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium transition-all shadow-inner">
+                                </div>
+                                <div class="md:col-span-4 flex gap-2">
+                                    <button onclick="MapModule.searchDestination()" id="btn-map-search" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium text-sm px-4 py-3 shadow-sm transition flex items-center justify-center gap-2">
+                                        <i class="ph ph-navigation-arrow text-lg"></i> Buscar Localização
+                                    </button>
+                                    <button onclick="MapModule.clearDestination()" title="Limpar destino" class="px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center border border-slate-200">
+                                        <i class="ph ph-x-circle text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Layout Principal do Mapa e Lista -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            <!-- Mapa Container -->
+                            <div class="lg:col-span-8 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                                <div id="map-container" class="h-[480px] lg:h-[620px] w-full rounded-xl z-10"></div>
+                                <div id="map-loading" class="hidden absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-2xl">
+                                    <div class="bg-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+                                        <i class="ph ph-spinner-gap text-2xl text-brand-600 animate-spin"></i>
+                                        <span class="text-sm font-semibold text-slate-700">Buscando endereço...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar da Lista de Proximidade -->
+                            <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[480px] lg:h-[636px] overflow-hidden">
+                                <div class="p-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+                                    <div class="flex items-center gap-2">
+                                        <i class="ph ph-path text-amber-400 text-xl"></i>
+                                        <h3 class="font-bold text-sm">Hotéis Mais Próximos</h3>
+                                    </div>
+                                    <span id="map-results-count" class="text-xs bg-slate-800 text-amber-300 font-semibold px-2.5 py-1 rounded-full">0 hotéis</span>
+                                </div>
+
+                                <div id="map-hotel-list" class="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar bg-slate-50">
+                                    <!-- Cards dos hotéis próximos renderizados via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- TELA 3: CADASTRO / EDIÇÃO -->
+                    <section id="view-form" class="fade-enter hidden max-w-4xl mx-auto pb-10">
                         
-                        <!-- Rodapé do Formulário -->
-                        <div class="bg-slate-50 p-6 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-3">
-                            <button type="button" onclick="Navigation.goTo('list')" class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition font-medium text-sm">Cancelar</button>
-                            <button type="submit" class="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-md transition font-medium text-sm flex items-center justify-center gap-2">
-                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Registro
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 id="form-title" class="text-2xl font-bold text-slate-800">Cadastrar Hotel</h2>
+                                <p class="text-slate-500 text-sm mt-1">Preencha os dados oficiais para a base corporativa.</p>
+                            </div>
+                            <button onclick="Navigation.goTo('list')" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition shadow-sm text-sm font-medium flex items-center gap-2">
+                                <i class="ph ph-arrow-left"></i> Voltar
                             </button>
                         </div>
-                    </form>
-                </section>
 
+                        <form id="hotel-form" onsubmit="CRUD.save(event)" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <input type="hidden" id="input-id">
+                            <input type="hidden" id="input-lat">
+                            <input type="hidden" id="input-lng">
+                            
+                            <div class="p-6 md:p-8 space-y-8">
+                                
+                                <!-- Grupo: Identificação -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
+                                        <i class="ph ph-identification-card text-brand-500"></i> Informações Principais
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                                        <div class="md:col-span-12">
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nome do Estabelecimento <span class="text-red-500">*</span></label>
+                                            <input type="text" id="input-name" required placeholder="Ex: Hotel Plaza Executivo" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                                        </div>
+                                        <div class="md:col-span-12">
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Logradouro / Endereço (Rua, Nº, Bairro)</label>
+                                            <input type="text" id="input-address" placeholder="Ex: Av. Brasil, 1500 - Centro" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                                            <span class="text-[11px] text-slate-400 mt-1 block">Utilizado para posicionar o hotel com precisão no mapa.</span>
+                                        </div>
+                                        <div class="md:col-span-8">
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Cidade <span class="text-red-500">*</span></label>
+                                            <input type="text" id="input-city" required placeholder="Ex: Joinville" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                                        </div>
+                                        <div class="md:col-span-4">
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Estado (UF) <span class="text-red-500">*</span></label>
+                                            <select id="input-state" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm cursor-pointer">
+                                                <option value="">Selecione...</option>
+                                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option>
+                                                <option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option>
+                                                <option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option>
+                                                <option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option>
+                                                <option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Grupo: Comercial -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
+                                        <i class="ph ph-currency-dollar text-brand-500"></i> Dados Comerciais
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Telefone / WhatsApp</label>
+                                            <input type="text" id="input-phone" placeholder="(00) 00000-0000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Valor Referência (R$)</label>
+                                            <input type="number" id="input-price" step="0.01" min="0" placeholder="0.00 (Opcional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Forma de Pagto. Padrão</label>
+                                            <select id="input-payment" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm cursor-pointer">
+                                                <option value="A Definir" selected>A Definir / Não Informado</option>
+                                                <option value="Cartão Corporativo">Cartão Corporativo</option>
+                                                <option value="Faturado na Empresa">Faturado na Empresa</option>
+                                                <option value="Reembolso">Reembolso (Técnico paga)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Grupo: Comodidades -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
+                                        <i class="ph ph-star text-brand-500"></i> Comodidades Inclusas
+                                    </h3>
+                                    <div class="flex flex-wrap gap-4 md:gap-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="input-wifi" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
+                                            <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Wi-Fi</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="input-breakfast" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
+                                            <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Café da Manhã</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="input-parking" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
+                                            <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Estacionamento</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="input-air" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
+                                            <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Ar Condicionado</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <input type="checkbox" id="input-bed" class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500 cursor-pointer">
+                                            <span class="text-sm text-slate-700 group-hover:text-brand-700 transition">Cama Casal</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Grupo: Observações -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2">
+                                        <i class="ph ph-text-align-left text-brand-500"></i> Observações Internas
+                                    </h3>
+                                    <div>
+                                        <textarea id="input-notes" rows="3" placeholder="Restrições, regras de faturamento, localização específica..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm resize-none"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                            <!-- Rodapé do Formulário -->
+                            <div class="bg-slate-50 p-6 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-3">
+                                <button type="button" onclick="Navigation.goTo('list')" class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition font-medium text-sm">Cancelar</button>
+                                <button type="submit" class="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-md transition font-medium text-sm flex items-center justify-center gap-2">
+                                    <i class="ph ph-floppy-disk text-lg"></i> Salvar Registro
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- MODAIS E COMPONENTES GLOBAIS -->
 
@@ -904,7 +916,6 @@
         };
 
         /**
-         * STREAMING_CHUNK:Implementing navigation controller and views...
          * NAVEGAÇÃO E UI GERAL
          */
         const Navigation = {
@@ -1031,9 +1042,6 @@
             }
         };
 
-        /**
-         * STREAMING_CHUNK:Implementing CRUD actions and geocoding integration...
-         */
         const CRUD = {
             save: async (e) => {
                 e.preventDefault();
@@ -1049,7 +1057,6 @@
 
                 let isGeocoded = false;
 
-                // Tenta geocodificar o novo endereço ou cidade se as coordenadas não existirem
                 const fullSearchQuery = `${address ? address + ', ' : ''}${city}, ${state}, Brasil`;
                 const geoRes = await geocodeAddress(fullSearchQuery);
                 
@@ -1102,7 +1109,6 @@
                 document.getElementById('input-lat').value = '';
                 document.getElementById('input-lng').value = '';
                 
-                // Se o mapa já estava inicializado, atualiza
                 if (AppState.map.leafletInstance) {
                     MapModule.renderHotelMarkers();
                 }
@@ -1265,17 +1271,12 @@
             }
         };
 
-        /**
-         * STREAMING_CHUNK:Implementing Interactive Map Module (Leaflet)...
-         * MÓDULO DE MAPA INTERATIVO
-         */
         const MapModule = {
             init: () => {
                 const mapContainer = document.getElementById('map-container');
                 if (!mapContainer) return;
 
                 if (!AppState.map.leafletInstance) {
-                    // Centro inicial padrão (Brasil / Joinville-SC)
                     AppState.map.leafletInstance = L.map('map-container', {
                         zoomControl: true
                     }).setView([-26.3045, -48.8487], 6);
@@ -1286,7 +1287,6 @@
                     }).addTo(AppState.map.leafletInstance);
                 }
 
-                // Corrige tamanho do mapa quando a tab fica visível
                 setTimeout(() => {
                     AppState.map.leafletInstance.invalidateSize();
                 }, 200);
@@ -1294,19 +1294,16 @@
                 MapModule.renderHotelMarkers();
             },
 
-            // Renderiza todos os marcadores dos hotéis cadastrados no mapa
             renderHotelMarkers: () => {
                 const map = AppState.map.leafletInstance;
                 if (!map) return;
 
-                // Limpa marcadores de hotéis antigos
                 AppState.map.hotelMarkers.forEach(m => map.removeLayer(m.marker));
                 AppState.map.hotelMarkers = [];
 
                 const bounds = L.latLngBounds();
                 let validPinsCount = 0;
 
-                // Ícone padrão do hotel
                 const blueIcon = L.divIcon({
                     className: 'custom-div-icon',
                     html: `<div style="background-color:#2563eb; width:28px; height:28px; border-radius:50%; border:3px solid white; box-shadow:0 4px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:white;"><i class="ph-bold ph-bed text-sm"></i></div>`,
@@ -1319,7 +1316,6 @@
                     if (hotel.lat && hotel.lng) {
                         const marker = L.marker([hotel.lat, hotel.lng], { icon: blueIcon }).addTo(map);
                         
-                        // Conteúdo do Popup do Marcador
                         const priceText = hotel.price > 0 ? `R$ ${hotel.price.toFixed(2).replace('.', ',')}` : 'Sob consulta';
                         const popupContent = `
                             <div class="p-3 w-60">
@@ -1354,7 +1350,6 @@
                 MapModule.updateProximityList();
             },
 
-            // Busca localização informada pelo usuário no campo superior
             searchDestination: async () => {
                 const input = document.getElementById('map-dest-input').value.trim();
                 if (!input) {
@@ -1380,12 +1375,10 @@
 
                 const map = AppState.map.leafletInstance;
 
-                // Remove marcador de destino anterior
                 if (AppState.map.destMarker) {
                     map.removeLayer(AppState.map.destMarker);
                 }
 
-                // Novo Ícone de Destino (Vermelho com Alvo)
                 const redDestIcon = L.divIcon({
                     className: 'custom-dest-icon',
                     html: `<div style="background-color:#ef4444; width:36px; height:36px; border-radius:50%; border:3px solid white; box-shadow:0 6px 12px rgba(239, 68, 68, 0.5); display:flex; align-items:center; justify-content:center; color:white;" class="animate-bounce"><i class="ph-bold ph-crosshair text-lg"></i></div>`,
@@ -1427,7 +1420,6 @@
                 MapModule.updateProximityList();
             },
 
-            // Atualiza a sidebar de hotéis próximos em ordem de distância
             updateProximityList: () => {
                 const listContainer = document.getElementById('map-hotel-list');
                 const countBadge = document.getElementById('map-results-count');
@@ -1442,7 +1434,6 @@
                     return { ...h, distance: dist };
                 });
 
-                // Se houver destino, ordena por distância
                 if (dest) {
                     hotelList = hotelList.filter(h => h.distance !== null);
                     hotelList.sort((a, b) => a.distance - b.distance);
@@ -1452,7 +1443,6 @@
                         hotelList = hotelList.filter(h => h.distance <= maxKm);
                     }
                 } else {
-                    // Sem destino: ordena por nome
                     hotelList.sort((a, b) => a.name.localeCompare(b.name));
                 }
 
@@ -1505,7 +1495,6 @@
                 }).join('');
             },
 
-            // Centraliza o mapa e abre o marcador de um hotel clicado
             focusHotel: (hotelId) => {
                 const item = AppState.map.hotelMarkers.find(m => m.hotelId === hotelId);
                 if (item && AppState.map.leafletInstance) {
@@ -1651,9 +1640,14 @@
             }
         };
 
-        // Inicializa a aplicação ao carregar a página
-        window.onload = App.init;
+        // Inicializado pelo core.js após o login
+        window.initModule = function(perfil) {
+            document.getElementById('login-screen')?.classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            App.init();
+        };
 
     </script>
+    <script type="module" src="core.js"></script>
 </body>
 </html>
