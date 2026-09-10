@@ -73,12 +73,20 @@
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
 
-    <!-- CONTAINER PRINCIPAL DO MÓDULO (Inicia oculto aguardando o core.js) -->
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
+            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
+            <p id="login-message" class="text-sm font-semibold text-slate-500">Sincronizando Módulos...</p>
+        </div>
+    </div>
+
+    <!-- CONTAINER PRINCIPAL -->
     <div id="main-content" class="flex-1 flex flex-col relative w-full h-full min-h-0 hidden">
         
-        <!-- CABEÇALHO DO SERVICEFLOW (Substituído header por div para não quebrar o core.js) -->
+        <!-- CABEÇALHO -->
         <div id="module-header" class="glass-header border-b border-slate-200 shrink-0 z-30 shadow-sm relative no-print">
             <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+                
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 flex items-center justify-center font-extrabold text-2xl text-white shadow-glow shrink-0">S</div>
                     <div>
@@ -118,7 +126,7 @@
                 </div>
             </div>
 
-            <div id="filterPanel" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-4 shadow-md hidden transition-all absolute w-full z-20 top-[76px]">
+            <div id="filterPanel" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-4 shadow-md hidden transition-all absolute w-full z-20 top-full left-0">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                     <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Geral</label><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" id="filterSearch" oninput="window.applyFilters()" placeholder="Pesquisar..." class="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div></div>
                     <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cliente</label><input type="text" id="filterClient" oninput="window.applyFilters()" placeholder="Nome..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"></div>
@@ -137,18 +145,20 @@
             </div>
         </div>
 
-        <!-- ÁREA DE RENDERIZAÇÃO DO KANBAN -->
+        <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES -->
         <div class="flex-1 min-h-0 flex flex-col relative w-full overflow-hidden no-print">
             <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
                 <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Arraste os cartões no Kanban para mudar o status. A OS também se atualiza na Agenda e no App do Técnico.</span>
                 <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
             </div>
 
-            <div id="view-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-4 view-section bg-slate-100 w-full">
+            <!-- VISÃO 1: KANBAN -->
+            <div id="view-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-4 view-section bg-slate-100 w-full block">
                 <div id="kanban-grid" class="flex gap-4 h-full w-max min-w-full pb-2"></div>
             </div>
 
-            <div id="view-pendencias" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 hidden view-section bg-slate-50 w-full">
+            <!-- VISÃO 2: PENDÊNCIAS -->
+            <div id="view-pendencias" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 view-section bg-slate-50 w-full hidden">
                 <div class="max-w-5xl mx-auto space-y-4">
                     <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
                         <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
@@ -158,7 +168,8 @@
                 </div>
             </div>
 
-            <div id="view-indicadores" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 hidden view-section bg-slate-50 w-full">
+            <!-- VISÃO 3: INDICADORES -->
+            <div id="view-indicadores" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 view-section bg-slate-50 w-full hidden">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
@@ -196,7 +207,7 @@
                 <form id="form-nova-os" onsubmit="event.preventDefault();" class="h-full">
                     <input type="hidden" id="os-id-oculto" value="">
                     
-                    <div id="aba1" class="space-y-4 max-w-4xl mx-auto">
+                    <div id="aba1" class="space-y-4 max-w-4xl mx-auto block">
                         <div>
                             <label class="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-1.5">Cliente *</label>
                             <div class="relative">
@@ -609,12 +620,28 @@
             setTimeout(() => { t.classList.add('translate-x-full', 'opacity-0'); setTimeout(() => t.remove(), 300); }, 3000);
         };
 
+        window.switchView = function(view) {
+            ['kanban', 'pendencias', 'indicadores'].forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if(el) {
+                    if(v === view) { el.classList.remove('hidden'); el.classList.add('block'); } 
+                    else { el.classList.add('hidden'); el.classList.remove('block'); }
+                }
+                const nav = document.getElementById('nav-' + v);
+                if(nav) {
+                    if(v === view) nav.className = "nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap";
+                    else nav.className = "nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap";
+                }
+            });
+            if(view === 'kanban') window.renderKanban();
+        };
+
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4'].forEach(a => {
-                const el = document.getElementById(a); if(el) el.classList.add('hidden');
+                const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
                 const btn = document.getElementById('btn-' + a); if(btn) btn.className = "tab-inactive pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer";
             });
-            const elAtivo = document.getElementById(aba); if(elAtivo) elAtivo.classList.remove('hidden');
+            const elAtivo = document.getElementById(aba); if(elAtivo) { elAtivo.classList.remove('hidden'); elAtivo.classList.add('block'); }
             const btnAtivo = document.getElementById('btn-' + aba); if(btnAtivo) btnAtivo.className = "tab-active pb-2.5 flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer text-blue-600";
             if (aba === 'aba4') { window.renderizarAbaFormularios(); }
         };
