@@ -15,7 +15,8 @@
                     fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                     boxShadow: {
                         'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.04)',
-                        'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)'
+                        'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)',
+                        'card-hover': '0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
                     }
                 }
             }
@@ -72,7 +73,6 @@
     <datalist id="list-clientes"></datalist>
     <datalist id="list-maquinas"></datalist>
 
-    <!-- TELA DE LOADING -->
     <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
             <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
@@ -106,7 +106,7 @@
 
                 <nav class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto">
                     <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap" id="nav-kanban"><i class="fa-solid fa-table-columns"></i><span>Kanban</span></button>
-                    <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></button>
+                    <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></button>
                     <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-indicadores"><i class="fa-solid fa-chart-line"></i><span>Indicadores</span></button>
                 </nav>
 
@@ -418,12 +418,6 @@
         </div>
     </div>
 
-    <!-- MODAL FOTO FULLSCREEN -->
-    <div id="modal-foto-full" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4 cursor-pointer no-print" onclick="this.classList.add('hidden')">
-        <button class="absolute top-6 right-6 text-white text-4xl hover:text-slate-300 transition cursor-pointer bg-black/50 w-12 h-12 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-        <img id="img-fullscreen" src="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain border border-white/10">
-    </div>
-
     <!-- MODAL DELETAR -->
     <div id="modal-delete-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 border border-slate-200 space-y-5 text-center my-auto">
@@ -478,7 +472,10 @@
         </div>
     </div>
 
+    <!-- TOASTS -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none no-print"></div>
+
+    <!-- ÁREA DE IMPRESSÃO INVISÍVEL -->
     <div id="print-area" class="hidden"></div>
 
     <script type="module" src="core.js"></script>
@@ -669,6 +666,12 @@
             else document.getElementById('activeFilterBadge').classList.add('hidden');
             
             window.renderKanban();
+            window.renderPendencias();
+            window.renderIndicadores();
+            
+            const pCount = window.tickets.filter(t => t.status !== 'CONCLUIDO').length;
+            const bPend = document.getElementById('badge-pendencias');
+            if(bPend) { bPend.innerText = pCount; if(pCount > 0) bPend.classList.remove('hidden'); else bPend.classList.add('hidden'); }
         };
 
         window.filterTicketByCriteria = function(t) {
@@ -811,6 +814,103 @@
             });
         };
 
+        window.renderPendencias = function() {
+            const cont = document.getElementById('pendenciasList');
+            if(!cont) return;
+            const ativos = window.tickets.filter(t => t.status !== 'CONCLUIDO' && window.filterTicketByCriteria(t));
+            const cTag = document.getElementById('pendenciasCountTag');
+            if(cTag) cTag.innerText = `${ativos.length} itens`;
+
+            if(ativos.length === 0) {
+                cont.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-inbox text-4xl text-slate-300 mb-3"></i><p class="text-sm font-bold text-slate-500">Nenhuma pendência encontrada.</p></div>`;
+                return;
+            }
+
+            cont.innerHTML = ativos.map(t => {
+                const isCritical = t.urgency === 'CRITICAL';
+                const sColor = STATUSES[t.status]?.color || 'bg-slate-50 text-slate-900 border-slate-200';
+                const sLabel = STATUSES[t.status]?.label || t.status;
+                const pText = t.request?.problem || t.defeito || (t.equipamentosOS && t.equipamentosOS.length > 0 ? t.equipamentosOS[0].defeito : 'Sem descrição');
+
+                return `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition hover:border-blue-300 cursor-pointer" onclick="window.openTicketModal('${t.id}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full ${isCritical ? 'bg-red-100 text-red-600 pulse-critical' : 'bg-blue-100 text-blue-600'} flex items-center justify-center text-lg shrink-0"><i class="fa-solid ${isCritical ? 'fa-triangle-exclamation' : 'fa-clipboard-list'}"></i></div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-black bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">${t.id}</span>
+                                <span class="text-[10px] font-bold text-slate-400"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
+                            </div>
+                            <h4 class="text-sm font-black text-slate-800">${t.client?.name || t.clienteOS || 'Sem Nome'}</h4>
+                            <p class="text-xs font-medium text-slate-500 mt-0.5 truncate max-w-md">${pText}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
+                        <span class="text-[10px] font-bold uppercase px-3 py-1.5 rounded-lg border ${sColor}">${sLabel}</span>
+                        <button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5"><i class="fa-solid fa-file-invoice"></i> Tratar O.S.</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        };
+
+        window.renderIndicadores = function() {
+            const grid = document.getElementById('statsGrid');
+            const bar = document.getElementById('indicadoresBarList');
+            if(!grid || !bar) return;
+
+            const tks = window.tickets.filter(t => window.filterTicketByCriteria(t));
+            const total = tks.length;
+            const concluidos = tks.filter(t => t.status === 'CONCLUIDO').length;
+            const emAndamento = tks.filter(t => t.status !== 'CONCLUIDO' && t.status !== 'ENTRADA').length;
+            const entrada = tks.filter(t => t.status === 'ENTRADA').length;
+
+            grid.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Total Filtrado</p><p class="text-2xl font-black text-slate-800">${total}</p></div>
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 text-xl"><i class="fa-solid fa-layer-group"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Fila de Entrada</p><p class="text-2xl font-black text-blue-700">${entrada}</p></div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl"><i class="fa-solid fa-inbox"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">Em Andamento</p><p class="text-2xl font-black text-amber-700">${emAndamento}</p></div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl"><i class="fa-solid fa-spinner"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Finalizados</p><p class="text-2xl font-black text-emerald-700">${concluidos}</p></div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl"><i class="fa-solid fa-check-double"></i></div>
+                </div>
+            `;
+
+            let barHtml = '';
+            Object.keys(STATUSES).forEach(colKey => {
+                const count = tks.filter(t => t.status === colKey).length;
+                const perc = total === 0 ? 0 : Math.round((count / total) * 100);
+                
+                let barColor = 'bg-slate-500';
+                if(colKey === 'ENTRADA') barColor = 'bg-blue-500';
+                if(colKey === 'TRIAGEM') barColor = 'bg-amber-500';
+                if(colKey === 'ORCAMENTO') barColor = 'bg-purple-500';
+                if(colKey === 'AGENDAMENTO') barColor = 'bg-cyan-500';
+                if(colKey === 'CONCLUIDO') barColor = 'bg-emerald-500';
+
+                barHtml += `
+                <div>
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-700 mb-1.5">
+                        <span class="uppercase tracking-wider">${STATUSES[colKey].label}</span>
+                        <span>${count} (${perc}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="${barColor} h-2.5 rounded-full transition-all duration-1000" style="width: ${perc}%"></div>
+                    </div>
+                </div>
+                `;
+            });
+            bar.innerHTML = barHtml;
+        };
+
         window.formatElapsedTime = function(ts) {
             const h = Math.floor((Date.now() - ts) / 3600000);
             if (h < 1) return 'Agora';
@@ -822,7 +922,6 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), t, {merge: true}); } catch(e){}
         };
 
-        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4'].forEach(a => {
                 const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
@@ -1076,6 +1175,7 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
 
+        // --- FORMCRAFT NATIVO DENTRO DA O.S. ---
         window.renderizarAbaFormularios = function() {
             const container = document.getElementById('lista-formularios-os');
             if(!container) return;
@@ -1364,6 +1464,7 @@
             } catch(e) { window.showToast('Erro fatal ao salvar a OS no servidor.', 'error'); console.error(e); }
         };
 
+        // --- SISTEMA CONFIG DE ALERTAS KANBAN ---
         window.abrirModalConfigAlertas = function() {
             const container = document.getElementById('config-alertas-container');
             const perfisAlertas = ['Vendedor', 'Técnico', 'Financeiro', 'Administrativo', 'Admin', 'Master'];
@@ -1419,6 +1520,7 @@
             } catch (e) { window.showToast("Erro ao salvar.", "error"); }
         };
 
+        // --- AUTOMAÇÃO MANUAL DE FASES DO KANBAN ---
         window.abrirModalAutomacao = function() {
             const container = document.getElementById('automacao-container');
             const colunas = [
@@ -1458,6 +1560,7 @@
             } catch(e) { window.showToast('Erro ao salvar as regras.', 'error'); }
         };
 
+        // --- GAVETA DE DETALHES RÁPIDOS (TICKET MODAL) ---
         window.openTicketModal = function(id) {
             const t = window.tickets.find(x => x.id === id); if(!t) return;
             window.currentTicketId = id;
