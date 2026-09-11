@@ -43,7 +43,10 @@
                 </button>
                 <div>
                     <h1 id="header-title" class="font-black text-lg leading-tight tracking-tight">Minha Fila</h1>
-                    <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium transition-colors">Conectado (Online)</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span id="header-os-badge" class="hidden bg-blue-900/50 text-blue-100 border border-blue-400/50 text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider"></span>
+                        <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium transition-colors">Conectado (Online)</p>
+                    </div>
                 </div>
             </div>
             <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border border-blue-400 shrink-0 shadow-inner">
@@ -88,7 +91,10 @@
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50 pb-20 space-y-4">
-                    <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider mb-2"><i class="fa-solid fa-server mr-1"></i> Máquinas na OS</h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fa-solid fa-server mr-1"></i> Máquinas na OS</h3>
+                        <button onclick="window.app.abrirModalAddEquip()" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md shadow-sm active:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> Add Equip.</button>
+                    </div>
                     <div id="lista-maquinas-os" class="space-y-3"></div>
                 </div>
                 
@@ -101,7 +107,7 @@
 
             <!-- TELA: EXECUÇÃO NA MÁQUINA (Edição) -->
             <div id="screen-maquina" class="screen flex flex-col bg-white">
-                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20 space-y-5">
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar pb-36 space-y-5">
                     
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Equipamento em Manutenção</p>
@@ -151,7 +157,7 @@
                     </div>
                 </div>
 
-                <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6">
+                <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 pb-6 absolute bottom-0 w-full z-20 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
                     <button onclick="window.app.salvarMaquinaAtual()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-floppy-disk"></i> Salvar Apontamentos
                     </button>
@@ -214,8 +220,38 @@
             </div>
         </nav>
 
+        <!-- MODAL: ADD EQUIPAMENTO (PARQUE DE MÁQUINAS) -->
+        <div id="modal-add-equip" class="fixed inset-0 bg-slate-900/70 z-[99999] flex flex-col justify-end hidden opacity-0 transition-opacity">
+            <div id="modal-add-equip-content" class="bg-white rounded-t-3xl h-[80vh] flex flex-col transform translate-y-full transition-transform duration-300">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
+                    <div>
+                        <h3 class="font-black text-sm text-blue-800"><i class="fa-solid fa-server mr-1"></i> Adicionar Máquina à O.S.</h3>
+                        <p class="text-[9px] text-slate-500 font-bold">Base Instalada do Cliente</p>
+                    </div>
+                    <button onclick="window.app.fecharModalAddEquip()" class="w-8 h-8 bg-slate-200 rounded-full text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div class="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                    <!-- Lista do Parque de Máquinas -->
+                    <div>
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Máquinas Vinculadas</h4>
+                        <div id="lista-parque-cliente" class="space-y-2"></div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-4">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Não encontrou? Adicione Manual</h4>
+                        <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <input type="text" id="add-equip-modelo" placeholder="Modelo do Equipamento" class="w-full text-xs font-bold p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <input type="text" id="add-equip-sn" placeholder="Número de Série (SN) - Opcional" class="w-full text-xs font-mono p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <button onclick="window.app.addEquipamentoManual()" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-lg shadow-sm transition active:scale-95 text-xs">Adicionar Equipamento Novo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL DE PEÇAS (MOCHILA) -->
-        <div id="modal-pecas" class="fixed inset-0 bg-slate-900/70 z-[9999] flex flex-col justify-end hidden opacity-0 transition-opacity">
+        <div id="modal-pecas" class="fixed inset-0 bg-slate-900/70 z-[99999] flex flex-col justify-end hidden opacity-0 transition-opacity">
             <div class="bg-white rounded-t-3xl h-[70vh] flex flex-col transform translate-y-full transition-transform duration-300" id="modal-pecas-content">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
                     <div>
@@ -282,6 +318,7 @@
             temVisaoGlobal: false,
             dbOrdens: [],
             estoqueCarro: [],
+            parqueMaquinas: [],
             kanbanMapping: {},
             dbForms: [],
             formSubmissions: [],
@@ -369,6 +406,14 @@
                 if(target) target.className = 'screen active';
                 document.getElementById('header-title').innerText = title;
                 document.getElementById('btn-back').style.display = showBack ? 'flex' : 'none';
+                
+                const badge = document.getElementById('header-os-badge');
+                if (showBack && this.osAtual) {
+                    badge.innerText = this.osAtual.id;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             },
 
             goHome: function() { this.carregarFilaOS(); this.navigate('screen-home', 'Minha Fila', false); },
@@ -464,13 +509,18 @@
 
                     const container = document.getElementById('lista-maquinas-os');
                     
+                    // DESACOPLAMENTO: Normaliza os equipamentos sempre para a estrutura equipamentosOS do ServiceFlow
                     let arrayEquips = [];
-                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { arrayEquips = this.osAtual.equipamentosOS; } 
-                    else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) { arrayEquips = this.osAtual.equipamentos; } 
-                    else if (this.osAtual.equipment && this.osAtual.equipment.model) { arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS' }]; } 
-                    else if (this.osAtual.maquina) { arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS' }]; }
-
-                    this.osAtual.equipamentos = arrayEquips; 
+                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { 
+                        arrayEquips = this.osAtual.equipamentosOS; 
+                    } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) { 
+                        arrayEquips = this.osAtual.equipamentos; 
+                    } else if (this.osAtual.equipment && this.osAtual.equipment.model) { 
+                        arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
+                    } else if (this.osAtual.maquina) { 
+                        arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
+                    }
+                    this.osAtual.equipamentosOS = arrayEquips; 
 
                     if(arrayEquips.length === 0) {
                         container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">Nenhum equipamento cadastrado.</p>';
@@ -498,9 +548,73 @@
                 }
             },
 
+            // ADICIONAR EQUIPAMENTO NA O.S. (NOVA FUNÇÃO INTEGRADADA COM PARQUE DE MÁQUINAS)
+            abrirModalAddEquip: function() {
+                const cName = this.osAtual.clienteOS || this.osAtual.cliente || this.osAtual.client?.name || '';
+                const container = document.getElementById('lista-parque-cliente');
+                
+                // Filtra o Parque pelo nome do Cliente
+                const maqsCliente = this.parqueMaquinas.filter(m => (m.cliente_atual || '').toLowerCase() === cName.toLowerCase());
+                
+                if (maqsCliente.length === 0) {
+                    container.innerHTML = `<div class="text-center py-4 bg-white rounded-lg border border-slate-200"><p class="text-[10px] text-slate-500 italic">Nenhuma máquina vinculada a este cliente no Parque.</p></div>`;
+                } else {
+                    container.innerHTML = maqsCliente.map(m => `
+                        <div onclick="window.app.addEquipamentoExistente('${m.modelo}', '${m.serial}')" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm active:bg-blue-50 transition cursor-pointer flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-blue-700 leading-tight">${m.modelo}</h4>
+                                <p class="text-[10px] text-slate-500 font-mono mt-0.5">SN: ${m.serial}</p>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-plus text-[10px]"></i></div>
+                        </div>
+                    `).join('');
+                }
+
+                document.getElementById('add-equip-modelo').value = '';
+                document.getElementById('add-equip-sn').value = '';
+
+                const modal = document.getElementById('modal-add-equip');
+                const content = document.getElementById('modal-add-equip-content');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+            },
+
+            fecharModalAddEquip: function() {
+                const modal = document.getElementById('modal-add-equip');
+                const content = document.getElementById('modal-add-equip-content');
+                modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            },
+
+            addEquipamentoExistente: function(modelo, serial) {
+                const mqStr = serial ? `[SN: ${serial}] ${modelo}` : modelo;
+                this.adicionarNovoEquipamento(mqStr);
+            },
+
+            addEquipamentoManual: function() {
+                const modelo = document.getElementById('add-equip-modelo').value.trim();
+                const serial = document.getElementById('add-equip-sn').value.trim();
+                if (!modelo) { this.showToast('Preencha o modelo!', 'warning'); return; }
+                const mqStr = serial ? `[SN: ${serial}] ${modelo}` : modelo;
+                this.adicionarNovoEquipamento(mqStr);
+            },
+
+            adicionarNovoEquipamento: function(nomeCompleto) {
+                let newEq = {
+                    maquina: nomeCompleto, defeito: 'Sem relato. Máquina inserida pelo Técnico.', etapa: '1. Abertura da OS', formulariosExigidos: []
+                };
+                if (!this.osAtual.equipamentosOS) this.osAtual.equipamentosOS = [];
+                this.osAtual.equipamentosOS.push(newEq);
+                this.fecharModalAddEquip();
+                
+                this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Equipamento adicionado!', () => {
+                    window.app.abrirOS(this.osAtual.id);
+                });
+            },
+
             abrirMaquina: function(index) {
                 this.maquinaIndex = index;
-                const maq = this.osAtual.equipamentos[index];
+                const maq = this.osAtual.equipamentosOS[index];
                 
                 document.getElementById('maq-det-nome').innerText = maq.maquina || 'Máquina Indefinida';
                 document.getElementById('maq-det-defeito').innerText = maq.defeito || 'Sem relato.';
@@ -514,11 +628,10 @@
                 this.atualizarCorEtapaSelect();
 
                 // NORMALIZAÇÃO PARA MÚLTIPLOS FORMULÁRIOS
-                if (!maq.formularios) {
-                    maq.formularios = [];
-                    if (maq.formulario && maq.formulario.trim() !== '') {
-                        maq.formularios.push({ titulo: maq.formulario, resposta_id: maq.formulario_resposta_id || '' });
-                    }
+                if (!maq.formulariosExigidos && maq.formulario && maq.formulario.trim() !== '') {
+                    maq.formulariosExigidos = [maq.formulario];
+                } else if (!maq.formulariosExigidos) {
+                    maq.formulariosExigidos = [];
                 }
                 
                 this.renderizarFormulariosMaquina();
@@ -529,21 +642,23 @@
             },
 
             renderizarFormulariosMaquina: function() {
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
                 const containerForms = document.getElementById('maq-det-forms');
                 let html = '';
 
-                if (maq.formularios && maq.formularios.length > 0) {
-                    html = maq.formularios.map((f, idx) => {
-                        const isFilled = f.resposta_id && f.resposta_id !== '';
+                if (maq.formulariosExigidos && maq.formulariosExigidos.length > 0) {
+                    html = maq.formulariosExigidos.map((fTitle, idx) => {
+                        const idSubEsperado = `${this.osAtual.id}_${this.maquinaIndex}_${idx}`; 
+                        const isFilled = this.formSubmissions.find(s => s.id === idSubEsperado);
+                        
                         const btnText = isFilled ? 'Ver/Editar' : 'Preencher';
                         const btnClass = isFilled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-600 text-white border-blue-700';
                         const iconClass = isFilled ? 'fa-check-double text-emerald-500' : 'fa-pen-to-square text-blue-200';
 
                         return `
                             <div class="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm mb-2">
-                                <span class="text-[11px] font-bold text-slate-700 truncate pr-2 flex-1"><i class="fa-solid fa-file-lines text-slate-400 mr-1.5"></i> ${f.titulo}</span>
-                                <button onclick="window.app.abrirModalFormulario(${idx})" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer flex items-center gap-1">
+                                <span class="text-[11px] font-bold text-slate-700 truncate pr-2 flex-1"><i class="fa-solid fa-file-lines text-slate-400 mr-1.5"></i> ${fTitle}</span>
+                                <button onclick="window.app.abrirModalFormulario(${idx}, '${fTitle.replace(/'/g, "\\'")}')" class="${btnClass} border px-3 py-2 rounded-lg text-[10px] font-black shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer flex items-center gap-1">
                                     <i class="fa-solid ${iconClass}"></i> ${btnText}
                                 </button>
                             </div>`;
@@ -552,7 +667,6 @@
                     html = '<p class="text-[10px] text-slate-400 italic bg-white p-3 rounded-lg border border-slate-200 mb-2">Nenhum formulário vinculado à máquina.</p>';
                 }
 
-                // Adiciona o botão de "Mais Formulários" sempre no final
                 html += `
                     <button onclick="window.app.abrirModalAddForm()" class="w-full bg-slate-50 hover:bg-slate-100 text-blue-600 border border-blue-200 border-dashed py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-1">
                         <i class="fa-solid fa-plus-circle"></i> Adicionar Outro Formulário
@@ -565,7 +679,7 @@
             atualizarCorEtapaSelect: function() {
                 const sel = document.getElementById('maq-inp-etapa');
                 const opt = sel.options[sel.selectedIndex];
-                sel.className = `w-full text-xs font-bold p-3.5 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
+                sel.className = `w-full text-xs font-bold p-3 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
             },
 
             abrirModalAddForm: function() {
@@ -595,13 +709,9 @@
             },
 
             addFormNaMaquina: function(formTitle) {
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
-                if (!maq.formularios) maq.formularios = [];
-                
-                maq.formularios.push({ titulo: formTitle, resposta_id: '' });
-                
-                // Se for o primeiro, copia pra legacy pra não quebrar a gestao_os
-                if (maq.formularios.length === 1) { maq.formulario = formTitle; }
+                const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
+                if (!maq.formulariosExigidos) maq.formulariosExigidos = [];
+                maq.formulariosExigidos.push(formTitle);
                 
                 this.renderizarFormulariosMaquina();
                 this.fecharModalAddForm();
@@ -610,24 +720,21 @@
 
             escapeHtml: function(s) { return (s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); },
 
-            abrirModalFormulario: function(formIndex) {
+            abrirModalFormulario: function(formIndex, fTitle) {
                 this.currentFormIndex = formIndex;
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
-                const formObjItem = maq.formularios[formIndex];
+                const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
                 
-                const formObj = this.dbForms.find(f => f.title === formObjItem.titulo);
+                const formObj = this.dbForms.find(f => f.title === fTitle);
                 if (!formObj) { this.showToast('Formulário não encontrado no sistema.', 'error'); return; }
                 
                 this.currentActiveForm = formObj;
-                this.currentActiveSubmissionId = formObjItem.resposta_id || '';
+                this.currentActiveSubmissionId = `${this.osAtual.id}_${this.maquinaIndex}_${formIndex}`;
 
                 document.getElementById('titulo-modal-form').innerText = formObj.title;
 
                 let existingAnswers = {};
-                if (this.currentActiveSubmissionId) {
-                    const sub = this.formSubmissions.find(s => s.id === this.currentActiveSubmissionId);
-                    if(sub) existingAnswers = sub.answers || {};
-                }
+                const sub = this.formSubmissions.find(s => s.id === this.currentActiveSubmissionId);
+                if(sub) existingAnswers = sub.answers || {};
 
                 const cont = document.getElementById('preview-fields-container');
                 const eventHandlers = `onchange="window.app.evaluatePreviewRules()" oninput="window.app.evaluatePreviewRules()"`;
@@ -744,23 +851,17 @@
                     else { const el = document.querySelector(`[name="${f.id}"]`); answers[f.label] = el ? el.value : ''; }
                 });
 
-                const subId = this.currentActiveSubmissionId || 's_' + Date.now() + Math.floor(Math.random()*1000);
                 const sub = { 
-                    id: subId, formId: formObj.id, osId: this.osAtual.id,
+                    id: this.currentActiveSubmissionId, formId: formObj.id, osId: this.osAtual.id,
                     submittedAt: new Date().toISOString(), answers: answers, tecnico: this.nomeTecnico
                 };
                 
                 const cleanSub = JSON.parse(JSON.stringify(sub));
                 window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), cleanSub).catch(err => console.error("Sync Form Error: ", err));
                 
-                // Atualiza o slot específico do array de formulários
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
-                maq.formularios[this.currentFormIndex].resposta_id = subId;
-                
-                // Se for o primeiro formulário do array, copia para a variável raiz para o painel antigo enxergar
-                if (this.currentFormIndex === 0) {
-                    maq.formulario_resposta_id = subId;
-                }
+                // Força a atualização local e renderiza o badge verde
+                const idx = this.formSubmissions.findIndex(s => s.id === sub.id);
+                if(idx !== -1) this.formSubmissions[idx] = sub; else this.formSubmissions.push(sub);
                 
                 this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Laudo salvo com sucesso!', () => {
                     window.app.fecharModalFormulario();
@@ -822,19 +923,19 @@
             },
 
             salvarMaquinaAtual: function() {
-                const maq = this.osAtual.equipamentos[this.maquinaIndex];
+                const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
                 maq.etapa = document.getElementById('maq-inp-etapa').value;
                 maq.servico = document.getElementById('maq-inp-servico').value;
                 maq.horaInicio = document.getElementById('maq-inp-inicio').value;
                 maq.horaFim = document.getElementById('maq-inp-fim').value;
                 maq.pecasUtilizadas = this.pecasTemporarias;
 
-                if (!this.osAtual.orcamentos) this.osAtual.orcamentos = [];
+                if (!this.osAtual.orcamentosOS) this.osAtual.orcamentosOS = [];
                 if (this.pecasTemporarias.length > 0 || maq.horaInicio) {
-                    let orc = this.osAtual.orcamentos.find(o => o.alvo === maq.maquina);
+                    let orc = this.osAtual.orcamentosOS.find(o => o.alvo === maq.maquina);
                     if (!orc) {
                         orc = { alvo: maq.maquina, itens: [], mo_qtd: 1, mo_unit: 0, desl_qtd: 1, desl_unit: 0, obs: "Apontamento do Técnico (App)", total: 0 };
-                        this.osAtual.orcamentos.push(orc);
+                        this.osAtual.orcamentosOS.push(orc);
                     }
                     this.pecasTemporarias.forEach(p => {
                         const itemExistente = orc.itens.find(i => i.desc === p.nome);
@@ -845,7 +946,7 @@
                 let lowestStageNum = 10;
                 let lowestStageName = this.etapasOficiais[9].nome;
 
-                this.osAtual.equipamentos.forEach(m => {
+                this.osAtual.equipamentosOS.forEach(m => {
                     const numMatch = m.etapa.match(/^(\d+)/);
                     if(numMatch) {
                         const num = parseInt(numMatch[1]);
@@ -855,7 +956,6 @@
 
                 this.osAtual.status = this.kanbanMapping[lowestStageName] || 'ENTRADA';
                 this.osAtual.etapa_global = lowestStageName;
-                this.osAtual.kanbanStatus = this.osAtual.status;
 
                 this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'Apontamentos Salvos!', () => {
                     window.app.abrirOS(this.osAtual.id);
@@ -866,7 +966,7 @@
                 const cName = this.osAtual.cliente || this.osAtual.clienteOS || (this.osAtual.client ? this.osAtual.client.name : '') || 'Cliente';
                 document.getElementById('chk-cliente').innerText = cName;
                 document.getElementById('chk-os').innerText = this.osAtual.id;
-                document.getElementById('chk-qtd').innerText = (this.osAtual.equipamentos || []).length + " Máquina(s)";
+                document.getElementById('chk-qtd').innerText = (this.osAtual.equipamentosOS || []).length + " Máquina(s)";
                 this.limparAssinatura();
                 this.navigate('screen-checkout', 'Coletar Assinatura', true);
             },
@@ -876,15 +976,14 @@
                 const canvas = document.getElementById('signature-pad');
                 this.osAtual.assinaturaDigital = canvas.toDataURL('image/png');
                 
-                if(this.osAtual.equipamentos) {
-                    this.osAtual.equipamentos.forEach(m => {
+                if(this.osAtual.equipamentosOS) {
+                    this.osAtual.equipamentosOS.forEach(m => {
                         const numMatch = m.etapa.match(/^(\d+)/);
                         if(numMatch && parseInt(numMatch[1]) < 8) { m.etapa = '8. Check-out / Finalização'; }
                     });
                 }
                 this.osAtual.status = this.kanbanMapping['8. Check-out / Finalização'] || 'CONCLUIDO';
                 this.osAtual.etapa_global = '8. Check-out / Finalização';
-                this.osAtual.kanbanStatus = this.osAtual.status;
 
                 this.salvarNoBanco('suportes_osr', this.osAtual.id, this.osAtual, 'OS Finalizada com Sucesso!', () => {
                     window.app.goHome();
@@ -900,8 +999,20 @@
                 }
             },
 
-            abrirGPS: function() { this.showToast('Abrindo GPS...', 'info'); },
-            abrirWhatsApp: function() { this.showToast('Abrindo WhatsApp...', 'info'); },
+            abrirGPS: function() { 
+                let loc = this.osAtual.location || this.osAtual.client?.city || this.osAtual.cidade || '';
+                if(!loc) { this.showToast('Endereço não disponível', 'warning'); return; }
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
+            },
+
+            abrirWhatsApp: function() { 
+                let phone = this.osAtual.client?.phone || this.osAtual.telefone || '';
+                let cleanPhone = phone.replace(/\D/g, '');
+                if(cleanPhone.length < 10) { this.showToast('Telefone inválido ou ausente.', 'warning'); return; }
+                if(!cleanPhone.startsWith('55')) cleanPhone = '55' + cleanPhone;
+                let msg = `Olá! Sou da equipe técnica da CIJ e estou a caminho para o atendimento da OS ${this.osAtual.id}.`;
+                window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
 
             showToast: function(msg, tipo = 'info') {
                 const t = document.getElementById('custom-toast');
@@ -912,10 +1023,8 @@
             }
         };
 
-        // Torna o Objeto App acessível globalmente
         window.app = app;
 
-        // Função Construtora Iniciada pelo CORE.js
         window.initModule = function(perfil) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-content').style.display = 'flex';
@@ -923,7 +1032,6 @@
             window.app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
             window.app.emailTecnico = window.currentUser.email;
             
-            // Controle de Visão (Técnico vs Gestor)
             if (perfil === 'Master' || perfil === 'Administrativo' || window.userVisaoGlobal) {
                 window.app.temVisaoGlobal = true;
                 document.getElementById('dev-visao-global').checked = true;
@@ -936,17 +1044,17 @@
 
             window.app.init();
 
-            // Ler Forms Sandbox
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_forms'), snap => {
-                window.app.dbForms = [];
-                snap.forEach(d => window.app.dbForms.push(d.data()));
+                window.app.dbForms = []; snap.forEach(d => window.app.dbForms.push(d.data()));
             });
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions'), snap => {
-                window.app.formSubmissions = [];
-                snap.forEach(d => window.app.formSubmissions.push(d.data()));
+                window.app.formSubmissions = []; snap.forEach(d => window.app.formSubmissions.push(d.data()));
             });
 
-            // Ler O.S
+            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => {
+                window.app.parqueMaquinas = []; snap.forEach(d => window.app.parqueMaquinas.push(d.data()));
+            });
+
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
                 window.app.dbOrdens = [];
                 snap.forEach(d => window.app.dbOrdens.push(d.data()));
@@ -959,7 +1067,6 @@
                 window.app.carregarFilaOS();
             });
 
-            // Ler Mochila de Peças
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material'), snap => {
                 window.app.estoqueCarro = [];
                 snap.forEach(d => {
@@ -968,7 +1075,6 @@
                 });
             });
 
-            // Ler Automação (Gatilhos do Gestor)
             window.fsOnSnapshot(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'config', 'kanban_mapping'), snap => {
                 if(snap.exists()) {
                     window.app.kanbanMapping = snap.data().mapping;
