@@ -44,7 +44,7 @@
                 <div>
                     <h1 id="header-title" class="font-black text-lg leading-tight tracking-tight">Minha Fila</h1>
                     <div class="flex items-center gap-2 mt-0.5">
-                        <span id="header-os-badge" class="hidden bg-blue-900/50 text-blue-100 border border-blue-400/50 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm"></span>
+                        <span id="header-os-badge" class="hidden bg-blue-900/50 text-blue-100 border border-blue-400/50 text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm"></span>
                         <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium transition-colors">Conectado (Online)</p>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            <!-- TELA: DETALHES DA OS (100% ROLÁVEL) -->
+            <!-- TELA: DETALHES DA OS -->
             <div id="screen-os" class="screen flex flex-col">
                 <div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 pb-20">
                     
@@ -238,10 +238,10 @@
 
                     <div class="border-t border-slate-200 pt-4">
                         <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Não encontrou? Adicione Manual</h4>
-                        <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <input type="text" id="add-equip-modelo" placeholder="Modelo do Equipamento" class="w-full text-xs font-bold p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                            <input type="text" id="add-equip-sn" placeholder="Número de Série (SN) - Opcional" class="w-full text-xs font-mono p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                            <button onclick="window.app.addEquipamentoManual()" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-lg shadow-sm transition active:scale-95 text-xs">Adicionar Equipamento Novo</button>
+                        <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <input type="text" id="add-equip-modelo" placeholder="Modelo do Equipamento" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <input type="text" id="add-equip-sn" placeholder="Número de Série (SN) - Opcional" class="w-full text-xs font-mono p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <button onclick="window.app.addEquipamentoManual()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl shadow-md transition active:scale-95 text-xs">Adicionar Equipamento Novo</button>
                         </div>
                     </div>
                 </div>
@@ -499,8 +499,7 @@
                     if(!this.osAtual) { this.showToast('Erro: OS não localizada.', 'error'); return; }
 
                     let cName = this.osAtual.clienteOS || this.osAtual.cliente || this.osAtual.client?.name || 'Cliente Indefinido';
-                    document.getElementById('os-det-cliente').innerText = cName;
-                    document.getElementById('os-det-id').innerText = this.osAtual.osr || this.osAtual.id || 'S/N';
+                    const elCli = document.getElementById('os-det-cliente'); if(elCli) elCli.innerText = cName;
                     
                     const cleanName = cName.trim().toLowerCase();
                     const cliData = this.dbClientes.find(c => 
@@ -524,8 +523,8 @@
                     this.osAtual._enderecoReal = endCompleto;
                     this.osAtual._telefoneReal = telefone;
                     
-                    document.getElementById('os-det-endereco').innerText = endCompleto || 'Endereço não cadastrado (Busque Waze pelo Nome)';
-                    document.getElementById('os-det-telefone').innerText = telefone || 'Sem telefone';
+                    const elEnd = document.getElementById('os-det-endereco'); if(elEnd) elEnd.innerText = endCompleto || 'Endereço não cadastrado (Busque Waze pelo Nome)';
+                    const elTel = document.getElementById('os-det-telefone'); if(elTel) elTel.innerText = telefone || 'Sem telefone';
                     
                     let rawDate = this.osAtual.dataAgendamento || this.osAtual.dataAgendamentoOS || this.osAtual.createdAt || '';
                     let dt = '--/--/----';
@@ -533,42 +532,45 @@
                     else if (typeof rawDate === 'string' && rawDate.includes('-')) { dt = rawDate.split('-').reverse().join('/'); } 
                     else if (rawDate) { dt = rawDate; }
                     
-                    document.getElementById('os-det-data').innerText = dt;
-                    document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
+                    const elDt = document.getElementById('os-det-data'); if(elDt) elDt.innerText = dt;
+                    const elSol = document.getElementById('os-det-solicitante'); if(elSol) elSol.innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
 
+                    // DESACOPLAMENTO PARA SERVICEFLOW (Múltiplas Máquinas)
                     const container = document.getElementById('lista-maquinas-os');
-                    let arrayEquips = [];
-                    if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { 
-                        arrayEquips = this.osAtual.equipamentosOS; 
-                    } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) { 
-                        arrayEquips = this.osAtual.equipamentos; 
-                    } else if (this.osAtual.equipment && this.osAtual.equipment.model) { 
-                        arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
-                    } else if (this.osAtual.maquina) { 
-                        arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
-                    } else {
-                        arrayEquips = [{ maquina: 'Equipamento Indefinido', defeito: 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }];
-                    }
+                    if(container) {
+                        let arrayEquips = [];
+                        if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { 
+                            arrayEquips = this.osAtual.equipamentosOS; 
+                        } else if (Array.isArray(this.osAtual.equipamentos) && this.osAtual.equipamentos.length > 0) { 
+                            arrayEquips = this.osAtual.equipamentos; 
+                        } else if (this.osAtual.equipment && this.osAtual.equipment.model) { 
+                            arrayEquips = [{ maquina: `[SN: ${this.osAtual.equipment.serial || 'S/N'}] ${this.osAtual.equipment.model}`, defeito: (this.osAtual.request ? this.osAtual.request.problem : '') || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
+                        } else if (this.osAtual.maquina) { 
+                            arrayEquips = [{ maquina: this.osAtual.maquina, defeito: this.osAtual.defeito || 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }]; 
+                        } else {
+                            arrayEquips = [{ maquina: 'Equipamento Indefinido', defeito: 'Sem relato', etapa: '1. Abertura da OS', formulariosExigidos: [] }];
+                        }
 
-                    this.osAtual.equipamentosOS = arrayEquips; 
+                        this.osAtual.equipamentosOS = arrayEquips; 
 
-                    if(arrayEquips.length === 0) {
-                        container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-xl border border-slate-200">Nenhum equipamento cadastrado.</p>';
-                    } else {
-                        container.innerHTML = arrayEquips.map((maq, index) => {
-                            const etapaName = maq.etapa || '1. Abertura da OS';
-                            const objEtapa = this.etapasOficiais.find(e => e.nome === etapaName) || this.etapasOficiais[0];
-                            return `
-                            <div onclick="window.app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-blue-50 transition cursor-pointer hover:border-blue-400">
-                                <div class="flex-1 pr-3">
-                                    <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
-                                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-2.5 leading-tight bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-inner"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
-                                    <span class="text-[9px] font-bold px-2.5 py-1 rounded border ${objEtapa.cor} shadow-sm">${objEtapa.nome}</span>
+                        if(arrayEquips.length === 0) {
+                            container.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-white p-3 rounded-xl border border-slate-200">Nenhum equipamento cadastrado.</p>';
+                        } else {
+                            container.innerHTML = arrayEquips.map((maq, index) => {
+                                const etapaName = maq.etapa || '1. Abertura da OS';
+                                const objEtapa = this.etapasOficiais.find(e => e.nome === etapaName) || this.etapasOficiais[0];
+                                return `
+                                <div onclick="window.app.abrirMaquina(${index})" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center active:bg-blue-50 transition cursor-pointer hover:border-blue-400">
+                                    <div class="flex-1 pr-3">
+                                        <h4 class="text-xs font-black text-blue-800 mb-1.5 leading-tight line-clamp-1"><i class="fa-solid fa-print text-slate-400 mr-1"></i> ${maq.maquina || 'Máquina S/N'}</h4>
+                                        <p class="text-[10px] text-slate-500 line-clamp-2 mb-2.5 leading-tight bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-inner"><strong>Defeito:</strong> ${maq.defeito || 'Sem relato'}</p>
+                                        <span class="text-[9px] font-bold px-2.5 py-1 rounded border ${objEtapa.cor} shadow-sm">${objEtapa.nome}</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 shadow-inner border border-slate-200"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0 shadow-inner border border-slate-200"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
-                            </div>
-                            `;
-                        }).join('');
+                                `;
+                            }).join('');
+                        }
                     }
 
                     this.navigate('screen-os', `Chamado Ativo`, true);
@@ -646,14 +648,16 @@
                 this.maquinaIndex = index;
                 const maq = this.osAtual.equipamentosOS[index];
                 
-                document.getElementById('maq-det-nome').innerText = maq.maquina || 'Máquina Indefinida';
-                document.getElementById('maq-det-defeito').innerText = maq.defeito || 'Sem relato.';
-                document.getElementById('maq-inp-servico').value = maq.servico || '';
+                const elNome = document.getElementById('maq-det-nome'); if(elNome) elNome.innerText = maq.maquina || 'Máquina Indefinida';
+                const elDefeito = document.getElementById('maq-det-defeito'); if(elDefeito) elDefeito.innerText = maq.defeito || 'Sem relato.';
+                const elServico = document.getElementById('maq-inp-servico'); if(elServico) elServico.value = maq.servico || '';
                 
                 const selectEtapa = document.getElementById('maq-inp-etapa');
-                selectEtapa.innerHTML = this.etapasOficiais.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
-                selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
-                this.atualizarCorEtapaSelect();
+                if(selectEtapa) {
+                    selectEtapa.innerHTML = this.etapasOficiais.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
+                    selectEtapa.value = maq.etapa || this.etapasOficiais[0].nome;
+                    this.atualizarCorEtapaSelect();
+                }
 
                 if (!maq.formulariosExigidos && maq.formulario && maq.formulario.trim() !== '') {
                     maq.formulariosExigidos = [maq.formulario];
@@ -671,6 +675,7 @@
             renderizarFormulariosMaquina: function() {
                 const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
                 const containerForms = document.getElementById('maq-det-forms');
+                if(!containerForms) return;
                 let html = '';
 
                 if (maq.formulariosExigidos && maq.formulariosExigidos.length > 0) {
@@ -706,6 +711,7 @@
 
             atualizarCorEtapaSelect: function() {
                 const sel = document.getElementById('maq-inp-etapa');
+                if(!sel) return;
                 const opt = sel.options[sel.selectedIndex];
                 sel.className = `w-full text-xs font-bold p-3.5 rounded-xl outline-none border shadow-sm cursor-pointer transition-colors bg-white ${opt.getAttribute('data-cor')}`;
             },
@@ -969,8 +975,12 @@
 
             salvarMaquinaAtual: function() {
                 const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
-                maq.etapa = document.getElementById('maq-inp-etapa').value;
-                maq.servico = document.getElementById('maq-inp-servico').value;
+                
+                const elEtapa = document.getElementById('maq-inp-etapa');
+                if(elEtapa) maq.etapa = elEtapa.value;
+                
+                const elServico = document.getElementById('maq-inp-servico');
+                if(elServico) maq.servico = elServico.value;
                 
                 const oldPecas = maq.pecasUtilizadas || [];
                 const newPecas = this.pecasTemporarias;
