@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            <!-- TELA: DETALHES DA OS -->
+            <!-- TELA: DETALHES DA OS (100% ROLÁVEL) -->
             <div id="screen-os" class="screen flex flex-col">
                 <div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 pb-20">
                     
@@ -199,7 +199,7 @@
         </main>
 
         <!-- MENU INFERIOR NATIVO -->
-        <nav class="bg-white border-t border-slate-200 flex items-center justify-around pb-5 pt-2 px-2 shrink-0 z-40 relative">
+        <nav id="bottom-nav" class="bg-white border-t border-slate-200 flex items-center justify-around pb-5 pt-2 px-2 shrink-0 z-40 relative">
             <button onclick="window.app.goHome()" class="flex flex-col items-center gap-1 p-2 text-blue-600 w-16 cursor-pointer">
                 <i class="fa-solid fa-clipboard-list text-xl"></i>
                 <span class="text-[9px] font-bold">OS (Fila)</span>
@@ -417,6 +417,17 @@
                 } else {
                     badge.classList.add('hidden');
                 }
+
+                const bottomNav = document.getElementById('bottom-nav');
+                if (bottomNav) {
+                    if (screenId === 'screen-home') {
+                        bottomNav.classList.remove('hidden');
+                        bottomNav.classList.add('flex');
+                    } else {
+                        bottomNav.classList.add('hidden');
+                        bottomNav.classList.remove('flex');
+                    }
+                }
             },
 
             goHome: function() { this.carregarFilaOS(); this.navigate('screen-home', 'Minha Fila', false); },
@@ -500,6 +511,7 @@
 
                     let cName = this.osAtual.clienteOS || this.osAtual.cliente || this.osAtual.client?.name || 'Cliente Indefinido';
                     const elCli = document.getElementById('os-det-cliente'); if(elCli) elCli.innerText = cName;
+                    const elId = document.getElementById('os-det-id'); if(elId) elId.innerText = this.osAtual.osr || this.osAtual.id || 'S/N';
                     
                     const cleanName = cName.trim().toLowerCase();
                     const cliData = this.dbClientes.find(c => 
@@ -987,7 +999,6 @@
 
                 maq.pecasUtilizadas = [...this.pecasTemporarias];
 
-                // Atualiza orçamento base, se houver
                 if (!this.osAtual.orcamentosOS) this.osAtual.orcamentosOS = [];
                 if (this.pecasTemporarias.length > 0) {
                     let orc = this.osAtual.orcamentosOS.find(o => o.alvo === maq.maquina);
@@ -1001,7 +1012,6 @@
                     });
                 }
 
-                // INTELIGÊNCIA: Calcular diferença (Delta) para dar baixa automática na Logística
                 let deltas = {};
                 newPecas.forEach(p => { deltas[p.id] = { delta: p.qtd, nome: p.nome }; });
                 oldPecas.forEach(p => { 
@@ -1035,7 +1045,6 @@
                     }
                 }
 
-                // Gatilho do Kanban
                 let lowestStageNum = 10;
                 let lowestStageName = this.etapasOficiais[9].nome;
 
