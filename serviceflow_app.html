@@ -15,8 +15,7 @@
                     fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                     boxShadow: {
                         'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.04)',
-                        'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)',
-                        'card-hover': '0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
+                        'glow': '0 0 20px -5px rgba(37, 99, 235, 0.35)'
                     }
                 }
             }
@@ -25,47 +24,24 @@
 
     <style>
         html, body { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        
         .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 800; }
         .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; font-weight: 600; }
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .glass-header {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
+        .glass-header { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .timeline-item { position: relative; padding-left: 1.5rem; }
         .timeline-item::before { content: ''; position: absolute; left: 4px; top: 6px; bottom: -1.25rem; border-left: 2px solid #e2e8f0; }
         .timeline-item:last-child::before { display: none; }
-        .timeline-dot {
-            position: absolute; left: 0px; top: 6px; width: 10px; height: 10px; border-radius: 50%;
-            background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
-        }
-
+        .timeline-dot { position: absolute; left: 0px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25); }
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
         .dragging { opacity: 0.4; transform: scale(0.95); }
-
         .pulse-critical { animation: pulseRed 2s infinite; }
-        @keyframes pulseRed {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-
-        @media print {
-            body * { visibility: hidden; }
-            #print-area, #print-area * { visibility: visible; }
-            #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
-        }
+        @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; } }
     </style>
 </head>
 <body class="flex flex-col text-slate-800 antialiased selection:bg-blue-600 selection:text-white h-screen w-screen overflow-hidden bg-slate-50">
@@ -106,7 +82,7 @@
 
                 <nav class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto">
                     <button onclick="window.switchView('kanban')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold bg-blue-600 text-white shadow-md shadow-blue-600/20 whitespace-nowrap" id="nav-kanban"><i class="fa-solid fa-table-columns"></i><span>Kanban</span></button>
-                    <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></button>
+                    <button onclick="window.switchView('pendencias')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-pendencias"><i class="fa-solid fa-inbox"></i><span>Pendências</span><span id="badge-pendencias" class="ml-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></button>
                     <button onclick="window.switchView('indicadores')" class="nav-link flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold text-slate-600 hover:text-blue-700 hover:bg-white whitespace-nowrap" id="nav-indicadores"><i class="fa-solid fa-chart-line"></i><span>Indicadores</span></button>
                 </nav>
 
@@ -600,7 +576,8 @@
                         history: d.history || [], triage: d.triage || null, quote: d.quote || null, schedule: d.schedule || null, timestampOriginal: d.timestamp || Date.now(),
                         equipamentosOS: d.equipamentosOS || d.equipamentos || [], orcamentosOS: d.orcamentosOS || d.orcamentos || [],
                         solicitanteOS: d.solicitanteOS || d.solicitante || '', tipoAtendimentoOS: d.tipoAtendimentoOS || d.tipoAtendimento || '',
-                        dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || '', observacoesOS: d.observacoesOS || d.observacoes || '', tecnicoOS: d.tecnicoOS || d.tecnico || ''
+                        dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || '', observacoesOS: d.observacoesOS || d.observacoes || '', tecnicoOS: d.tecnicoOS || d.tecnico || '',
+                        enderecoOS: d.enderecoOS || d.endereco || '', telefoneOS: d.telefoneOS || d.telefone || ''
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
@@ -666,12 +643,6 @@
             else document.getElementById('activeFilterBadge').classList.add('hidden');
             
             window.renderKanban();
-            window.renderPendencias();
-            window.renderIndicadores();
-            
-            const pCount = window.tickets.filter(t => t.status !== 'CONCLUIDO').length;
-            const bPend = document.getElementById('badge-pendencias');
-            if(bPend) { bPend.innerText = pCount; if(pCount > 0) bPend.classList.remove('hidden'); else bPend.classList.add('hidden'); }
         };
 
         window.filterTicketByCriteria = function(t) {
@@ -761,16 +732,18 @@
                     const iniTecnico = nomeTecnico.substring(0,1).toUpperCase();
 
                     let textMaquinas = '';
-                    let arrEqs = t.equipamentosOS || [];
-                    if (arrEqs.length > 1) {
-                        textMaquinas = `<i class="fa-solid fa-server text-blue-500 mr-1.5"></i> <span class="font-bold text-slate-700">${arrEqs.length} Equipamentos Cadastrados</span>`;
-                    } else if (arrEqs.length === 1) {
-                        const mStr = arrEqs[0].maquina || 'Equipamento Indefinido';
+                    let arrayEquips = t.equipamentosOS || [];
+                    if(arrayEquips.length === 0 && t.equipment?.model) {
+                        arrayEquips = [{maquina: `[SN: ${t.equipment.serial||'S/N'}] ${t.equipment.model}`, defeito: t.request?.problem||''}];
+                    }
+
+                    if (arrayEquips.length > 1) {
+                        textMaquinas = `<i class="fa-solid fa-server text-blue-500 mr-1.5"></i> <span class="font-bold text-slate-700">${arrayEquips.length} Equipamentos Cadastrados</span>`;
+                    } else if (arrayEquips.length === 1) {
+                        const mStr = arrayEquips[0].maquina || 'Equipamento Indefinido';
                         textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[180px] inline-block align-bottom">${mStr}</span>`;
                     } else {
-                        const mStr = t.equipment?.model || 'Sem Equipamento';
-                        const sStr = t.equipment?.serial ? `[SN: ${t.equipment.serial}]` : '';
-                        textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[120px] inline-block align-bottom">${mStr}</span> <span class="font-mono text-[9px] text-slate-400 ml-1 shrink-0">${sStr}</span>`;
+                        textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[120px] inline-block align-bottom">Sem Equipamento</span>`;
                     }
 
                     let qA = '';
@@ -812,103 +785,6 @@
                 cDiv.appendChild(cardsCont);
                 cont.appendChild(cDiv);
             });
-        };
-
-        window.renderPendencias = function() {
-            const cont = document.getElementById('pendenciasList');
-            if(!cont) return;
-            const ativos = window.tickets.filter(t => t.status !== 'CONCLUIDO' && window.filterTicketByCriteria(t));
-            const cTag = document.getElementById('pendenciasCountTag');
-            if(cTag) cTag.innerText = `${ativos.length} itens`;
-
-            if(ativos.length === 0) {
-                cont.innerHTML = `<div class="text-center py-10 opacity-60"><i class="fa-solid fa-inbox text-4xl text-slate-300 mb-3"></i><p class="text-sm font-bold text-slate-500">Nenhuma pendência encontrada.</p></div>`;
-                return;
-            }
-
-            cont.innerHTML = ativos.map(t => {
-                const isCritical = t.urgency === 'CRITICAL';
-                const sColor = STATUSES[t.status]?.color || 'bg-slate-50 text-slate-900 border-slate-200';
-                const sLabel = STATUSES[t.status]?.label || t.status;
-                const pText = t.request?.problem || t.defeito || (t.equipamentosOS && t.equipamentosOS.length > 0 ? t.equipamentosOS[0].defeito : 'Sem descrição');
-
-                return `
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition hover:border-blue-300 cursor-pointer" onclick="window.openTicketModal('${t.id}')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full ${isCritical ? 'bg-red-100 text-red-600 pulse-critical' : 'bg-blue-100 text-blue-600'} flex items-center justify-center text-lg shrink-0"><i class="fa-solid ${isCritical ? 'fa-triangle-exclamation' : 'fa-clipboard-list'}"></i></div>
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] font-black bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">${t.id}</span>
-                                <span class="text-[10px] font-bold text-slate-400"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
-                            </div>
-                            <h4 class="text-sm font-black text-slate-800">${t.client?.name || t.clienteOS || 'Sem Nome'}</h4>
-                            <p class="text-xs font-medium text-slate-500 mt-0.5 truncate max-w-md">${pText}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
-                        <span class="text-[10px] font-bold uppercase px-3 py-1.5 rounded-lg border ${sColor}">${sLabel}</span>
-                        <button onclick="event.stopPropagation(); window.abrirModalOS('${t.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5"><i class="fa-solid fa-file-invoice"></i> Tratar O.S.</button>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        };
-
-        window.renderIndicadores = function() {
-            const grid = document.getElementById('statsGrid');
-            const bar = document.getElementById('indicadoresBarList');
-            if(!grid || !bar) return;
-
-            const tks = window.tickets.filter(t => window.filterTicketByCriteria(t));
-            const total = tks.length;
-            const concluidos = tks.filter(t => t.status === 'CONCLUIDO').length;
-            const emAndamento = tks.filter(t => t.status !== 'CONCLUIDO' && t.status !== 'ENTRADA').length;
-            const entrada = tks.filter(t => t.status === 'ENTRADA').length;
-
-            grid.innerHTML = `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Total Filtrado</p><p class="text-2xl font-black text-slate-800">${total}</p></div>
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 text-xl"><i class="fa-solid fa-layer-group"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Fila de Entrada</p><p class="text-2xl font-black text-blue-700">${entrada}</p></div>
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl"><i class="fa-solid fa-inbox"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">Em Andamento</p><p class="text-2xl font-black text-amber-700">${emAndamento}</p></div>
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl"><i class="fa-solid fa-spinner"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Finalizados</p><p class="text-2xl font-black text-emerald-700">${concluidos}</p></div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl"><i class="fa-solid fa-check-double"></i></div>
-                </div>
-            `;
-
-            let barHtml = '';
-            Object.keys(STATUSES).forEach(colKey => {
-                const count = tks.filter(t => t.status === colKey).length;
-                const perc = total === 0 ? 0 : Math.round((count / total) * 100);
-                
-                let barColor = 'bg-slate-500';
-                if(colKey === 'ENTRADA') barColor = 'bg-blue-500';
-                if(colKey === 'TRIAGEM') barColor = 'bg-amber-500';
-                if(colKey === 'ORCAMENTO') barColor = 'bg-purple-500';
-                if(colKey === 'AGENDAMENTO') barColor = 'bg-cyan-500';
-                if(colKey === 'CONCLUIDO') barColor = 'bg-emerald-500';
-
-                barHtml += `
-                <div>
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-700 mb-1.5">
-                        <span class="uppercase tracking-wider">${STATUSES[colKey].label}</span>
-                        <span>${count} (${perc}%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div class="${barColor} h-2.5 rounded-full transition-all duration-1000" style="width: ${perc}%"></div>
-                    </div>
-                </div>
-                `;
-            });
-            bar.innerHTML = barHtml;
         };
 
         window.formatElapsedTime = function(ts) {
@@ -1037,10 +913,6 @@
                             <div><label class="block text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Defeito Relatado *</label><textarea rows="2" class="inp-defeito w-full bg-rose-50/50 border border-rose-200 text-xs text-slate-800 font-medium p-2.5 rounded-xl outline-none focus:border-rose-400 focus:bg-white resize-none shadow-sm" placeholder="O que o cliente informou?">${dadosSalvos ? (dadosSalvos.defeito||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
                             <div><label class="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1"><i class="fa-solid fa-wrench"></i> Serviço Realizado</label><textarea rows="2" class="inp-servico w-full bg-emerald-50/50 border border-emerald-200 text-xs text-slate-800 font-medium p-2.5 rounded-xl outline-none focus:border-emerald-400 focus:bg-white resize-none shadow-sm" placeholder="O que o técnico fez?">${dadosSalvos ? (dadosSalvos.servico||'').replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea></div>
                             
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200"><label class="block text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1"><i class="fa-regular fa-clock"></i> Início (Técnico)</label><input type="time" class="inp-hora-inicio w-full bg-white border border-slate-300 text-xs font-bold text-slate-700 p-2 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaInicio ? dadosSalvos.horaInicio : ''}"></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200"><label class="block text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1"><i class="fa-solid fa-flag-checkered"></i> Fim (Técnico)</label><input type="time" class="inp-hora-fim w-full bg-white border border-slate-300 text-xs font-bold text-slate-700 p-2 rounded-lg outline-none focus:border-blue-600 shadow-sm" value="${dadosSalvos && dadosSalvos.horaFim ? dadosSalvos.horaFim : ''}"></div>
-                            </div>
                         </div>
                         <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center shadow-inner relative overflow-hidden">
                             <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-100 rounded-full blur-2xl opacity-50"></div>
@@ -1175,7 +1047,6 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
 
-        // --- FORMCRAFT NATIVO DENTRO DA O.S. ---
         window.renderizarAbaFormularios = function() {
             const container = document.getElementById('lista-formularios-os');
             if(!container) return;
@@ -1225,129 +1096,49 @@
 
             const cont = document.getElementById('fc-perguntas-container');
             cont.innerHTML = window.formAtual.fields.map(f => {
-                let html = `<label class="block text-xs font-bold text-slate-800 mb-1">${f.label} ${f.required?'<span class="text-red-500">*</span>':''}</label>`;
-                if(f.instruction) html += `<p class="text-[10px] text-slate-500 mb-2">${f.instruction}</p>`;
+                let html = `<label class="block text-xs font-bold text-slate-800 mb-1.5 leading-tight">${this.escapeHtml(f.label)} ${f.required?'<span class="text-red-500">*</span>':''}</label>`;
+                if(f.instruction) html += `<p class="text-[10px] font-medium text-slate-500 mb-3">${this.escapeHtml(f.instruction)}</p>`;
                 
-                if(f.type === 'short_text') html += `<input type="text" name="${f.id}" data-type="text" class="w-full text-xs border p-2 rounded outline-none focus:border-blue-500 bg-white">`;
-                if(f.type === 'long_text') html += `<textarea name="${f.id}" data-type="text" rows="2" class="w-full text-xs border p-2 rounded outline-none focus:border-blue-500 bg-white"></textarea>`;
-                if(f.type === 'single_select') html += `<div class="space-y-1">${f.options.map(o => `<label class="flex gap-2 text-xs items-center cursor-pointer"><input type="radio" name="${f.id}" value="${o}" class="cursor-pointer" onchange="window.verificarRegrasFormCraft()"> ${o}</label>`).join('')}</div>`;
+                let val = '';
+                const osIdToMatch = this.osAtual.osr || this.osAtual.id;
+                const idSubEsperado = `${osIdToMatch}_${mIdx}_${fIdx}`;
+                const sub = window.formcraftSubmissions.find(s => s.id === idSubEsperado);
+                if(sub && sub.answers) val = sub.answers[f.label] || '';
                 
-                return `<div id="fc-wrapper-${f.id}" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
+                const eventHandlers = `onchange="window.app.evaluatePreviewRules()" oninput="window.app.evaluatePreviewRules()"`;
+                
+                if(f.type === 'short_text') html += `<input type="text" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white">`;
+                if(f.type === 'long_text') html += `<textarea name="${f.id}" rows="3" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-medium border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white resize-none">${this.escapeHtml(val)}</textarea>`;
+                if(f.type === 'number') html += `<input type="number" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white">`;
+                if(f.type === 'date') html += `<input type="date" name="${f.id}" value="${this.escapeHtml(val)}" ${f.required?'required':''} ${eventHandlers} class="w-full text-xs font-bold border border-slate-300 p-3 rounded-xl outline-none focus:border-blue-500 shadow-sm bg-white cursor-pointer">`;
+                
+                if(f.type === 'single_select') {
+                    html += `<div class="space-y-2">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200 active:bg-blue-50 transition"><input type="radio" name="${f.id}" value="${this.escapeHtml(o)}" ${val === o ? 'checked' : ''} ${f.required?'required':''} ${eventHandlers} class="w-4 h-4 text-blue-600 cursor-pointer"> ${this.escapeHtml(o)}</label>`).join('')}</div>`;
+                }
+                if(f.type === 'multi_select') {
+                    const valArr = Array.isArray(val) ? val : (val.split ? val.split(', ') : []);
+                    html += `<div class="space-y-2">${f.options.map(o => `<label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200 active:bg-blue-50 transition"><input type="checkbox" name="${f.id}" value="${this.escapeHtml(o)}" ${valArr.includes(o) ? 'checked' : ''} ${eventHandlers} class="w-4 h-4 text-blue-600 rounded cursor-pointer"> ${this.escapeHtml(o)}</label>`).join('')}</div>`;
+                }
+                
+                return `<div id="pw-${f.id}" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">${html}</div>`;
             }).join('');
-
-            const osId = document.getElementById('os-id-oculto').value || 'nova-os';
-            const idSubEsperado = `${osId}_${mIdx}_${fIdx}`;
-            const subSalva = window.formcraftSubmissions?.find(s => s.id === idSubEsperado);
-            if(subSalva) {
-                window.formAtual.fields.forEach(f => {
-                    const ans = subSalva.answers[f.label];
-                    if(ans) {
-                        if(f.type === 'single_select') { const r = document.querySelector(`input[name="${f.id}"][value="${ans}"]`); if(r) r.checked = true; }
-                        else { const e = document.querySelector(`[name="${f.id}"]`); if(e) e.value = ans; }
-                    }
-                });
-            }
-
-            const modal = document.getElementById('modal-formcraft');
-            const content = document.getElementById('modal-formcraft-content');
+            
+            this.evaluatePreviewRules();
+            
+            const modal = document.getElementById('modal-preencher-form');
+            const content = document.getElementById('modal-form-content');
             modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); window.verificarRegrasFormCraft(); }, 10);
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
         };
 
-        window.verificarRegrasFormCraft = function() {
-            if(!window.formAtual || !window.formAtual.rules) return;
-            window.formAtual.rules.forEach(rule => {
-                const triggerEl = document.querySelector(`input[name="${rule.triggerId}"]:checked`);
-                const val = triggerEl ? triggerEl.value : '';
-                const targetWrapper = document.getElementById(`fc-wrapper-${rule.targetId}`);
-                if(!targetWrapper) return;
-                
-                let conditionMet = false;
-                if(rule.operator === 'equals' && val === rule.value) conditionMet = true;
-                
-                if(conditionMet) { targetWrapper.style.display = 'block'; setTimeout(()=>targetWrapper.style.opacity='1', 10); }
-                else { targetWrapper.style.opacity = '0'; setTimeout(()=>targetWrapper.style.display='none', 300); }
-            });
-        };
+        window.verificarRegrasFormCraft = function() { window.app.evaluatePreviewRules(); };
+        window.evaluatePreviewRules = function() { window.app.evaluatePreviewRules(); };
 
-        window.salvarRespostasFormCraft = async function() {
-            const osId = document.getElementById('os-id-oculto').value;
-            if(!osId || osId === 'nova-os') {
-                window.showToast("Salve a O.S. primeiro para gerar o número antes de preencher o formulário.", "warning");
-                return;
-            }
-
-            const answers = {};
-            window.formAtual.fields.forEach(f => {
-                const wrapper = document.getElementById(`fc-wrapper-${f.id}`);
-                if(wrapper.style.display === 'none') return;
-                if(f.type === 'single_select') { const r = document.querySelector(`input[name="${f.id}"]:checked`); answers[f.label] = r ? r.value : ''; }
-                else { const el = document.querySelector(`[name="${f.id}"]`); answers[f.label] = el ? el.value : ''; }
-            });
-
-            const idSub = `${osId}_${window.maquinaIdxAtual}_${window.formReqIdxAtual}`;
-            const sub = { id: idSub, formId: window.formAtual.id, submittedAt: new Date().toISOString(), answers: answers, osRef: osId };
-            
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'sandbox_submissions', sub.id), sub);
-                window.showToast("Laudo Salvo com Sucesso!", "success");
-                window.fecharModalFormCraft();
-                window.renderizarAbaFormularios();
-            } catch(e) { window.showToast("Erro ao salvar.", "error"); }
-        };
-
-        window.fecharModalFormCraft = function() {
-            const modal = document.getElementById('modal-formcraft');
-            const content = document.getElementById('modal-formcraft-content');
-            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+        window.fecharModalFormulario = function() {
+            const modal = document.getElementById('modal-preencher-form');
+            const content = document.getElementById('modal-form-content');
+            modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        };
-
-        // --- IMPRESSÃO E WHATSAPP ---
-        window.imprimirOS = function() {
-            const osId = document.getElementById('os-id-oculto').value;
-            if(!osId) { window.showToast("Salve a O.S. antes de imprimir.", "warning"); return; }
-            const cliente = document.getElementById('os-cliente').value;
-            const tecnico = document.getElementById('os-tecnico').value;
-            const data = document.getElementById('os-data').value;
-            
-            const printArea = document.getElementById('print-area');
-            let maqs = '';
-            document.querySelectorAll('.equip-card').forEach(c => {
-                const mq = c.querySelector('.inp-maquina').value;
-                const df = c.querySelector('.inp-defeito').value;
-                maqs += `<li style="margin-bottom: 10px;"><strong>${mq}</strong><br>Defeito Relatado: ${df}</li>`;
-            });
-
-            printArea.innerHTML = `
-                <div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 40px;">
-                    <div style="border-bottom: 2px solid #002d72; padding-bottom: 10px; margin-bottom: 20px;">
-                        <h2 style="color: #002d72; margin: 0;">GRUPO CIJ - ORDEM DE SERVIÇO</h2>
-                        <p style="margin: 5px 0 0 0; font-size: 14px;">Nº Documento: <strong>${osId}</strong> | Data: ${data ? data.split('-').reverse().join('/') : '--'}</p>
-                    </div>
-                    <p><strong>Cliente:</strong> ${cliente || 'Não informado'}</p>
-                    <p><strong>Técnico Responsável:</strong> ${tecnico || 'Não atribuído'}</p>
-                    <h3 style="margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Equipamentos em Manutenção</h3>
-                    <ul style="line-height: 1.6;">${maqs || '<li>Nenhuma máquina listada.</li>'}</ul>
-                    <div style="margin-top: 80px; text-align: center;">
-                        <hr style="width: 300px; border: 0; border-top: 1px solid #000; margin: 0 auto;">
-                        <p style="font-size: 12px; margin-top: 5px;">Assinatura do Cliente / Responsável</p>
-                    </div>
-                </div>
-            `;
-            window.print();
-        };
-
-        window.enviarWhatsAppOS = function() {
-            const osId = document.getElementById('os-id-oculto').value;
-            if(!osId) { window.showToast("Salve a O.S. antes de enviar.", "warning"); return; }
-            const cliente = document.getElementById('os-cliente').value;
-            const tecnico = document.getElementById('os-tecnico').value;
-            const data = document.getElementById('os-data').value;
-            const qtdEq = document.querySelectorAll('.equip-card').length;
-
-            const text = `*Ordem de Serviço CIJ: ${osId}*\n\n*Cliente:* ${cliente || 'N/A'}\n*Técnico:* ${tecnico || 'N/A'}\n*Data:* ${data ? data.split('-').reverse().join('/') : 'N/A'}\n\n*Equipamentos:* ${qtdEq}\n\n_Acompanhe seu chamado pelo aplicativo CIJ._`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         };
 
         // --- SALVAMENTO INTEGRADO DA O.S. NA NUVEM ---
@@ -1368,7 +1159,7 @@
                 const forms = Array.from(c.querySelectorAll('.list-forms-machine > div')).map(el => el.getAttribute('data-form'));
 
                 arrayEquips.push({
-                    maquina: mq, defeito: df, servico: c.querySelector('.inp-servico').value, horaInicio: c.querySelector('.inp-hora-inicio').value, horaFim: c.querySelector('.inp-hora-fim').value,
+                    maquina: mq, defeito: df, servico: c.querySelector('.inp-servico').value, 
                     formulariosExigidos: forms, etapa: c.querySelector('.inp-etapa').value, pecasUtilizadas: JSON.parse(c.querySelector('.inp-pecas-utilizadas')?.value || "[]")
                 });
             });
@@ -1424,7 +1215,7 @@
             let lowestStageName = ETAPAS_SERVICO[9].nome;
 
             arrayEquips.forEach(m => {
-                const numMatch = m.etapa.match(/^(\d+)/);
+                const numMatch = (m.etapa || '').match(/^(\d+)/);
                 if(numMatch) {
                     const num = parseInt(numMatch[1]);
                     if(num < lowestStageNum) { lowestStageNum = num; lowestStageName = m.etapa; }
@@ -1560,91 +1351,7 @@
             } catch(e) { window.showToast('Erro ao salvar as regras.', 'error'); }
         };
 
-        // --- GAVETA DE DETALHES RÁPIDOS (TICKET MODAL) ---
-        window.openTicketModal = function(id) {
-            const t = window.tickets.find(x => x.id === id); if(!t) return;
-            window.currentTicketId = id;
-            document.getElementById('tm-id').innerText = t.id;
-            const cDef = STATUSES[t.status];
-            document.getElementById('tm-status-badge').className = `px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${cDef.color}`;
-            document.getElementById('tm-status-badge').innerText = cDef.label;
-
-            document.getElementById('tm-assignee').innerText = t.assignee || t.tecnicoOS || 'Pendente';
-            document.getElementById('tm-created-time').innerHTML = `<i class="fa-regular fa-clock"></i> Criado em: ${new Date(t.timestampOriginal).toLocaleString('pt-BR')}`;
-
-            document.getElementById('td-client').innerText = t.client.name || t.clienteOS || 'Sem Nome';
-            document.getElementById('td-city').innerText = t.client.city || '--';
-            document.getElementById('td-contact').innerText = t.client.contact || '--';
-            document.getElementById('td-phone').innerText = t.client.phone || '--';
-
-            let arrEqs = t.equipamentosOS || [];
-            if(arrEqs.length > 0) {
-                document.getElementById('td-equip').innerText = "Ver aba de Equipamentos na OS Completa";
-                document.getElementById('td-serial').innerText = "Múltiplos";
-            } else {
-                document.getElementById('td-equip').innerText = t.equipment.model || '--';
-                document.getElementById('td-serial').innerText = t.equipment.serial || 'Sem SN';
-            }
-            document.getElementById('td-problem').innerText = t.request.problem || (arrEqs.length > 0 ? arrEqs[0].defeito : '--');
-
-            window.renderTimeline(t); window.switchTab('tab-dados');
-            document.getElementById('ticketModal').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('ticketDrawer').classList.add('drawer-animate'); }, 10);
-        };
-
-        window.closeTicketModal = function() {
-            document.getElementById('ticketDrawer').classList.remove('drawer-animate');
-            setTimeout(() => { document.getElementById('ticketModal').classList.add('hidden'); }, 300);
-        };
-
-        window.switchTab = function(targetId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if(btn.dataset.target === targetId) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); }
-                else { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); }
-            });
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.getElementById(targetId).classList.remove('hidden');
-        };
-
-        window.renderTimeline = function(t) {
-            const cont = document.getElementById('timeline-container'); cont.innerHTML = '';
-            const evOpen = { date: t.createdAt, user: t.assignee || 'Sistema', type: 'system', text: 'Chamado aberto no sistema.' };
-            const hist = [evOpen, ...(t.history || [])]; hist.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-            hist.forEach(ev => {
-                const icon = ev.type === 'system' ? '<i class="fa-solid fa-gear text-slate-400 text-xs"></i>' : '<i class="fa-solid fa-comment-dots text-blue-500 text-xs"></i>';
-                const bg = ev.type === 'system' ? 'bg-slate-50' : 'bg-blue-50 border-blue-100';
-                
-                cont.innerHTML += `
-                    <div class="timeline-item">
-                        <div class="timeline-dot flex items-center justify-center">${icon}</div>
-                        <div class="${bg} p-4 rounded-2xl border shadow-sm ml-2">
-                            <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-slate-800">${ev.user}</span><span class="text-[10px] text-slate-400 font-bold">${new Date(ev.date).toLocaleString('pt-BR')}</span></div>
-                            <p class="text-xs text-slate-600 font-medium">${ev.text}</p>
-                        </div>
-                    </div>`;
-            });
-        };
-
-        window.addQuickNote = function() {
-            const inp = document.getElementById('quickNoteInput'); const txt = inp.value.trim();
-            if(!txt || !window.currentTicketId) return;
-            const t = window.tickets.find(x => x.id === window.currentTicketId); if(!t) return;
-            if(!t.history) t.history = [];
-            t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: txt });
-            window.saveTicketToDB(t); inp.value = ''; window.renderTimeline(t);
-        };
-
-        window.confirmDeleteTicket = function(id) {
-            window.pendingDeleteTicketId = id; document.getElementById('deleteTicketTargetId').innerText = id;
-            document.getElementById('modal-delete-confirm').classList.remove('hidden');
-        };
-        window.closeDeleteModal = () => document.getElementById('modal-delete-confirm').classList.add('hidden');
-        window.executeDeleteTicket = async function() {
-            if(!window.pendingDeleteTicketId) return;
-            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', window.pendingDeleteTicketId)); window.closeDeleteModal(); window.closeTicketModal(); } catch(e){}
-        };
-
+        // FECHAR MODAIS COM ESCAPE
         document.addEventListener('keydown', e => { 
             if(e.key === 'Escape') { 
                 window.closeTicketModal(); window.closeDeleteModal(); window.fecharModalOS(); window.fecharModalConfigAlertas(); window.fecharModalAutomacao(); window.fecharModalFormCraft();
