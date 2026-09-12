@@ -44,7 +44,7 @@
                 <div>
                     <h1 id="header-title" class="font-black text-lg leading-tight tracking-tight">Minha Fila</h1>
                     <div class="flex items-center gap-2 mt-0.5">
-                        <span id="header-os-badge" class="hidden bg-blue-900/50 text-blue-100 border border-blue-400/50 text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider"></span>
+                        <span id="header-os-badge" class="hidden bg-blue-900/50 text-blue-100 border border-blue-400/50 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm"></span>
                         <p id="header-subtitle" class="text-[10px] text-blue-200 font-medium transition-colors">Conectado (Online)</p>
                     </div>
                 </div>
@@ -67,46 +67,50 @@
                 </div>
             </div>
 
-            <!-- TELA: DETALHES DA OS -->
+            <!-- TELA: DETALHES DA OS (100% ROLÁVEL) -->
             <div id="screen-os" class="screen flex flex-col">
-                <div class="bg-white p-4 border-b border-slate-200 shadow-sm shrink-0">
-                    <div class="flex justify-between items-start mb-2">
-                        <h2 id="os-det-cliente" class="text-lg font-black text-slate-900 leading-tight">...</h2>
-                        <span id="os-det-id" class="text-[10px] font-mono font-black bg-slate-100 text-slate-600 px-2.5 py-1 rounded border border-slate-200 shadow-sm">OS-000</span>
-                    </div>
+                <div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 pb-20">
                     
-                    <div class="flex items-center gap-2 text-[11px] text-slate-500 font-medium mb-3">
-                        <i class="fa-regular fa-calendar"></i> <span id="os-det-data">--/--/----</span>
-                        <span class="mx-1">•</span>
-                        <i class="fa-solid fa-user-tie"></i> <span id="os-det-solicitante">--</span>
-                    </div>
-                    
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 text-xs space-y-2 shadow-inner">
-                        <p class="text-slate-700 flex items-start gap-2.5"><i class="fa-solid fa-location-dot text-blue-500 mt-0.5 text-sm"></i> <span id="os-det-endereco" class="font-semibold leading-tight text-slate-800">Buscando endereço...</span></p>
-                        <p class="text-slate-700 flex items-center gap-2.5"><i class="fa-solid fa-phone text-emerald-500 text-sm"></i> <span id="os-det-telefone" class="font-semibold text-slate-800">--</span></p>
+                    <!-- Box do Cliente -->
+                    <div class="bg-white p-5 border-b border-slate-200 shadow-sm space-y-4 mb-4">
+                        <div>
+                            <h2 id="os-det-cliente" class="text-xl font-black text-slate-900 leading-tight">...</h2>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                            <i class="fa-regular fa-calendar text-slate-400"></i> <span id="os-det-data">--/--/----</span>
+                            <span class="mx-1">•</span>
+                            <i class="fa-solid fa-user-tie text-slate-400"></i> <span id="os-det-solicitante">--</span>
+                        </div>
+                        
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-2 shadow-inner">
+                            <p class="text-slate-700 flex items-start gap-2.5"><i class="fa-solid fa-location-dot text-blue-500 mt-0.5 text-sm"></i> <span id="os-det-endereco" class="font-semibold leading-tight text-slate-800">Buscando endereço...</span></p>
+                            <p class="text-slate-700 flex items-center gap-2.5"><i class="fa-solid fa-phone text-emerald-500 text-sm"></i> <span id="os-det-telefone" class="font-semibold text-slate-800">--</span></p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <button onclick="window.app.abrirGPS()" class="bg-slate-100 text-slate-700 border border-slate-200 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-sm">
+                                <i class="fa-solid fa-location-dot text-blue-600 text-sm"></i> Navegar
+                            </button>
+                            <button onclick="window.app.abrirWhatsApp()" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-emerald-500 text-base"></i> WhatsApp
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button onclick="window.app.abrirGPS()" class="bg-slate-100 text-slate-700 border border-slate-200 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-location-dot text-blue-600 text-sm"></i> Navegar
-                        </button>
-                        <button onclick="window.app.abrirWhatsApp()" class="bg-emerald-50 text-emerald-700 border border-emerald-200 py-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-sm">
-                            <i class="fa-brands fa-whatsapp text-emerald-500 text-base"></i> WhatsApp
-                        </button>
+                    <!-- Lista de Máquinas -->
+                    <div class="px-4 space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fa-solid fa-server mr-1 text-slate-400"></i> Máquinas na OS</h3>
+                            <button onclick="window.app.abrirModalAddEquip()" class="text-[10px] font-bold text-blue-700 bg-blue-100 px-3 py-1.5 rounded-lg shadow-sm active:bg-blue-200 border border-blue-200 transition"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
+                        </div>
+                        <div id="lista-maquinas-os" class="space-y-3"></div>
                     </div>
-                </div>
-
-                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50 pb-20 space-y-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fa-solid fa-server mr-1"></i> Máquinas na OS</h3>
-                        <button onclick="window.app.abrirModalAddEquip()" class="text-[10px] font-bold text-blue-700 bg-blue-100 px-3 py-1.5 rounded-lg shadow-sm active:bg-blue-200 border border-blue-200 transition"><i class="fa-solid fa-plus mr-1"></i> Adicionar</button>
-                    </div>
-                    <div id="lista-maquinas-os" class="space-y-3"></div>
                 </div>
                 
                 <div class="p-4 bg-white border-t border-slate-200 shrink-0 pb-6 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
                     <button onclick="window.app.iniciarCheckout()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-pen-nib"></i> Coletar Assinatura (Checkout)
+                        <i class="fa-solid fa-pen-nib text-slate-300"></i> Coletar Assinatura (Checkout)
                     </button>
                 </div>
             </div>
@@ -125,22 +129,12 @@
                         <p id="maq-det-defeito" class="text-xs font-medium text-slate-700 bg-rose-50 p-3 rounded-xl border border-rose-100 whitespace-pre-wrap">--</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Hora Início</label>
-                            <input type="time" id="maq-inp-inicio" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-regular fa-clock"></i> Hora Fim</label>
-                            <input type="time" id="maq-inp-fim" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                        </div>
-                    </div>
-
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-stairs text-blue-500"></i> Atualizar Etapa da Máquina</label>
                         <select id="maq-inp-etapa" onchange="window.app.atualizarCorEtapaSelect()" class="w-full text-xs font-bold p-3.5 rounded-xl outline-none border border-slate-300 shadow-sm cursor-pointer transition-colors bg-white"></select>
                     </div>
 
+                    <!-- MÓDULO DE FORMULÁRIOS DINÂMICOS -->
                     <div class="pt-2 border-t border-slate-100">
                         <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-list-check"></i> Laudos e Check-lists</h4>
                         <div id="maq-det-forms" class="space-y-2.5"></div>
@@ -230,7 +224,7 @@
             <div id="modal-add-equip-content" class="bg-white rounded-t-3xl h-[80vh] flex flex-col transform translate-y-full transition-transform duration-300">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-3xl shrink-0">
                     <div>
-                        <h3 class="font-black text-sm text-blue-800"><i class="fa-solid fa-server mr-1"></i> Adicionar Máquina</h3>
+                        <h3 class="font-black text-sm text-blue-800"><i class="fa-solid fa-server mr-1"></i> Adicionar Máquina à O.S.</h3>
                         <p class="text-[9px] text-slate-500 font-bold">Base Instalada do Cliente</p>
                     </div>
                     <button onclick="window.app.fecharModalAddEquip()" class="w-8 h-8 bg-slate-200 rounded-full text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-300 transition"><i class="fa-solid fa-xmark"></i></button>
@@ -244,10 +238,10 @@
 
                     <div class="border-t border-slate-200 pt-4">
                         <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Não encontrou? Adicione Manual</h4>
-                        <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                            <input type="text" id="add-equip-modelo" placeholder="Modelo do Equipamento" class="w-full text-xs font-bold p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                            <input type="text" id="add-equip-sn" placeholder="Número de Série (SN) - Opcional" class="w-full text-xs font-mono p-3 rounded-xl outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
-                            <button onclick="window.app.addEquipamentoManual()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl shadow-md transition active:scale-95 text-xs">Adicionar Equipamento Novo</button>
+                        <div class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <input type="text" id="add-equip-modelo" placeholder="Modelo do Equipamento" class="w-full text-xs font-bold p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <input type="text" id="add-equip-sn" placeholder="Número de Série (SN) - Opcional" class="w-full text-xs font-mono p-2.5 rounded-lg outline-none border border-slate-300 shadow-sm focus:border-blue-500 bg-white">
+                            <button onclick="window.app.addEquipamentoManual()" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-lg shadow-sm transition active:scale-95 text-xs">Adicionar Equipamento Novo</button>
                         </div>
                     </div>
                 </div>
@@ -313,6 +307,10 @@
     </div>
 
     <script type="module" src="core.js"></script>
+    <script type="module">
+        import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        window.FirebaseRunTransaction = runTransaction;
+    </script>
 
     <!-- LÓGICA DO APLICATIVO DO TÉCNICO -->
     <script>
@@ -538,7 +536,6 @@
                     document.getElementById('os-det-data').innerText = dt;
                     document.getElementById('os-det-solicitante').innerText = this.osAtual.solicitante || this.osAtual.solicitanteOS || 'Atendimento Padrão';
 
-                    // DESACOPLAMENTO PARA SERVICEFLOW (Múltiplas Máquinas)
                     const container = document.getElementById('lista-maquinas-os');
                     let arrayEquips = [];
                     if (Array.isArray(this.osAtual.equipamentosOS) && this.osAtual.equipamentosOS.length > 0) { 
@@ -652,8 +649,6 @@
                 document.getElementById('maq-det-nome').innerText = maq.maquina || 'Máquina Indefinida';
                 document.getElementById('maq-det-defeito').innerText = maq.defeito || 'Sem relato.';
                 document.getElementById('maq-inp-servico').value = maq.servico || '';
-                document.getElementById('maq-inp-inicio').value = maq.horaInicio || '';
-                document.getElementById('maq-inp-fim').value = maq.horaFim || '';
                 
                 const selectEtapa = document.getElementById('maq-inp-etapa');
                 selectEtapa.innerHTML = this.etapasOficiais.map(e => `<option value="${e.nome}" data-cor="${e.cor}">${e.nome}</option>`).join('');
@@ -668,7 +663,7 @@
                 
                 this.renderizarFormulariosMaquina();
 
-                this.pecasTemporarias = maq.pecasUtilizadas ? [...maq.pecasUtilizadas] : [];
+                this.pecasTemporarias = maq.pecasUtilizadas ? JSON.parse(JSON.stringify(maq.pecasUtilizadas)) : [];
                 this.renderizarPecasUtilizadas();
                 this.navigate('screen-maquina', `Execução Técnica`, true);
             },
@@ -912,7 +907,7 @@
                 } else {
                     lista.innerHTML = this.estoqueCarro.map(item => `
                         <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
-                            <div><p class="text-[11px] font-bold text-slate-800">${item.material}</p><p class="text-[10px] text-slate-500 mt-0.5">Disp: <strong>${item.qtd} un</strong></p></div>
+                            <div><p class="text-[11px] font-bold text-slate-800">${item.material}</p><p class="text-[10px] text-slate-500 mt-0.5">Disp: <strong class="text-blue-600">${item.qtd} un</strong></p></div>
                             <button onclick="window.app.adicionarPecaNaMaquina('${item.id}', '${item.material}')" class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer shadow-md active:scale-95"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     `).join('');
@@ -929,7 +924,24 @@
             },
 
             adicionarPecaNaMaquina: function(idItem, nomeItem) {
+                const itemEstoque = this.estoqueCarro.find(e => e.id === idItem);
+                if (!itemEstoque || itemEstoque.qtd <= 0) {
+                    this.showToast('Item sem estoque na mochila!', 'error');
+                    return;
+                }
+
+                const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
+                const oldQtd = (maq.pecasUtilizadas || []).find(p => p.id === idItem)?.qtd || 0;
                 const existente = this.pecasTemporarias.find(p => p.id === idItem);
+                
+                const currentTempQtd = existente ? existente.qtd : 0;
+                const requestedDelta = (currentTempQtd + 1) - oldQtd;
+
+                if (requestedDelta > itemEstoque.qtd) {
+                    this.showToast(`Estoque insuficiente! Você só possui ${itemEstoque.qtd} unidades disponíveis.`, 'warning');
+                    return;
+                }
+
                 if(existente) { existente.qtd++; } else { this.pecasTemporarias.push({ id: idItem, nome: nomeItem, qtd: 1 }); }
                 this.renderizarPecasUtilizadas();
                 this.showToast('Peça adicionada!', 'success');
@@ -959,12 +971,15 @@
                 const maq = this.osAtual.equipamentosOS[this.maquinaIndex];
                 maq.etapa = document.getElementById('maq-inp-etapa').value;
                 maq.servico = document.getElementById('maq-inp-servico').value;
-                maq.horaInicio = document.getElementById('maq-inp-inicio').value;
-                maq.horaFim = document.getElementById('maq-inp-fim').value;
-                maq.pecasUtilizadas = this.pecasTemporarias;
+                
+                const oldPecas = maq.pecasUtilizadas || [];
+                const newPecas = this.pecasTemporarias;
 
+                maq.pecasUtilizadas = [...this.pecasTemporarias];
+
+                // Atualiza orçamento base, se houver
                 if (!this.osAtual.orcamentosOS) this.osAtual.orcamentosOS = [];
-                if (this.pecasTemporarias.length > 0 || maq.horaInicio) {
+                if (this.pecasTemporarias.length > 0) {
                     let orc = this.osAtual.orcamentosOS.find(o => o.alvo === maq.maquina);
                     if (!orc) {
                         orc = { alvo: maq.maquina, itens: [], mo_qtd: 1, mo_unit: 0, desl_qtd: 1, desl_unit: 0, obs: "Apontamento do Técnico (App)", total: 0 };
@@ -976,6 +991,41 @@
                     });
                 }
 
+                // INTELIGÊNCIA: Calcular diferença (Delta) para dar baixa automática na Logística
+                let deltas = {};
+                newPecas.forEach(p => { deltas[p.id] = { delta: p.qtd, nome: p.nome }; });
+                oldPecas.forEach(p => { 
+                    if(deltas[p.id]) deltas[p.id].delta -= p.qtd; 
+                    else deltas[p.id] = { delta: -p.qtd, nome: p.nome };
+                });
+
+                const osIdStr = this.osAtual.osr || this.osAtual.id;
+
+                for (const id in deltas) {
+                    const diff = deltas[id].delta;
+                    if (diff !== 0) {
+                        const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id);
+                        window.FirebaseRunTransaction(window.AppDB, async (t) => {
+                            const snap = await t.get(docRef);
+                            if(snap.exists()) {
+                                let data = snap.data();
+                                data.qtd = (data.qtd || 0) - diff;
+                                if(data.qtd < 0) data.qtd = 0; 
+                                
+                                if(!data.historico_uso) data.historico_uso = [];
+                                data.historico_uso.push({
+                                    os: osIdStr,
+                                    maquina: maq.maquina,
+                                    data: new Date().toISOString(),
+                                    qtd_alterada: -diff
+                                });
+                                t.update(docRef, { qtd: data.qtd, historico_uso: data.historico_uso });
+                            }
+                        }).catch(err => console.error("Erro ao dar baixa na peça:", err));
+                    }
+                }
+
+                // Gatilho do Kanban
                 let lowestStageNum = 10;
                 let lowestStageName = this.etapasOficiais[9].nome;
 
@@ -991,10 +1041,8 @@
                 this.osAtual.etapa_global = lowestStageName;
                 this.osAtual.kanbanStatus = this.osAtual.status;
 
-                const osId = this.osAtual.osr || this.osAtual.id;
-
-                this.salvarNoBanco('suportes_osr', osId, this.osAtual, 'Apontamentos Salvos!', () => {
-                    window.app.abrirOS(osId);
+                this.salvarNoBanco('suportes_osr', osIdStr, this.osAtual, 'Apontamentos Salvos!', () => {
+                    window.app.abrirOS(osIdStr);
                 });
             },
 
@@ -1075,9 +1123,11 @@
             window.app.nomeTecnico = window.nomeUsuarioLogado || window.currentUser.email.split('@')[0];
             window.app.emailTecnico = window.currentUser.email;
             
+            // INTELIGÊNCIA DE VISÃO PADRÃO PARA O TÉCNICO
             if (perfil === 'Master' || perfil === 'Administrativo' || window.userVisaoGlobal) {
                 window.app.temVisaoGlobal = true;
-                document.getElementById('dev-visao-global').checked = true;
+                // Começa FALSO para ver as próprias, mas pode ativar se quiser ver as dos outros
+                document.getElementById('dev-visao-global').checked = false; 
                 document.getElementById('container-visao-equipe').style.display = 'flex';
             } else {
                 window.app.temVisaoGlobal = false;
