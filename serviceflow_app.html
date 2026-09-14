@@ -48,9 +48,8 @@
             background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
         }
 
-        /* Efeito de Arrasto Blindado */
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
-        .dragging { opacity: 0.6; transform: scale(0.98); cursor: grabbing !important; }
+        .dragging { opacity: 0.5; transform: scale(0.95); cursor: grabbing !important; }
 
         .pulse-critical { animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
@@ -59,7 +58,7 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* REGRAS BLINDADAS DE IMPRESSÃO (PDF DE ORÇAMENTO) */
+        /* REGRAS BLINDADAS DE IMPRESSÃO (PDF) */
         @media screen { 
             #print-area { display: none !important; } 
         }
@@ -150,40 +149,36 @@
                 </div>
             </div>
 
-            <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES - BLINDAGEM MÁXIMA DE SCROLL E LAYOUT -->
+            <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES - BLINDAGEM MÁXIMA DE ROLAGEM Y -->
             <div class="flex-1 flex flex-col relative w-full overflow-hidden no-print min-h-0">
-                <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200 z-10">
+                <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
                     <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
                     <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
                 </div>
 
-                <!-- CONTÊINER ABSOLUTO PARA FORÇAR LIMITES DE TELA -->
-                <div class="flex-1 relative w-full min-h-0 bg-slate-100">
-                    
-                    <!-- VISÃO 1: KANBAN -->
-                    <div id="view-kanban" class="absolute inset-0 flex flex-col overflow-hidden view-section">
-                        <div id="kanban-grid" class="flex-1 flex gap-4 w-full h-full min-h-0 overflow-x-auto overflow-y-hidden p-4 custom-scrollbar"></div>
-                    </div>
+                <!-- VISÃO 1: KANBAN -->
+                <div id="view-kanban" class="flex-1 min-h-0 flex-col overflow-hidden view-section bg-slate-100 w-full flex">
+                    <div id="kanban-grid" class="flex-1 min-h-0 flex gap-4 w-full overflow-x-auto overflow-y-hidden p-4 custom-scrollbar"></div>
+                </div>
 
-                    <!-- VISÃO 2: PENDÊNCIAS -->
-                    <div id="view-pendencias" class="absolute inset-0 overflow-y-auto p-4 md:p-8 view-section hidden bg-slate-50 custom-scrollbar">
-                        <div class="max-w-5xl mx-auto space-y-4 pb-20">
-                            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between shrink-0">
-                                <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
-                                <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
-                            </div>
-                            <div id="pendenciasList" class="space-y-3 shrink-0"></div>
+                <!-- VISÃO 2: PENDÊNCIAS -->
+                <div id="view-pendencias" class="flex-1 min-h-0 overflow-y-auto bg-slate-50 p-4 md:p-8 view-section hidden w-full custom-scrollbar">
+                    <div class="max-w-5xl mx-auto space-y-4 pb-12">
+                        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                            <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
+                            <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
                         </div>
+                        <div id="pendenciasList" class="space-y-3"></div>
                     </div>
+                </div>
 
-                    <!-- VISÃO 3: INDICADORES -->
-                    <div id="view-indicadores" class="absolute inset-0 overflow-y-auto p-4 md:p-8 view-section hidden bg-slate-50 custom-scrollbar">
-                        <div class="max-w-6xl mx-auto space-y-6 pb-20">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                                <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
-                                <div id="indicadoresBarList" class="space-y-4"></div>
-                            </div>
+                <!-- VISÃO 3: INDICADORES -->
+                <div id="view-indicadores" class="flex-1 min-h-0 overflow-y-auto bg-slate-50 p-4 md:p-8 view-section hidden w-full custom-scrollbar">
+                    <div class="max-w-6xl mx-auto space-y-6 pb-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
+                            <div id="indicadoresBarList" class="space-y-4"></div>
                         </div>
                     </div>
                 </div>
@@ -198,8 +193,9 @@
             <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0">
                 <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400 text-base"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="window.imprimirOrcamento()" class="px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-2" title="Exportar Orçamento em PDF"><i class="fa-solid fa-print"></i> Imprimir Orçamento</button>
-                    <button onclick="window.enviarWhatsAppOS()" class="w-9 h-9 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+                    <button onclick="window.imprimirOS()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-1.5 shadow-sm" title="Imprimir OS (Serviço)"><i class="fa-solid fa-file-pdf"></i> Imprimir O.S.</button>
+                    <button onclick="window.imprimirOrcamento()" class="px-3 py-1.5 text-xs font-bold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 flex items-center justify-center transition gap-1.5 shadow-sm" title="Exportar Orçamento em PDF"><i class="fa-solid fa-file-invoice-dollar"></i> Orçamento</button>
+                    <button onclick="window.enviarWhatsAppOS()" class="w-8 h-8 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30 ml-1" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
                     <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer p-1 ml-2"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
             </div>
@@ -320,7 +316,7 @@
                         </div>
                     </div>
 
-                    <!-- ABA 5: HISTÓRICO E TIMELINE (AGORA 100% FUNCIONAL AQUI DENTRO) -->
+                    <!-- ABA 5: HISTÓRICO E TIMELINE (MIGRAÇÃO DA TELA INUTIL) -->
                     <div id="aba5" class="hidden space-y-4 max-w-5xl mx-auto">
                         <div class="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
                             <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-200"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
@@ -580,8 +576,8 @@
             ['kanban', 'pendencias', 'indicadores'].forEach(v => {
                 const el = document.getElementById('view-' + v);
                 if(el) {
-                    if(v === view) { el.classList.remove('hidden'); } 
-                    else { el.classList.add('hidden'); }
+                    if(v === view) { el.classList.remove('hidden'); if(v === 'kanban') el.classList.add('flex'); } 
+                    else { el.classList.add('hidden'); if(v === 'kanban') el.classList.remove('flex'); }
                 }
                 const nav = document.getElementById('nav-' + v);
                 if(nav) {
@@ -671,7 +667,7 @@
             Object.keys(STATUSES).forEach(colKey => {
                 const cDef = STATUSES[colKey];
                 const cDiv = document.createElement('div');
-                cDiv.className = 'kanban-col flex flex-col bg-slate-200/60 border border-slate-300/60 rounded-2xl h-full max-h-full min-h-0 shadow-sm transition-colors w-[320px] min-w-[320px] shrink-0 overflow-hidden relative';
+                cDiv.className = 'kanban-col flex flex-col bg-slate-200/60 border border-slate-300/60 rounded-2xl h-full min-h-0 shadow-sm transition-colors w-[320px] min-w-[320px] shrink-0 overflow-hidden relative';
                 
                 cDiv.addEventListener('dragover', e => { 
                     e.preventDefault(); 
@@ -691,8 +687,8 @@
                         t.status = colKey;
                         if(!t.history) t.history = [];
                         t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'system', text: `Movido para ${STATUSES[colKey].label}`});
-                        window.renderKanban(); 
                         window.saveTicketToDB(t);
+                        window.renderKanban(); 
                     }
                     window.draggedTicketId = null;
                     window.isDraggingCard = false;
@@ -765,7 +761,7 @@
                                     <span class="text-[10px] font-mono font-black text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-300 shadow-sm">${t.id}</span>
                                     ${urgBadge}
                                 </div>
-                                <div class="flex gap-1.5 items-center">
+                                <div class="flex gap-1.5 items-center pointer-events-none">
                                     <span class="text-[9px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-100"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
                                 </div>
                             </div>
@@ -900,6 +896,7 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), t, {merge: true}); } catch(e){}
         };
 
+        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4', 'aba5'].forEach(a => {
                 const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
@@ -920,7 +917,8 @@
             window.contadorEquips = 0; window.contadorOrcs = 0;
 
             if (idEdit) {
-                const os = window.tickets.find(x => x.id === idEdit);
+                const osIdStr = String(idEdit).trim();
+                const os = window.tickets.find(x => String(x.id).trim() === osIdStr);
                 if(os) {
                     window.osAtual = os;
                     window.currentTicketId = os.id;
@@ -1350,7 +1348,50 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         };
 
-        // --- IMPRESSÃO DE ORÇAMENTO COM LAYOUT OTIMIZADO ---
+        // --- IMPRESSÃO (DUPLA FUNÇÃO O.S. e ORÇAMENTO) ---
+        window.imprimirOS = function() {
+            const osId = document.getElementById('os-id-oculto').value;
+            if(!osId) { window.showToast("Salve a O.S. antes de imprimir.", "warning"); return; }
+            const cliente = document.getElementById('os-cliente').value;
+            const tecnico = document.getElementById('os-tecnico').value;
+            const data = document.getElementById('os-data').value;
+            
+            const printArea = document.getElementById('print-area');
+            let maqs = '';
+            document.querySelectorAll('.equip-card').forEach(c => {
+                const mq = c.querySelector('.inp-maquina').value;
+                const df = c.querySelector('.inp-defeito').value;
+                maqs += `<li style="margin-bottom: 12px; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;"><strong>${mq}</strong><br>Defeito Relatado: ${df}</li>`;
+            });
+
+            printArea.innerHTML = `
+                <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; padding: 20px;">
+                    <div style="border-bottom: 3px solid #1d4ed8; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h2 style="color: #1e3a8a; margin: 0; font-size: 24px; text-transform: uppercase;">GRUPO CIJ</h2>
+                            <h3 style="color: #3b82f6; margin: 5px 0 0 0; font-size: 16px;">Ordem de Serviço Técnica</h3>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 16px; font-weight: bold; color: #1e293b;">${osId}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 12px; color: #64748b;">Emissão: ${data ? data.split('-').reverse().join('/') : '--'}</p>
+                        </div>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+                        <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Cliente:</strong> ${cliente || 'Não informado'}</p>
+                        <p style="margin: 0; font-size: 14px;"><strong>Técnico Responsável:</strong> ${tecnico || 'Não atribuído'}</p>
+                    </div>
+                    <h3 style="margin-top: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; color: #0f172a;">Equipamentos em Manutenção</h3>
+                    <ul style="list-style: none; padding: 0; margin: 15px 0;">${maqs || '<li>Nenhuma máquina listada.</li>'}</ul>
+                    <div style="margin-top: 100px; text-align: center;">
+                        <div style="width: 350px; border-top: 1px solid #475569; margin: 0 auto; padding-top: 10px;">
+                            <p style="font-size: 12px; margin: 0; font-weight: bold; color: #334155;">Assinatura do Cliente / Responsável</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => { window.print(); }, 300);
+        };
+
         window.imprimirOrcamento = function() {
             const osId = document.getElementById('os-id-oculto').value;
             if(!osId) { window.showToast("Salve a O.S. antes de imprimir o orçamento.", "warning"); return; }
@@ -1445,7 +1486,6 @@
                     </div>
                 </div>
             `;
-            
             setTimeout(() => { window.print(); }, 300);
         };
 
