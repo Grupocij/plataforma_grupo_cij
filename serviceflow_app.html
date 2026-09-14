@@ -58,6 +58,9 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
         /* REGRAS BLINDADAS DE IMPRESSÃO (PDF DE ORÇAMENTO) */
         @media screen { 
             #print-area { display: none !important; } 
@@ -150,39 +153,47 @@
             </div>
 
             <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES - BLINDAGEM DE SCROLL AQUI -->
-            <div class="flex-1 flex flex-col relative w-full overflow-hidden no-print min-h-0">
-                <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
-                    <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
-                    <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
-                </div>
-
-                <!-- VISÃO 1: KANBAN -->
-                <div id="view-kanban" class="flex-1 flex flex-col w-full min-h-0 overflow-hidden bg-slate-100 p-4 view-section">
-                    <div id="kanban-grid" class="flex-1 flex gap-4 w-max min-w-full h-full min-h-0 overflow-x-auto pb-2 custom-scrollbar"></div>
-                </div>
-
-                <!-- VISÃO 2: PENDÊNCIAS -->
-                <div id="view-pendencias" class="flex-1 w-full min-h-0 overflow-y-auto bg-slate-50 p-4 md:p-8 view-section hidden">
-                    <div class="max-w-5xl mx-auto space-y-4">
-                        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-                            <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
-                            <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
-                        </div>
-                        <div id="pendenciasList" class="space-y-3"></div>
+            <div class="flex-1 relative w-full overflow-hidden no-print">
+                <div class="absolute inset-0 flex flex-col">
+                    
+                    <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
+                        <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
+                        <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
                     </div>
-                </div>
 
-                <!-- VISÃO 3: INDICADORES -->
-                <div id="view-indicadores" class="flex-1 w-full min-h-0 overflow-y-auto bg-slate-50 p-4 md:p-8 view-section hidden">
-                    <div class="max-w-6xl mx-auto space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
-                            <div id="indicadoresBarList" class="space-y-4"></div>
+                    <div class="flex-1 relative min-h-0 w-full">
+                        
+                        <!-- VISÃO 1: KANBAN -->
+                        <div id="view-kanban" class="absolute inset-0 flex overflow-x-auto overflow-y-hidden p-4 bg-slate-100 view-section">
+                            <div id="kanban-grid" class="flex gap-4 h-full items-start w-max min-w-full pb-2"></div>
                         </div>
+
+                        <!-- VISÃO 2: PENDÊNCIAS -->
+                        <div id="view-pendencias" class="absolute inset-0 overflow-y-auto p-4 md:p-8 bg-slate-50 view-section hidden">
+                            <div class="max-w-5xl mx-auto space-y-4">
+                                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                                    <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
+                                    <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
+                                </div>
+                                <div id="pendenciasList" class="space-y-3"></div>
+                            </div>
+                        </div>
+
+                        <!-- VISÃO 3: INDICADORES -->
+                        <div id="view-indicadores" class="absolute inset-0 overflow-y-auto p-4 md:p-8 bg-slate-50 view-section hidden">
+                            <div class="max-w-6xl mx-auto space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
+                                    <div id="indicadoresBarList" class="space-y-4"></div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -193,8 +204,8 @@
             <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0">
                 <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400 text-base"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="window.imprimirOrcamento()" class="px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-2" title="Exportar Orçamento em PDF"><i class="fa-solid fa-print"></i> Imprimir Orçamento</button>
-                    <button onclick="window.enviarWhatsAppOS()" class="w-9 h-9 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+                    <button onclick="window.imprimirOrcamento()" class="px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-2 shadow-sm" title="Exportar Orçamento em PDF"><i class="fa-solid fa-print"></i> Imprimir Orçamento</button>
+                    <button onclick="window.enviarWhatsAppOS()" class="w-9 h-9 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30 shadow-sm" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
                     <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer p-1 ml-2"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
             </div>
@@ -315,8 +326,8 @@
                         </div>
                     </div>
 
-                    <!-- ABA 5: HISTÓRICO E TIMELINE (AGORA 100% FUNCIONAL AQUI DENTRO) -->
-                    <div id="aba5" class="hidden space-y-4 max-w-5xl mx-auto block">
+                    <!-- ABA 5: HISTÓRICO E TIMELINE (MIGRAÇÃO DA TELA INUTIL) -->
+                    <div id="aba5" class="hidden space-y-4 max-w-5xl mx-auto">
                         <div class="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
                             <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-200"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
                             
@@ -576,8 +587,8 @@
             ['kanban', 'pendencias', 'indicadores'].forEach(v => {
                 const el = document.getElementById('view-' + v);
                 if(el) {
-                    if(v === view) { el.classList.remove('hidden'); if(v === 'kanban') el.classList.add('flex'); } 
-                    else { el.classList.add('hidden'); if(v === 'kanban') el.classList.remove('flex'); }
+                    if(v === view) { el.classList.remove('hidden'); } 
+                    else { el.classList.add('hidden'); }
                 }
                 const nav = document.getElementById('nav-' + v);
                 if(nav) {
@@ -942,7 +953,7 @@
                 document.getElementById('titulo-modal-os').innerText = 'Nova Ordem de Serviço';
                 document.getElementById('os-data').value = new Date().toISOString().split('T')[0];
                 window.adicionarEquipamentoNaOS(); 
-                const cont = document.getElementById('timeline-container'); if(cont) cont.innerHTML = '<p class="text-xs text-slate-500 italic">Salve a OS para iniciar o histórico.</p>';
+                const cont = document.getElementById('timeline-container'); if(cont) cont.innerHTML = '<p class="text-xs text-slate-500 italic bg-white p-3 rounded-xl border border-slate-200">Salve a OS para iniciar o histórico.</p>';
             }
 
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os'); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os');
@@ -1152,7 +1163,6 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
 
-        // --- FORMCRAFT NATIVO DENTRO DA O.S. ---
         window.renderizarAbaFormularios = function() {
             const container = document.getElementById('lista-formularios-os');
             if(!container) return;
