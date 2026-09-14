@@ -48,8 +48,9 @@
             background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
         }
 
+        /* Efeito de Arrasto Blindado */
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
-        .dragging { opacity: 0.5; transform: scale(0.95); cursor: grabbing !important; }
+        .dragging { opacity: 0.6; transform: scale(0.98); cursor: grabbing !important; }
 
         .pulse-critical { animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
@@ -57,9 +58,6 @@
             70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 
         /* REGRAS BLINDADAS DE IMPRESSÃO (PDF DE ORÇAMENTO) */
         @media screen { 
@@ -152,48 +150,44 @@
                 </div>
             </div>
 
-            <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES - BLINDAGEM DE SCROLL AQUI -->
-            <div class="flex-1 relative w-full overflow-hidden no-print">
-                <div class="absolute inset-0 flex flex-col">
+            <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES - BLINDAGEM MÁXIMA DE SCROLL E LAYOUT -->
+            <div class="flex-1 flex flex-col relative w-full overflow-hidden no-print min-h-0">
+                <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200 z-10">
+                    <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
+                    <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
+                </div>
+
+                <!-- CONTÊINER ABSOLUTO PARA FORÇAR LIMITES DE TELA -->
+                <div class="flex-1 relative w-full min-h-0 bg-slate-100">
                     
-                    <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
-                        <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
-                        <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
+                    <!-- VISÃO 1: KANBAN -->
+                    <div id="view-kanban" class="absolute inset-0 flex flex-col overflow-hidden view-section">
+                        <div id="kanban-grid" class="flex-1 flex gap-4 w-full h-full min-h-0 overflow-x-auto overflow-y-hidden p-4 custom-scrollbar"></div>
                     </div>
 
-                    <div class="flex-1 relative min-h-0 w-full">
-                        
-                        <!-- VISÃO 1: KANBAN -->
-                        <div id="view-kanban" class="absolute inset-0 flex overflow-x-auto overflow-y-hidden p-4 bg-slate-100 view-section">
-                            <div id="kanban-grid" class="flex gap-4 h-full items-start w-max min-w-full pb-2"></div>
+                    <!-- VISÃO 2: PENDÊNCIAS -->
+                    <div id="view-pendencias" class="absolute inset-0 overflow-y-auto p-4 md:p-8 view-section hidden bg-slate-50 custom-scrollbar">
+                        <div class="max-w-5xl mx-auto space-y-4 pb-20">
+                            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between shrink-0">
+                                <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
+                                <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
+                            </div>
+                            <div id="pendenciasList" class="space-y-3 shrink-0"></div>
                         </div>
+                    </div>
 
-                        <!-- VISÃO 2: PENDÊNCIAS -->
-                        <div id="view-pendencias" class="absolute inset-0 overflow-y-auto p-4 md:p-8 bg-slate-50 view-section hidden">
-                            <div class="max-w-5xl mx-auto space-y-4">
-                                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-                                    <div><h3 class="text-base font-black text-slate-900">Fila Ativa de Atendimentos</h3><p class="text-sm text-slate-500 mt-1">Chamados pendentes de ação que requerem a sua atenção.</p></div>
-                                    <span id="pendenciasCountTag" class="bg-blue-50 text-blue-700 border border-blue-200 text-sm font-bold px-4 py-1.5 rounded-full shadow-sm">0 itens</span>
-                                </div>
-                                <div id="pendenciasList" class="space-y-3"></div>
+                    <!-- VISÃO 3: INDICADORES -->
+                    <div id="view-indicadores" class="absolute inset-0 overflow-y-auto p-4 md:p-8 view-section hidden bg-slate-50 custom-scrollbar">
+                        <div class="max-w-6xl mx-auto space-y-6 pb-20">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                                <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
+                                <div id="indicadoresBarList" class="space-y-4"></div>
                             </div>
                         </div>
-
-                        <!-- VISÃO 3: INDICADORES -->
-                        <div id="view-indicadores" class="absolute inset-0 overflow-y-auto p-4 md:p-8 bg-slate-50 view-section hidden">
-                            <div class="max-w-6xl mx-auto space-y-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="statsGrid"></div>
-                                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Distribuição Operacional do Kanban</h3>
-                                    <div id="indicadoresBarList" class="space-y-4"></div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -204,8 +198,8 @@
             <div class="bg-slate-900 text-white px-5 py-4 flex justify-between items-center shrink-0">
                 <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-file-invoice text-blue-400 text-base"></i> <span id="titulo-modal-os">Ordem de Serviço</span></h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="window.imprimirOrcamento()" class="px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-2 shadow-sm" title="Exportar Orçamento em PDF"><i class="fa-solid fa-print"></i> Imprimir Orçamento</button>
-                    <button onclick="window.enviarWhatsAppOS()" class="w-9 h-9 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30 shadow-sm" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+                    <button onclick="window.imprimirOrcamento()" class="px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 hover:text-white flex items-center justify-center transition gap-2" title="Exportar Orçamento em PDF"><i class="fa-solid fa-print"></i> Imprimir Orçamento</button>
+                    <button onclick="window.enviarWhatsAppOS()" class="w-9 h-9 text-sm bg-[#25D366]/20 text-[#25D366] rounded-xl hover:bg-[#25D366] hover:text-white flex items-center justify-center transition border border-[#25D366]/30" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
                     <button onclick="window.fecharModalOS()" class="text-slate-400 hover:text-white transition cursor-pointer p-1 ml-2"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
             </div>
@@ -326,7 +320,7 @@
                         </div>
                     </div>
 
-                    <!-- ABA 5: HISTÓRICO E TIMELINE (MIGRAÇÃO DA TELA INUTIL) -->
+                    <!-- ABA 5: HISTÓRICO E TIMELINE (AGORA 100% FUNCIONAL AQUI DENTRO) -->
                     <div id="aba5" class="hidden space-y-4 max-w-5xl mx-auto">
                         <div class="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
                             <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-200"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
@@ -561,8 +555,7 @@
                         history: d.history || [], triage: d.triage || null, quote: d.quote || null, schedule: d.schedule || null, timestampOriginal: d.timestamp || Date.now(),
                         equipamentosOS: d.equipamentosOS || d.equipamentos || [], orcamentosOS: d.orcamentosOS || d.orcamentos || [],
                         solicitanteOS: d.solicitanteOS || d.solicitante || '', tipoAtendimentoOS: d.tipoAtendimentoOS || d.tipoAtendimento || '',
-                        dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || '', observacoesOS: d.observacoesOS || d.observacoes || '', tecnicoOS: d.tecnicoOS || d.tecnico || '',
-                        enderecoOS: d.enderecoOS || d.endereco || '', telefoneOS: d.telefoneOS || d.telefone || ''
+                        dataAgendamentoOS: d.dataAgendamentoOS || d.dataAgendamento || '', observacoesOS: d.observacoesOS || d.observacoes || '', tecnicoOS: d.tecnicoOS || d.tecnico || ''
                     });
                 });
                 window.tickets.sort((a,b) => b.timestampOriginal - a.timestampOriginal);
@@ -680,18 +673,19 @@
                 const cDiv = document.createElement('div');
                 cDiv.className = 'kanban-col flex flex-col bg-slate-200/60 border border-slate-300/60 rounded-2xl h-full max-h-full min-h-0 shadow-sm transition-colors w-[320px] min-w-[320px] shrink-0 overflow-hidden relative';
                 
-                cDiv.ondragover = e => { 
+                cDiv.addEventListener('dragover', e => { 
                     e.preventDefault(); 
                     if(e.dataTransfer) e.dataTransfer.dropEffect = 'move';
                     e.currentTarget.classList.add('drag-over'); 
-                };
-                cDiv.ondragleave = e => {
-                    if (e.target === e.currentTarget) e.currentTarget.classList.remove('drag-over');
-                };
-                cDiv.ondrop = e => {
+                });
+                cDiv.addEventListener('dragleave', e => {
+                    e.currentTarget.classList.remove('drag-over');
+                });
+                cDiv.addEventListener('drop', e => {
                     e.preventDefault(); 
                     e.currentTarget.classList.remove('drag-over');
                     if(!window.draggedTicketId) return;
+                    
                     const t = window.tickets.find(x => x.id === window.draggedTicketId);
                     if(t && t.status !== colKey) {
                         t.status = colKey;
@@ -702,7 +696,7 @@
                     }
                     window.draggedTicketId = null;
                     window.isDraggingCard = false;
-                };
+                });
 
                 let tks = window.tickets.filter(t => t.status === colKey && window.filterTicketByCriteria(t));
                 
@@ -724,16 +718,20 @@
                     card.className = `bg-white hover:bg-blue-50/30 p-4 rounded-xl border ${isCritical ? 'border-red-400 pulse-critical ring-1 ring-red-300' : 'border-slate-300 hover:border-blue-400'} shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group flex flex-col justify-between relative`;
                     card.draggable = true; 
                     
-                    card.ondragstart = (e) => { 
+                    card.addEventListener('dragstart', (e) => { 
                         window.draggedTicketId = t.id; 
                         window.isDraggingCard = true;
-                        if(e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', t.id); }
+                        if(e.dataTransfer) { 
+                            e.dataTransfer.effectAllowed = 'move'; 
+                            e.dataTransfer.setData('text/plain', t.id); 
+                        }
                         setTimeout(() => e.target.classList.add('dragging'), 0); 
-                    }; 
-                    card.ondragend = (e) => {
+                    }); 
+                    card.addEventListener('dragend', (e) => {
                         e.target.classList.remove('dragging');
                         setTimeout(() => window.isDraggingCard = false, 100);
-                    };
+                    });
+                    
                     card.onclick = (e) => { 
                         if(window.isDraggingCard) return;
                         if(!e.target.closest('.quick-action-btn')) window.abrirModalOS(t.id); 
@@ -758,7 +756,7 @@
                         textMaquinas = `<i class="fa-solid fa-print text-slate-400 mr-1.5"></i> <span class="font-bold text-slate-700 truncate max-w-[120px] inline-block align-bottom">Sem Equipamento</span>`;
                     }
 
-                    const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200 shadow-sm ml-2 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
+                    const urgBadge = isCritical ? `<span class="text-[9px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200 shadow-sm ml-2 flex items-center gap-1 pointer-events-none"><i class="fa-solid fa-triangle-exclamation"></i> Urgente</span>` : '';
 
                     card.innerHTML = `
                         <div class="pointer-events-none">
@@ -771,14 +769,14 @@
                                     <span class="text-[9px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-100"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
                                 </div>
                             </div>
-                            <h4 class="font-black text-slate-900 text-sm mb-1.5 truncate group-hover:text-blue-700 transition-colors">${nomeCliente}</h4>
+                            <h4 class="font-black text-slate-900 text-sm mb-1.5 truncate transition-colors">${nomeCliente}</h4>
                             
                             <div class="flex items-center justify-between text-[10px] font-medium text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
                                 <span class="flex items-center w-full">${textMaquinas}</span>
                             </div>
                         </div>
-                        <div>
-                            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 pointer-events-none">
+                        <div class="pointer-events-none">
+                            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1">
                                 <div class="flex items-center gap-2">
                                     <div class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[9px] font-black border border-blue-200 shadow-sm">${iniTecnico}</div>
                                     <span class="text-[10px] font-bold text-slate-700 truncate max-w-[120px]">${nomeTecnico}</span>
@@ -902,7 +900,6 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), t, {merge: true}); } catch(e){}
         };
 
-        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4', 'aba5'].forEach(a => {
                 const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
@@ -1163,6 +1160,7 @@
         window.calcularTotalGeralOS = function() { let t = 0; document.querySelectorAll('.orc-card').forEach(c => { t += parseFloat(c.getAttribute('data-total'))||0; }); document.getElementById('valor-total-geral-os').innerText = window.formatarMoeda(t); };
         window.atualizarContadorBadge = function(idB, idC) { document.getElementById(idB).innerText = document.getElementById(idC).children.length; };
 
+        // --- FORMCRAFT NATIVO DENTRO DA O.S. ---
         window.renderizarAbaFormularios = function() {
             const container = document.getElementById('lista-formularios-os');
             if(!container) return;
