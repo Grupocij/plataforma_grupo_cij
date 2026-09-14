@@ -49,7 +49,7 @@
         }
 
         .kanban-col.drag-over { background-color: #e0f2fe !important; border-color: #0284c7 !important; }
-        .dragging { opacity: 0.6; transform: scale(0.98); }
+        .dragging { opacity: 0.5; transform: scale(0.95); cursor: grabbing !important; }
 
         .pulse-critical { animation: pulseRed 2s infinite; }
         @keyframes pulseRed {
@@ -58,14 +58,15 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Regras rígidas para o PDF não desconfigurar */
-        @media screen {
-            #print-area { display: none !important; }
-        }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* REGRAS BLINDADAS DE IMPRESSÃO (PDF) */
+        @media screen { #print-area { display: none !important; } }
         @media print {
-            body * { visibility: hidden; }
-            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; min-height: 100%; padding: 20px; z-index: 999999; background: white; visibility: visible !important; }
-            #print-area * { visibility: visible !important; }
+            body > *:not(#print-area) { display: none !important; }
+            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; z-index: 999999; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .no-print { display: none !important; }
         }
     </style>
@@ -150,16 +151,16 @@
             <!-- ÁREA DE RENDERIZAÇÃO DAS VISÕES -->
             <div class="flex-1 min-h-0 flex flex-col relative w-full overflow-hidden no-print">
                 <div class="px-4 py-2 bg-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0 border-b border-slate-200">
-                    <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Arraste para mudar a etapa.</span>
+                    <span class="hidden sm:inline-flex items-center gap-1.5 font-bold"><i class="fa-solid fa-lightbulb text-amber-500"></i> Clique num cartão para abrir a O.S. Segure e arraste para mudar a etapa de atendimento.</span>
                     <div class="flex items-center gap-4 ml-auto text-[10px] font-mono font-bold"><span>[ESC] Fechar Modais</span></div>
                 </div>
 
-                <!-- VISÃO 1: KANBAN -->
+                <!-- VISÃO 1: KANBAN COM ROLAGEM PERFEITA -->
                 <div id="view-kanban" class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-4 view-section bg-slate-100 w-full flex flex-col">
                     <div id="kanban-grid" class="flex-1 min-h-0 flex gap-4 w-max min-w-full pb-2"></div>
                 </div>
 
-                <!-- VISÃO 2: PENDÊNCIAS -->
+                <!-- VISÃO 2: PENDÊNCIAS COM ROLAGEM PERFEITA -->
                 <div id="view-pendencias" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 view-section bg-slate-50 w-full hidden">
                     <div class="max-w-5xl mx-auto space-y-4">
                         <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between">
@@ -313,17 +314,17 @@
                         </div>
                     </div>
 
-                    <!-- ABA 5: HISTÓRICO E TIMELINE (MIGRAÇÃO DA TELA INUTIL) -->
+                    <!-- ABA 5: HISTÓRICO E TIMELINE (TRANSFERIDO DA GAVETA ANTIGA) -->
                     <div id="aba5" class="hidden space-y-4 max-w-5xl mx-auto">
-                        <div class="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-200"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i> Log de Eventos e Anotações</h3>
                             
                             <div id="timeline-container" class="space-y-4 mb-6">
                                 <!-- Injetado via JS -->
                             </div>
                             
-                            <div class="pt-4 border-t border-slate-200">
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Adicionar Nota Interna</label>
+                            <div class="pt-4 border-t border-slate-200 bg-slate-50 -mx-5 -mb-5 p-5 rounded-b-2xl">
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Adicionar Nota Interna Rápida</label>
                                 <div class="flex flex-col sm:flex-row gap-3">
                                     <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') { event.preventDefault(); window.addQuickNote(); }" class="flex-1 border border-slate-300 rounded-xl py-2.5 px-4 focus:outline-none focus:border-blue-600 text-sm font-medium shadow-sm transition" placeholder="Escreva um recado para a equipe...">
                                     <button type="button" onclick="window.addQuickNote()" class="bg-slate-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-paper-plane"></i> Registrar</button>
@@ -437,7 +438,7 @@
         window.pendingDeleteTicketId = null;
         window.draggedTicketId = null;
         window.currentUserStr = '';
-        window.osAtual = null; // Variavel global ressuscitada para compatibilidade com o historico
+        window.osAtual = null; 
         
         window.alertSettings = {
             'ENTRADA': {equipes:[], individuos:[]}, 'TRIAGEM': {equipes:[], individuos:[]}, 'ORCAMENTO': {equipes:[], individuos:[]}, 'AGENDAMENTO': {equipes:[], individuos:[]}, 'CONCLUIDO': {equipes:[], individuos:[]}
@@ -744,13 +745,13 @@
                                     <span class="text-[10px] font-mono font-black text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-300 shadow-sm">${t.id}</span>
                                     ${urgBadge}
                                 </div>
-                                <div class="flex gap-1.5 items-center">
+                                <div class="flex gap-1.5 items-center pointer-events-none">
                                     <span class="text-[9px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-100"><i class="fa-regular fa-clock"></i> ${window.formatElapsedTime(t.timestampOriginal)}</span>
                                 </div>
                             </div>
-                            <h4 class="font-black text-slate-900 text-sm mb-1.5 truncate group-hover:text-blue-700 transition-colors">${nomeCliente}</h4>
+                            <h4 class="font-black text-slate-900 text-sm mb-1.5 truncate group-hover:text-blue-700 transition-colors pointer-events-none">${nomeCliente}</h4>
                             
-                            <div class="flex items-center justify-between text-[10px] font-medium text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <div class="flex items-center justify-between text-[10px] font-medium text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg border border-slate-100 pointer-events-none">
                                 <span class="flex items-center w-full">${textMaquinas}</span>
                             </div>
                         </div>
@@ -879,6 +880,7 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), t, {merge: true}); } catch(e){}
         };
 
+        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4', 'aba5'].forEach(a => {
                 const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
@@ -899,10 +901,10 @@
             window.contadorEquips = 0; window.contadorOrcs = 0;
 
             if (idEdit) {
-                const osIdStr = String(idEdit).trim();
-                const os = window.tickets.find(x => String(x.id).trim() === osIdStr);
+                const os = window.tickets.find(x => x.id === idEdit);
                 if(os) {
-                    window.app.osAtual = os;
+                    window.osAtual = os;
+                    window.currentTicketId = os.id;
                     document.getElementById('titulo-modal-os').innerText = `Editando OS: ${os.id}`;
                     document.getElementById('os-id-oculto').value = os.id;
                     document.getElementById('os-cliente').value = os.client?.name || os.clienteOS || '';
@@ -924,11 +926,12 @@
                     window.renderTimeline(os);
                 }
             } else {
-                window.app.osAtual = null;
+                window.osAtual = null;
+                window.currentTicketId = null;
                 document.getElementById('titulo-modal-os').innerText = 'Nova Ordem de Serviço';
                 document.getElementById('os-data').value = new Date().toISOString().split('T')[0];
                 window.adicionarEquipamentoNaOS(); 
-                const cont = document.getElementById('timeline-container'); if(cont) cont.innerHTML = '<p class="text-xs text-slate-500 italic">Salve a OS para iniciar o histórico.</p>';
+                const cont = document.getElementById('timeline-container'); if(cont) cont.innerHTML = '<p class="text-xs text-slate-500 italic bg-white p-3 rounded-xl border border-slate-200">Salve a OS para iniciar o histórico.</p>';
             }
 
             window.atualizarContadorBadge('badge-equip-count', 'container-equipamentos-os'); window.atualizarContadorBadge('badge-orc-count', 'container-orcamentos-os');
@@ -1192,7 +1195,7 @@
                 if(f.instruction) html += `<p class="text-[10px] text-slate-500 mb-2">${f.instruction}</p>`;
                 
                 let val = '';
-                const osIdToMatch = window.app.osAtual ? (window.app.osAtual.osr || window.app.osAtual.id) : (document.getElementById('os-id-oculto').value || 'nova-os');
+                const osIdToMatch = window.osAtual ? (window.osAtual.osr || window.osAtual.id) : (document.getElementById('os-id-oculto').value || 'nova-os');
                 const idSubEsperado = `${osIdToMatch}_${mIdx}_${fIdx}`;
                 const sub = window.formcraftSubmissions.find(s => s.id === idSubEsperado);
                 if(sub && sub.answers) val = sub.answers[f.label] || '';
@@ -1312,7 +1315,9 @@
             const idx = window.formcraftSubmissions.findIndex(s => s.id === sub.id);
             if(idx !== -1) window.formcraftSubmissions[idx] = sub; else window.formcraftSubmissions.push(sub);
             
-            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osIdToSave), window.app.osAtual, {merge:true}); } catch(e){}
+            if(window.osAtual) {
+                try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osIdToSave), window.osAtual, {merge:true}); } catch(e){}
+            }
             
             window.showToast("Laudo Salvo com Sucesso!", "success");
             window.fecharModalFormCraft();
@@ -1465,7 +1470,7 @@
 
             const targetKanbanStatus = window.kanbanMapping[lowestStageName] || 'ENTRADA';
             
-            const existingOs = window.app.osAtual || null;
+            const existingOs = window.osAtual || null;
 
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
@@ -1530,9 +1535,9 @@
         window.addQuickNote = function() {
             const inp = document.getElementById('quickNoteInput'); 
             const txt = inp.value.trim();
-            if(!txt || !window.app.osAtual || !window.app.osAtual.id) return;
+            if(!txt || !window.osAtual || (!window.osAtual.id && !window.osAtual.osr)) return;
             
-            const t = window.app.osAtual;
+            const t = window.osAtual;
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: txt });
             
