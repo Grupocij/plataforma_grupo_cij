@@ -58,9 +58,6 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .drawer-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-
         /* Ajuste do PDF Blindado */
         @media screen {
             #print-area { display: none; }
@@ -329,7 +326,7 @@
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Adicionar Nota Interna</label>
                                 <div class="flex flex-col sm:flex-row gap-3">
                                     <input type="text" id="quickNoteInput" onkeydown="if(event.key==='Enter') { event.preventDefault(); window.addQuickNote(); }" class="flex-1 border border-slate-300 rounded-xl py-2.5 px-4 focus:outline-none focus:border-blue-600 text-sm font-medium shadow-sm transition" placeholder="Escreva um recado para a equipe...">
-                                    <button type="button" onclick="window.addQuickNote()" class="bg-slate-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Registrar</button>
+                                    <button type="button" onclick="window.addQuickNote()" class="bg-slate-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2 cursor-pointer"><i class="fa-solid fa-paper-plane"></i> Registrar</button>
                                 </div>
                             </div>
                         </div>
@@ -872,7 +869,6 @@
             try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', t.id), t, {merge: true}); } catch(e){}
         };
 
-        // --- SISTEMA DE ABAS DO MODAL OS GIGANTE ---
         window.mudarAbaOS = function(aba) {
             ['aba1', 'aba2', 'aba3', 'aba4', 'aba5'].forEach(a => {
                 const el = document.getElementById(a); if(el) { el.classList.add('hidden'); el.classList.remove('block'); }
@@ -895,7 +891,7 @@
             if (idEdit) {
                 const os = window.tickets.find(x => x.id === idEdit);
                 if(os) {
-                    window.app.osAtual = os;
+                    window.currentTicketId = os.id;
                     document.getElementById('titulo-modal-os').innerText = `Editando OS: ${os.id}`;
                     document.getElementById('os-id-oculto').value = os.id;
                     document.getElementById('os-cliente').value = os.client?.name || os.clienteOS || '';
@@ -917,7 +913,7 @@
                     window.renderTimeline(os);
                 }
             } else {
-                window.app.osAtual = null;
+                window.currentTicketId = null;
                 document.getElementById('titulo-modal-os').innerText = 'Nova Ordem de Serviço';
                 document.getElementById('os-data').value = new Date().toISOString().split('T')[0];
                 window.adicionarEquipamentoNaOS(); 
@@ -1185,7 +1181,7 @@
                 if(f.instruction) html += `<p class="text-[10px] text-slate-500 mb-2">${f.instruction}</p>`;
                 
                 let val = '';
-                const osIdToMatch = window.app.osAtual.osr || window.app.osAtual.id || 'nova-os';
+                const osIdToMatch = window.currentTicketId || document.getElementById('os-id-oculto').value || 'nova-os';
                 const idSubEsperado = `${osIdToMatch}_${mIdx}_${fIdx}`;
                 const sub = window.formcraftSubmissions.find(s => s.id === idSubEsperado);
                 if(sub && sub.answers) val = sub.answers[f.label] || '';
@@ -1278,8 +1274,8 @@
         };
 
         window.salvarRespostasFormCraft = async function() {
-            const osId = document.getElementById('os-id-oculto').value;
-            if(!osId || osId === 'nova-os') {
+            const osIdToSave = document.getElementById('os-id-oculto').value;
+            if(!osIdToSave || osIdToSave === 'nova-os') {
                 window.showToast("Salve a O.S. primeiro para gerar o número antes de preencher o formulário.", "warning");
                 return;
             }
@@ -1289,10 +1285,10 @@
                 const wrapper = document.getElementById(`pw-${f.id}`);
                 if(wrapper.style.display === 'none') return;
                 if(f.type === 'single_select') { const r = document.querySelector(`input[name="${f.id}"]:checked`); answers[f.label] = r ? r.value : ''; }
+                else if(f.type === 'multi_select') { answers[f.label] = Array.from(document.querySelectorAll(`input[name="${f.id}"]:checked`)).map(e=>e.value).join(', '); }
                 else { const el = document.querySelector(`[name="${f.id}"]`); answers[f.label] = el ? el.value : ''; }
             });
 
-            const osIdToSave = window.app.osAtual.osr || window.app.osAtual.id;
             const subId = `${osIdToSave}_${window.maquinaIdxAtual}_${window.formReqIdxAtual}`;
             const sub = { 
                 id: subId, formId: window.formAtual.id, osId: osIdToSave,
@@ -1304,8 +1300,6 @@
             
             const idx = window.formcraftSubmissions.findIndex(s => s.id === sub.id);
             if(idx !== -1) window.formcraftSubmissions[idx] = sub; else window.formcraftSubmissions.push(sub);
-            
-            try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', osIdToSave), window.app.osAtual, {merge:true}); } catch(e){}
             
             window.showToast("Laudo Salvo com Sucesso!", "success");
             window.fecharModalFormCraft();
@@ -1448,11 +1442,13 @@
             });
 
             const targetKanbanStatus = window.kanbanMapping[lowestStageName] || 'ENTRADA';
+            
+            const existingOs = window.currentTicketId ? window.tickets.find(x => x.id === window.currentTicketId) : null;
 
             const payload = {
                 clienteOS: cliente, cliente: cliente, 
                 solicitanteOS: document.getElementById('os-solicitante').value.trim(), tipoAtendimentoOS: document.getElementById('os-tipo').value, dataAgendamentoOS: dataAgendada, tecnicoOS: tecnicoDesignado, tecnico_kanban: tecnicoDesignado, tecnico: tecnicoDesignado, observacoesOS: document.getElementById('os-obs').value.trim(),
-                equipamentosOS: arrayEquips, orcamentosOS: arrayOrcs, status: targetKanbanStatus, history: (window.app.osAtual ? window.app.osAtual.history : [])
+                equipamentosOS: arrayEquips, orcamentosOS: arrayOrcs, status: targetKanbanStatus, history: existingOs ? existingOs.history || [] : []
             };
 
             try {
@@ -1512,9 +1508,11 @@
         window.addQuickNote = function() {
             const inp = document.getElementById('quickNoteInput'); 
             const txt = inp.value.trim();
-            if(!txt || !window.app.osAtual || !window.app.osAtual.id) return;
+            if(!txt || !window.currentTicketId) return;
             
-            const t = window.app.osAtual;
+            const t = window.tickets.find(x => x.id === window.currentTicketId);
+            if(!t) return;
+            
             if(!t.history) t.history = [];
             t.history.push({ date: new Date().toISOString(), user: window.currentUserStr, type: 'note', text: txt });
             
