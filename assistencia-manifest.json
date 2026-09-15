@@ -1,0 +1,11 @@
+{
+  "name": "CIJ - App do Técnico",
+  "short_name": "CIJ Técnico",
+  "description": "Atendimentos de Assistência Técnica do Grupo CIJ",
+  "start_url": "assistencia.html?modo=tecnico",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary"
+}
