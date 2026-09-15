@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
@@ -18,58 +18,89 @@
     <!-- CABEÇALHO -->
     <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
         <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center font-extrabold text-xl text-white">S</div>
+            <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center font-extrabold text-xl text-white shadow-md">S</div>
             <div>
-                <h1 class="text-lg font-black tracking-tight leading-tight">Central de Clientes</h1>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Manutenção de Base de Dados</p>
+                <h1 class="text-lg font-black tracking-tight leading-tight text-slate-900">Central de Clientes</h1>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Gestão Oficial da Base de Dados</p>
             </div>
         </div>
-        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold border border-blue-200 flex items-center gap-2">
+        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold border border-blue-200 flex items-center gap-2 shadow-sm">
             <i class="fa-solid fa-users"></i> <span id="contador-total">Carregando...</span>
         </div>
     </header>
 
-    <!-- PAINEL DE FERRAMENTAS -->
+    <!-- ÁREA PRINCIPAL -->
     <main class="flex-1 overflow-y-auto custom-scrollbar p-6">
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="max-w-6xl mx-auto space-y-6">
 
-            <!-- BLOCO 1: LIMPEZA DE DUPLICADOS -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-6 items-center justify-between relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-rose-50 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <h2 class="text-lg font-black text-slate-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-broom text-rose-500"></i> Limpeza de Duplicados</h2>
-                    <p class="text-xs text-slate-500 font-medium max-w-md">O sistema irá varrer o Firebase, identificar clientes com o mesmo Nome/Razão Social, manter o cadastro original mais antigo e apagar as cópias excedentes.</p>
+            <!-- GRID DE FERRAMENTAS (LADO A LADO EM TELAS GRANDES) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- BLOCO 1: LIMPEZA DE DUPLICADOS -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden h-full">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-rose-50 rounded-full blur-3xl"></div>
+                    <div class="relative z-10 mb-6">
+                        <h2 class="text-base font-black text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-broom text-rose-500"></i> Limpeza de Duplicados Automática</h2>
+                        <p class="text-xs text-slate-500 font-medium">O sistema varre o Firebase, agrupa clientes com o mesmo Nome/Razão Social, mantém o cadastro mais antigo (original) e pulveriza as cópias excedentes do banco.</p>
+                    </div>
+                    <button onclick="window.executarLimpezaDuplicados()" id="btn-limpar" class="relative z-10 w-full bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-xl text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Iniciar Varredura de Limpeza
+                    </button>
                 </div>
-                <button onclick="window.executarLimpezaDuplicados()" id="btn-limpar" class="relative z-10 shrink-0 bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-black shadow-md transition cursor-pointer flex items-center gap-2">
-                    <i class="fa-solid fa-play"></i> Iniciar Varredura
-                </button>
+
+                <!-- BLOCO 2: IMPORTAÇÃO INTELIGENTE -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden h-full">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-50 rounded-full blur-3xl"></div>
+                    <div class="relative z-10 mb-6">
+                        <h2 class="text-base font-black text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Importação Anti-Clone (.JSON)</h2>
+                        <p class="text-xs text-slate-500 font-medium">Faça upload de clientes novos. A inteligência do sistema cruzará os nomes com a base atual; se o cliente já existir, ele será barrado para evitar clones.</p>
+                        
+                        <div class="mt-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            <label class="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-200 transition shadow-sm w-full sm:w-auto text-center">
+                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Escolher Arquivo
+                                <input type="file" id="input-arquivo-importacao" accept=".json" class="hidden" onchange="window.prepararImportacao(event)">
+                            </label>
+                            <span id="nome-arquivo-importacao" class="text-[11px] font-mono text-emerald-600 font-bold truncate max-w-[200px]">Nenhum arquivo</span>
+                        </div>
+                    </div>
+                    <button onclick="window.executarImportacao()" id="btn-importar" disabled class="relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Executar Importação
+                    </button>
+                </div>
             </div>
 
-            <!-- BLOCO 2: IMPORTAÇÃO INTELIGENTE -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-6 items-center justify-between relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-50 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <h2 class="text-lg font-black text-slate-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Importação Anti-Clone</h2>
-                    <p class="text-xs text-slate-500 font-medium max-w-md">Selecione um arquivo <strong>.JSON</strong> contendo a lista de clientes novos. Se o cliente já existir no banco de dados, o sistema irá barrá-lo automaticamente.</p>
-                    
-                    <div class="mt-4 flex gap-3">
-                        <label class="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold cursor-pointer hover:bg-slate-200 transition">
-                            <i class="fa-solid fa-file-arrow-up mr-1"></i> Escolher Arquivo JSON
-                            <input type="file" id="input-arquivo-importacao" accept=".json" class="hidden" onchange="window.prepararImportacao(event)">
-                        </label>
-                        <span id="nome-arquivo-importacao" class="text-xs font-mono text-emerald-600 mt-2.5 font-bold">Nenhum arquivo selecionado</span>
+            <!-- BLOCO 3: VISUALIZAÇÃO E GESTÃO DA BASE DE CLIENTES -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col min-h-[400px]">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-4">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-table-list text-blue-600"></i> Base Oficial de Clientes</h3>
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="busca-cliente" oninput="window.filtrarClientes()" placeholder="Buscar por nome, razão ou CNPJ..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:border-blue-500 shadow-inner transition">
                     </div>
                 </div>
-                <button onclick="window.executarImportacao()" id="btn-importar" disabled class="relative z-10 shrink-0 bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-sm font-black transition cursor-not-allowed flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Importar Clientes
-                </button>
+                
+                <div class="flex-1 overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-slate-50 max-h-[500px]">
+                    <table class="w-full text-left text-xs whitespace-nowrap">
+                        <thead class="bg-slate-200/60 text-slate-600 font-black uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-sm backdrop-blur-sm">
+                            <tr>
+                                <th class="p-3 px-4">Nome / Razão Social</th>
+                                <th class="p-3">CNPJ</th>
+                                <th class="p-3">Cidade / UF</th>
+                                <th class="p-3">Contato Principal</th>
+                                <th class="p-3 text-center w-20">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-clientes" class="divide-y divide-slate-200 bg-white">
+                            <tr><td colspan="5" class="p-10 text-center text-slate-400 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando clientes do Firebase...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- LOG DE OPERAÇÕES -->
+            <!-- BLOCO 4: LOG DE OPERAÇÕES -->
             <div class="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-terminal mr-2"></i> Console de Processamento</h3>
-                <div id="console-log" class="font-mono text-[11px] text-emerald-400 space-y-1 h-64 overflow-y-auto custom-scrollbar pr-2">
-                    <p class="text-slate-500">Aguardando comandos...</p>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-terminal mr-2"></i> Console de Servidor</h3>
+                <div id="console-log" class="font-mono text-[11px] text-emerald-400 space-y-1.5 h-48 overflow-y-auto custom-scrollbar pr-2 leading-relaxed">
+                    <p class="text-slate-500">Aguardando instruções do sistema...</p>
                 </div>
             </div>
 
@@ -83,27 +114,105 @@
         window.dbClientes = [];
         window.clientesParaImportar = [];
 
-        // Inicia após o core.js validar o login
+        // Inicialização acionada pelo seu core.js
         window.initModule = function(perfil) {
-            window.logConsole("Sistema autenticado. Lendo clientes do banco...", "info");
+            window.logConsole("Sessão validada. Efetuando download da tabela de clientes...", "info");
             
-            // Monitora os clientes em tempo real (mesmo padrão do seu ServiceFlow)
+            // Listener em tempo real da base de clientes
             window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
                 window.dbClientes = [];
                 snap.forEach(d => { window.dbClientes.push({ docId: d.id, ...d.data() }); });
                 
                 document.getElementById('contador-total').innerText = `${window.dbClientes.length} Clientes Ativos`;
-                window.logConsole(`Leitura concluída. ${window.dbClientes.length} registros em memória.`, "success");
+                window.renderListaClientes();
+                window.logConsole(`Sincronização concluída. ${window.dbClientes.length} registros em memória RAM.`, "success");
             });
         };
 
-        // --- 1. LÓGICA DE LIMPEZA DE DUPLICADOS ---
+        // --- RENDERIZAÇÃO DA TABELA VISUAL ---
+        window.renderListaClientes = function(filtroBusca = '') {
+            const tbody = document.getElementById('tabela-clientes');
+            if(!tbody) return;
+            
+            const termo = filtroBusca.toLowerCase().trim();
+            const filtrados = window.dbClientes.filter(c => {
+                const nomeFantasia = (c.fantasia || '').toLowerCase();
+                const razaoSocial = (c.razao_social || '').toLowerCase();
+                const documento = (c.cnpj || c.cpf || '').toLowerCase();
+                return nomeFantasia.includes(termo) || razaoSocial.includes(termo) || documento.includes(termo);
+            });
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium"><i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-300 block"></i>Nenhum cliente localizado na base de dados.</td></tr>`;
+                return;
+            }
+
+            // Ordena alfabeticamente pela Razão Social ou Fantasia
+            filtrados.sort((a, b) => {
+                const nomeA = a.fantasia || a.razao_social || '';
+                const nomeB = b.fantasia || b.razao_social || '';
+                return nomeA.localeCompare(nomeB);
+            });
+
+            tbody.innerHTML = filtrados.map(c => {
+                const nomePrincipal = c.fantasia || c.razao_social || '<span class="text-rose-500 italic text-[10px]">Sem Nome Registrado</span>';
+                const documento = c.cnpj || c.cpf || '<span class="text-slate-300">-</span>';
+                const localidade = c.cidade ? `${c.cidade} ${c.estado ? '- ' + c.estado : ''}` : '<span class="text-slate-300">Não informado</span>';
+                
+                let contato = '<span class="text-slate-300">-</span>';
+                if (c.telefone) contato = c.telefone;
+                else if (c.contatos && c.contatos.length > 0 && c.contatos[0].telefone) contato = c.contatos[0].telefone;
+
+                return `
+                <tr class="hover:bg-blue-50/50 transition-colors group">
+                    <td class="p-3 px-4 font-bold text-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${nomePrincipal}
+                        </div>
+                        <div class="text-[9px] font-mono text-slate-400 ml-3.5 mt-0.5" title="ID do Documento no Banco">ID: ${c.docId}</div>
+                    </td>
+                    <td class="p-3 text-slate-600 font-mono font-bold">${documento}</td>
+                    <td class="p-3 text-slate-600 font-medium">${localidade}</td>
+                    <td class="p-3 text-slate-600 font-mono text-[11px]">${contato}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="window.excluirClienteManual('${c.docId}', '${(c.fantasia || c.razao_social || 'Sem Nome').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white transition flex items-center justify-center mx-auto opacity-50 group-hover:opacity-100 shadow-sm" title="Excluir Definitivamente">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        };
+
+        window.filtrarClientes = function() {
+            const termo = document.getElementById('busca-cliente').value;
+            window.renderListaClientes(termo);
+        };
+
+        // --- EXCLUSÃO MANUAL INDIVIDUAL ---
+        window.excluirClienteManual = async function(docId, nomeCliente) {
+            const confirmacao = confirm(`⚠️ ATENÇÃO: Risco de Perda de Dados.\n\nVocê está prestes a excluir DEFINITIVAMENTE o cliente:\n[ ${nomeCliente} ]\n\nIsso apagará o registro oficial do Firebase. Confirma a exclusão física?`);
+            
+            if (confirmacao) {
+                try {
+                    window.logConsole(`Solicitando exclusão física do cliente [${nomeCliente}] (ID: ${docId})...`, "warning");
+                    const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', docId);
+                    await window.fsDeleteDoc(docRef);
+                    window.logConsole(`SUCESSO: Cliente [${nomeCliente}] pulverizado da base de dados.`, "success");
+                    // O onSnapshot cuidará de recarregar a tabela automaticamente
+                } catch (error) {
+                    window.logConsole(`FALHA CRÍTICA: Erro ao excluir cliente. Verifique permissões. Detalhe: ${error.message}`, "error");
+                }
+            }
+        };
+
+        // --- 1. LÓGICA DE LIMPEZA DE DUPLICADOS AUTOMÁTICA ---
         window.executarLimpezaDuplicados = async function() {
             const btn = document.getElementById('btn-limpar');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Varrendo Banco...';
             btn.classList.add('opacity-50', 'pointer-events-none');
             
-            window.logConsole("Iniciando varredura de duplicidades...", "info");
+            window.logConsole("Iniciando varredura sistêmica de duplicidades...", "info");
 
             // Agrupa pelo Nome Fantasia ou Razão Social
             const agrupados = {};
@@ -129,28 +238,28 @@
                     const cadastroOficial = lista[0];
                     const clones = lista.slice(1); // Todos do índice 1 pra frente são clones
                     
-                    window.logConsole(`Encontrado ${clones.length} clones para [${nome}]. Mantendo original: ${cadastroOficial.docId}`, "warning");
+                    window.logConsole(`Encontrado ${clones.length} clones para [${nome}]. Mantendo original imune (ID: ${cadastroOficial.docId}).`, "warning");
 
                     for (const clone of clones) {
                         try {
                             const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', clone.docId);
                             await window.fsDeleteDoc(docRef);
                             excluidosCount++;
-                            window.logConsole(`   - Clone apagado: ${clone.docId}`, "error");
+                            window.logConsole(`   -> Clone apagado via varredura: ${clone.docId}`, "error");
                         } catch (e) {
-                            window.logConsole(`   - Erro ao apagar clone: ${e.message}`, "error");
+                            window.logConsole(`   -> Erro ao apagar clone: ${e.message}`, "error");
                         }
                     }
                 }
             }
 
             if (excluidosCount === 0) {
-                window.logConsole("Varredura concluída. A base de clientes está 100% limpa. Nenhuma duplicidade encontrada.", "success");
+                window.logConsole("Varredura concluída. A base de clientes está 100% íntegra. Nenhuma duplicidade localizada.", "success");
             } else {
-                window.logConsole(`Limpeza Concluída! ${excluidosCount} clientes duplicados foram pulverizados.`, "success");
+                window.logConsole(`LIMPEZA CONCLUÍDA! ${excluidosCount} clientes duplicados foram pulverizados do ecossistema.`, "success");
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar Varredura';
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar Varredura de Limpeza';
             btn.classList.remove('opacity-50', 'pointer-events-none');
         };
 
@@ -163,7 +272,7 @@
             if (!file) {
                 labelNome.innerText = "Nenhum arquivo selecionado";
                 window.clientesParaImportar = [];
-                btnImportar.disabled = true; btnImportar.className = "relative z-10 shrink-0 bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-sm font-black transition cursor-not-allowed flex items-center gap-2";
+                btnImportar.disabled = true; btnImportar.className = "relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2";
                 return;
             }
 
@@ -174,12 +283,12 @@
                 try {
                     const jsonData = JSON.parse(e.target.result);
                     window.clientesParaImportar = Array.isArray(jsonData) ? jsonData : [jsonData];
-                    window.logConsole(`Arquivo processado: ${window.clientesParaImportar.length} clientes prontos para análise estrutural.`, "info");
+                    window.logConsole(`Arquivo carregado em memória: ${window.clientesParaImportar.length} clientes prontos para análise anti-clone.`, "info");
                     
                     btnImportar.disabled = false;
-                    btnImportar.className = "relative z-10 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-sm font-black shadow-md transition cursor-pointer flex items-center gap-2";
+                    btnImportar.className = "relative z-10 w-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-2";
                 } catch(err) {
-                    window.logConsole("Erro ao ler JSON. Verifique a estrutura do arquivo.", "error");
+                    window.logConsole("Falha no Parse do JSON. Verifique a codificação e estrutura do arquivo fornecido.", "error");
                 }
             };
             reader.readAsText(file);
@@ -189,7 +298,7 @@
             if (window.clientesParaImportar.length === 0) return;
 
             const btn = document.getElementById('btn-importar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cruzando Dados...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cruzando Dados e Injetando...';
             btn.classList.add('opacity-50', 'pointer-events-none');
 
             let importadosCount = 0;
@@ -199,7 +308,7 @@
                 const nomeNovo = (cliNovo.fantasia || cliNovo.razao_social || "").trim().toUpperCase();
                 const docIdParaSalvar = cliNovo.id || 'cli_' + Date.now() + Math.floor(Math.random() * 1000);
                 
-                // Validação Inteligente: Verifica se já existe na memória RAM que carregou do banco
+                // Validação Inteligente: Cruza com a memória RAM preenchida pelo onSnapshot
                 const jaExiste = window.dbClientes.some(cliDb => {
                     const nomeBase = (cliDb.fantasia || cliDb.razao_social || "").trim().toUpperCase();
                     return nomeBase === nomeNovo;
@@ -207,7 +316,7 @@
 
                 if (jaExiste) {
                     barradosCount++;
-                    window.logConsole(`Barreira ativada: [${nomeNovo}] ignorado (Já existe no banco).`, "warning");
+                    window.logConsole(`Shield Ativado: [${nomeNovo}] foi ignorado (Match exato já existente no banco).`, "warning");
                 } else {
                     // Prepara o objeto injetando Timestamp
                     cliNovo.id = docIdParaSalvar;
@@ -217,21 +326,21 @@
                         const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', docIdParaSalvar);
                         await window.fsSetDoc(docRef, cliNovo);
                         importadosCount++;
-                        window.logConsole(`Importado com sucesso: [${nomeNovo}]`, "success");
+                        window.logConsole(`Injetado: [${nomeNovo}] gravado no Firebase com sucesso.`, "success");
                     } catch(e) {
-                        window.logConsole(`Erro ao salvar [${nomeNovo}]: ${e.message}`, "error");
+                        window.logConsole(`Erro de permissão ou rede ao salvar [${nomeNovo}]: ${e.message}`, "error");
                     }
                 }
             }
 
-            window.logConsole(`RESUMO DA IMPORTAÇÃO: ${importadosCount} Cadastrados | ${barradosCount} Barrados (Duplicidade).`, "success");
+            window.logConsole(`RESUMO DA OPERAÇÃO: ${importadosCount} Cadastrados com Sucesso | ${barradosCount} Clones Barrados na Porta.`, "success");
             
-            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Importar Clientes';
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Executar Importação';
             btn.classList.remove('opacity-50', 'pointer-events-none');
             document.getElementById('input-arquivo-importacao').value = "";
             window.clientesParaImportar = [];
             btn.disabled = true;
-            btn.className = "relative z-10 shrink-0 bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-sm font-black transition cursor-not-allowed flex items-center gap-2";
+            btn.className = "relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2";
         };
 
         // --- SISTEMA DE LOGS VISUAIS ---
@@ -246,11 +355,11 @@
             if(tipo === 'warning') { corClass = 'text-amber-400'; icone = 'fa-triangle-exclamation'; }
 
             const p = document.createElement('p');
-            p.className = `border-l-2 ${tipo === 'error' ? 'border-rose-500' : tipo === 'warning' ? 'border-amber-500' : 'border-slate-700'} pl-2 py-0.5`;
-            p.innerHTML = `<span class="text-slate-600 mr-2">[${dataHora}]</span> <i class="fa-solid ${icone} ${corClass} mr-1"></i> <span class="${corClass}">${mensagem}</span>`;
+            p.className = `border-l-2 ${tipo === 'error' ? 'border-rose-500' : tipo === 'warning' ? 'border-amber-500' : 'border-slate-700'} pl-2 py-0.5 break-words`;
+            p.innerHTML = `<span class="text-slate-600 mr-2 shrink-0">[${dataHora}]</span> <i class="fa-solid ${icone} ${corClass} mr-1 shrink-0"></i> <span class="${corClass}">${mensagem}</span>`;
             
             consoleDiv.appendChild(p);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight; // Rola pro final
+            consoleDiv.scrollTop = consoleDiv.scrollHeight; // Auto-scroll para a última mensagem
         };
 
     </script>
