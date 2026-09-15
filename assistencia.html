@@ -36,7 +36,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.8</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Estrutura do novo fluxo de OS, isolada do ServiceFlow e do legado.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.9</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Estrutura do novo fluxo de OS, isolada do ServiceFlow e do legado.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -56,14 +56,38 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 </main>
 
 <div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o legado <b>suportes_osr</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none" style="width:min(980px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.8</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="grid lg:grid-cols-3 gap-4 mt-5"><div class="lg:col-span-2 space-y-4"><section class="border border-slate-200 rounded-2xl p-4"><div class="flex items-center justify-between gap-3"><div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui status próprio. A etapa geral da OS acompanha automaticamente o equipamento ativo mais atrasado.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="border border-slate-200 rounded-2xl p-4"><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="space-y-4"><section class="border border-slate-200 rounded-2xl p-4"><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Histórico básico</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="mt-5 flex flex-wrap justify-between gap-2 border-t pt-4"><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button><div class="flex gap-2"><button class="btn btn-light" onclick="window.toastDetalheIndisponivel('Agenda')"><i class="fa-solid fa-calendar-days"></i> Agendar</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div></div></div></div>
+
+<div id="modal-agendamento-os" class="modal-backdrop hidden">
+ <div class="modal-card !max-w-none" style="width:min(720px,100%)">
+  <div class="flex justify-between items-start gap-4">
+   <div><span class="tag tag-green">FASE 1.9</span><h2 class="text-xl font-black mt-2">Agendar Ordem de Serviço</h2>
+   <p id="agenda-os-identificacao" class="text-xs text-slate-500 mt-1">-</p></div>
+   <button onclick="window.fecharAgendamentoOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="grid md:grid-cols-2 gap-3 mt-5">
+   <label><span class="field-label">Data *</span><input id="agenda-data" type="date" class="input"></label>
+   <label><span class="field-label">Horário *</span><input id="agenda-hora" type="time" class="input"></label>
+   <label class="md:col-span-2"><span class="field-label">Técnico responsável *</span><select id="agenda-tecnico" class="input"></select></label>
+   <label class="md:col-span-2"><span class="field-label">Observações</span><textarea id="agenda-observacao" class="input min-h-20" placeholder="Informações importantes para a visita..."></textarea></label>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 mt-4">
+   Este agendamento será gravado na coleção oficial <b>agenda_tasks_v2</b>, mantendo a Agenda como fonte oficial.
+  </div>
+  <div class="mt-5 flex justify-end gap-2">
+   <button onclick="window.fecharAgendamentoOS()" class="btn btn-light">Cancelar</button>
+   <button onclick="window.salvarAgendamentoOS()" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> Salvar agendamento</button>
+  </div>
+ </div>
+</div>
+
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none" style="width:min(980px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.9</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="grid lg:grid-cols-3 gap-4 mt-5"><div class="lg:col-span-2 space-y-4"><section class="border border-slate-200 rounded-2xl p-4"><div class="flex items-center justify-between gap-3"><div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui status próprio. A etapa geral da OS acompanha automaticamente o equipamento ativo mais atrasado.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="border border-slate-200 rounded-2xl p-4"><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="space-y-4"><section class="border border-slate-200 rounded-2xl p-4"><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Histórico básico</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="mt-5 flex flex-wrap justify-between gap-2 border-t pt-4"><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button><div class="flex gap-2"><button class="btn btn-light" onclick="window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> Agendar</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div></div></div></div>
 
 
 
 <div id="modal-aprovacao-orcamento" class="modal-backdrop hidden">
  <div class="modal-card !max-w-none" style="width:min(760px,100%)">
   <div class="flex justify-between items-start gap-4">
-   <div><span class="tag tag-green">FASE 1.8</span><h2 class="text-xl font-black mt-2">Aprovação do orçamento</h2>
+   <div><span class="tag tag-green">FASE 1.9</span><h2 class="text-xl font-black mt-2">Aprovação do orçamento</h2>
    <p id="aprov-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div>
    <button onclick="window.fecharAprovacaoOrcamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
   </div>
@@ -83,7 +107,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="modal-card !max-w-none" style="width:min(900px,100%)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.8</span>
+        <span class="tag tag-green">FASE 1.9</span>
         <h2 class="text-xl font-black mt-2">Orçamento do equipamento</h2>
         <p id="orc-equipamento-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -126,7 +150,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="modal-card">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.8</span>
+        <span class="tag tag-green">FASE 1.9</span>
         <h2 class="text-xl font-black mt-2">Diagnóstico do equipamento</h2>
         <p id="diag-equipamento-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -177,7 +201,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   </div>
 </div>
 
-<div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.8</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p class="text-xs text-slate-500 mt-1">Vincule uma máquina do Parque ou registre um equipamento temporário somente nesta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Máquina do Parque</button><button id="tab-eq-temp" class="nav-pill" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Máquina *</span><select id="eq-parque-select" class="input"><option value="">Selecione uma máquina</option></select></label><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">A máquina oficial continuará pertencendo ao <b>parque_maquinas</b>. A Assistência grava apenas um vínculo/cópia de referência dentro desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><input id="eq-temp-sn" class="input" placeholder="Se houver"></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><div class="md:col-span-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900"><b>Importante:</b> este cadastro não altera o Parque de Máquinas oficial.</div></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharAdicionarEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-equipamento" onclick="window.salvarEquipamentoOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Vincular equipamento</button></div></div></div>
+<div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.9</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p class="text-xs text-slate-500 mt-1">Vincule uma máquina do Parque ou registre um equipamento temporário somente nesta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Máquina do Parque</button><button id="tab-eq-temp" class="nav-pill" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Máquina *</span><select id="eq-parque-select" class="input"><option value="">Selecione uma máquina</option></select></label><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">A máquina oficial continuará pertencendo ao <b>parque_maquinas</b>. A Assistência grava apenas um vínculo/cópia de referência dentro desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><input id="eq-temp-sn" class="input" placeholder="Se houver"></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><div class="md:col-span-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900"><b>Importante:</b> este cadastro não altera o Parque de Máquinas oficial.</div></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharAdicionarEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-equipamento" onclick="window.salvarEquipamentoOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Vincular equipamento</button></div></div></div>
 <div id="assistencia-toast" class="fixed bottom-5 right-5 z-[99999] hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-bold"></div>
 <script>
 (function(){'use strict';
@@ -221,6 +245,58 @@ const stageWeight={ENTRADA:1,TRIAGEM:2,ORCAMENTOS:3,AGENDAMENTO:4,FINALIZADOS:5}
 function statusLabel(v){return equipmentStatuses.find(x=>x[0]===v)?.[1]||String(v||'PENDENTE').replaceAll('_',' ')}
 function deriveMacroStage(items){const active=(items||[]).filter(e=>e.ativo!==false&&!['RECUSADO','CANCELADO'].includes(String(e.statusEquipamento||'PENDENTE').toUpperCase()));if(!active.length)return'ENTRADA';const mapped=active.map(e=>equipmentStatuses.find(x=>x[0]===String(e.statusEquipamento||'PENDENTE').toUpperCase())?.[2]||'ENTRADA').filter(Boolean);return mapped.sort((a,b)=>(stageWeight[a]||99)-(stageWeight[b]||99))[0]||'ENTRADA'}
 async function recalcOSStage(o,items){const stage=deriveMacroStage(items);const current=normStage(o.etapaKanban||o.etapa||o.status);if(stage===current)return stage;const now=new Date().toISOString();await mergeOSDoc(o.internalId||o.id,{etapaKanban:stage,status:stage,updatedAtISO:now});o.etapaKanban=stage;o.status=stage;o.updatedAtISO=now;renderKanban();return stage}
+
+window.abrirAgendamentoOS=function(){
+ const o=state.selectedOS;if(!o)return;
+ document.getElementById('agenda-os-identificacao').textContent=`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||''}`;
+ const sel=document.getElementById('agenda-tecnico');
+ sel.innerHTML='<option value="">Selecione o técnico</option>'+state.usuarios.map(x=>{
+   const id=x.uid||x.id,n=x.nome||x.email||x.id;
+   return `<option value="${esc(id)}">${esc(n)}</option>`;
+ }).join('');
+ const tid=o.tecnicoId||o.tecnicoUid||'';
+ if(tid)sel.value=tid;
+ const existente=state.agenda.find(a=>String(a.osId||a.internalIdOS||'')===String(o.internalId||o.id) || String(a.osNumber||'')===String(o.osNumber||''));
+ if(existente){
+   const raw=existente.dueDateISO||existente.dataHoraISO||existente.startISO||'';
+   if(raw){const d=new Date(raw);if(!Number.isNaN(d.getTime())){document.getElementById('agenda-data').value=d.toISOString().slice(0,10);document.getElementById('agenda-hora').value=d.toTimeString().slice(0,5)}}
+   document.getElementById('agenda-observacao').value=existente.observacao||existente.descricao||'';
+ }else{
+   document.getElementById('agenda-data').value='';
+   document.getElementById('agenda-hora').value='';
+   document.getElementById('agenda-observacao').value='';
+ }
+ document.getElementById('modal-agendamento-os').classList.remove('hidden');
+};
+window.fecharAgendamentoOS=function(){document.getElementById('modal-agendamento-os')?.classList.add('hidden')};
+window.salvarAgendamentoOS=async function(){
+ const o=state.selectedOS;if(!o)return;
+ const data=document.getElementById('agenda-data').value,hora=document.getElementById('agenda-hora').value;
+ const sel=document.getElementById('agenda-tecnico'),uid=sel.value,nome=sel.selectedOptions?.[0]?.textContent?.trim()||'';
+ const obs=document.getElementById('agenda-observacao').value.trim();
+ if(!data||!hora||!uid){alert('Preencha data, horário e técnico responsável.');return}
+ const due=`${data}T${hora}:00`;
+ const osid=o.internalId||o.id;
+ const agendaId=`OS_${osid}`;
+ const now=new Date().toISOString();
+ const payload={
+   idOrigem:agendaId,origem:'ASSISTENCIA_OS',osId:osid,osNumber:o.osNumber||o.numero||'',
+   clienteId:o.clienteId||'',clienteNome:o.clienteNome||o.cliente||'',
+   technicians:[uid],tecnicoUid:uid,tecnicoNome:nome,dueDateISO:due,dataHoraISO:due,
+   statusAgendamento:'AGENDADO',observacao:obs,updatedAtISO:now,
+   criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+ };
+ try{
+   await saveDoc('agenda_tasks_v2',agendaId,payload);
+   const ix=state.agenda.findIndex(a=>a.id===agendaId);
+   if(ix>=0)state.agenda[ix]={id:agendaId,...state.agenda[ix],...payload};else state.agenda.push({id:agendaId,...payload});
+   await mergeOSDoc(osid,{statusAgendamento:'AGENDADO',agendaTaskId:agendaId,agendadoParaISO:due,tecnicoId:uid,tecnicoNome:nome,updatedAtISO:now});
+   Object.assign(o,{statusAgendamento:'AGENDADO',agendaTaskId:agendaId,agendadoParaISO:due,tecnicoId:uid,tecnicoNome:nome,updatedAtISO:now});
+   window.fecharAgendamentoOS();renderKanban();window.abrirDetalheOS(o.id||o.internalId);
+   toast('Agendamento salvo na Agenda oficial.');
+ }catch(e){console.error('[Assistência] agendamento',e);alert('Não foi possível salvar o agendamento. Verifique as Security Rules da agenda_tasks_v2.\\n\\n'+(e?.message||e))}
+};
+
 window.alterarStatusEquipamento=async function(eid,status){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;const label=statusLabel(status);if(!confirm(`Alterar o status de ${eq.modelo||'equipamento'} para "${label}"?`))return;try{const now=new Date().toISOString();await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});eq.statusEquipamento=status;eq.updatedAtISO=now;await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);window.abrirDetalheOS(o.id||o.internalId);toast(`Status alterado para ${label}.`)}catch(e){console.error('[Assistência] status equipamento',e);alert('Não foi possível alterar o status do equipamento. Verifique as Security Rules.\n\n'+(e?.message||e))}};
 async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const items=await readSub(o.internalId||o.id,'equipamentos');o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-2';box.innerHTML=items.map(e=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');return `<div class="rounded-xl border border-slate-200 bg-white p-3"><div class="flex items-start justify-between gap-3"><div><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div></div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div><div class="eq-actions">${actions}<button class="diag-btn" onclick="event.stopPropagation();window.abrirDiagnosticoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button><button class="orc-btn" onclick="event.stopPropagation();window.abrirOrcamentoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-file-invoice-dollar"></i> Orçamento</button>${e.ultimoOrcamentoId?`<button class="orc-btn" onclick="event.stopPropagation();window.abrirAprovacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-circle-check"></i> Aprovação</button>`:''}</div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}${e.solucaoRecomendada?`<br><b>Solução:</b> ${esc(e.solucaoRecomendada)}`:''}${e.ultimoOrcamentoVersao?`<div class="orc-summary"><i class="fa-solid fa-file-invoice-dollar"></i> Último orçamento: V${esc(e.ultimoOrcamentoVersao)} · ${esc(e.ultimoOrcamentoTotalFormatado||'')} ${e.ultimoOrcamentoStatus?`· ${esc(e.ultimoOrcamentoStatus)}`:''}</div>`:''}</div>`:''}</div>`}).join('');const macro=deriveMacroStage(items);box.insertAdjacentHTML('beforeend',`<div class="macro-note"><i class="fa-solid fa-circle-info mr-1"></i> Etapa geral calculada: <b>${esc(stages.find(x=>x[0]===macro)?.[1]||macro)}</b>. A OS acompanha o equipamento ativo mais atrasado.</div>`)}catch(e){console.error(e);box.className='mt-4 rounded-xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700';box.textContent='Não foi possível ler a subcoleção de equipamentos. Verifique as Security Rules.'}}
 
