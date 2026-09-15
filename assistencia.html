@@ -113,7 +113,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 </style>
 
 <style>
-/* FASE 1.25.3 — submodais do atendimento técnico sempre acima do card principal */
+/* FASE 1.25.4 — submodais do atendimento técnico sempre acima do card principal */
 #modal-diagnostico-equipamento,
 #modal-pecas-equipamento,
 #modal-checkout-equipamento,
@@ -880,6 +880,47 @@ window.techAcaoStatus=async function(eid,status){
 };
 ['fecharDiagnosticoEquipamento','fecharPecasEquipamento','fecharCheckoutEquipamento','fecharAnexosEquipamento'].forEach(n=>{const old=window[n];if(typeof old==='function')window[n]=function(){const r=old.apply(this,arguments);if(!document.getElementById('modal-tech-atendimento')?.classList.contains('hidden'))setTimeout(()=>window.renderAtendimentoTecnico?.(),50);return r}});
 
+
+// FASE 1.25.4 — correção dos modais Fotos e Checkout no Atendimento do Técnico
+function techAbrirModalAcima(modalId){
+  const modal=document.getElementById(modalId);
+  if(!modal)return false;
+  modal.style.setProperty('z-index','2147483646','important');
+  modal.style.setProperty('position','fixed','important');
+  modal.style.setProperty('inset','0','important');
+  modal.style.setProperty('pointer-events','auto','important');
+  modal.classList.remove('hidden');
+  // Move o modal para o final do body, fora de qualquer stacking context do atendimento.
+  if(modal.parentElement!==document.body)document.body.appendChild(modal);
+  return true;
+}
+const _abrirAnexosEquipamento1253=window.abrirAnexosEquipamento;
+window.abrirAnexosEquipamento=async function(eid){
+  const o=state.selectedOS;if(!o)return;
+  const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+  if(!eq){toast('Equipamento não encontrado.');return}
+  state.selectedEquipment=eq;
+  const titulo=document.getElementById('anexo-equip-titulo');if(titulo)titulo.textContent=(eq.modelo||eq.nome||'Equipamento')+' · SN: '+(eq.numeroSerie||'não informado');
+  const cat=document.getElementById('anexo-categoria');if(cat)cat.value='DEFEITO';
+  const obs=document.getElementById('anexo-observacao');if(obs)obs.value='';
+  const arq=document.getElementById('anexo-arquivos');if(arq)arq.value='';
+  const prev=document.getElementById('anexo-preview');if(prev)prev.innerHTML='';
+  if(!techAbrirModalAcima('modal-anexos-equipamento')){toast('Tela de Fotos não encontrada.');return}
+  try{await window.carregarAnexosEquipamento?.()}catch(err){console.error('[Assistência] carregar fotos',err)}
+};
+window.abrirCheckoutEquipamento=function(eid){
+  const o=state.selectedOS;if(!o)return;
+  const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+  if(!eq){toast('Equipamento não encontrado.');return}
+  state.selectedEquipment=eq;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??''};
+  const tit=document.getElementById('checkout-equip-titulo');if(tit)tit.textContent=(eq.modelo||eq.nome||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');
+  set('checkout-servico',eq.checkoutServicoExecutado||eq.solucaoRecomendada||'');
+  set('checkout-teste',eq.checkoutTesteFinal||'');
+  set('checkout-condicao',eq.checkoutCondicaoSaida||'OPERACIONAL');
+  set('checkout-observacao',eq.checkoutObservacao||'');
+  if(!techAbrirModalAcima('modal-checkout-equipamento'))toast('Tela de Checkout não encontrada.');
+};
 
 // FASE 1.25 — App do Técnico
 let techInstallPrompt=null;
