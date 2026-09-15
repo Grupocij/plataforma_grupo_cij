@@ -4,6 +4,12 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Assistência Técnica - Portal CIJ</title>
   <link rel="manifest" href="assistencia-manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CIJ Técnico">
+  <link rel="apple-touch-icon" href="assistencia-icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -132,7 +138,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.25.1</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.26</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
