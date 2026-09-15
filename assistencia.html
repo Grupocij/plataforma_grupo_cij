@@ -139,6 +139,20 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 
 /* FASE 1.29 — central de pendências operacionais */
 .pending-center-card{background:#fff;border:1px solid #e2e8f0;border-left:5px solid #f59e0b;border-radius:1rem;padding:1rem;box-shadow:0 2px 8px rgba(15,23,42,.04);cursor:pointer;transition:.15s}.pending-center-card:hover{border-color:#93c5fd;transform:translateY(-1px)}.pending-center-card.admin{border-left-color:#2563eb}.pending-center-card.overdue{border-left-color:#e11d48}.pending-center-card.ok{border-left-color:#10b981}.pending-center-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.pending-center-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.65rem}.pending-center-pill{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;background:#f1f5f9;color:#475569;padding:.28rem .5rem;font-size:.58rem;font-weight:800}.pending-center-pill.overdue{background:#fff1f2;color:#be123c}.pending-center-pill.admin{background:#eff6ff;color:#1d4ed8}@media(max-width:760px){.pending-center-grid{grid-template-columns:1fr}}
+
+/* FASE 1.30 — SLA operacional / envelhecimento das OS */
+.sla-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
+.sla-panel{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:1rem}
+.sla-bar{height:.55rem;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:.45rem}
+.sla-bar>span{display:block;height:100%;background:#2563eb;border-radius:999px}
+.sla-table{width:100%;border-collapse:collapse}
+.sla-table th{font-size:.58rem;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;text-align:left;padding:.6rem;border-bottom:1px solid #e2e8f0}
+.sla-table td{font-size:.68rem;padding:.7rem .6rem;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.sla-age{display:inline-flex;align-items:center;border-radius:999px;padding:.25rem .48rem;font-size:.58rem;font-weight:900;background:#f1f5f9;color:#475569}
+.sla-age.warn{background:#fff7ed;color:#c2410c}.sla-age.danger{background:#fff1f2;color:#be123c}
+@media(max-width:900px){.sla-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.sla-grid{grid-template-columns:1fr}.sla-panel{padding:.8rem}}
+
 </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
@@ -147,10 +161,10 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.29</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.30</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
-      <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
+      <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
     </section>
 
     <section id="view-kanban" class="view-panel space-y-4">
@@ -167,6 +181,38 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
         <div class="mt-4 flex flex-col lg:flex-row gap-3"><div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="pending-center-search" oninput="window.renderCentralPendencias()" class="input pl-9" placeholder="Buscar OS, cliente, técnico ou pendência..."></div><select id="pending-center-filter" onchange="window.renderCentralPendencias()" class="input lg:w-56"><option value="TODAS">Todas as pendências</option><option value="TECNICA">Técnicas</option><option value="ADMIN">Administrativas</option><option value="ATRASADA">Agendamento atrasado</option><option value="SEM_TECNICO">Sem técnico definido</option></select></div>
       </div>
       <div id="pending-center-list" class="pending-center-grid"></div>
+    </section>
+
+
+    <section id="view-sla" class="view-panel hidden space-y-4">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex gap-2 mb-1"><span class="tag tag-green">FASE 1.30</span><span class="tag tag-blue">GESTÃO DE SLA</span></div>
+            <h2 class="text-xl font-black text-slate-900">Indicadores operacionais</h2>
+            <p class="text-xs text-slate-500 mt-1">Envelhecimento das OS abertas e distribuição por etapa, usando somente os dados já existentes.</p>
+          </div>
+          <button class="btn btn-light" onclick="window.atualizarSLAOperacional()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+        </div>
+        <div id="sla-kpis" class="sla-grid mt-5"></div>
+      </div>
+      <div class="grid xl:grid-cols-2 gap-4">
+        <section class="sla-panel">
+          <div class="flex items-center justify-between gap-3"><div><h3 class="section-title">OS abertas por etapa</h3><p class="text-[11px] text-slate-500 mt-1">Quantidade e participação no total em aberto.</p></div><i class="fa-solid fa-chart-simple text-blue-600"></i></div>
+          <div id="sla-etapas" class="mt-4 space-y-3"></div>
+        </section>
+        <section class="sla-panel">
+          <div class="flex items-center justify-between gap-3"><div><h3 class="section-title">Faixas de envelhecimento</h3><p class="text-[11px] text-slate-500 mt-1">Tempo desde a criação da OS.</p></div><i class="fa-solid fa-hourglass-half text-amber-600"></i></div>
+          <div id="sla-faixas" class="mt-4 space-y-3"></div>
+        </section>
+      </div>
+      <section class="sla-panel">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div><h3 class="section-title">OS há mais tempo em aberto</h3><p class="text-[11px] text-slate-500 mt-1">Prioriza os registros mais antigos para acompanhamento.</p></div>
+          <div class="relative lg:w-80"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="sla-search" oninput="window.renderSLAOperacional()" class="input pl-9" placeholder="Buscar OS, cliente ou técnico..."></div>
+        </div>
+        <div class="overflow-x-auto mt-3"><table class="sla-table"><thead><tr><th>OS</th><th>Cliente</th><th>Etapa</th><th>Técnico</th><th>Aberta há</th><th>Pendência atual</th></tr></thead><tbody id="sla-table-body"></tbody></table></div>
+      </section>
     </section>
 
     <section id="view-tecnico" class="view-panel hidden">
@@ -188,7 +234,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 
 <div id="tech-app-nav" class="tech-app-nav"><button type="button" class="active" onclick="window.techAppInicio(event)"><i class="fa-solid fa-house"></i><span>Atendimentos</span></button><button type="button" onclick="window.techAppAtualizar(event)"><i class="fa-solid fa-rotate"></i><span>Atualizar</span></button><button type="button" onclick="window.techAppSair(event)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Portal</span></button></div>
 
-<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Atendimento do técnico · Fase 1.29</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-work-footer"><button class="btn btn-light justify-center" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura</button><button class="btn btn-primary justify-center" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button></div></div></div></div>
+<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Atendimento do técnico · Fase 1.30</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-work-footer"><button class="btn btn-light justify-center" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura</button><button class="btn btn-primary justify-center" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button></div></div></div></div>
 
 <div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o legado <b>suportes_osr</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
 
@@ -446,7 +492,7 @@ function renderModoTecnico(){const lista=document.getElementById('tech-lista');i
 window.renderModoTecnico=renderModoTecnico;
 function clientLabel(x){return x.fantasia||x.razao_social||x.nomeFantasia||x.razaoSocial||x.nome||x.cliente||'Cliente sem nome'}
 function fillSelects(){const c=document.getElementById('nova-cliente'),u=document.getElementById('nova-tecnico');if(c)c.innerHTML='<option value="">Selecione o cliente</option>'+[...state.clientes].sort((a,b)=>clientLabel(a).localeCompare(clientLabel(b),'pt-BR')).map(x=>`<option value="${x.id}">${clientLabel(x)}</option>`).join('');if(u)u.innerHTML='<option value="">A definir</option>'+state.usuarios.map(x=>`<option value="${x.uid||x.id}">${x.nome||x.email||x.id}</option>`).join('')}
-async function load(){const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}const r={};for(const f of fontes){try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];/* coleção nova pode ainda não existir/ter regra */r[f[0]]={ok:false,error:e?.message||'erro'}}}renderIntegrations(r);renderLegacy();await carregarPendenciasOS();renderKanban();renderModoTecnico();renderCentralPendencias();fillSelects();const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}toast('Dados atualizados.')}
+async function load(){const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}const r={};for(const f of fontes){try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];/* coleção nova pode ainda não existir/ter regra */r[f[0]]={ok:false,error:e?.message||'erro'}}}renderIntegrations(r);renderLegacy();await carregarPendenciasOS();renderKanban();renderModoTecnico();renderCentralPendencias();renderSLAOperacional();fillSelects();const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}toast('Dados atualizados.')}
 function fmtDate(v){if(!v)return'-';try{const d=v?.toDate?v.toDate():new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString('pt-BR')}catch(_){return String(v)}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
@@ -1006,6 +1052,44 @@ window.techAppAtualizar=async function(ev){ev?.preventDefault?.();if(navigator.o
 window.techAppSair=function(ev){ev?.preventDefault?.();document.body.classList.remove('tech-app-mode');try{sessionStorage.removeItem('assistenciaTechAppMode')}catch(_){}const portal=new URL('platform.html',location.href);location.assign(portal.href)};
 function iniciarAppTecnico(){techAppSetConnection();techAppStamp();const p=new URLSearchParams(location.search);const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();if(mobile){document.body.classList.add('tech-app-mode');setTimeout(()=>window.techAppInicio(),80)}if('serviceWorker' in navigator){navigator.serviceWorker.register('assistencia-sw.js').catch(e=>console.warn('[Assistência] Service Worker não registrado:',e))}}
 
+
+// FASE 1.30 — SLA operacional / envelhecimento das OS
+function slaDateValue(v){
+ try{
+  const d=v?.toDate?v.toDate():new Date(v);
+  return Number.isNaN(d.getTime())?null:d;
+ }catch(_){return null}
+}
+function slaAgeHours(o){
+ const d=slaDateValue(o?.createdAtISO||o?.createdAt||o?.criadoEmISO||o?.dataCriacao);
+ return d?Math.max(0,(Date.now()-d.getTime())/3600000):null;
+}
+function slaAgeLabel(h){
+ if(h===null)return 'Sem data';
+ if(h<24)return Math.floor(h)+'h';
+ const dias=Math.floor(h/24), horas=Math.floor(h%24);
+ return dias+'d '+horas+'h';
+}
+function renderSLAOperacional(){
+ const k=document.getElementById('sla-kpis'),et=document.getElementById('sla-etapas'),fx=document.getElementById('sla-faixas'),tb=document.getElementById('sla-table-body');
+ if(!k||!et||!fx||!tb)return;
+ const abertas=(state.os||[]).filter(o=>normStage(o.etapaKanban||o.etapa||o.status)!=='ENCERRADOS').map(o=>({o,h:slaAgeHours(o)}));
+ const comData=abertas.filter(x=>x.h!==null),ate24=comData.filter(x=>x.h<24).length,de24a72=comData.filter(x=>x.h>=24&&x.h<72).length,mais72=comData.filter(x=>x.h>=72).length;
+ const media=comData.length?comData.reduce((a,x)=>a+x.h,0)/comData.length:0;
+ k.innerHTML=`<div class="kpi-card"><span class="kpi-label">OS abertas</span><strong class="kpi-value text-blue-700">${abertas.length}</strong></div><div class="kpi-card"><span class="kpi-label">Até 24 horas</span><strong class="kpi-value text-emerald-600">${ate24}</strong></div><div class="kpi-card"><span class="kpi-label">Acima de 72 horas</span><strong class="kpi-value text-rose-600">${mais72}</strong></div><div class="kpi-card"><span class="kpi-label">Idade média</span><strong class="kpi-value text-slate-700">${comData.length?slaAgeLabel(media):'-'}</strong></div>`;
+ const total=Math.max(1,abertas.length),stageName=v=>stages.find(s=>s[0]===v)?.[1]||v;
+ et.innerHTML=stages.filter(s=>s[0]!=='ENCERRADOS').map(sg=>{const n=abertas.filter(x=>normStage(x.o.etapaKanban||x.o.etapa||x.o.status)===sg[0]).length,p=Math.round(n*100/total);return `<div><div class="flex justify-between text-xs"><b>${esc(sg[1])}</b><span class="text-slate-500">${n} · ${p}%</span></div><div class="sla-bar"><span style="width:${p}%"></span></div></div>`}).join('');
+ const faixas=[['Até 24 horas',ate24],['24 a 72 horas',de24a72],['Acima de 72 horas',mais72],['Sem data de criação',abertas.length-comData.length]];
+ fx.innerHTML=faixas.map(([nome,n])=>{const p=Math.round(n*100/total);return `<div><div class="flex justify-between text-xs"><b>${esc(nome)}</b><span class="text-slate-500">${n} · ${p}%</span></div><div class="sla-bar"><span style="width:${p}%"></span></div></div>`}).join('');
+ const q=(document.getElementById('sla-search')?.value||'').trim().toLowerCase();
+ let rows=[...abertas];
+ if(q)rows=rows.filter(x=>JSON.stringify([x.o.osNumber,x.o.numero,x.o.clienteNome,x.o.cliente,x.o.tecnicoNome,x.o.tecnico]).toLowerCase().includes(q));
+ rows.sort((a,b)=>(b.h??-1)-(a.h??-1));
+ tb.innerHTML=rows.length?rows.map(x=>{const o=x.o,p=pendenciaOS(o),cl=x.h!==null&&x.h>=72?'danger':x.h!==null&&x.h>=24?'warn':'';return `<tr class="cursor-pointer hover:bg-slate-50" onclick="window.abrirDetalheOS('${esc(o.id)}')"><td class="font-black text-blue-700">${esc(o.osNumber||o.numero||'OS')}</td><td class="font-bold">${esc(o.clienteNome||o.cliente||'-')}</td><td>${esc(stageName(normStage(o.etapaKanban||o.etapa||o.status)))}</td><td>${esc(o.tecnicoNome||o.tecnico||'A definir')}</td><td><span class="sla-age ${cl}">${esc(slaAgeLabel(x.h))}</span></td><td>${esc(p.texto)}</td></tr>`}).join(''):'<tr><td colspan="6" class="text-center text-slate-400 !py-8">Nenhuma OS encontrada.</td></tr>';
+}
+window.renderSLAOperacional=renderSLAOperacional;
+window.atualizarSLAOperacional=async function(){try{await carregarPendenciasOS();renderSLAOperacional();toast('Indicadores atualizados.')}catch(e){console.error(e);toast('Não foi possível atualizar os indicadores.')}};
+
 // FASE 1.29 — Central de pendências operacionais
 function pendingCenterInfo(o){
  const p=pendenciaOS(o),stage=normStage(o?.etapaKanban||o?.etapa||o?.status),ag=String(o?.agendadoParaISO||'');
@@ -1029,7 +1113,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.()}});window.initModule=function(p){document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');renderUser(p);load().then(()=>{techAppStamp();iniciarAppTecnico()})};
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla')renderSLAOperacional()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.()}});window.initModule=function(p){document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');renderUser(p);load().then(()=>{techAppStamp();iniciarAppTecnico()})};
 })();
 
 </script>
