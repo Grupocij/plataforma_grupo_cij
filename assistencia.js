@@ -1,147 +1,18 @@
-(function () {
-    'use strict';
-
-    const BASE = ['artifacts', 'plataforma-cij', 'public', 'data'];
-
-    const state = {
-        clientes: [],
-        parque: [],
-        modelos: [],
-        usuarios: [],
-        osr: []
-    };
-
-    const fontes = [
-        { key: 'clientes', collection: 'cadastros_clientes', label: 'Clientes', desc: 'Fonte oficial de clientes' },
-        { key: 'parque', collection: 'parque_maquinas', label: 'Parque de Máquinas', desc: 'Máquinas físicas / números de série' },
-        { key: 'modelos', collection: 'cadastros_equipamentos', label: 'Cadastro de Equipamentos', desc: 'Catálogo de modelos e fabricantes' },
-        { key: 'usuarios', collection: 'usuarios_permissoes', label: 'Usuários e acessos', desc: 'Usuários atuais do Portal CIJ' },
-        { key: 'osr', collection: 'suportes_osr', label: 'OSR / Legado', desc: 'Leitura do legado; não será alterado' }
-    ];
-
-    function toast(message) {
-        const el = document.getElementById('assistencia-toast');
-        if (!el) return;
-        el.textContent = message;
-        el.classList.remove('hidden');
-        clearTimeout(window.__assistToastTimer);
-        window.__assistToastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
-    }
-
-    function getCollection(name) {
-        return window.fsCollection(window.AppDB, ...BASE, name);
-    }
-
-    async function readCollection(name) {
-        const snap = await window.fsGetDocs(getCollection(name));
-        const rows = [];
-        snap.forEach(docSnap => rows.push({ id: docSnap.id, ...docSnap.data() }));
-        return rows;
-    }
-
-    function renderIntegrations(results) {
-        const container = document.getElementById('integration-list');
-        if (!container) return;
-
-        container.innerHTML = fontes.map(f => {
-            const r = results[f.key];
-            const ok = r && r.ok;
-            const detail = ok ? `${r.count} registro(s) lido(s)` : (r?.error || 'Não foi possível ler');
-            return `
-                <div class="integration-row">
-                    <div>
-                        <div class="integration-title">${f.label}</div>
-                        <div class="integration-desc">${f.desc}</div>
-                    </div>
-                    <span class="status-badge ${ok ? 'status-ok' : 'status-error'}">
-                        ${ok ? 'OK' : 'ERRO'} · ${detail}
-                    </span>
-                </div>`;
-        }).join('');
-    }
-
-    function renderKpis() {
-        document.getElementById('kpi-clientes').textContent = state.clientes.length;
-        document.getElementById('kpi-parque').textContent = state.parque.length;
-        document.getElementById('kpi-modelos').textContent = state.modelos.length;
-        document.getElementById('kpi-usuarios').textContent = state.usuarios.length;
-        document.getElementById('kpi-osr').textContent = state.osr.length;
-    }
-
-    function renderUser(perfil) {
-        document.getElementById('user-name').textContent =
-            window.nomeUsuarioLogado || window.userProfile?.nome || '-';
-
-        document.getElementById('user-email').textContent =
-            window.currentUser?.email || window.userProfile?.email || '-';
-
-        document.getElementById('user-profile').textContent =
-            perfil || window.userProfile?.perfil || '-';
-    }
-
-    function renderLegacy() {
-        const tbody = document.getElementById('legacy-table');
-        if (!tbody) return;
-
-        const rows = [...state.osr]
-            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-            .slice(0, 10);
-
-        if (!rows.length) {
-            tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-semibold">Nenhum registro encontrado.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = rows.map(item => `
-            <tr class="border-b border-slate-100">
-                <td class="p-3 font-black text-slate-800">${item.osr || item.id || '-'}</td>
-                <td class="p-3">${item.clienteOS || item.cliente || '-'}</td>
-                <td class="p-3">${item.status || '-'}</td>
-                <td class="p-3">${item.tecnicoOS || item.tecnico_kanban || item.tecnico || '-'}</td>
-            </tr>
-        `).join('');
-    }
-
-    async function carregarTudo() {
-        const status = document.getElementById('status-geral');
-        if (status) {
-            status.className = 'status-badge status-pending';
-            status.textContent = 'Carregando...';
-        }
-
-        const results = {};
-
-        for (const fonte of fontes) {
-            try {
-                const rows = await readCollection(fonte.collection);
-                state[fonte.key] = rows;
-                results[fonte.key] = { ok: true, count: rows.length };
-            } catch (error) {
-                console.error(`[Assistência] Erro ao ler ${fonte.collection}:`, error);
-                state[fonte.key] = [];
-                results[fonte.key] = { ok: false, error: error?.message || 'Erro de leitura' };
-            }
-        }
-
-        renderKpis();
-        renderLegacy();
-        renderIntegrations(results);
-
-        const allOk = Object.values(results).every(r => r.ok);
-        if (status) {
-            status.className = `status-badge ${allOk ? 'status-ok' : 'status-error'}`;
-            status.textContent = allOk ? 'Integrações OK' : 'Verificar integração';
-        }
-
-        toast(allOk ? 'Leitura concluída com sucesso.' : 'Leitura concluída com avisos.');
-    }
-
-    window.assistenciaAtualizar = carregarTudo;
-
-    window.initModule = function (perfil) {
-        document.getElementById('login-screen')?.classList.add('hidden');
-        document.getElementById('main-content')?.classList.remove('hidden');
-        renderUser(perfil);
-        carregarTudo();
-    };
+(function(){'use strict';
+const BASE=['artifacts','plataforma-cij','public','data'];
+const state={clientes:[],parque:[],modelos:[],usuarios:[],osr:[],os:[],agenda:[]};
+const fontes=[['clientes','cadastros_clientes','Clientes','Fonte oficial de clientes'],['parque','parque_maquinas','Parque de Máquinas','Máquinas físicas / números de série'],['modelos','cadastros_equipamentos','Cadastro de Equipamentos','Catálogo de modelos e fabricantes'],['usuarios','usuarios_permissoes','Usuários e acessos','Usuários atuais do Portal CIJ'],['osr','suportes_osr','OSR / Legado','Leitura do legado; não será alterado'],['os','os_ordens','Nova coleção de OS','Domínio exclusivo da nova Assistência'],['agenda','agenda_tasks_v2','Agenda','Integração oficial de agendamentos']];
+const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico'],['ORCAMENTOS','Orçamentos'],['AGENDAMENTO','Agendamento'],['FINALIZADOS','Finalizados']];
+function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
+function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
+async function read(n){const s=await window.fsGetDocs(col(n)),a=[];s.forEach(d=>a.push({id:d.id,...d.data()}));return a}
+function normStage(v){v=String(v||'ENTRADA').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,'_');if(v.includes('FINAL')||v.includes('CONCL'))return'FINALIZADOS';if(v.includes('AGEND'))return'AGENDAMENTO';if(v.includes('ORC'))return'ORCAMENTOS';if(v.includes('TRI')||v.includes('DIAGN'))return'TRIAGEM';return'ENTRADA'}
+function renderIntegrations(r){document.getElementById('integration-list').innerHTML=fontes.map(f=>{const x=r[f[0]],ok=x?.ok;return `<div class="integration-row"><div><div class="integration-title">${f[2]}</div><div class="integration-desc">${f[3]}</div></div><span class="status-badge ${ok?'status-ok':'status-error'}">${ok?'OK':'ERRO'} · ${ok?x.count+' registro(s)':(x?.error||'falha')}</span></div>`}).join('')}
+function renderUser(p){document.getElementById('user-name').textContent=window.nomeUsuarioLogado||window.userProfile?.nome||'-';document.getElementById('user-email').textContent=window.currentUser?.email||window.userProfile?.email||'-';document.getElementById('user-profile').textContent=p||window.userProfile?.perfil||'-'}
+function renderLegacy(){const t=document.getElementById('legacy-table'),rows=[...state.osr].slice(-50).reverse();t.innerHTML=rows.length?rows.map(i=>`<tr class="border-b"><td class="p-3 font-black">${i.osr||i.numero||i.id||'-'}</td><td class="p-3">${i.clienteOS||i.cliente||i.clienteNome||'-'}</td><td class="p-3">${i.status||'-'}</td><td class="p-3">${i.tecnicoOS||i.tecnico_kanban||i.tecnico||'-'}</td></tr>`).join(''):'<tr><td colspan="4" class="p-6 text-center text-slate-400">Nenhum registro.</td></tr>'}
+function filtered(){const q=(document.getElementById('filtro-busca')?.value||'').toLowerCase(),p=document.getElementById('filtro-prioridade')?.value||'';return state.os.filter(o=>{const hay=JSON.stringify([o.osNumber,o.numero,o.clienteNome,o.cliente,o.tecnicoNome,o.tecnico,o.equipamento]).toLowerCase();return(!q||hay.includes(q))&&(!p||String(o.prioridade||'NORMAL').toUpperCase()===p)})}
+function renderKanban(){const data=filtered(),b=document.getElementById('kanban-board');document.getElementById('empty-os').classList.toggle('hidden',state.os.length!==0);const counts={};stages.forEach(s=>counts[s[0]]=0);state.os.forEach(o=>counts[normStage(o.etapaKanban||o.etapa||o.status)]++);document.getElementById('kpi-os').textContent=state.os.length;document.getElementById('kpi-entrada').textContent=counts.ENTRADA;document.getElementById('kpi-triagem').textContent=counts.TRIAGEM;document.getElementById('kpi-orcamentos').textContent=counts.ORCAMENTOS;document.getElementById('kpi-agendamento').textContent=counts.AGENDAMENTO;document.getElementById('kpi-finalizados').textContent=counts.FINALIZADOS;b.innerHTML=stages.map(s=>{const rows=data.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)===s[0]);return `<div class="kanban-column"><div class="kanban-head"><span>${s[1]}</span><span class="kanban-count">${rows.length}</span></div>${rows.map(o=>`<div class="os-card"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div></div>`).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS</div>'}</div>`}).join('')}
+function fillSelects(){const c=document.getElementById('nova-cliente'),u=document.getElementById('nova-tecnico');if(c)c.innerHTML='<option value="">Selecione o cliente</option>'+[...state.clientes].sort((a,b)=>String(a.nomeFantasia||a.razaoSocial||a.nome||'').localeCompare(String(b.nomeFantasia||b.razaoSocial||b.nome||''))).map(x=>`<option value="${x.id}">${x.nomeFantasia||x.razaoSocial||x.nome||x.cliente||x.id}</option>`).join('');if(u)u.innerHTML='<option value="">A definir</option>'+state.usuarios.map(x=>`<option value="${x.uid||x.id}">${x.nome||x.email||x.id}</option>`).join('')}
+async function load(){const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}const r={};for(const f of fontes){try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];/* coleção nova pode ainda não existir/ter regra */r[f[0]]={ok:false,error:e?.message||'erro'}}}renderIntegrations(r);renderLegacy();renderKanban();fillSelects();const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}toast('Dados atualizados.')}
+window.assistenciaAtualizar=load;window.filtrarKanban=renderKanban;window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active')};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');window.initModule=function(p){document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');renderUser(p);load()};
 })();

@@ -1,139 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full bg-slate-50">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistência Técnica - Portal CIJ</title>
-
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assistencia.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistência Técnica - Portal CIJ</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assistencia.css">
 </head>
-
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
+<div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
+<main id="main-content" class="hidden flex-1 w-full max-w-[1500px] mx-auto p-4 md:p-6 overflow-y-auto">
+  <div class="space-y-5">
+    <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.1</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Estrutura do novo fluxo de OS, isolada do ServiceFlow e do legado.</p></div></div>
+        <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
+    </section>
 
-    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-5">
-            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl mx-auto">
-                <i class="fa-solid fa-screwdriver-wrench"></i>
-            </div>
-            <h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1>
-            <p id="login-message" class="text-sm font-semibold text-slate-500">Validando acesso...</p>
-        </div>
-    </div>
+    <section id="view-kanban" class="view-panel space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3"><div class="kpi-card"><span class="kpi-label">OS novas</span><strong id="kpi-os" class="kpi-value text-blue-700">0</strong></div><div class="kpi-card"><span class="kpi-label">Entrada</span><strong id="kpi-entrada" class="kpi-value">0</strong></div><div class="kpi-card"><span class="kpi-label">Triagem</span><strong id="kpi-triagem" class="kpi-value text-amber-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Orçamentos</span><strong id="kpi-orcamentos" class="kpi-value text-violet-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Agendamento</span><strong id="kpi-agendamento" class="kpi-value text-cyan-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Finalizados</span><strong id="kpi-finalizados" class="kpi-value text-emerald-600">0</strong></div></div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col lg:flex-row gap-3"><div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="filtro-busca" oninput="window.filtrarKanban()" class="input pl-9" placeholder="Buscar por OS, cliente, técnico ou equipamento..."></div><select id="filtro-prioridade" onchange="window.filtrarKanban()" class="input lg:w-48"><option value="">Todas prioridades</option><option>BAIXA</option><option>NORMAL</option><option>ALTA</option><option>URGENTE</option></select></div>
+      <div id="empty-os" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-900"><b>A coleção nova está vazia.</b> Isso é esperado no primeiro acesso. O botão “Nova OS” já demonstra a próxima tela, mas a gravação continuará bloqueada até configurarmos as regras de segurança.</div>
+      <div id="kanban-board" class="kanban-board"></div>
+    </section>
 
-    <main id="main-content" class="hidden flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 overflow-y-auto">
-        <div class="space-y-5">
-            <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                        </div>
-                        <div>
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200">Novo módulo</span>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200">Fase 1 - Somente leitura</span>
-                            </div>
-                            <h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1>
-                            <p class="text-sm text-slate-500">Base segura para o novo sistema, sem alterar ServiceFlow, OSR ou App do Técnico.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="window.assistenciaAtualizar()" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition cursor-pointer">
-                            <i class="fa-solid fa-rotate mr-1.5"></i> Atualizar dados
-                        </button>
-                    </div>
-                </div>
-            </section>
+    <section id="view-diagnostico" class="view-panel hidden grid grid-cols-1 lg:grid-cols-3 gap-4"><div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden"><div class="p-5 border-b flex justify-between"><div><h2 class="font-black">Diagnóstico de integração</h2><p class="text-xs text-slate-500">Leitura das fontes oficiais.</p></div><span id="status-geral" class="status-badge status-pending">Carregando...</span></div><div id="integration-list" class="divide-y"></div></div><div class="bg-white rounded-3xl border p-5"><h2 class="font-black">Usuário conectado</h2><div class="mt-4 space-y-3 text-sm"><div><span class="field-label">Nome</span><p id="user-name" class="font-bold">-</p></div><div><span class="field-label">E-mail</span><p id="user-email" class="font-semibold break-all">-</p></div><div><span class="field-label">Perfil</span><p id="user-profile" class="font-bold text-blue-700">-</p></div></div><div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs font-bold text-amber-800"><i class="fa-solid fa-shield-halved mr-1"></i> Escrita de OS ainda bloqueada nesta etapa.</div></div></section>
 
-            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                <div class="kpi-card">
-                    <span class="kpi-label">Clientes</span>
-                    <strong id="kpi-clientes" class="kpi-value text-blue-700">0</strong>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Máquinas no Parque</span>
-                    <strong id="kpi-parque" class="kpi-value text-emerald-700">0</strong>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Modelos</span>
-                    <strong id="kpi-modelos" class="kpi-value text-violet-700">0</strong>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Usuários</span>
-                    <strong id="kpi-usuarios" class="kpi-value text-amber-700">0</strong>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">OSR/Legado</span>
-                    <strong id="kpi-osr" class="kpi-value text-rose-700">0</strong>
-                </div>
-            </section>
+    <section id="view-legado" class="view-panel hidden bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden"><div class="p-5 border-b"><h2 class="font-black">OSR / Registros legados</h2><p class="text-xs text-slate-500">Somente leitura. A coleção <code>suportes_osr</code> permanece intocada.</p></div><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-900 text-white"><tr><th class="p-3">Número</th><th class="p-3">Cliente</th><th class="p-3">Status</th><th class="p-3">Técnico</th></tr></thead><tbody id="legacy-table"></tbody></table></div></section>
+  </div>
+</main>
 
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
-                        <div>
-                            <h2 class="font-black text-slate-900">Diagnóstico de integração</h2>
-                            <p class="text-xs text-slate-500 mt-1">Esta tela apenas lê as bases existentes.</p>
-                        </div>
-                        <span id="status-geral" class="status-badge status-pending">Carregando...</span>
-                    </div>
-                    <div id="integration-list" class="divide-y divide-slate-100"></div>
-                </div>
-
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
-                    <h2 class="font-black text-slate-900">Usuário conectado</h2>
-                    <div class="mt-4 space-y-3 text-sm">
-                        <div>
-                            <span class="text-[10px] font-bold uppercase text-slate-400">Nome</span>
-                            <p id="user-name" class="font-bold text-slate-800">-</p>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold uppercase text-slate-400">E-mail</span>
-                            <p id="user-email" class="font-semibold text-slate-700 break-all">-</p>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold uppercase text-slate-400">Perfil</span>
-                            <p id="user-profile" class="font-bold text-blue-700">-</p>
-                        </div>
-                    </div>
-                    <div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4">
-                        <p class="text-xs font-bold text-amber-800">
-                            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                            Esta versão NÃO cria OS e NÃO altera dados.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-slate-100">
-                    <h2 class="font-black text-slate-900">Amostra das últimas OSR / registros legados</h2>
-                    <p class="text-xs text-slate-500 mt-1">Somente para confirmar leitura e compatibilidade. Nenhum registro é alterado.</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-900 text-white">
-                            <tr>
-                                <th class="p-3">Número</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Técnico</th>
-                            </tr>
-                        </thead>
-                        <tbody id="legacy-table"></tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <div id="assistencia-toast" class="fixed bottom-5 right-5 z-[99999] hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-bold"></div>
-
-    <script type="module" src="core.js"></script>
-    <script src="assistencia.js"></script>
-</body>
-</html>
+<div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.1</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">A tela está pronta para homologação visual. O botão de salvar será liberado após as Security Rules.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-slate-50 border p-3 text-xs text-slate-600"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> Nenhum dado desta janela será gravado nesta versão.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button disabled class="btn btn-disabled"><i class="fa-solid fa-lock"></i> Salvar OS — bloqueado</button></div></div></div>
+<div id="assistencia-toast" class="fixed bottom-5 right-5 z-[99999] hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-bold"></div>
+<script type="module" src="core.js"></script><script src="assistencia.js"></script>
+</body></html>
