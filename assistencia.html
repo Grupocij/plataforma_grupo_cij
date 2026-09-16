@@ -273,7 +273,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35B</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -417,13 +417,24 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
    <button onclick="window.fecharAprovacaoOrcamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div id="aprov-orc-conteudo" class="mt-5"></div>
-  <label class="block mt-4"><span class="field-label">Observação da decisão</span>
-   <textarea id="aprov-observacao" class="input min-h-20" placeholder="Ex.: aprovado pelo cliente por e-mail, pedido de compra recebido..."></textarea>
+  <div class="grid md:grid-cols-2 gap-3 mt-4">
+   <label><span class="field-label">Responsável do cliente</span><input id="aprov-cliente-nome" class="input" placeholder="Nome de quem aprovou/recusou"></label>
+   <label><span class="field-label">Canal / evidência</span><select id="aprov-canal" class="input"><option value="EMAIL">E-mail</option><option value="WHATSAPP">WhatsApp</option><option value="PORTAL">Portal</option><option value="PEDIDO_COMPRA">Pedido de compra</option><option value="OUTRO">Outro</option></select></label>
+  </div>
+  <label class="block mt-3"><span class="field-label">Observação da decisão</span>
+   <textarea id="aprov-observacao" class="input min-h-20" placeholder="Ex.: aprovado por e-mail, nº do pedido de compra, observação do cliente..."></textarea>
   </label>
-  <div class="mt-5 flex flex-wrap justify-end gap-2">
-   <button onclick="window.fecharAprovacaoOrcamento()" class="btn btn-light">Cancelar</button>
-   <button onclick="window.decidirOrcamento('REPROVADO')" class="btn btn-light" style="color:#c2410c"><i class="fa-solid fa-ban"></i> Reprovar</button>
-   <button onclick="window.decidirOrcamento('APROVADO')" class="btn btn-primary"><i class="fa-solid fa-check"></i> Aprovar e liberar execução</button>
+  <div class="mt-5 flex flex-wrap justify-between gap-2">
+   <div class="flex flex-wrap gap-2">
+    <button onclick="window.imprimirOrcamentoAtual()" class="btn btn-light"><i class="fa-solid fa-file-pdf"></i> PDF / Imprimir</button>
+    <button onclick="window.marcarOrcamentoEnviado()" class="btn btn-light"><i class="fa-solid fa-paper-plane"></i> Marcar como enviado</button>
+    <button onclick="window.compartilharOrcamentoWhatsApp()" class="btn btn-light"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+   </div>
+   <div class="flex flex-wrap gap-2">
+    <button onclick="window.fecharAprovacaoOrcamento()" class="btn btn-light">Fechar</button>
+    <button onclick="window.decidirOrcamento('RECUSADO')" class="btn btn-light" style="color:#c2410c"><i class="fa-solid fa-ban"></i> Registrar recusa</button>
+    <button onclick="window.decidirOrcamento('APROVADO')" class="btn btn-primary"><i class="fa-solid fa-check"></i> Registrar aprovação</button>
+   </div>
   </div>
  </div>
 </div>
@@ -464,9 +475,14 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
     </div>
     <button onclick="window.adicionarItemOrcamento()" class="btn btn-light mt-2"><i class="fa-solid fa-plus"></i> Adicionar item</button>
 
-    <div class="mt-5 grid md:grid-cols-2 gap-4">
+    <div class="mt-5 grid md:grid-cols-3 gap-3">
+      <label><span class="field-label">Validade da proposta (dias)</span><input id="orc-validade" class="input" type="number" min="1" value="15"></label>
+      <label><span class="field-label">Prazo de execução</span><input id="orc-prazo" class="input" placeholder="Ex.: 5 dias úteis após aprovação"></label>
+      <label><span class="field-label">Condição de pagamento</span><input id="orc-pagamento" class="input" placeholder="Ex.: 28 dias / boleto"></label>
+    </div>
+    <div class="mt-3 grid md:grid-cols-2 gap-4">
       <label><span class="field-label">Observações comerciais</span>
-        <textarea id="orc-observacoes" class="input min-h-20" placeholder="Prazo, condição, observações..."></textarea>
+        <textarea id="orc-observacoes" class="input min-h-20" placeholder="Frete, impostos, condições especiais..."></textarea>
       </label>
       <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
         <div class="flex justify-between text-xs text-slate-500"><span>Total do orçamento</span><span>BRL</span></div>
@@ -475,7 +491,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
       </div>
     </div>
 
-    <div class="mt-5 flex justify-end gap-2">
+    <div class="mt-5 flex flex-wrap justify-end gap-2">
       <button onclick="window.fecharOrcamentoEquipamento()" class="btn btn-light">Cancelar</button>
       <button id="btn-salvar-orcamento" onclick="window.salvarOrcamentoEquipamento()" class="btn btn-primary">
         <i class="fa-solid fa-floppy-disk"></i> Salvar orçamento
@@ -798,7 +814,9 @@ window.abrirAprovacaoOrcamento=async function(eid){
  if(!atual){toast('Orçamento não encontrado.');return}
  state.selectedBudget=atual;
  document.getElementById('aprov-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');
- document.getElementById('aprov-observacao').value='';
+ document.getElementById('aprov-observacao').value=atual.decisaoObservacao||'';
+ document.getElementById('aprov-cliente-nome').value=atual.clienteResponsavelDecisao||'';
+ document.getElementById('aprov-canal').value=atual.canalDecisao||'EMAIL';
  const itens=(atual.itens||[]).map(x=>`<tr><td class="py-2 pr-3">${esc(x.descricao||'')}</td><td class="py-2 text-right">${Number(x.quantidade||0)}</td><td class="py-2 text-right">${moedaBR(x.valorUnitario)}</td><td class="py-2 text-right font-black">${moedaBR(x.subtotal)}</td></tr>`).join('');
  document.getElementById('aprov-orc-conteudo').innerHTML=`
   <div class="flex justify-between items-center rounded-xl bg-slate-50 border border-slate-200 p-3">
@@ -806,31 +824,41 @@ window.abrirAprovacaoOrcamento=async function(eid){
    <div class="text-right"><div class="text-xs text-slate-500">Total</div><div class="text-xl font-black">${moedaBR(atual.total)}</div></div>
   </div>
   <div class="overflow-x-auto mt-3"><table class="w-full text-xs"><thead><tr class="text-slate-400"><th class="text-left">Descrição</th><th class="text-right">Qtd.</th><th class="text-right">Unitário</th><th class="text-right">Subtotal</th></tr></thead><tbody>${itens}</tbody></table></div>
-  <div class="mt-3 text-xs"><b>Status atual:</b> <span class="orc-status ${(atual.statusOrcamento||'RASCUNHO').toLowerCase()}">${esc(atual.statusOrcamento||'RASCUNHO')}</span></div>`;
+  <div class="grid md:grid-cols-3 gap-2 mt-3 text-xs"><div><b>Status:</b><br><span class="orc-status ${(atual.statusOrcamento||'RASCUNHO').toLowerCase()}">${esc(atual.statusOrcamento||'RASCUNHO')}</span></div><div><b>Validade:</b><br>${esc(atual.validadeDias||15)} dias</div><div><b>Pagamento:</b><br>${esc(atual.condicaoPagamento||'-')}</div></div><div class="mt-2 text-xs"><b>Prazo de execução:</b> ${esc(atual.prazoExecucao||'-')}</div>${atual.observacoes?`<div class="mt-2 text-xs"><b>Observações comerciais:</b> ${esc(atual.observacoes)}</div>`:''}`;
  document.getElementById('modal-aprovacao-orcamento').classList.remove('hidden');
 };
 window.fecharAprovacaoOrcamento=function(){document.getElementById('modal-aprovacao-orcamento')?.classList.add('hidden')};
 window.decidirOrcamento=async function(decisao){
  const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;
- const obs=document.getElementById('aprov-observacao').value.trim(),now=new Date().toISOString();
- if(decisao==='REPROVADO'&&!obs){alert('Informe o motivo da reprovação.');return}
- if(decisao==='APROVADO'&&!confirm('Confirmar aprovação deste orçamento e liberar o equipamento para execução?'))return;
+ const obs=document.getElementById('aprov-observacao').value.trim(),responsavel=document.getElementById('aprov-cliente-nome').value.trim(),canal=document.getElementById('aprov-canal').value,now=new Date().toISOString();
+ if(!responsavel){alert('Informe o nome do responsável do cliente pela decisão.');return}
+ if(decisao==='RECUSADO'&&!obs){alert('Informe o motivo da recusa.');return}
+ if(decisao==='APROVADO'&&!confirm('Confirmar a aprovação desta versão do orçamento e liberar o equipamento para execução?'))return;
  try{
   await mergeSubDoc(o.internalId||o.id,'orcamentos',orc.internalId||orc.id,{
-   statusOrcamento:decisao,decisaoObservacao:obs,decididoEmISO:now,updatedAtISO:now,
+   statusOrcamento:decisao,decisaoObservacao:obs,clienteResponsavelDecisao:responsavel,canalDecisao:canal,decididoEmISO:now,updatedAtISO:now,
    decididoPorUid:window.currentUser?.uid||'',decididoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
   });
   const novoStatus=decisao==='APROVADO'?'EM_EXECUCAO':'AGUARDANDO_ORCAMENTO';
-  await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{
-   statusEquipamento:novoStatus,ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now
-  });
+  await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{statusEquipamento:novoStatus,ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
   Object.assign(eq,{statusEquipamento:novoStatus,ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
-  await addHistory(o,'ORCAMENTO_DECISAO','Orçamento '+(decisao==='APROVADO'?'aprovado':'reprovado'),obs||('Versão V'+(orc.versao||'')),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',orcamentoId:orc.internalId||orc.id});
-  await recalcOSStage(o,o._equipamentos);
-  window.fecharAprovacaoOrcamento();await renderEquipamentosOS(o);
-  toast(decisao==='APROVADO'?'Orçamento aprovado. Equipamento liberado para execução.':'Orçamento reprovado. Equipamento permanece aguardando novo orçamento.');
- }catch(e){console.error('[Assistência] decisão orçamento',e);alert('Não foi possível registrar a decisão.\\n\\n'+(e?.message||e))}
+  await addHistory(o,'ORCAMENTO_DECISAO',decisao==='APROVADO'?'Orçamento aprovado pelo cliente':'Orçamento recusado pelo cliente',responsavel+' · '+canal+(obs?' · '+obs:''),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',orcamentoId:orc.internalId||orc.id,versao:orc.versao});
+  await recalcOSStage(o,o._equipamentos);window.fecharAprovacaoOrcamento();await renderEquipamentosOS(o);
+  toast(decisao==='APROVADO'?'Aprovação registrada. Equipamento liberado para execução.':'Recusa registrada. Será necessária uma nova versão se houver renegociação.');
+ }catch(e){console.error('[Assistência] decisão orçamento',e);alert('Não foi possível registrar a decisão.\n\n'+(e?.message||e))}
 };
+
+
+
+function orcamentoDocumentoHTML(o,eq,orc){
+ const itens=(orc.itens||[]).map(x=>`<tr><td>${esc(x.descricao||'')}</td><td class="num">${Number(x.quantidade||0)}</td><td class="num">${moedaBR(x.valorUnitario)}</td><td class="num"><b>${moedaBR(x.subtotal)}</b></td></tr>`).join('');
+ const base=orc.baseTecnicaSnapshot||{};
+ const pecas=(base.pecas||[]).map(x=>`${esc(x.descricao)} × ${esc(x.quantidade)}`).join(' · ')||'-';
+ return `<!doctype html><html><head><meta charset="utf-8"><title>Orçamento ${esc(o.osNumber||'')} V${esc(orc.versao||1)}</title><style>@page{size:A4;margin:13mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#172033;font-size:11px;margin:0}.head{display:flex;justify-content:space-between;border-bottom:3px solid #1d4ed8;padding-bottom:12px}.brand{font-size:18px;font-weight:900}.muted{color:#64748b}.title{font-size:22px;font-weight:900;margin:20px 0 4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.box{border:1px solid #dbe3ef;border-radius:8px;padding:9px}.label{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc;font-size:9px;text-transform:uppercase}.num{text-align:right}.total{text-align:right;font-size:18px;font-weight:900;margin-top:12px}.section{margin-top:16px;border:1px solid #dbe3ef;border-radius:8px;padding:10px;break-inside:avoid}.section h3{font-size:10px;text-transform:uppercase;margin:0 0 7px;color:#475569}.footer{margin-top:25px;border-top:1px solid #e2e8f0;padding-top:10px;color:#64748b;font-size:9px}.no-print{position:fixed;right:15px;top:15px}@media print{.no-print{display:none}}</style></head><body><button class="no-print" onclick="window.print()">Imprimir / Salvar PDF</button><div class="head"><div><div class="brand">GRUPO CIJ SOLUÇÕES INDUSTRIAIS</div><div class="muted">Proposta Comercial · Assistência Técnica</div></div><div style="text-align:right"><b>OS ${esc(o.osNumber||o.numero||'-')}</b><br>Orçamento V${esc(orc.versao||1)}<br><span class="muted">${new Date(orc.createdAtISO||Date.now()).toLocaleDateString('pt-BR')}</span></div></div><div class="title">Orçamento de manutenção</div><div class="grid"><div class="box"><div class="label">Cliente</div><b>${esc(o.clienteNome||o.cliente||'-')}</b></div><div class="box"><div class="label">Equipamento</div><b>${esc(eq.modelo||'Equipamento')}</b><br>SN: ${esc(eq.numeroSerie||'-')}</div></div><div class="section"><h3>Base técnica revisada</h3><b>Serviço recomendado:</b> ${esc(base.servicoRecomendado||'-')}<br><b>Tempo técnico estimado:</b> ${esc(base.horasEstimadas||0)} h<br><b>Peças indicadas:</b> ${pecas}</div><table><thead><tr><th>Descrição</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Subtotal</th></tr></thead><tbody>${itens}</tbody></table><div class="total">Total: ${moedaBR(orc.total)}</div><div class="section"><h3>Condições comerciais</h3><b>Validade:</b> ${esc(orc.validadeDias||15)} dias<br><b>Prazo de execução:</b> ${esc(orc.prazoExecucao||'-')}<br><b>Condição de pagamento:</b> ${esc(orc.condicaoPagamento||'-')}<br><b>Observações:</b> ${esc(orc.observacoes||'-')}</div><div class="footer">Esta proposta corresponde à versão V${esc(orc.versao||1)} vinculada à OS ${esc(o.osNumber||o.numero||'-')}. Alterações comerciais posteriores devem gerar nova versão.</div></body></html>`;
+}
+window.imprimirOrcamentoAtual=function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc){toast('Abra um orçamento antes.');return}const w=window.open('','_blank');if(!w){alert('O navegador bloqueou a nova janela. Libere pop-ups para gerar o PDF.');return}w.document.open();w.document.write(orcamentoDocumentoHTML(o,eq,orc));w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(_){}},450)};
+window.marcarOrcamentoEnviado=async function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;if(!confirm('Confirmar que esta versão foi enviada ao cliente?'))return;const now=new Date().toISOString();try{await mergeSubDoc(o.internalId||o.id,'orcamentos',orc.internalId||orc.id,{statusOrcamento:'ENVIADO_CLIENTE',enviadoClienteEmISO:now,enviadoClientePorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{ultimoOrcamentoStatus:'ENVIADO_CLIENTE',updatedAtISO:now});orc.statusOrcamento='ENVIADO_CLIENTE';eq.ultimoOrcamentoStatus='ENVIADO_CLIENTE';await addHistory(o,'ORCAMENTO_ENVIO','Orçamento V'+(orc.versao||1)+' enviado ao cliente',moedaBR(orc.total),{equipamentoId:eq.id||eq.internalId,orcamentoId:orc.id||orc.internalId});toast('Orçamento marcado como enviado ao cliente.');await window.abrirAprovacaoOrcamento(eq.id||eq.internalId)}catch(e){console.error(e);alert('Não foi possível registrar o envio.')}};
+window.compartilharOrcamentoWhatsApp=function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;const txt=`Olá! Segue o orçamento V${orc.versao||1} referente à OS ${o.osNumber||o.numero||''}, equipamento ${eq.modelo||''}${eq.numeroSerie?' - SN '+eq.numeroSerie:''}. Valor total: ${moedaBR(orc.total)}. Favor confirmar a aprovação ou informar eventuais dúvidas.`;window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')};
 
 
 // FASE 1.35 — solicitação técnica -> revisão -> comercial
@@ -856,7 +884,7 @@ window.abrirOrcamentoEquipamento=async function(eid){
   const versao=Math.max(0,...mesmos.map(x=>Number(x.versao||0)))+1;state.orcamentoVersao=versao;
   document.getElementById('orc-equipamento-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'')+' · Base técnica aprovada';
   document.getElementById('orc-versao-info').textContent='Nova versão: V'+versao+' · status inicial: RASCUNHO';
-  document.getElementById('orc-observacoes').value='';document.getElementById('orc-itens').innerHTML='';
+  document.getElementById('orc-observacoes').value='';document.getElementById('orc-validade').value='15';document.getElementById('orc-prazo').value='';document.getElementById('orc-pagamento').value='';document.getElementById('orc-itens').innerHTML='';
   (req.pecas||[]).forEach(x=>window.adicionarItemOrcamento({descricao:x.descricao,quantidade:x.quantidade,valorUnitario:0}));
   if(Number(req.horasEstimadas||0)>0)window.adicionarItemOrcamento({descricao:'Mão de obra estimada ('+Number(req.horasEstimadas)+' h)',quantidade:Number(req.horasEstimadas),valorUnitario:0});
   if(req.necessitaDeslocamento==='SIM')window.adicionarItemOrcamento({descricao:'Deslocamento / visita técnica',quantidade:1,valorUnitario:0});
@@ -882,7 +910,7 @@ window.salvarOrcamentoEquipamento=async function(){
     internalId:oid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',
     equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
     equipamentoNumeroSerie:eq.numeroSerie||'',versao,statusOrcamento:'RASCUNHO',solicitacaoOrcamentoId:state.selectedTechBudgetRequest?.internalId||state.selectedTechBudgetRequest?.id||'',baseTecnicaSnapshot:state.selectedTechBudgetRequest?{servicoRecomendado:state.selectedTechBudgetRequest.servicoRecomendado||'',horasEstimadas:Number(state.selectedTechBudgetRequest.horasEstimadas||0),necessitaDeslocamento:state.selectedTechBudgetRequest.necessitaDeslocamento||'NAO',pecas:state.selectedTechBudgetRequest.pecas||[],aprovadoEmISO:state.selectedTechBudgetRequest.revisadoEmISO||''}:null,
-    moeda:'BRL',itens,total,observacoes:document.getElementById('orc-observacoes').value.trim(),
+    moeda:'BRL',itens,total,validadeDias:Number(document.getElementById('orc-validade').value||15),prazoExecucao:document.getElementById('orc-prazo').value.trim(),condicaoPagamento:document.getElementById('orc-pagamento').value.trim(),observacoes:document.getElementById('orc-observacoes').value.trim(),
     createdAtISO:now,updatedAtISO:now,
     criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
   };
