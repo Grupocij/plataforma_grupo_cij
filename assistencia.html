@@ -266,6 +266,13 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .orc-tech-btn{border:1px solid #67e8f9;background:#ecfeff;color:#0e7490;border-radius:.55rem;padding:.38rem .6rem;font-size:.62rem;font-weight:900}.orc-tech-btn:hover{background:#cffafe}.rev-status{display:inline-flex;align-items:center;border-radius:999px;padding:.3rem .55rem;font-size:.58rem;font-weight:900}.rev-elab{background:#f1f5f9;color:#475569}.rev-wait{background:#fff7ed;color:#c2410c}.rev-return{background:#fff1f2;color:#be123c}.rev-ok{background:#ecfdf5;color:#047857}.tech-req-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 44px;gap:.5rem;align-items:end}.tech-req-info{border:1px solid #bae6fd;background:#f0f9ff;border-radius:.9rem;padding:.8rem}.review-actions{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-end}@media(max-width:640px){.tech-req-row{grid-template-columns:minmax(0,1fr) 90px 42px}.orc-tech-btn{width:100%;min-height:40px}.review-actions{display:grid;grid-template-columns:1fr}.review-actions .btn{justify-content:center}}
 
 </style>
+
+<style id="fase135c-ui">
+/* Fase 1.35C: faturamento fora da rolagem da timeline e status detalhado mais evidente */
+.timeline-actions,.faturamento-actions,.billing-actions{position:sticky!important;bottom:0!important;z-index:35!important;background:#fff!important;padding:10px 0!important;border-top:1px solid #e2e8f0!important}
+@media(max-width:768px){.timeline-actions,.faturamento-actions,.billing-actions{bottom:0!important}.status-detalhado{font-size:11px!important}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -273,7 +280,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35B</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35C</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -475,6 +482,25 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
     </div>
     <button onclick="window.adicionarItemOrcamento()" class="btn btn-light mt-2"><i class="fa-solid fa-plus"></i> Adicionar item</button>
 
+    <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div class="font-black text-slate-800 mb-3"><i class="fa-solid fa-tag text-violet-600"></i> Desconto comercial</div>
+      <div class="grid md:grid-cols-3 gap-3">
+        <label><span class="field-label">Tipo de desconto</span>
+          <select id="orc-desconto-tipo" class="input" onchange="window.recalcularOrcamento&&window.recalcularOrcamento()">
+            <option value="PERCENTUAL">Percentual (%)</option>
+            <option value="VALOR">Valor (R$)</option>
+          </select>
+        </label>
+        <label><span class="field-label">Desconto</span>
+          <input id="orc-desconto-valor" class="input" type="number" min="0" step="0.01" value="0" oninput="window.recalcularOrcamento&&window.recalcularOrcamento()">
+        </label>
+        <div class="rounded-xl bg-white border border-slate-200 p-3">
+          <div class="text-[10px] uppercase font-black text-slate-400">Resumo</div>
+          <div class="text-xs mt-1">Subtotal: <b id="orc-subtotal">R$ 0,00</b></div>
+          <div class="text-xs">Desconto: <b id="orc-desconto-exibido">R$ 0,00</b></div>
+        </div>
+      </div>
+    </div>
     <div class="mt-5 grid md:grid-cols-3 gap-3">
       <label><span class="field-label">Validade da proposta (dias)</span><input id="orc-validade" class="input" type="number" min="1" value="15"></label>
       <label><span class="field-label">Prazo de execução</span><input id="orc-prazo" class="input" placeholder="Ex.: 5 dias úteis após aprovação"></label>
@@ -794,12 +820,12 @@ window.adicionarItemOrcamento=function(item={}){
   body.appendChild(tr);window.recalcularOrcamento();
 };
 window.recalcularOrcamento=function(){
-  let total=0;
+  const subtotal=0; const dc=window.calcularDescontoOrcamento(subtotal); const total=dc.total;
   document.querySelectorAll('#orc-itens tr').forEach(tr=>{
     const q=Number(tr.querySelector('.orc-qtd')?.value||0),v=Number(tr.querySelector('.orc-valor')?.value||0),s=q*v;
     tr.querySelector('.orc-subtotal').textContent=moedaBR(s);total+=s;
   });
-  document.getElementById('orc-total').textContent=moedaBR(total);return total;
+  document.getElementById('orc-subtotal').textContent=moedaBR(subtotal);document.getElementById('orc-desconto-exibido').textContent=moedaBR(dc.desconto);document.getElementById('orc-total').textContent=moedaBR(total);return total;
 };
 
 window.abrirAprovacaoOrcamento=async function(eid){
@@ -840,8 +866,8 @@ window.decidirOrcamento=async function(decisao){
    decididoPorUid:window.currentUser?.uid||'',decididoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
   });
   const novoStatus=decisao==='APROVADO'?'EM_EXECUCAO':'AGUARDANDO_ORCAMENTO';
-  await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{statusEquipamento:novoStatus,ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
-  Object.assign(eq,{statusEquipamento:novoStatus,ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
+  await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{statusEquipamento:novoStatus,statusDetalhado:decisao==='APROVADO'?'APROVADO':'AGUARDANDO_ORCAMENTO',ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
+  Object.assign(eq,{statusEquipamento:novoStatus,statusDetalhado:decisao==='APROVADO'?'APROVADO':'AGUARDANDO_ORCAMENTO',ultimoOrcamentoStatus:decisao,ultimoOrcamentoDecisaoEmISO:now,updatedAtISO:now});
   await addHistory(o,'ORCAMENTO_DECISAO',decisao==='APROVADO'?'Orçamento aprovado pelo cliente':'Orçamento recusado pelo cliente',responsavel+' · '+canal+(obs?' · '+obs:''),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',orcamentoId:orc.internalId||orc.id,versao:orc.versao});
   await recalcOSStage(o,o._equipamentos);window.fecharAprovacaoOrcamento();await renderEquipamentosOS(o);
   toast(decisao==='APROVADO'?'Aprovação registrada. Equipamento liberado para execução.':'Recusa registrada. Será necessária uma nova versão se houver renegociação.');
@@ -854,12 +880,54 @@ function orcamentoDocumentoHTML(o,eq,orc){
  const itens=(orc.itens||[]).map(x=>`<tr><td>${esc(x.descricao||'')}</td><td class="num">${Number(x.quantidade||0)}</td><td class="num">${moedaBR(x.valorUnitario)}</td><td class="num"><b>${moedaBR(x.subtotal)}</b></td></tr>`).join('');
  const base=orc.baseTecnicaSnapshot||{};
  const pecas=(base.pecas||[]).map(x=>`${esc(x.descricao)} × ${esc(x.quantidade)}`).join(' · ')||'-';
- return `<!doctype html><html><head><meta charset="utf-8"><title>Orçamento ${esc(o.osNumber||'')} V${esc(orc.versao||1)}</title><style>@page{size:A4;margin:13mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#172033;font-size:11px;margin:0}.head{display:flex;justify-content:space-between;border-bottom:3px solid #1d4ed8;padding-bottom:12px}.brand{font-size:18px;font-weight:900}.muted{color:#64748b}.title{font-size:22px;font-weight:900;margin:20px 0 4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.box{border:1px solid #dbe3ef;border-radius:8px;padding:9px}.label{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc;font-size:9px;text-transform:uppercase}.num{text-align:right}.total{text-align:right;font-size:18px;font-weight:900;margin-top:12px}.section{margin-top:16px;border:1px solid #dbe3ef;border-radius:8px;padding:10px;break-inside:avoid}.section h3{font-size:10px;text-transform:uppercase;margin:0 0 7px;color:#475569}.footer{margin-top:25px;border-top:1px solid #e2e8f0;padding-top:10px;color:#64748b;font-size:9px}.no-print{position:fixed;right:15px;top:15px}@media print{.no-print{display:none}}</style></head><body><button class="no-print" onclick="window.print()">Imprimir / Salvar PDF</button><div class="head"><div><div class="brand">GRUPO CIJ SOLUÇÕES INDUSTRIAIS</div><div class="muted">Proposta Comercial · Assistência Técnica</div></div><div style="text-align:right"><b>OS ${esc(o.osNumber||o.numero||'-')}</b><br>Orçamento V${esc(orc.versao||1)}<br><span class="muted">${new Date(orc.createdAtISO||Date.now()).toLocaleDateString('pt-BR')}</span></div></div><div class="title">Orçamento de manutenção</div><div class="grid"><div class="box"><div class="label">Cliente</div><b>${esc(o.clienteNome||o.cliente||'-')}</b></div><div class="box"><div class="label">Equipamento</div><b>${esc(eq.modelo||'Equipamento')}</b><br>SN: ${esc(eq.numeroSerie||'-')}</div></div><div class="section"><h3>Base técnica revisada</h3><b>Serviço recomendado:</b> ${esc(base.servicoRecomendado||'-')}<br><b>Tempo técnico estimado:</b> ${esc(base.horasEstimadas||0)} h<br><b>Peças indicadas:</b> ${pecas}</div><table><thead><tr><th>Descrição</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Subtotal</th></tr></thead><tbody>${itens}</tbody></table><div class="total">Total: ${moedaBR(orc.total)}</div><div class="section"><h3>Condições comerciais</h3><b>Validade:</b> ${esc(orc.validadeDias||15)} dias<br><b>Prazo de execução:</b> ${esc(orc.prazoExecucao||'-')}<br><b>Condição de pagamento:</b> ${esc(orc.condicaoPagamento||'-')}<br><b>Observações:</b> ${esc(orc.observacoes||'-')}</div><div class="footer">Esta proposta corresponde à versão V${esc(orc.versao||1)} vinculada à OS ${esc(o.osNumber||o.numero||'-')}. Alterações comerciais posteriores devem gerar nova versão.</div></body></html>`;
+ return `<!doctype html><html><head><meta charset="utf-8"><title>Orçamento ${esc(o.osNumber||'')} V${esc(orc.versao||1)}</title><style>@page{size:A4;margin:13mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#172033;font-size:11px;margin:0}.head{display:flex;justify-content:space-between;border-bottom:3px solid #1d4ed8;padding-bottom:12px}.brand{font-size:18px;font-weight:900}.muted{color:#64748b}.title{font-size:22px;font-weight:900;margin:20px 0 4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.box{border:1px solid #dbe3ef;border-radius:8px;padding:9px}.label{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc;font-size:9px;text-transform:uppercase}.num{text-align:right}.total{text-align:right;font-size:18px;font-weight:900;margin-top:12px}.section{margin-top:16px;border:1px solid #dbe3ef;border-radius:8px;padding:10px;break-inside:avoid}.section h3{font-size:10px;text-transform:uppercase;margin:0 0 7px;color:#475569}.footer{margin-top:25px;border-top:1px solid #e2e8f0;padding-top:10px;color:#64748b;font-size:9px}.no-print{position:fixed;right:15px;top:15px}@media print{.no-print{display:none}}</style></head><body><button class="no-print" onclick="window.print()">Imprimir / Salvar PDF</button><div class="head"><div><div class="brand">GRUPO CIJ SOLUÇÕES INDUSTRIAIS</div><div class="muted">Proposta Comercial · Assistência Técnica</div></div><div style="text-align:right"><b>OS ${esc(o.osNumber||o.numero||'-')}</b><br>Orçamento V${esc(orc.versao||1)}<br><span class="muted">${new Date(orc.createdAtISO||Date.now()).toLocaleDateString('pt-BR')}</span></div></div><div class="title">Orçamento de manutenção</div><div class="grid"><div class="box"><div class="label">Cliente</div><b>${esc(o.clienteNome||o.cliente||'-')}</b></div><div class="box"><div class="label">Equipamento</div><b>${esc(eq.modelo||'Equipamento')}</b><br>SN: ${esc(eq.numeroSerie||'-')}</div></div><div class="section"><h3>Base técnica revisada</h3><b>Serviço recomendado:</b> ${esc(base.servicoRecomendado||'-')}<br><b>Tempo técnico estimado:</b> ${esc(base.horasEstimadas||0)} h<br><b>Peças indicadas:</b> ${pecas}</div><table><thead><tr><th>Descrição</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Subtotal</th></tr></thead><tbody>${itens}</tbody></table><div class="total" style="font-size:12px">Subtotal: ${moedaBR(orc.subtotal??orc.total)}<br>Desconto: - ${moedaBR(orc.descontoValor||0)}</div><div class="total">Total final: ${moedaBR(orc.total)}</div><div class="section"><h3>Condições comerciais</h3><b>Validade:</b> ${esc(orc.validadeDias||15)} dias<br><b>Prazo de execução:</b> ${esc(orc.prazoExecucao||'-')}<br><b>Condição de pagamento:</b> ${esc(orc.condicaoPagamento||'-')}<br><b>Observações:</b> ${esc(orc.observacoes||'-')}</div><div class="footer">Esta proposta corresponde à versão V${esc(orc.versao||1)} vinculada à OS ${esc(o.osNumber||o.numero||'-')}. Alterações comerciais posteriores devem gerar nova versão.</div></body></html>`;
 }
 window.imprimirOrcamentoAtual=function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc){toast('Abra um orçamento antes.');return}const w=window.open('','_blank');if(!w){alert('O navegador bloqueou a nova janela. Libere pop-ups para gerar o PDF.');return}w.document.open();w.document.write(orcamentoDocumentoHTML(o,eq,orc));w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(_){}},450)};
-window.marcarOrcamentoEnviado=async function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;if(!confirm('Confirmar que esta versão foi enviada ao cliente?'))return;const now=new Date().toISOString();try{await mergeSubDoc(o.internalId||o.id,'orcamentos',orc.internalId||orc.id,{statusOrcamento:'ENVIADO_CLIENTE',enviadoClienteEmISO:now,enviadoClientePorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{ultimoOrcamentoStatus:'ENVIADO_CLIENTE',updatedAtISO:now});orc.statusOrcamento='ENVIADO_CLIENTE';eq.ultimoOrcamentoStatus='ENVIADO_CLIENTE';await addHistory(o,'ORCAMENTO_ENVIO','Orçamento V'+(orc.versao||1)+' enviado ao cliente',moedaBR(orc.total),{equipamentoId:eq.id||eq.internalId,orcamentoId:orc.id||orc.internalId});toast('Orçamento marcado como enviado ao cliente.');await window.abrirAprovacaoOrcamento(eq.id||eq.internalId)}catch(e){console.error(e);alert('Não foi possível registrar o envio.')}};
+window.marcarOrcamentoEnviado=async function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;if(!confirm('Confirmar que esta versão foi enviada ao cliente?'))return;const now=new Date().toISOString();try{await mergeSubDoc(o.internalId||o.id,'orcamentos',orc.internalId||orc.id,{statusOrcamento:'ENVIADO_CLIENTE',enviadoClienteEmISO:now,enviadoClientePorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{ultimoOrcamentoStatus:'ENVIADO_CLIENTE',statusDetalhado:'AGUARDANDO_APROVACAO_CLIENTE',updatedAtISO:now});orc.statusOrcamento='ENVIADO_CLIENTE';eq.ultimoOrcamentoStatus='ENVIADO_CLIENTE';eq.statusDetalhado='AGUARDANDO_APROVACAO_CLIENTE';await addHistory(o,'ORCAMENTO_ENVIO','Orçamento V'+(orc.versao||1)+' enviado ao cliente',moedaBR(orc.total),{equipamentoId:eq.id||eq.internalId,orcamentoId:orc.id||orc.internalId});toast('Orçamento marcado como enviado ao cliente.');await window.abrirAprovacaoOrcamento(eq.id||eq.internalId)}catch(e){console.error(e);alert('Não foi possível registrar o envio.')}};
 window.compartilharOrcamentoWhatsApp=function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc)return;const txt=`Olá! Segue o orçamento V${orc.versao||1} referente à OS ${o.osNumber||o.numero||''}, equipamento ${eq.modelo||''}${eq.numeroSerie?' - SN '+eq.numeroSerie:''}. Valor total: ${moedaBR(orc.total)}. Favor confirmar a aprovação ou informar eventuais dúvidas.`;window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')};
 
+
+
+
+window.obterValorOrcamentoAprovado=async function(o,eq){
+ try{
+  const versoes=await getSubDocs(o.internalId||o.id,'orcamentos');
+  const aprovadas=(versoes||[]).filter(x=>(x.equipamentoId===eq.id||x.equipamentoId===eq.internalId)&&String(x.statusOrcamento||'').toUpperCase()==='APROVADO').sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
+  return aprovadas.length?Number(aprovadas[0].total||0):0;
+ }catch(e){console.warn('Valor aprovado',e);return 0}
+};
+
+// FASE 1.35C — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
+window.statusDetalhadoEquipamento=function(eq){
+ const st=String(eq?.statusDetalhado||eq?.ultimoOrcamentoStatus||eq?.statusEquipamento||'').toUpperCase();
+ const map={
+  'AGUARDANDO_ORCAMENTO':'Aguardando orçamento',
+  'ORCAMENTO_CRIADO':'Orçamento comercial criado',
+  'RASCUNHO':'Orçamento comercial criado',
+  'ENVIADO_CLIENTE':'Aguardando aprovação do cliente',
+  'AGUARDANDO_APROVACAO_CLIENTE':'Aguardando aprovação do cliente',
+  'APROVADO':'Orçamento aprovado',
+  'EM_EXECUCAO':'Em execução',
+  'CONCLUIDO':'Concluído',
+  'AGUARDANDO_FATURAMENTO':'Aguardando faturamento',
+  'FATURADO':'Faturado / Encerrado'
+ };
+ return map[st]||st.replaceAll('_',' ').toLowerCase().replace(/^./,c=>c.toUpperCase());
+};
+window.badgeStatusDetalhado=function(eq){
+ const t=window.statusDetalhadoEquipamento(eq); if(!t)return '';
+ const st=String(eq?.statusDetalhado||eq?.ultimoOrcamentoStatus||eq?.statusEquipamento||'').toUpperCase();
+ const cls=st.includes('APROV')?'background:#dcfce7;color:#166534;border-color:#86efac':st.includes('FATUR')?'background:#e0e7ff;color:#3730a3;border-color:#a5b4fc':st.includes('AGUARD')?'background:#fff7ed;color:#9a3412;border-color:#fed7aa':st.includes('EXEC')?'background:#dbeafe;color:#1d4ed8;border-color:#93c5fd':'background:#f1f5f9;color:#334155;border-color:#cbd5e1';
+ return `<div class="mt-2 inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[11px] font-black uppercase tracking-wide" style="${cls}"><i class="fa-solid fa-circle-dot"></i>${esc(t)}</div>`;
+};
+
+window.calcularDescontoOrcamento=function(subtotal){
+ const tipo=document.getElementById('orc-desconto-tipo')?.value||'PERCENTUAL';
+ const informado=Math.max(0,Number(document.getElementById('orc-desconto-valor')?.value||0));
+ let desconto=tipo==='VALOR'?informado:subtotal*(Math.min(informado,100)/100);
+ desconto=Math.min(desconto,subtotal);
+ return {tipo,informado,desconto,total:Math.max(0,subtotal-desconto)};
+};
 
 // FASE 1.35 — solicitação técnica -> revisão -> comercial
 window.adicionarPecaSolicitacaoOrcamento=function(item={}){const box=document.getElementById('sorc-pecas');if(!box)return;const row=document.createElement('div');row.className='tech-req-row';row.innerHTML=`<label><span class="field-label">Peça / material</span><input class="input sorc-peca-desc" value="${esc(item.descricao||'')}" placeholder="Descrição da peça"></label><label><span class="field-label">Quantidade</span><input class="input sorc-peca-qtd" type="number" min="0.01" step="0.01" value="${Number(item.quantidade||1)}"></label><button class="icon-btn" type="button" onclick="this.closest('.tech-req-row').remove()"><i class="fa-solid fa-trash"></i></button>`;box.appendChild(row)};
@@ -884,7 +952,7 @@ window.abrirOrcamentoEquipamento=async function(eid){
   const versao=Math.max(0,...mesmos.map(x=>Number(x.versao||0)))+1;state.orcamentoVersao=versao;
   document.getElementById('orc-equipamento-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'')+' · Base técnica aprovada';
   document.getElementById('orc-versao-info').textContent='Nova versão: V'+versao+' · status inicial: RASCUNHO';
-  document.getElementById('orc-observacoes').value='';document.getElementById('orc-validade').value='15';document.getElementById('orc-prazo').value='';document.getElementById('orc-pagamento').value='';document.getElementById('orc-itens').innerHTML='';
+  document.getElementById('orc-observacoes').value='';document.getElementById('orc-validade').value='15';document.getElementById('orc-prazo').value='';document.getElementById('orc-pagamento').value='';document.getElementById('orc-desconto-tipo').value='PERCENTUAL';document.getElementById('orc-desconto-valor').value='0';document.getElementById('orc-itens').innerHTML='';
   (req.pecas||[]).forEach(x=>window.adicionarItemOrcamento({descricao:x.descricao,quantidade:x.quantidade,valorUnitario:0}));
   if(Number(req.horasEstimadas||0)>0)window.adicionarItemOrcamento({descricao:'Mão de obra estimada ('+Number(req.horasEstimadas)+' h)',quantidade:Number(req.horasEstimadas),valorUnitario:0});
   if(req.necessitaDeslocamento==='SIM')window.adicionarItemOrcamento({descricao:'Deslocamento / visita técnica',quantidade:1,valorUnitario:0});
@@ -910,7 +978,7 @@ window.salvarOrcamentoEquipamento=async function(){
     internalId:oid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',
     equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
     equipamentoNumeroSerie:eq.numeroSerie||'',versao,statusOrcamento:'RASCUNHO',solicitacaoOrcamentoId:state.selectedTechBudgetRequest?.internalId||state.selectedTechBudgetRequest?.id||'',baseTecnicaSnapshot:state.selectedTechBudgetRequest?{servicoRecomendado:state.selectedTechBudgetRequest.servicoRecomendado||'',horasEstimadas:Number(state.selectedTechBudgetRequest.horasEstimadas||0),necessitaDeslocamento:state.selectedTechBudgetRequest.necessitaDeslocamento||'NAO',pecas:state.selectedTechBudgetRequest.pecas||[],aprovadoEmISO:state.selectedTechBudgetRequest.revisadoEmISO||''}:null,
-    moeda:'BRL',itens,total,validadeDias:Number(document.getElementById('orc-validade').value||15),prazoExecucao:document.getElementById('orc-prazo').value.trim(),condicaoPagamento:document.getElementById('orc-pagamento').value.trim(),observacoes:document.getElementById('orc-observacoes').value.trim(),
+    moeda:'BRL',itens,subtotal,descontoTipo:dc.tipo,descontoInformado:dc.informado,descontoValor:dc.desconto,total,validadeDias:Number(document.getElementById('orc-validade').value||15),prazoExecucao:document.getElementById('orc-prazo').value.trim(),condicaoPagamento:document.getElementById('orc-pagamento').value.trim(),observacoes:document.getElementById('orc-observacoes').value.trim(),
     createdAtISO:now,updatedAtISO:now,
     criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
   };
@@ -1044,7 +1112,9 @@ window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)retur
 window.abrirFaturamentoOS=function(){const o=state.selectedOS;if(!o)return;document.getElementById('fat-os-identificacao').textContent=`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||''}`;document.getElementById('fat-situacao').value='FATURADO';document.getElementById('fat-nf').value=o.numeroNF||'';document.getElementById('fat-data').value=(o.faturadoEmData||new Date().toISOString().slice(0,10));document.getElementById('fat-valor').value=o.valorFaturado||'';document.getElementById('fat-obs').value=o.observacaoFaturamento||'';window.alternarCamposFaturamento();document.getElementById('modal-faturamento-os').classList.remove('hidden')};
 window.fecharFaturamentoOS=()=>document.getElementById('modal-faturamento-os')?.classList.add('hidden');
 window.alternarCamposFaturamento=function(){const nao=document.getElementById('fat-situacao').value==='NAO_FATURAVEL';document.getElementById('fat-campos-fatura').classList.toggle('hidden',nao);document.getElementById('fat-obs-label').textContent=nao?'MOTIVO DO NÃO FATURAMENTO *':'OBSERVAÇÃO'};
-window.salvarFaturamentoOS=async function(){const o=state.selectedOS;if(!o)return;const situacao=document.getElementById('fat-situacao').value,nf=document.getElementById('fat-nf').value.trim(),data=document.getElementById('fat-data').value,valor=document.getElementById('fat-valor').value.trim(),obs=document.getElementById('fat-obs').value.trim();if(situacao==='FATURADO'&&(!nf||!data)){alert('Informe o número da NF e a data do faturamento.');return}if(situacao==='NAO_FATURAVEL'&&!obs){alert('Informe o motivo pelo qual esta OS não é faturável.');return}const now=new Date().toISOString(),payload={situacaoFaturamento:situacao,faturado:situacao==='FATURADO',numeroNF:situacao==='FATURADO'?nf:'',faturadoEmData:situacao==='FATURADO'?data:'',valorFaturado:situacao==='FATURADO'?valor:'',observacaoFaturamento:obs,encerradoAdministrativamente:true,encerradoEmISO:now,encerradoPorUid:window.currentUser?.uid||'',encerradoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',etapaKanban:'ENCERRADOS',status:'ENCERRADOS',updatedAtISO:now};const btn=document.getElementById('btn-salvar-faturamento');try{btn.disabled=true;await mergeOSDoc(o.internalId||o.id,payload);Object.assign(o,payload);await addHistory(o,'FATURAMENTO',situacao==='FATURADO'?'Serviço faturado':'OS marcada como não faturável',situacao==='FATURADO'?('NF '+nf+(valor?' · R$ '+valor:'')):obs,{situacaoFaturamento:situacao,numeroNF:nf||'',valorFaturado:valor||''});window.fecharFaturamentoOS();renderKanban();window.abrirDetalheOS(o.id||o.internalId);toast('OS encerrada administrativamente.')}catch(e){console.error('[Assistência] faturamento',e);alert('Não foi possível encerrar a OS. Verifique as Security Rules.\n\n'+(e?.message||e))}finally{btn.disabled=false}};
+window.salvarFaturamentoOS=async function(){
+ try{const _eq=state.selectedEquipment;if(_eq){const _v=await window.obterValorOrcamentoAprovado(state.selectedOS,_eq);const _el=document.getElementById('fat-valor');if(_el&&_v>0)_el.value=Number(_v).toFixed(2);}}catch(_e){console.warn(_e)}
+const o=state.selectedOS;if(!o)return;const situacao=document.getElementById('fat-situacao').value,nf=document.getElementById('fat-nf').value.trim(),data=document.getElementById('fat-data').value,valor=document.getElementById('fat-valor').value.trim(),obs=document.getElementById('fat-obs').value.trim();if(situacao==='FATURADO'&&(!nf||!data)){alert('Informe o número da NF e a data do faturamento.');return}if(situacao==='NAO_FATURAVEL'&&!obs){alert('Informe o motivo pelo qual esta OS não é faturável.');return}const now=new Date().toISOString(),payload={situacaoFaturamento:situacao,faturado:situacao==='FATURADO',numeroNF:situacao==='FATURADO'?nf:'',faturadoEmData:situacao==='FATURADO'?data:'',valorFaturado:situacao==='FATURADO'?valor:'',observacaoFaturamento:obs,encerradoAdministrativamente:true,encerradoEmISO:now,encerradoPorUid:window.currentUser?.uid||'',encerradoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',etapaKanban:'ENCERRADOS',status:'ENCERRADOS',updatedAtISO:now};const btn=document.getElementById('btn-salvar-faturamento');try{btn.disabled=true;await mergeOSDoc(o.internalId||o.id,payload);Object.assign(o,payload);await addHistory(o,'FATURAMENTO',situacao==='FATURADO'?'Serviço faturado':'OS marcada como não faturável',situacao==='FATURADO'?('NF '+nf+(valor?' · R$ '+valor:'')):obs,{situacaoFaturamento:situacao,numeroNF:nf||'',valorFaturado:valor||''});window.fecharFaturamentoOS();renderKanban();window.abrirDetalheOS(o.id||o.internalId);toast('OS encerrada administrativamente.')}catch(e){console.error('[Assistência] faturamento',e);alert('Não foi possível encerrar a OS. Verifique as Security Rules.\n\n'+(e?.message||e))}finally{btn.disabled=false}};
 
 
 function relTxt(v){return esc(v===undefined||v===null||v===''?'-':v)}
