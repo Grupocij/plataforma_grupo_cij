@@ -206,6 +206,62 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .mat-closed{display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;padding:.22rem .45rem;background:#ecfdf5;color:#047857;font-size:.52rem;font-weight:900}
 @media(max-width:650px){.mat-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* FASE 1.34 — relatório / PDF profissional */
+.relatorio-doc{background:#fff;color:#0f172a;font-size:11px;line-height:1.48}
+.relatorio-brand{display:flex;align-items:center;gap:12px}
+.relatorio-brand-mark{width:46px;height:46px;border-radius:12px;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}
+.relatorio-os-number{font-size:18px;font-weight:900;color:#0f172a}
+.relatorio-status-pill{display:inline-flex;margin-top:5px;border-radius:999px;padding:3px 8px;background:#eff6ff;color:#1d4ed8;font-size:9px;font-weight:900;text-transform:uppercase}
+.relatorio-eq{position:relative;border:1px solid #cbd5e1;border-left:4px solid #2563eb;border-radius:10px;padding:12px;margin-bottom:12px;background:#fff}
+.relatorio-eq-title{font-size:13px;font-weight:900}
+.relatorio-eq-index{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:9px;font-weight:900;margin-right:6px}
+.relatorio-subsection{margin-top:10px;padding-top:8px;border-top:1px dashed #cbd5e1}
+.relatorio-subsection-title{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;font-weight:900;margin-bottom:5px}
+.relatorio-kv{display:grid;grid-template-columns:145px minmax(0,1fr);gap:5px 10px;margin-top:4px}
+.relatorio-kv b{color:#475569}
+.relatorio-material-resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:7px 0}
+.relatorio-material-box{border:1px solid #e2e8f0;border-radius:7px;padding:6px;background:#f8fafc}
+.relatorio-material-box span{display:block;font-size:7px;text-transform:uppercase;color:#94a3b8;font-weight:900}
+.relatorio-material-box b{font-size:10px}
+.relatorio-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+.relatorio-photo{border:1px solid #e2e8f0;border-radius:7px;overflow:hidden;background:#f8fafc}
+.relatorio-photo img{width:100%;height:105px;object-fit:cover;display:block}
+.relatorio-photo-meta{padding:5px;font-size:8px;color:#64748b}
+.relatorio-note{border:1px solid #dbeafe;background:#eff6ff;border-radius:8px;padding:8px;color:#1e3a8a}
+.relatorio-signature{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:center}
+.relatorio-signature img{max-width:270px;max-height:95px}
+.relatorio-footer-note{text-align:center;margin-top:12px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:8px;color:#94a3b8}
+.relatorio-page-break{break-before:page;page-break-before:always}
+@media(max-width:700px){
+ .relatorio-kv{grid-template-columns:1fr}
+ .relatorio-photo-grid{grid-template-columns:repeat(2,1fr)}
+ .relatorio-signature{grid-template-columns:1fr}
+ .relatorio-material-resumo{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+ @page{size:A4 portrait;margin:10mm 9mm 12mm 9mm}
+ .relatorio-doc{font-size:9px!important;line-height:1.38!important}
+ .relatorio-brand-mark{width:38px!important;height:38px!important}
+ .relatorio-head{padding-bottom:4mm!important;margin-bottom:4mm!important}
+ .relatorio-grid{grid-template-columns:repeat(4,1fr)!important;gap:2.2mm!important;margin:3mm 0!important}
+ .relatorio-box{padding:2.2mm!important}
+ .relatorio-section{margin-top:3mm!important;border-radius:2mm!important}
+ .relatorio-section-title{padding:2mm 2.5mm!important}
+ .relatorio-section-body{padding:2.5mm!important}
+ .relatorio-eq{padding:2.5mm!important;margin-bottom:3mm!important;break-inside:avoid-page!important;page-break-inside:avoid!important}
+ .relatorio-eq.allow-break{break-inside:auto!important;page-break-inside:auto!important}
+ .relatorio-subsection{break-inside:avoid-page!important;page-break-inside:avoid!important}
+ .relatorio-table thead{display:table-header-group}
+ .relatorio-table tr{break-inside:avoid-page!important;page-break-inside:avoid!important}
+ .relatorio-photo-grid{grid-template-columns:repeat(3,1fr)!important}
+ .relatorio-photo{break-inside:avoid-page!important;page-break-inside:avoid!important}
+ .relatorio-photo img{height:28mm!important}
+ .relatorio-signature{break-inside:avoid-page!important;page-break-inside:avoid!important}
+ .relatorio-signature img{max-height:25mm!important}
+ .relatorio-footer-note{margin-top:4mm!important}
+}
+
 </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
@@ -214,7 +270,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.33</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.34</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -317,7 +373,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 
 <div id="tech-app-nav" class="tech-app-nav"><button type="button" class="active" onclick="window.techAppInicio(event)"><i class="fa-solid fa-house"></i><span>Atendimentos</span></button><button type="button" onclick="window.techAppAtualizar(event)"><i class="fa-solid fa-rotate"></i><span>Atualizar</span></button><button type="button" onclick="window.techAppSair(event)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Portal</span></button></div>
 
-<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Atendimento do técnico · Fase 1.31</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-work-footer"><button class="btn btn-light justify-center" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura</button><button class="btn btn-primary justify-center" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button></div></div></div></div>
+<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Atendimento do técnico · Fase 1.34</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-work-footer"><button class="btn btn-light justify-center" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura</button><button class="btn btn-primary justify-center" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button></div></div></div></div>
 
 <div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o legado <b>suportes_osr</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
 
@@ -943,57 +999,85 @@ window.imprimirRelatorioOS=function(){window.print()};
 window.abrirRelatorioOS=async function(){
  const o=state.selectedOS;if(!o){toast('Abra uma OS antes de gerar o relatório.');return}
  const box=document.getElementById('relatorio-os-conteudo');
- box.innerHTML='<div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Montando relatório...</div>';
+ box.innerHTML='<div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Montando relatório profissional...</div>';
  document.getElementById('modal-relatorio-os').classList.remove('hidden');
  try{
    const osid=o.internalId||o.id;
-   const [equipamentos,orcamentos,materiais]=await Promise.all([
+   const [equipamentos,orcamentos,materiais,arquivos]=await Promise.all([
      readSub(osid,'equipamentos').catch(()=>[]),
      readSub(osid,'orcamentos').catch(()=>[]),
-     readSub(osid,'solicitacoes_materiais').catch(()=>[])
+     readSub(osid,'solicitacoes_materiais').catch(()=>[]),
+     read('os_arquivos').catch(()=>[])
    ]);
+   const anexos=arquivos.filter(a=>String(a.osId||'')===String(osid)&&!a.is_deleted);
    const agenda=state.agenda.find(a=>String(a.osId||a.internalIdOS||'')===String(osid)||String(a.osNumber||'')===String(o.osNumber||''));
-   const eqHtml=equipamentos.length?equipamentos.map(e=>{
-     const orcs=orcamentos.filter(x=>String(x.equipamentoId||'')===String(e.id||e.internalId)).sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
-     const mats=materiais.filter(x=>String(x.equipamentoId||'')===String(e.id||e.internalId));
-     const orcHtml=orcs.length?`<table class="relatorio-table"><thead><tr><th>Versão</th><th>Status</th><th>Total</th><th>Data</th></tr></thead><tbody>${orcs.map(x=>`<tr><td>V${relTxt(x.versao)}</td><td>${relTxt(relStatus(x.statusOrcamento))}</td><td>${relMoney(x.total)}</td><td>${relTxt(fmtDate(x.createdAtISO))}</td></tr>`).join('')}</tbody></table>`:'<div class="text-slate-400">Nenhum orçamento.</div>';
-     const matHtml=mats.length?`<table class="relatorio-table"><thead><tr><th>Solicitação</th><th>Itens</th><th>Status</th></tr></thead><tbody>${mats.map(x=>`<tr><td>${relTxt(x.solicitacaoNumero||x.id)}</td><td>${(x.itens||[]).map(i=>`${relTxt(i.descricao)} × ${relTxt(i.quantidade)}`).join('<br>')||'-'}</td><td>${relTxt(relStatus(x.statusSolicitacao))}</td></tr>`).join('')}</tbody></table>`:'<div class="text-slate-400">Nenhuma solicitação de material.</div>';
-     return `<div class="relatorio-eq">
-       <div class="flex justify-between gap-3"><div><b>${relTxt(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</b><div class="text-slate-500 mt-1">${e.marca?relTxt(e.marca)+' · ':''}SN: ${relTxt(e.numeroSerie)}${e.identificacaoLocal?' · '+relTxt(e.identificacaoLocal):''}</div></div><b>${relTxt(statusLabel(e.statusEquipamento||'PENDENTE'))}</b></div>
-       <div class="mt-3"><b>Defeito relatado:</b> ${relTxt(e.defeitoRelatado)}</div>
-       <div class="mt-1"><b>Diagnóstico:</b> ${relTxt(e.diagnosticoTecnico)}</div>
-       <div class="mt-1"><b>Causa provável:</b> ${relTxt(e.causaProvavel)}</div>
-       <div class="mt-1"><b>Solução recomendada:</b> ${relTxt(e.solucaoRecomendada)}</div>
-       <div class="mt-1"><b>Serviço executado:</b> ${relTxt(e.checkoutServicoExecutado||e.servicoExecutado)}</div>
-       <div class="mt-1"><b>Teste final:</b> ${relTxt(relStatus(e.checkoutTesteFinal))} · <b>Condição de saída:</b> ${relTxt(relStatus(e.checkoutCondicaoSaida))}</div>
-       <div class="mt-3"><b>Orçamentos</b>${orcHtml}</div>
-       <div class="mt-3"><b>Peças / materiais</b>${matHtml}</div>
-     </div>`;
+   const durSeg=(()=>{let n=Number(o.atendimentoDuracaoSegundos||0);if(String(o.atendimentoStatus||'').toUpperCase()==='EM_ATENDIMENTO'&&o.atendimentoUltimoInicioEmISO){const d=new Date(o.atendimentoUltimoInicioEmISO);if(!isNaN(d))n+=Math.max(0,Math.floor((Date.now()-d.getTime())/1000))}return n})();
+   const durFmt=(sec)=>{sec=Math.max(0,Number(sec||0));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),ss=Math.floor(sec%60);return [h,m,ss].map(x=>String(x).padStart(2,'0')).join(':')};
+   const movResumo=(req)=>{
+     const movs=Array.isArray(req.movimentacoes)?req.movimentacoes:[];
+     let entregue=0,consumido=0,devolvido=0;
+     (req.itens||[]).forEach(base=>{
+       entregue+=Number(base.quantidade||0);
+       consumido+=movs.filter(m=>m.tipo==='CONSUMO').reduce((a,m)=>a+Number((m.itens||[]).find(z=>String(z.descricao)===String(base.descricao))?.quantidadeMovimentada||0),0);
+       devolvido+=movs.filter(m=>m.tipo==='DEVOLUCAO').reduce((a,m)=>a+Number((m.itens||[]).find(z=>String(z.descricao)===String(base.descricao))?.quantidadeMovimentada||0),0);
+     });
+     return {entregue,consumido,devolvido,saldo:Math.max(0,entregue-consumido-devolvido)};
+   };
+   const eqHtml=equipamentos.length?equipamentos.map((e,idx)=>{
+     const eid=String(e.id||e.internalId);
+     const orcs=orcamentos.filter(x=>String(x.equipamentoId||'')===eid).sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
+     const mats=materiais.filter(x=>String(x.equipamentoId||'')===eid);
+     const fotos=anexos.filter(a=>String(a.equipamentoId||'')===eid);
+     const orcHtml=orcs.length?`<table class="relatorio-table"><thead><tr><th>Versão</th><th>Status</th><th>Total</th><th>Data</th></tr></thead><tbody>${orcs.map(x=>`<tr><td>V${relTxt(x.versao)}</td><td>${relTxt(relStatus(x.statusOrcamento))}</td><td>${relMoney(x.total)}</td><td>${relTxt(fmtDate(x.createdAtISO))}</td></tr>`).join('')}</tbody></table>`:'<div class="text-slate-400">Nenhum orçamento registrado.</div>';
+     const matHtml=mats.length?mats.map(x=>{const r=movResumo(x);return `<div class="relatorio-subsection"><div class="flex justify-between gap-2"><b>${relTxt(x.solicitacaoNumero||x.id)}</b><span>${relTxt(relStatus(x.statusSolicitacao))}</span></div><div class="mt-1">${(x.itens||[]).map(i=>`${relTxt(i.descricao)} × ${relTxt(i.quantidade)}`).join(' · ')||'-'}</div>${String(x.statusSolicitacao||'').toUpperCase()==='ENTREGUE'?`<div class="relatorio-material-resumo"><div class="relatorio-material-box"><span>Entregue</span><b>${r.entregue}</b></div><div class="relatorio-material-box"><span>Consumido</span><b>${r.consumido}</b></div><div class="relatorio-material-box"><span>Devolvido</span><b>${r.devolvido}</b></div><div class="relatorio-material-box"><span>Com o técnico</span><b>${r.saldo}</b></div></div>`:''}</div>`}).join(''):'<div class="text-slate-400">Nenhuma solicitação de material.</div>';
+     const imgFotos=fotos.filter(a=>String(a.contentType||'').startsWith('image/')&&a.downloadURL);
+     const fotoHtml=fotos.length?`<div class="relatorio-photo-grid">${fotos.slice(0,9).map(a=>String(a.contentType||'').startsWith('image/')&&a.downloadURL?`<div class="relatorio-photo"><img src="${esc(a.downloadURL)}" alt="${esc(a.nome||'Foto')}"><div class="relatorio-photo-meta"><b>${esc(anexoCategoriaLabel(a.categoria))}</b><br>${esc(a.observacao||a.nome||'')}</div></div>`:`<div class="relatorio-photo"><div class="p-4 text-center text-slate-400"><i class="fa-solid fa-file-lines text-2xl"></i></div><div class="relatorio-photo-meta"><b>${esc(anexoCategoriaLabel(a.categoria))}</b><br>${esc(a.nome||'Documento')}</div></div>`).join('')}</div>${fotos.length>9?`<div class="text-[8px] text-slate-500 mt-1">+ ${fotos.length-9} anexo(s) adicional(is) disponível(is) na OS.</div>`:''}`:'<div class="text-slate-400">Nenhuma foto ou anexo registrado.</div>';
+     return `<article class="relatorio-eq ${fotos.length>3?'allow-break':''}">
+       <div class="flex justify-between gap-3"><div><div class="relatorio-eq-title"><span class="relatorio-eq-index">${idx+1}</span>${relTxt(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div><div class="text-slate-500 mt-1">${e.marca?relTxt(e.marca)+' · ':''}SN: ${relTxt(e.numeroSerie)}${e.identificacaoLocal?' · '+relTxt(e.identificacaoLocal):''}</div></div><b>${relTxt(statusLabel(e.statusEquipamento||'PENDENTE'))}</b></div>
+       <div class="relatorio-subsection"><div class="relatorio-subsection-title">Atendimento técnico</div><div class="relatorio-kv">
+         <b>Defeito relatado</b><span>${relTxt(e.defeitoRelatado)}</span>
+         <b>Diagnóstico</b><span>${relTxt(e.diagnosticoTecnico)}</span>
+         <b>Causa provável</b><span>${relTxt(e.causaProvavel)}</span>
+         <b>Solução recomendada</b><span>${relTxt(e.solucaoRecomendada)}</span>
+         <b>Serviço executado</b><span>${relTxt(e.checkoutServicoExecutado||e.servicoExecutado)}</span>
+         <b>Teste final</b><span>${relTxt(relStatus(e.checkoutTesteFinal))}</span>
+         <b>Condição de saída</b><span>${relTxt(relStatus(e.checkoutCondicaoSaida))}</span>
+         <b>Observações do checkout</b><span>${relTxt(e.checkoutObservacao)}</span>
+         <b>Concluído em</b><span>${relTxt(fmtDate(e.checkoutConcluidoEmISO))}${e.checkoutConcluidoPorNome?' · '+relTxt(e.checkoutConcluidoPorNome):''}</span>
+       </div></div>
+       <div class="relatorio-subsection"><div class="relatorio-subsection-title">Orçamentos</div>${orcHtml}</div>
+       <div class="relatorio-subsection"><div class="relatorio-subsection-title">Peças e materiais</div>${matHtml}</div>
+       <div class="relatorio-subsection"><div class="relatorio-subsection-title">Fotos e anexos (${fotos.length})</div>${fotoHtml}</div>
+     </article>`;
    }).join(''):'<div class="text-slate-400">Nenhum equipamento vinculado.</div>';
 
    box.innerHTML=`<div class="relatorio-head">
-     <div><div class="relatorio-title">GRUPO CIJ · ASSISTÊNCIA TÉCNICA</div><div class="relatorio-sub">Relatório consolidado da Ordem de Serviço</div></div>
-     <div class="text-right"><b>${relTxt(o.osNumber||o.numero)}</b><div class="relatorio-sub">Gerado em ${relTxt(new Date().toLocaleString('pt-BR'))}</div></div>
+     <div class="relatorio-brand"><div class="relatorio-brand-mark">CIJ</div><div><div class="relatorio-title">GRUPO CIJ SOLUÇÕES INDUSTRIAIS</div><div class="relatorio-sub">Assistência Técnica · Relatório de Ordem de Serviço</div></div></div>
+     <div class="text-right"><div class="relatorio-os-number">${relTxt(o.osNumber||o.numero)}</div><span class="relatorio-status-pill">${relTxt(stages.find(s=>s[0]===normStage(o.etapaKanban||o.status))?.[1]||normStage(o.etapaKanban||o.status))}</span><div class="relatorio-sub">Emitido em ${relTxt(new Date().toLocaleString('pt-BR'))}</div></div>
    </div>
    <div class="relatorio-grid">
      <div class="relatorio-box"><div class="relatorio-label">Cliente</div><div class="relatorio-value">${relTxt(o.clienteNome||o.cliente)}</div></div>
-     <div class="relatorio-box"><div class="relatorio-label">Etapa</div><div class="relatorio-value">${relTxt(stages.find(s=>s[0]===normStage(o.etapaKanban||o.status))?.[1]||normStage(o.etapaKanban||o.status))}</div></div>
+     <div class="relatorio-box"><div class="relatorio-label">Técnico responsável</div><div class="relatorio-value">${relTxt(o.tecnicoNome||o.tecnico||o.atendimentoTecnicoNome||'A definir')}</div></div>
      <div class="relatorio-box"><div class="relatorio-label">Prioridade</div><div class="relatorio-value">${relTxt(o.prioridade||'NORMAL')}</div></div>
-     <div class="relatorio-box"><div class="relatorio-label">Técnico</div><div class="relatorio-value">${relTxt(o.tecnicoNome||o.tecnico||'A definir')}</div></div>
      <div class="relatorio-box"><div class="relatorio-label">Origem</div><div class="relatorio-value">${relTxt(o.origem||'MANUAL')}</div></div>
-     <div class="relatorio-box"><div class="relatorio-label">Criada em</div><div class="relatorio-value">${relTxt(fmtDate(o.createdAtISO||o.createdAt))}</div></div>
+     <div class="relatorio-box"><div class="relatorio-label">Abertura</div><div class="relatorio-value">${relTxt(fmtDate(o.createdAtISO||o.createdAt))}</div></div>
      <div class="relatorio-box"><div class="relatorio-label">Agendamento</div><div class="relatorio-value">${agenda?relTxt(fmtDate(agenda.dueDateISO||agenda.dataHoraISO)):'-'}</div></div>
-     <div class="relatorio-box"><div class="relatorio-label">Situação financeira</div><div class="relatorio-value">${o.encerradoAdministrativamente?(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':'Faturado'):'Pendente'}</div></div>
+     <div class="relatorio-box"><div class="relatorio-label">Tempo apontado</div><div class="relatorio-value">${durFmt(durSeg)}</div></div>
+     <div class="relatorio-box"><div class="relatorio-label">Equipamentos</div><div class="relatorio-value">${equipamentos.length}</div></div>
    </div>
-   <div class="relatorio-section"><div class="relatorio-section-title">Descrição inicial</div><div class="relatorio-section-body whitespace-pre-wrap">${relTxt(o.descricaoInicial||o.descricao)}</div></div>
-   <div class="relatorio-section"><div class="relatorio-section-title">Equipamentos e atendimento técnico</div><div class="relatorio-section-body">${eqHtml}</div></div>
-   <div class="relatorio-section"><div class="relatorio-section-title">Confirmação do cliente</div><div class="relatorio-section-body">${o.assinaturaClienteURL?`<div class="grid grid-cols-2 gap-4"><div><b>Responsável:</b> ${relTxt(o.assinaturaClienteNome)}<br><b>Função / setor:</b> ${relTxt(o.assinaturaClienteFuncao)}<br><b>Assinado em:</b> ${relTxt(fmtDate(o.assinaturaClienteEmISO))}<br><b>Observação:</b> ${relTxt(o.assinaturaClienteObservacao)}</div><div class="text-center"><img class="relatorio-assinatura-img" src="${esc(o.assinaturaClienteURL)}" style="display:inline-block;max-width:280px;max-height:110px"><div class="text-[9px] text-slate-500 mt-1">Assinatura registrada eletronicamente na OS</div></div></div>`:'<div class="text-slate-400">Assinatura do cliente ainda não registrada.</div>'}</div></div>
-   <div class="relatorio-section"><div class="relatorio-section-title">Encerramento administrativo</div><div class="relatorio-section-body">
-     <div><b>Situação:</b> ${relTxt(o.encerradoAdministrativamente?(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':'Faturado'):'Pendente')}</div>
-     <div class="mt-1"><b>NF:</b> ${relTxt(o.numeroNF)} · <b>Data:</b> ${relTxt(o.faturadoEmData)} · <b>Valor:</b> ${o.valorFaturado?relTxt(o.valorFaturado):'-'}</div>
-     <div class="mt-1"><b>Observação:</b> ${relTxt(o.observacaoFaturamento)}</div>
-     <div class="mt-1"><b>Encerrado em:</b> ${relTxt(fmtDate(o.encerradoEmISO))} · <b>Por:</b> ${relTxt(o.encerradoPorNome)}</div>
-   </div></div>`;
+   <div class="relatorio-section"><div class="relatorio-section-title">Solicitação / descrição inicial</div><div class="relatorio-section-body whitespace-pre-wrap">${relTxt(o.descricaoInicial||o.descricao)}</div></div>
+   <div class="relatorio-section"><div class="relatorio-section-title">Resumo do atendimento</div><div class="relatorio-section-body"><div class="relatorio-kv"><b>Status do apontamento</b><span>${relTxt(relStatus(o.atendimentoStatus||'NAO_INICIADO'))}</span><b>Tempo total registrado</b><span>${durFmt(durSeg)}</span><b>Iniciado em</b><span>${relTxt(fmtDate(o.atendimentoIniciadoEmISO))}</span><b>Finalizado em</b><span>${relTxt(fmtDate(o.atendimentoFinalizadoEmISO))}</span></div></div></div>
+   <div class="relatorio-section"><div class="relatorio-section-title">Equipamentos e serviços executados</div><div class="relatorio-section-body">${eqHtml}</div></div>
+   <div class="relatorio-section"><div class="relatorio-section-title">Confirmação do cliente</div><div class="relatorio-section-body">${o.assinaturaClienteURL?`<div class="relatorio-signature"><div><div class="relatorio-kv"><b>Responsável</b><span>${relTxt(o.assinaturaClienteNome)}</span><b>Função / setor</b><span>${relTxt(o.assinaturaClienteFuncao)}</span><b>Assinado em</b><span>${relTxt(fmtDate(o.assinaturaClienteEmISO))}</span><b>Observação</b><span>${relTxt(o.assinaturaClienteObservacao)}</span></div></div><div class="text-center"><img src="${esc(o.assinaturaClienteURL)}"><div class="text-[8px] text-slate-500 mt-1">Assinatura eletrônica vinculada à OS</div></div></div>`:'<div class="relatorio-note"><b>Assinatura ainda não registrada.</b> O relatório pode ser visualizado, mas a confirmação do cliente permanece pendente.</div>'}</div></div>
+   <div class="relatorio-section"><div class="relatorio-section-title">Encerramento administrativo</div><div class="relatorio-section-body"><div class="relatorio-kv">
+     <b>Situação</b><span>${relTxt(o.encerradoAdministrativamente?(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':'Faturado'):'Pendente')}</span>
+     <b>Nota fiscal</b><span>${relTxt(o.numeroNF)}</span>
+     <b>Data do faturamento</b><span>${relTxt(o.faturadoEmData)}</span>
+     <b>Valor faturado</b><span>${o.valorFaturado?relTxt(o.valorFaturado):'-'}</span>
+     <b>Observação</b><span>${relTxt(o.observacaoFaturamento)}</span>
+     <b>Encerrado em / por</b><span>${relTxt(fmtDate(o.encerradoEmISO))}${o.encerradoPorNome?' · '+relTxt(o.encerradoPorNome):''}</span>
+   </div></div></div>
+   <div class="relatorio-footer-note">Documento gerado pelo módulo de Assistência Técnica do Grupo CIJ · OS ${relTxt(o.osNumber||o.numero)} · ${relTxt(new Date().toLocaleDateString('pt-BR'))}</div>`;
  }catch(e){
    console.error('[Assistência] relatório OS',e);
    box.innerHTML='<div class="rounded-xl bg-rose-50 border border-rose-200 p-4 text-rose-700">Não foi possível montar o relatório completo.</div>';
