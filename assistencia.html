@@ -280,7 +280,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35C</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35E</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -799,7 +799,7 @@ window.salvarAgendamentoOS=async function(){
 };
 
 window.alterarStatusEquipamento=async function(eid,status){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;if(status==='CONCLUIDO'){window.abrirCheckoutEquipamento(eid);return}const label=statusLabel(status),statusAnterior=eq.statusEquipamento||'PENDENTE';if(!confirm(`Alterar o status de ${eq.modelo||'equipamento'} para "${label}"?`))return;try{const now=new Date().toISOString();await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});eq.statusEquipamento=status;eq.updatedAtISO=now;await addHistory(o,'EQUIPAMENTO_STATUS','Status do equipamento alterado',statusLabel(eq.statusEquipamento)+' → '+label,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',novoStatus:status});await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);window.abrirDetalheOS(o.id||o.internalId);toast(`Status alterado para ${label}.`)}catch(e){console.error('[Assistência] status equipamento',e);alert('Não foi possível alterar o status do equipamento. Verifique as Security Rules.\n\n'+(e?.message||e))}};
-async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const items=await readSub(o.internalId||o.id,'equipamentos');o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div></div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div><div class="eq-tools-block"><div class="eq-block-label"><i class="fa-solid fa-toolbox"></i> Ações do equipamento</div><div class="eq-actions"><button class="diag-btn" onclick="event.stopPropagation();window.abrirDiagnosticoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button><button class="orc-tech-btn" onclick="event.stopPropagation();window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitação orçamento</button><button class="orc-btn" onclick="event.stopPropagation();window.abrirOrcamentoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-file-invoice-dollar"></i> Orçamento comercial</button><button class="peca-btn" onclick="event.stopPropagation();window.abrirPecasEquipamento('${esc(e.id)}')"><i class="fa-solid fa-box-open"></i> Peças</button><button class="anexo-btn" onclick="event.stopPropagation();window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos / Anexos</button><button class="eq-history-btn" onclick="event.stopPropagation();window.abrirHistoricoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico / Garantia</button><button class="diag-btn" onclick="event.stopPropagation();window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout</button>${e.ultimoOrcamentoId?`<button class="orc-btn" onclick="event.stopPropagation();window.abrirAprovacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-circle-check"></i> Aprovação</button>`:''}</div></div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}${e.solucaoRecomendada?`<br><b>Solução:</b> ${esc(e.solucaoRecomendada)}`:''}${e.ultimoOrcamentoVersao?`<div class="orc-summary"><i class="fa-solid fa-file-invoice-dollar"></i> Último orçamento: V${esc(e.ultimoOrcamentoVersao)} · ${esc(e.ultimoOrcamentoTotalFormatado||'')} ${e.ultimoOrcamentoStatus?`· ${esc(e.ultimoOrcamentoStatus)}`:''}</div>`:''}</div>`:''}${e.ultimaSolicitacaoMaterialNumero?`<div class="mt-2 text-[10px] font-bold text-amber-700"><i class="fa-solid fa-box-open mr-1"></i>Material: ${esc(e.ultimaSolicitacaoMaterialNumero)} · ${esc(String(e.ultimaSolicitacaoMaterialStatus||'PENDENTE_SOLICITACAO').replaceAll('_',' '))}</div>`:''}${e.checkoutConcluidoEmISO?`<div class="mt-2 text-[10px] font-bold text-emerald-700"><i class="fa-solid fa-clipboard-check mr-1"></i>Checkout: ${esc(e.checkoutTesteFinal||'CONCLUÍDO')} · ${esc(fmtDate(e.checkoutConcluidoEmISO))}</div>`:''}</div>`}).join('');const macro=deriveMacroStage(items);box.insertAdjacentHTML('beforeend',`<div class="macro-note"><i class="fa-solid fa-circle-info mr-1"></i> Etapa geral calculada: <b>${esc(stages.find(x=>x[0]===macro)?.[1]||macro)}</b>. A OS acompanha o equipamento ativo mais atrasado.</div>`)}catch(e){console.error(e);box.className='mt-4 rounded-xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700';box.textContent='Não foi possível ler a subcoleção de equipamentos. Verifique as Security Rules.'}}
+async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const items=await readSub(o.internalId||o.id,'equipamentos');o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div></div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div><div class="eq-tools-block"><div class="eq-block-label"><i class="fa-solid fa-toolbox"></i> Ações do equipamento</div><div class="eq-actions"><button class="diag-btn" onclick="event.stopPropagation();window.abrirDiagnosticoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button><button class="orc-tech-btn" onclick="event.stopPropagation();window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitação orçamento</button><button class="orc-btn" onclick="event.stopPropagation();window.abrirOrcamentoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-file-invoice-dollar"></i> Orçamento comercial</button><button class="peca-btn" onclick="event.stopPropagation();window.abrirPecasEquipamento('${esc(e.id)}')"><i class="fa-solid fa-box-open"></i> Peças</button><button class="anexo-btn" onclick="event.stopPropagation();window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos / Anexos</button><button class="eq-history-btn" onclick="event.stopPropagation();window.abrirHistoricoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico / Garantia</button><button class="diag-btn" onclick="event.stopPropagation();window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout</button><button class="orc-btn" onclick="event.stopPropagation();window.abrirAprovacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-circle-check"></i> Aprovação / proposta</button></div></div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}${e.solucaoRecomendada?`<br><b>Solução:</b> ${esc(e.solucaoRecomendada)}`:''}${e.ultimoOrcamentoVersao?`<div class="orc-summary"><i class="fa-solid fa-file-invoice-dollar"></i> Último orçamento: V${esc(e.ultimoOrcamentoVersao)} · ${esc(e.ultimoOrcamentoTotalFormatado||'')} ${e.ultimoOrcamentoStatus?`· ${esc(e.ultimoOrcamentoStatus)}`:''}</div>`:''}</div>`:''}${e.ultimaSolicitacaoMaterialNumero?`<div class="mt-2 text-[10px] font-bold text-amber-700"><i class="fa-solid fa-box-open mr-1"></i>Material: ${esc(e.ultimaSolicitacaoMaterialNumero)} · ${esc(String(e.ultimaSolicitacaoMaterialStatus||'PENDENTE_SOLICITACAO').replaceAll('_',' '))}</div>`:''}${e.checkoutConcluidoEmISO?`<div class="mt-2 text-[10px] font-bold text-emerald-700"><i class="fa-solid fa-clipboard-check mr-1"></i>Checkout: ${esc(e.checkoutTesteFinal||'CONCLUÍDO')} · ${esc(fmtDate(e.checkoutConcluidoEmISO))}</div>`:''}</div>`}).join('');const macro=deriveMacroStage(items);box.insertAdjacentHTML('beforeend',`<div class="macro-note"><i class="fa-solid fa-circle-info mr-1"></i> Etapa geral calculada: <b>${esc(stages.find(x=>x[0]===macro)?.[1]||macro)}</b>. A OS acompanha o equipamento ativo mais atrasado.</div>`)}catch(e){console.error(e);box.className='mt-4 rounded-xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700';box.textContent='Não foi possível ler a subcoleção de equipamentos. Verifique as Security Rules.'}}
 
 
 window.adicionarItemPeca=function(item={}){const box=document.getElementById('pecas-itens');if(!box)return;const row=document.createElement('div');row.className='peca-row';row.innerHTML=`<label><span class="field-label">Peça / material *</span><input class="input peca-desc" placeholder="Descrição ou código do material" value="${esc(item.descricao||'')}"></label><label><span class="field-label">Quantidade *</span><input class="input peca-qtd" type="number" min="0.01" step="0.01" value="${Number(item.quantidade||1)}"></label><button class="icon-btn" type="button" onclick="this.closest('.peca-row').remove()" title="Remover"><i class="fa-solid fa-trash"></i></button>`;box.appendChild(row)};
@@ -820,24 +820,38 @@ window.adicionarItemOrcamento=function(item={}){
   body.appendChild(tr);window.recalcularOrcamento();
 };
 window.recalcularOrcamento=function(){
-  const subtotal=0; const dc=window.calcularDescontoOrcamento(subtotal); const total=dc.total;
+  let subtotal=0;
   document.querySelectorAll('#orc-itens tr').forEach(tr=>{
-    const q=Number(tr.querySelector('.orc-qtd')?.value||0),v=Number(tr.querySelector('.orc-valor')?.value||0),s=q*v;
-    tr.querySelector('.orc-subtotal').textContent=moedaBR(s);total+=s;
+    const q=Number(tr.querySelector('.orc-qtd')?.value||0);
+    const v=Number(tr.querySelector('.orc-valor')?.value||0);
+    const st=q*v;
+    const el=tr.querySelector('.orc-subtotal');if(el)el.textContent=moedaBR(st);
+    subtotal+=st;
   });
-  document.getElementById('orc-subtotal').textContent=moedaBR(subtotal);document.getElementById('orc-desconto-exibido').textContent=moedaBR(dc.desconto);document.getElementById('orc-total').textContent=moedaBR(total);return total;
+  const dc=window.calcularDescontoOrcamento(subtotal);
+  const es=document.getElementById('orc-subtotal');if(es)es.textContent=moedaBR(subtotal);
+  const ed=document.getElementById('orc-desconto-exibido');if(ed)ed.textContent=moedaBR(dc.desconto);
+  const et=document.getElementById('orc-total');if(et)et.textContent=moedaBR(dc.total);
+  return {subtotal,desconto:dc.desconto,total:dc.total,tipo:dc.tipo,informado:dc.informado};
 };
 
 window.abrirAprovacaoOrcamento=async function(eid){
  const o=state.selectedOS;if(!o)return;
- const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);
- if(!eq||!eq.ultimoOrcamentoId){toast('Este equipamento ainda não possui orçamento.');return}
+ const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+ if(!eq){toast('Equipamento não encontrado.');return}
  state.selectedEquipment=eq;
  let orcs=[];
  try{orcs=await readSub(o.internalId||o.id,'orcamentos')}catch(e){console.error(e)}
- const atual=orcs.find(x=>String(x.internalId||x.id)===String(eq.ultimoOrcamentoId))
-   ||orcs.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)).sort((a,b)=>Number(b.versao||0)-Number(a.versao||0))[0];
- if(!atual){toast('Orçamento não encontrado.');return}
+ const doEquip=(orcs||[]).filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId))
+   .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
+ const atual=doEquip.find(x=>String(x.internalId||x.id)===String(eq.ultimoOrcamentoId||''))||doEquip[0];
+ if(!atual){toast('Este equipamento ainda não possui orçamento comercial.');return}
+ // Repara o cache do equipamento caso o card tenha sido recarregado sem os campos do último orçamento.
+ if(String(eq.ultimoOrcamentoId||'')!==String(atual.internalId||atual.id)){
+   Object.assign(eq,{ultimoOrcamentoId:atual.internalId||atual.id,ultimoOrcamentoVersao:atual.versao,
+     ultimoOrcamentoTotal:Number(atual.total||0),ultimoOrcamentoTotalFormatado:moedaBR(atual.total),
+     ultimoOrcamentoStatus:atual.statusOrcamento||'RASCUNHO'});
+ }
  state.selectedBudget=atual;
  document.getElementById('aprov-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');
  document.getElementById('aprov-observacao').value=atual.decisaoObservacao||'';
@@ -897,7 +911,23 @@ window.obterValorOrcamentoAprovado=async function(o,eq){
  }catch(e){console.warn('Valor aprovado',e);return 0}
 };
 
-// FASE 1.35C — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
+
+// FASE 1.35E — motivo de devolução da solicitação técnica sempre visível na revisão
+window.blocoMotivoDevolucaoTecnica=function(sol){
+ const status=String(sol?.statusSolicitacao||sol?.status||'').toUpperCase();
+ const motivo=sol?.motivoDevolucao||sol?.motivoCorrecao||sol?.observacaoDevolucao||sol?.motivo_revisao||'';
+ if(!motivo && !status.includes('DEVOL') && !status.includes('CORRE')) return '';
+ return `<div class="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4">
+   <div class="flex items-center gap-2 text-amber-900 font-black text-sm">
+     <i class="fa-solid fa-triangle-exclamation"></i> DEVOLVIDO PARA CORREÇÃO
+   </div>
+   <div class="mt-2 text-[11px] font-black uppercase tracking-wide text-amber-700">Motivo da devolução</div>
+   <div class="mt-1 whitespace-pre-wrap text-sm font-semibold text-slate-800">${esc(motivo||'Motivo não informado.')}</div>
+   ${sol?.devolvidoPor?`<div class="mt-2 text-xs text-slate-500">Por: ${esc(sol.devolvidoPor)}</div>`:''}
+ </div>`;
+};
+
+// FASE 1.35E — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
 window.statusDetalhadoEquipamento=function(eq){
  const st=String(eq?.statusDetalhado||eq?.ultimoOrcamentoStatus||eq?.statusEquipamento||'').toUpperCase();
  const map={
@@ -945,18 +975,48 @@ window.abrirOrcamentoEquipamento=async function(eid){
   if(!eq){toast('Equipamento não encontrado.');return}
   state.selectedEquipment=eq;
   let req=null,anteriores=[];
-  try{const reqs=await readSub(o.internalId||o.id,'solicitacoes_orcamento');req=reqs.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&String(x.statusSolicitacao||'').toUpperCase()==='APROVADO_TECNICAMENTE').sort((a,b)=>String(b.updatedAtISO||'').localeCompare(String(a.updatedAtISO||'')))[0]||null;anteriores=await readSub(o.internalId||o.id,'orcamentos')}catch(e){console.warn('[Assistência] base do orçamento comercial',e)}
-  if(!req){alert('O Comercial só pode montar o orçamento após a revisão técnica.\n\nAbra “Solicitação orçamento”, envie para revisão e aprove tecnicamente.');return}
+  try{
+    const reqs=await readSub(o.internalId||o.id,'solicitacoes_orcamento');
+    req=reqs.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&String(x.statusSolicitacao||'').toUpperCase()==='APROVADO_TECNICAMENTE')
+      .sort((a,b)=>String(b.updatedAtISO||'').localeCompare(String(a.updatedAtISO||'')))[0]||null;
+    anteriores=await readSub(o.internalId||o.id,'orcamentos');
+  }catch(e){console.warn('[Assistência] base do orçamento comercial',e)}
+  if(!req){alert('O Comercial só pode montar ou alterar o orçamento após a revisão técnica aprovada.');return}
   state.selectedTechBudgetRequest=req;
-  const mesmos=anteriores.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId));
-  const versao=Math.max(0,...mesmos.map(x=>Number(x.versao||0)))+1;state.orcamentoVersao=versao;
-  document.getElementById('orc-equipamento-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'')+' · Base técnica aprovada';
-  document.getElementById('orc-versao-info').textContent='Nova versão: V'+versao+' · status inicial: RASCUNHO';
-  document.getElementById('orc-observacoes').value='';document.getElementById('orc-validade').value='15';document.getElementById('orc-prazo').value='';document.getElementById('orc-pagamento').value='';document.getElementById('orc-desconto-tipo').value='PERCENTUAL';document.getElementById('orc-desconto-valor').value='0';document.getElementById('orc-itens').innerHTML='';
-  (req.pecas||[]).forEach(x=>window.adicionarItemOrcamento({descricao:x.descricao,quantidade:x.quantidade,valorUnitario:0}));
-  if(Number(req.horasEstimadas||0)>0)window.adicionarItemOrcamento({descricao:'Mão de obra estimada ('+Number(req.horasEstimadas)+' h)',quantidade:Number(req.horasEstimadas),valorUnitario:0});
-  if(req.necessitaDeslocamento==='SIM')window.adicionarItemOrcamento({descricao:'Deslocamento / visita técnica',quantidade:1,valorUnitario:0});
+
+  const mesmos=anteriores.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId))
+    .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
+  const anterior=mesmos[0]||null;
+  const versao=(anterior?Number(anterior.versao||0):0)+1;
+  state.orcamentoVersao=versao;
+  state.orcamentoBaseAnterior=anterior;
+
+  document.getElementById('orc-equipamento-titulo').textContent=
+    (eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'')+
+    (anterior?' · Alterando a partir da V'+Number(anterior.versao||1):' · Base técnica aprovada');
+  document.getElementById('orc-versao-info').textContent=
+    anterior?'Nova versão V'+versao+' · valores carregados da V'+Number(anterior.versao||1):
+             'Nova versão V'+versao+' · status inicial: RASCUNHO';
+
+  document.getElementById('orc-itens').innerHTML='';
+  document.getElementById('orc-validade').value=anterior?.validadeDias||15;
+  document.getElementById('orc-prazo').value=anterior?.prazoExecucao||'';
+  document.getElementById('orc-pagamento').value=anterior?.condicaoPagamento||'';
+  document.getElementById('orc-observacoes').value=anterior?.observacoes||'';
+  document.getElementById('orc-desconto-tipo').value=anterior?.descontoTipo||'PERCENTUAL';
+  document.getElementById('orc-desconto-valor').value=Number(anterior?.descontoInformado||0);
+
+  if(anterior && Array.isArray(anterior.itens) && anterior.itens.length){
+    anterior.itens.forEach(x=>window.adicionarItemOrcamento({
+      descricao:x.descricao||'',quantidade:Number(x.quantidade||1),valorUnitario:Number(x.valorUnitario||0)
+    }));
+  }else{
+    (req.pecas||[]).forEach(x=>window.adicionarItemOrcamento({descricao:x.descricao,quantidade:x.quantidade,valorUnitario:0}));
+    if(Number(req.horasEstimadas||0)>0)window.adicionarItemOrcamento({descricao:'Mão de obra estimada ('+Number(req.horasEstimadas)+' h)',quantidade:Number(req.horasEstimadas),valorUnitario:0});
+    if(req.necessitaDeslocamento==='SIM')window.adicionarItemOrcamento({descricao:'Deslocamento / visita técnica',quantidade:1,valorUnitario:0});
+  }
   if(!document.querySelector('#orc-itens tr'))window.adicionarItemOrcamento();
+  window.recalcularOrcamento();
   document.getElementById('modal-orcamento-equipamento').classList.remove('hidden');
 };
 window.fecharOrcamentoEquipamento=function(){
@@ -971,14 +1031,30 @@ window.salvarOrcamentoEquipamento=async function(){
     return {item:i+1,descricao,quantidade,valorUnitario,subtotal:quantidade*valorUnitario};
   }).filter(x=>x.descricao&&x.quantidade>0);
   if(!itens.length){alert('Adicione pelo menos um item válido ao orçamento.');return}
-  const total=itens.reduce((s,x)=>s+x.subtotal,0),versao=Number(state.orcamentoVersao||1);
+
+  const calc=window.recalcularOrcamento();
+  const subtotal=calc.subtotal,total=calc.total,versao=Number(state.orcamentoVersao||1);
   const oid=window.crypto?.randomUUID?.()||('orc_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
-  const now=new Date().toISOString();
+  const now=new Date().toISOString(),anterior=state.orcamentoBaseAnterior||null;
   const data={
     internalId:oid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',
     equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
-    equipamentoNumeroSerie:eq.numeroSerie||'',versao,statusOrcamento:'RASCUNHO',solicitacaoOrcamentoId:state.selectedTechBudgetRequest?.internalId||state.selectedTechBudgetRequest?.id||'',baseTecnicaSnapshot:state.selectedTechBudgetRequest?{servicoRecomendado:state.selectedTechBudgetRequest.servicoRecomendado||'',horasEstimadas:Number(state.selectedTechBudgetRequest.horasEstimadas||0),necessitaDeslocamento:state.selectedTechBudgetRequest.necessitaDeslocamento||'NAO',pecas:state.selectedTechBudgetRequest.pecas||[],aprovadoEmISO:state.selectedTechBudgetRequest.revisadoEmISO||''}:null,
-    moeda:'BRL',itens,subtotal,descontoTipo:dc.tipo,descontoInformado:dc.informado,descontoValor:dc.desconto,total,validadeDias:Number(document.getElementById('orc-validade').value||15),prazoExecucao:document.getElementById('orc-prazo').value.trim(),condicaoPagamento:document.getElementById('orc-pagamento').value.trim(),observacoes:document.getElementById('orc-observacoes').value.trim(),
+    equipamentoNumeroSerie:eq.numeroSerie||'',versao,statusOrcamento:'RASCUNHO',
+    versaoAnteriorId:anterior?.internalId||anterior?.id||'',versaoAnterior:Number(anterior?.versao||0),
+    solicitacaoOrcamentoId:state.selectedTechBudgetRequest?.internalId||state.selectedTechBudgetRequest?.id||'',
+    baseTecnicaSnapshot:state.selectedTechBudgetRequest?{
+      servicoRecomendado:state.selectedTechBudgetRequest.servicoRecomendado||'',
+      horasEstimadas:Number(state.selectedTechBudgetRequest.horasEstimadas||0),
+      necessitaDeslocamento:state.selectedTechBudgetRequest.necessitaDeslocamento||'NAO',
+      pecas:state.selectedTechBudgetRequest.pecas||[],
+      aprovadoEmISO:state.selectedTechBudgetRequest.revisadoEmISO||''
+    }:null,
+    moeda:'BRL',itens,subtotal,descontoTipo:calc.tipo,descontoInformado:calc.informado,
+    descontoValor:calc.desconto,total,
+    validadeDias:Number(document.getElementById('orc-validade').value||15),
+    prazoExecucao:document.getElementById('orc-prazo').value.trim(),
+    condicaoPagamento:document.getElementById('orc-pagamento').value.trim(),
+    observacoes:document.getElementById('orc-observacoes').value.trim(),
     createdAtISO:now,updatedAtISO:now,
     criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
   };
@@ -986,21 +1062,30 @@ window.salvarOrcamentoEquipamento=async function(){
   try{
     btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
     await saveSubDoc(o.internalId||o.id,'orcamentos',oid,data);
-    await addHistory(o,'ORCAMENTO','Orçamento V'+versao+' criado',moedaBR(total)+' · RASCUNHO',{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',orcamentoId:oid});
+    await addHistory(o,'ORCAMENTO',
+      anterior?'Orçamento V'+versao+' criado a partir da V'+Number(anterior.versao||1):'Orçamento V'+versao+' criado',
+      moedaBR(total)+' · RASCUNHO',
+      {equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
+       equipamentoNumeroSerie:eq.numeroSerie||'',orcamentoId:oid,versaoAnteriorId:anterior?.internalId||anterior?.id||''});
     await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{
-      statusEquipamento:'AGUARDANDO_ORCAMENTO',ultimoOrcamentoId:oid,ultimoOrcamentoVersao:versao,
-      ultimoOrcamentoTotal:total,ultimoOrcamentoTotalFormatado:moedaBR(total),ultimoOrcamentoStatus:'RASCUNHO',updatedAtISO:now
+      statusEquipamento:'AGUARDANDO_ORCAMENTO',statusDetalhado:'ORCAMENTO_CRIADO',
+      ultimoOrcamentoId:oid,ultimoOrcamentoVersao:versao,ultimoOrcamentoTotal:total,
+      ultimoOrcamentoTotalFormatado:moedaBR(total),ultimoOrcamentoStatus:'RASCUNHO',updatedAtISO:now
     });
-    Object.assign(eq,{statusEquipamento:'AGUARDANDO_ORCAMENTO',ultimoOrcamentoId:oid,ultimoOrcamentoVersao:versao,ultimoOrcamentoTotal:total,ultimoOrcamentoTotalFormatado:moedaBR(total),ultimoOrcamentoStatus:'RASCUNHO',updatedAtISO:now});
+    Object.assign(eq,{
+      statusEquipamento:'AGUARDANDO_ORCAMENTO',statusDetalhado:'ORCAMENTO_CRIADO',
+      ultimoOrcamentoId:oid,ultimoOrcamentoVersao:versao,ultimoOrcamentoTotal:total,
+      ultimoOrcamentoTotalFormatado:moedaBR(total),ultimoOrcamentoStatus:'RASCUNHO',updatedAtISO:now
+    });
     await recalcOSStage(o,o._equipamentos);
     window.fecharOrcamentoEquipamento();
     await renderEquipamentosOS(o);
-    toast('Orçamento V'+versao+' salvo. OS recalculada automaticamente.');
+    toast('Orçamento V'+versao+' salvo. Você pode reabrir para alterar e gerar a próxima versão.');
   }catch(e){
     console.error('[Assistência] orçamento',e);
-    alert('Não foi possível salvar o orçamento. Verifique as Security Rules da subcoleção orcamentos.\n\n'+(e?.message||e));
+    alert('Não foi possível salvar o orçamento.\n\n'+(e?.message||e));
   }finally{
-    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar orçamento';
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar nova versão';
   }
 };
 
@@ -1484,5 +1569,22 @@ window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e
 })();
 
 </script>
-<script type="module" src="core.js?v=20260915-0919"></script>
+<script type="module" src="core.js?v=20260915-0919">
+(function(){
+ const inserirMotivoRevisao=()=>{
+   const sol=window.state?.selectedSolicitacao||window.state?.solicitacaoSelecionada||window.solicitacaoAtual;
+   if(!sol)return;
+   const motivo=sol.motivoDevolucao||sol.motivoCorrecao||sol.observacaoDevolucao||sol.motivo_revisao;
+   if(!motivo)return;
+   const modal=[...document.querySelectorAll('[role="dialog"],.modal,.fixed')].reverse().find(x=>/revis|solicita[cç][aã]o|or[cç]amento t[eé]cnico/i.test(x.innerText||''));
+   if(!modal||modal.querySelector('[data-motivo-devolucao]'))return;
+   const el=document.createElement('div'); el.setAttribute('data-motivo-devolucao','1');
+   el.innerHTML=window.blocoMotivoDevolucaoTecnica(sol);
+   const alvo=modal.querySelector('form')||modal.querySelector('.overflow-y-auto')||modal;
+   alvo.insertBefore(el,alvo.firstChild?.nextSibling||alvo.firstChild);
+ };
+ new MutationObserver(()=>setTimeout(inserirMotivoRevisao,0)).observe(document.body,{childList:true,subtree:true});
+})();
+
+</script>
 </body></html>
