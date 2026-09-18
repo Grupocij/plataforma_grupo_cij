@@ -188,7 +188,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .eq-status-flow .eq-action.current{box-shadow:0 0 0 2px #bfdbfe inset}
 .eq-tools-block{margin-top:.8rem;padding-top:.8rem;border-top:1px dashed #cbd5e1}
 .eq-tools-block .eq-actions{margin-top:0;gap:.45rem}
-#modal-detalhe-os .timeline-panel{position:sticky;top:0;max-height:64vh;overflow:auto}
+#modal-detalhe-os .timeline-panel{position:static;top:auto;max-height:none;overflow:visible}
 .os-general-actions{margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e2e8f0}
 .os-general-actions-label{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.6rem}
 @media(max-width:1050px){.os-detail-layout{grid-template-columns:1fr}#modal-detalhe-os .timeline-panel{position:static;max-height:none}}
@@ -269,8 +269,66 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 
 <style id="fase135c-ui">
 /* Fase 1.35C: faturamento fora da rolagem da timeline e status detalhado mais evidente */
-.timeline-actions,.faturamento-actions,.billing-actions{position:sticky!important;bottom:0!important;z-index:35!important;background:#fff!important;padding:10px 0!important;border-top:1px solid #e2e8f0!important}
+.timeline-actions,.faturamento-actions,.billing-actions{position:static!important;z-index:auto!important;background:#fff!important;padding:10px 0!important;border-top:1px solid #e2e8f0!important}
 @media(max-width:768px){.timeline-actions,.faturamento-actions,.billing-actions{bottom:0!important}.status-detalhado{font-size:11px!important}}
+</style>
+
+
+<style id="fase135f-fixes">
+/* Motivo de devolução — visível para o técnico ao reabrir a solicitação */
+#sorc-devolucao-wrap.sorc-return-visible{
+ display:block!important;
+ border:2px solid #f59e0b;
+ background:#fffbeb;
+ border-radius:16px;
+ padding:14px;
+}
+#sorc-devolucao-wrap.sorc-return-visible .field-label{
+ color:#92400e!important;
+ font-size:11px!important;
+}
+#sorc-devolucao-wrap.sorc-return-visible .field-label::before{
+ content:"⚠ DEVOLVIDO PARA CORREÇÃO · ";
+ font-weight:900;
+}
+#sorc-devolucao-wrap.sorc-return-visible textarea{
+ background:#fff!important;
+ border-color:#fbbf24!important;
+ color:#1e293b!important;
+ font-weight:700;
+}
+
+/* Rastreabilidade não pode sobrepor faturamento nem outras ações */
+#modal-detalhe-os .os-detail-side{
+ position:static!important;
+ align-self:start!important;
+}
+#modal-detalhe-os .timeline-panel{
+ position:static!important;
+ top:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ z-index:auto!important;
+}
+#modal-detalhe-os #detalhe-historico{
+ max-height:42vh;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ padding-right:5px;
+}
+#modal-detalhe-os #detalhe-faturamento-box{
+ position:relative!important;
+ z-index:2!important;
+ background:#fff!important;
+}
+.timeline-actions,.faturamento-actions,.billing-actions{
+ position:static!important;
+ bottom:auto!important;
+ z-index:auto!important;
+}
+@media(max-width:1050px){
+ #modal-detalhe-os #detalhe-historico{max-height:360px}
+}
 </style>
 
 </head>
@@ -280,7 +338,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35E</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.35F</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -912,7 +970,7 @@ window.obterValorOrcamentoAprovado=async function(o,eq){
 };
 
 
-// FASE 1.35E — motivo de devolução da solicitação técnica sempre visível na revisão
+// FASE 1.35F — motivo de devolução da solicitação técnica sempre visível na revisão
 window.blocoMotivoDevolucaoTecnica=function(sol){
  const status=String(sol?.statusSolicitacao||sol?.status||'').toUpperCase();
  const motivo=sol?.motivoDevolucao||sol?.motivoCorrecao||sol?.observacaoDevolucao||sol?.motivo_revisao||'';
@@ -927,7 +985,7 @@ window.blocoMotivoDevolucaoTecnica=function(sol){
  </div>`;
 };
 
-// FASE 1.35E — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
+// FASE 1.35F — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
 window.statusDetalhadoEquipamento=function(eq){
  const st=String(eq?.statusDetalhado||eq?.ultimoOrcamentoStatus||eq?.statusEquipamento||'').toUpperCase();
  const map={
@@ -962,11 +1020,30 @@ window.calcularDescontoOrcamento=function(subtotal){
 // FASE 1.35 — solicitação técnica -> revisão -> comercial
 window.adicionarPecaSolicitacaoOrcamento=function(item={}){const box=document.getElementById('sorc-pecas');if(!box)return;const row=document.createElement('div');row.className='tech-req-row';row.innerHTML=`<label><span class="field-label">Peça / material</span><input class="input sorc-peca-desc" value="${esc(item.descricao||'')}" placeholder="Descrição da peça"></label><label><span class="field-label">Quantidade</span><input class="input sorc-peca-qtd" type="number" min="0.01" step="0.01" value="${Number(item.quantidade||1)}"></label><button class="icon-btn" type="button" onclick="this.closest('.tech-req-row').remove()"><i class="fa-solid fa-trash"></i></button>`;box.appendChild(row)};
 function statusSolicitacaoLabel(st){return ({EM_ELABORACAO_TECNICA:'EM ELABORAÇÃO TÉCNICA',AGUARDANDO_REVISAO:'AGUARDANDO REVISÃO',DEVOLVIDO_CORRECAO:'DEVOLVIDO PARA CORREÇÃO',APROVADO_TECNICAMENTE:'APROVADO TECNICAMENTE'})[String(st||'').toUpperCase()]||String(st||'EM ELABORAÇÃO TÉCNICA').replaceAll('_',' ')}
-function renderControlesSolicitacao(st){st=String(st||'EM_ELABORACAO_TECNICA').toUpperCase();const wait=st==='AGUARDANDO_REVISAO',approved=st==='APROVADO_TECNICAMENTE';document.getElementById('btn-sorc-salvar')?.classList.toggle('hidden',approved);document.getElementById('btn-sorc-enviar')?.classList.toggle('hidden',wait||approved);document.getElementById('btn-sorc-devolver')?.classList.toggle('hidden',!wait);document.getElementById('btn-sorc-aprovar')?.classList.toggle('hidden',!wait);document.getElementById('sorc-devolucao-wrap')?.classList.toggle('hidden',!wait);const badge=document.getElementById('sorc-status');if(badge){badge.textContent=statusSolicitacaoLabel(st);badge.className='rev-status '+(approved?'rev-ok':wait?'rev-wait':st==='DEVOLVIDO_CORRECAO'?'rev-return':'rev-elab')}}
-window.abrirSolicitacaoOrcamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;let req=null;try{const all=await readSub(o.internalId||o.id,'solicitacoes_orcamento');req=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)).sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0]||null}catch(e){console.warn('[Assistência] solicitação orçamento',e)}state.selectedTechBudgetRequest=req;document.getElementById('sorc-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('sorc-servico').value=req?.servicoRecomendado||eq.solucaoRecomendada||'';document.getElementById('sorc-obs').value=req?.observacoesTecnicas||'';document.getElementById('sorc-horas').value=req?.horasEstimadas??'';document.getElementById('sorc-deslocamento').value=req?.necessitaDeslocamento||'NAO';document.getElementById('sorc-prioridade').value=req?.prioridadeTecnica||'NORMAL';document.getElementById('sorc-devolucao').value='';const box=document.getElementById('sorc-pecas');box.innerHTML='';(req?.pecas||[]).forEach(x=>window.adicionarPecaSolicitacaoOrcamento(x));if(!(req?.pecas||[]).length)window.adicionarPecaSolicitacaoOrcamento();renderControlesSolicitacao(req?.statusSolicitacao||'EM_ELABORACAO_TECNICA');document.getElementById('modal-solicitacao-orcamento').classList.remove('hidden')};
+function renderControlesSolicitacao(st){
+ st=String(st||'EM_ELABORACAO_TECNICA').toUpperCase();
+ const wait=st==='AGUARDANDO_REVISAO',approved=st==='APROVADO_TECNICAMENTE',returned=st==='DEVOLVIDO_CORRECAO';
+ document.getElementById('btn-sorc-salvar')?.classList.toggle('hidden',approved);
+ document.getElementById('btn-sorc-enviar')?.classList.toggle('hidden',wait||approved);
+ document.getElementById('btn-sorc-devolver')?.classList.toggle('hidden',!wait);
+ document.getElementById('btn-sorc-aprovar')?.classList.toggle('hidden',!wait);
+ const wrap=document.getElementById('sorc-devolucao-wrap');
+ if(wrap){
+   wrap.classList.toggle('hidden',!(wait||returned));
+   wrap.classList.toggle('sorc-return-visible',returned);
+ }
+ const area=document.getElementById('sorc-devolucao');
+ if(area){
+   area.readOnly=returned;
+   area.placeholder=returned?'Orientação registrada na devolução. Corrija os campos técnicos acima e envie novamente para revisão.':'Informe o que deve ser corrigido pelo técnico...';
+ }
+ const badge=document.getElementById('sorc-status');
+ if(badge){badge.textContent=statusSolicitacaoLabel(st);badge.className='rev-status '+(approved?'rev-ok':wait?'rev-wait':returned?'rev-return':'rev-elab')}
+}
+window.abrirSolicitacaoOrcamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;let req=null;try{const all=await readSub(o.internalId||o.id,'solicitacoes_orcamento');req=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)).sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0]||null}catch(e){console.warn('[Assistência] solicitação orçamento',e)}state.selectedTechBudgetRequest=req;document.getElementById('sorc-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('sorc-servico').value=req?.servicoRecomendado||eq.solucaoRecomendada||'';document.getElementById('sorc-obs').value=req?.observacoesTecnicas||'';document.getElementById('sorc-horas').value=req?.horasEstimadas??'';document.getElementById('sorc-deslocamento').value=req?.necessitaDeslocamento||'NAO';document.getElementById('sorc-prioridade').value=req?.prioridadeTecnica||'NORMAL';document.getElementById('sorc-devolucao').value=req?.motivoDevolucao||'';const box=document.getElementById('sorc-pecas');box.innerHTML='';(req?.pecas||[]).forEach(x=>window.adicionarPecaSolicitacaoOrcamento(x));if(!(req?.pecas||[]).length)window.adicionarPecaSolicitacaoOrcamento();renderControlesSolicitacao(req?.statusSolicitacao||'EM_ELABORACAO_TECNICA');document.getElementById('modal-solicitacao-orcamento').classList.remove('hidden')};
 window.fecharSolicitacaoOrcamento=function(){document.getElementById('modal-solicitacao-orcamento')?.classList.add('hidden');state.selectedTechBudgetRequest=null};
 function coletarSolicitacaoTecnica(){return {servicoRecomendado:document.getElementById('sorc-servico').value.trim(),observacoesTecnicas:document.getElementById('sorc-obs').value.trim(),horasEstimadas:Number(document.getElementById('sorc-horas').value||0),necessitaDeslocamento:document.getElementById('sorc-deslocamento').value,prioridadeTecnica:document.getElementById('sorc-prioridade').value,pecas:[...document.querySelectorAll('#sorc-pecas .tech-req-row')].map(r=>({descricao:r.querySelector('.sorc-peca-desc')?.value.trim()||'',quantidade:Number(r.querySelector('.sorc-peca-qtd')?.value||0)})).filter(x=>x.descricao&&x.quantidade>0)}}
-window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const atual=state.selectedTechBudgetRequest,now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',statusSolicitacao:status,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
+window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const atual=state.selectedTechBudgetRequest,now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',statusSolicitacao:status,motivoDevolucaoAnterior:motivoAnterior,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
 window.revisarSolicitacaoOrcamento=async function(decisao){const o=state.selectedOS,eq=state.selectedEquipment,req=state.selectedTechBudgetRequest;if(!o||!eq||!req)return;const dados=coletarSolicitacaoTecnica(),motivo=document.getElementById('sorc-devolucao').value.trim();if(decisao==='DEVOLVIDO_CORRECAO'&&!motivo){alert('Informe o motivo/orientação da devolução.');return}if(dados.horasEstimadas<=0||!dados.servicoRecomendado){alert('Revise o serviço recomendado e o tempo estimado antes de concluir a revisão.');return}const now=new Date().toISOString(),rid=req.internalId||req.id;try{await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,{...dados,statusSolicitacao:decisao,motivoDevolucao:decisao==='DEVOLVIDO_CORRECAO'?motivo:'',revisadoEmISO:now,revisadoPorUid:window.currentUser?.uid||'',revisadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});Object.assign(req,dados,{statusSolicitacao:decisao,motivoDevolucao:motivo,updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoStatus:decisao,solicitacaoOrcamentoRevisadaEmISO:now,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoStatus:decisao});await addHistory(o,'REVISAO_TECNICA',decisao==='APROVADO_TECNICAMENTE'?'Solicitação aprovada tecnicamente':'Solicitação devolvida para correção',decisao==='APROVADO_TECNICAMENTE'?'Encaminhada ao Comercial':motivo,{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(decisao);toast(decisao==='APROVADO_TECNICAMENTE'?'Aprovado tecnicamente. Disponível para o Comercial montar o orçamento.':'Devolvido para correção.')}catch(e){console.error(e);alert('Não foi possível registrar a revisão.\n\n'+(e?.message||e))}};
 
 window.abrirOrcamentoEquipamento=async function(eid){
