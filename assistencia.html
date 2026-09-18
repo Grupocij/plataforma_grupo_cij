@@ -361,8 +361,8 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.36B</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
-        <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.36C</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
     </section>
@@ -704,6 +704,40 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 <div id="modal-anexos-equipamento" class="modal-backdrop hidden" style="z-index:100004!important"><div class="modal-card !max-w-none" style="width:min(900px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.23</span><h2 class="text-xl font-black mt-2">Fotos e anexos do equipamento</h2><p id="anexo-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharAnexosEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-4 rounded-xl bg-sky-50 border border-sky-200 p-3 text-xs text-sky-900"><b>Arquivos por equipamento:</b> fotos e documentos ficam vinculados somente a este equipamento e à OS. Imagens são armazenadas no Firebase Storage; o Firestore guarda apenas os metadados.</div><div class="mt-5 grid md:grid-cols-2 gap-4"><label><span class="field-label">Categoria *</span><select id="anexo-categoria" class="input"><option value="DEFEITO">Foto do defeito</option><option value="ANTES">Antes do serviço</option><option value="DURANTE">Durante o reparo</option><option value="DEPOIS">Depois do serviço</option><option value="ETIQUETA">Etiqueta / Nº de série</option><option value="DOCUMENTO">Documento</option><option value="OUTRO">Outro</option></select></label><label><span class="field-label">Observação</span><input id="anexo-observacao" class="input" placeholder="Ex.: vazamento na conexão..." maxlength="300"></label></div><div class="upload-zone mt-4"><i class="fa-solid fa-camera text-2xl text-sky-600"></i><div class="font-black text-sm mt-2">Adicionar foto ou arquivo</div><div class="text-[11px] text-slate-500 mt-1">No celular, você poderá escolher a câmera ou a galeria. Máximo de 10 MB por arquivo.</div><input id="anexo-arquivos" type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="window.previsualizarAnexos()"><div class="flex flex-wrap justify-center gap-2 mt-3"><button onclick="document.getElementById('anexo-arquivos').click()" class="btn btn-light" type="button"><i class="fa-solid fa-paperclip"></i> Escolher arquivos</button><button onclick="window.abrirCameraAnexo()" class="btn btn-light" type="button"><i class="fa-solid fa-camera"></i> Usar câmera</button></div><div id="anexo-preview" class="upload-preview justify-center"></div></div><div class="mt-4 flex justify-end"><button id="btn-enviar-anexos" onclick="window.enviarAnexosEquipamento()" class="btn btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos</button></div><div class="mt-6"><div class="flex justify-between items-center"><div class="field-label">ARQUIVOS DESTE EQUIPAMENTO</div><span id="anexo-contagem" class="text-[11px] font-bold text-slate-500">0 arquivo(s)</span></div><div id="anexo-lista" class="anexo-grid mt-2"><div class="text-xs text-slate-400">Nenhum arquivo enviado.</div></div></div></div></div>
 <div id="modal-auditoria-os" class="modal-backdrop hidden" style="z-index:100040!important"><div class="modal-card !max-w-none" style="width:min(920px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.28</span><h2 class="text-xl font-black mt-2">Auditoria completa da OS</h2><p id="audit-os-identificacao" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharAuditoriaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900"><b>Rastreabilidade:</b> os eventos são gravados com data/hora, usuário responsável, tipo da ação e vínculo com equipamento quando aplicável.</div><div class="audit-toolbar mt-4"><button class="audit-chip active" data-audit="TODOS" onclick="window.filtrarAuditoria('TODOS',this)">Todos</button><button class="audit-chip" data-audit="ATENDIMENTO" onclick="window.filtrarAuditoria('ATENDIMENTO',this)">Atendimento</button><button class="audit-chip" data-audit="TECNICO" onclick="window.filtrarAuditoria('TECNICO',this)">Técnico</button><button class="audit-chip" data-audit="COMERCIAL" onclick="window.filtrarAuditoria('COMERCIAL',this)">Comercial</button><button class="audit-chip" data-audit="ADMIN" onclick="window.filtrarAuditoria('ADMIN',this)">Administrativo</button></div><div id="audit-resumo" class="grid grid-cols-3 gap-2 mt-4"></div><div id="audit-lista" class="audit-list mt-3"><div class="timeline-empty">Carregando...</div></div></div></div>
 <div id="assistencia-toast" class="fixed bottom-5 right-5 z-[99999] hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-bold"></div>
+<div id="modal-troca-tecnicos" class="modal-backdrop hidden" style="z-index:100050">
+ <div class="modal-card !max-w-none" style="width:min(650px,96vw)">
+  <div class="flex items-start justify-between gap-4"><div><span class="tag tag-blue">EQUIPE DA OS</span><h2 class="text-xl font-black mt-2">Alterar técnicos responsáveis</h2><p class="text-xs text-slate-500 mt-1">Marque um ou mais técnicos. O primeiro marcado será o responsável principal.</p></div><button class="icon-btn" onclick="window.fecharTrocaTecnicos()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div id="troca-tecnicos-lista" class="tech-choice-list mt-5"></div>
+  <div class="mt-5 flex justify-end gap-2"><button class="btn btn-light" onclick="window.fecharTrocaTecnicos()">Cancelar</button><button id="btn-salvar-troca-tecnicos" class="btn btn-primary" onclick="window.salvarTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Salvar equipe</button></div>
+ </div>
+</div>
+<div id="modal-permissoes-assistencia" class="modal-backdrop hidden" style="z-index:100060">
+ <div class="modal-card" style="width:min(980px,96vw)">
+  <div class="flex items-start justify-between gap-4">
+   <div><div class="text-[10px] font-black uppercase tracking-widest text-violet-600">Segurança operacional</div>
+   <h3 class="text-xl font-black text-slate-900 mt-1">Permissões da Assistência</h3>
+   <p class="text-xs text-slate-500 mt-1">Permissões por usuário, sem depender do nome do cargo.</p></div>
+   <button class="btn btn-light" onclick="window.fecharPermissoesAssistencia()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="grid md:grid-cols-[260px_1fr] gap-4 mt-5">
+   <div>
+    <span class="field-label">Usuário</span>
+    <select id="perm-usuario" class="input" onchange="window.carregarPermissoesUsuario()"></select>
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 mt-3 text-xs text-slate-600">
+     <b>Importante:</b> ocultar um botão melhora a interface, mas operações sensíveis também devem ser protegidas pelas Security Rules do Firebase.
+    </div>
+   </div>
+   <div id="perm-grid" class="perm-grid"></div>
+  </div>
+  <div class="mt-5 flex justify-end gap-2">
+   <button class="btn btn-light" onclick="window.fecharPermissoesAssistencia()">Fechar</button>
+   <button id="btn-salvar-permissoes" class="btn btn-primary" onclick="window.salvarPermissoesUsuario()"><i class="fa-solid fa-shield-halved"></i> Salvar permissões</button>
+  </div>
+ </div>
+</div>
+
+
+
 <script>
 (function(){'use strict';
 const BASE=['artifacts','plataforma-cij','public','data'];
@@ -982,38 +1016,6 @@ function orcamentoDocumentoHTML(o,eq,orc){
  const base=orc.baseTecnicaSnapshot||{};
  const pecas=(base.pecas||[]).map(x=>`${esc(x.descricao)} × ${esc(x.quantidade)}`).join(' · ')||'-';
  return `<!doctype html><html><head><meta charset="utf-8"><title>Orçamento ${esc(o.osNumber||'')} V${esc(orc.versao||1)}</title><style>@page{size:A4;margin:13mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#172033;font-size:11px;margin:0}.head{display:flex;justify-content:space-between;border-bottom:3px solid #1d4ed8;padding-bottom:12px}.brand{font-size:18px;font-weight:900}.muted{color:#64748b}.title{font-size:22px;font-weight:900;margin:20px 0 4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.box{border:1px solid #dbe3ef;border-radius:8px;padding:9px}.label{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc;font-size:9px;text-transform:uppercase}.num{text-align:right}.total{text-align:right;font-size:18px;font-weight:900;margin-top:12px}.section{margin-top:16px;border:1px solid #dbe3ef;border-radius:8px;padding:10px;break-inside:avoid}.section h3{font-size:10px;text-transform:uppercase;margin:0 0 7px;color:#475569}.footer{margin-top:25px;border-top:1px solid #e2e8f0;padding-top:10px;color:#64748b;font-size:9px}.no-print{position:fixed;right:15px;top:15px}@media print{.no-print{display:none}}</style></head><body><button class="no-print" onclick="window.print()">Imprimir / Salvar PDF</button><div class="head"><div><div class="brand">GRUPO CIJ SOLUÇÕES INDUSTRIAIS</div><div class="muted">Proposta Comercial · Assistência Técnica</div></div><div style="text-align:right"><b>OS ${esc(o.osNumber||o.numero||'-')}</b><br>Orçamento V${esc(orc.versao||1)}<br><span class="muted">${new Date(orc.createdAtISO||Date.now()).toLocaleDateString('pt-BR')}</span></div></div><div class="title">Orçamento de manutenção</div><div class="grid"><div class="box"><div class="label">Cliente</div><b>${esc(o.clienteNome||o.cliente||'-')}</b></div><div class="box"><div class="label">Equipamento</div><b>${esc(eq.modelo||'Equipamento')}</b><br>SN: ${esc(eq.numeroSerie||'-')}</div></div><div class="section"><h3>Base técnica revisada</h3><b>Serviço recomendado:</b> ${esc(base.servicoRecomendado||'-')}<br><b>Tempo técnico estimado:</b> ${esc(base.horasEstimadas||0)} h<br><b>Peças indicadas:</b> ${pecas}</div><table><thead><tr><th>Descrição</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Subtotal</th></tr></thead><tbody>${itens}</tbody></table><div class="total" style="font-size:12px">Subtotal: ${moedaBR(orc.subtotal??orc.total)}<br>Desconto: - ${moedaBR(orc.descontoValor||0)}</div><div class="total">Total final: ${moedaBR(orc.total)}</div><div class="section"><h3>Condições comerciais</h3><b>Validade:</b> ${esc(orc.validadeDias||15)} dias<br><b>Prazo de execução:</b> ${esc(orc.prazoExecucao||'-')}<br><b>Condição de pagamento:</b> ${esc(orc.condicaoPagamento||'-')}<br><b>Observações:</b> ${esc(orc.observacoes||'-')}</div><div class="footer">Esta proposta corresponde à versão V${esc(orc.versao||1)} vinculada à OS ${esc(o.osNumber||o.numero||'-')}. Alterações comerciais posteriores devem gerar nova versão.</div>
-<div id="modal-troca-tecnicos" class="modal-backdrop hidden" style="z-index:100050">
- <div class="modal-card !max-w-none" style="width:min(650px,96vw)">
-  <div class="flex items-start justify-between gap-4"><div><span class="tag tag-blue">EQUIPE DA OS</span><h2 class="text-xl font-black mt-2">Alterar técnicos responsáveis</h2><p class="text-xs text-slate-500 mt-1">Marque um ou mais técnicos. O primeiro marcado será o responsável principal.</p></div><button class="icon-btn" onclick="window.fecharTrocaTecnicos()"><i class="fa-solid fa-xmark"></i></button></div>
-  <div id="troca-tecnicos-lista" class="tech-choice-list mt-5"></div>
-  <div class="mt-5 flex justify-end gap-2"><button class="btn btn-light" onclick="window.fecharTrocaTecnicos()">Cancelar</button><button id="btn-salvar-troca-tecnicos" class="btn btn-primary" onclick="window.salvarTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Salvar equipe</button></div>
- </div>
-</div>
-<div id="modal-permissoes-assistencia" class="modal-backdrop hidden" style="z-index:100060">
- <div class="modal-card" style="width:min(980px,96vw)">
-  <div class="flex items-start justify-between gap-4">
-   <div><div class="text-[10px] font-black uppercase tracking-widest text-violet-600">Segurança operacional</div>
-   <h3 class="text-xl font-black text-slate-900 mt-1">Permissões da Assistência</h3>
-   <p class="text-xs text-slate-500 mt-1">Permissões por usuário, sem depender do nome do cargo.</p></div>
-   <button class="btn btn-light" onclick="window.fecharPermissoesAssistencia()"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <div class="grid md:grid-cols-[260px_1fr] gap-4 mt-5">
-   <div>
-    <span class="field-label">Usuário</span>
-    <select id="perm-usuario" class="input" onchange="window.carregarPermissoesUsuario()"></select>
-    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 mt-3 text-xs text-slate-600">
-     <b>Importante:</b> ocultar um botão melhora a interface, mas operações sensíveis também devem ser protegidas pelas Security Rules do Firebase.
-    </div>
-   </div>
-   <div id="perm-grid" class="perm-grid"></div>
-  </div>
-  <div class="mt-5 flex justify-end gap-2">
-   <button class="btn btn-light" onclick="window.fecharPermissoesAssistencia()">Fechar</button>
-   <button id="btn-salvar-permissoes" class="btn btn-primary" onclick="window.salvarPermissoesUsuario()"><i class="fa-solid fa-shield-halved"></i> Salvar permissões</button>
-  </div>
- </div>
-</div>
-
 </body></html>`;
 }
 window.imprimirOrcamentoAtual=function(){const o=state.selectedOS,eq=state.selectedEquipment,orc=state.selectedBudget;if(!o||!eq||!orc){toast('Abra um orçamento antes.');return}const w=window.open('','_blank');if(!w){alert('O navegador bloqueou a nova janela. Libere pop-ups para gerar o PDF.');return}w.document.open();w.document.write(orcamentoDocumentoHTML(o,eq,orc));w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(_){}},450)};
@@ -1032,7 +1034,7 @@ window.obterValorOrcamentoAprovado=async function(o,eq){
 };
 
 
-// FASE 1.36B — motivo de devolução da solicitação técnica sempre visível na revisão
+// FASE 1.36C — motivo de devolução da solicitação técnica sempre visível na revisão
 window.blocoMotivoDevolucaoTecnica=function(sol){
  const status=String(sol?.statusSolicitacao||sol?.status||'').toUpperCase();
  const motivo=sol?.motivoDevolucao||sol?.motivoCorrecao||sol?.observacaoDevolucao||sol?.motivo_revisao||'';
@@ -1047,7 +1049,7 @@ window.blocoMotivoDevolucaoTecnica=function(sol){
  </div>`;
 };
 
-// FASE 1.36B — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
+// FASE 1.36C — fluxo comercial detalhado, desconto, edição por versão e faturamento sugerido
 window.statusDetalhadoEquipamento=function(eq){
  const st=String(eq?.statusDetalhado||eq?.ultimoOrcamentoStatus||eq?.statusEquipamento||'').toUpperCase();
  const map={
@@ -1704,29 +1706,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.()}});window.initModule=function(p){document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');renderUser(p);load().then(()=>{techAppStamp();iniciarAppTecnico()})};
-})();
-
-</script>
-<script type="module" src="core.js?v=20260915-0919">
-(function(){
- const inserirMotivoRevisao=()=>{
-   const sol=window.state?.selectedSolicitacao||window.state?.solicitacaoSelecionada||window.solicitacaoAtual;
-   if(!sol)return;
-   const motivo=sol.motivoDevolucao||sol.motivoCorrecao||sol.observacaoDevolucao||sol.motivo_revisao;
-   if(!motivo)return;
-   const modal=[...document.querySelectorAll('[role="dialog"],.modal,.fixed')].reverse().find(x=>/revis|solicita[cç][aã]o|or[cç]amento t[eé]cnico/i.test(x.innerText||''));
-   if(!modal||modal.querySelector('[data-motivo-devolucao]'))return;
-   const el=document.createElement('div'); el.setAttribute('data-motivo-devolucao','1');
-   el.innerHTML=window.blocoMotivoDevolucaoTecnica(sol);
-   const alvo=modal.querySelector('form')||modal.querySelector('.overflow-y-auto')||modal;
-   alvo.insertBefore(el,alvo.firstChild?.nextSibling||alvo.firstChild);
- };
- new MutationObserver(()=>setTimeout(inserirMotivoRevisao,0)).observe(document.body,{childList:true,subtree:true});
-})();
-
-
-// FASE 1.36B — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.()}});// FASE 1.36C — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
@@ -1766,7 +1746,7 @@ window.carregarMinhasPermissoesAssistencia=async function(){
 };
 window.aplicarPermissoesAssistencia=function(){
  const map=[
-  ['#btn-admin-permissoes','administrar_permissoes']
+  ['#btn-admin-permissoes','administrar_permissoes'],['#btn-admin-permissoes-top','administrar_permissoes']
  ];
  map.forEach(([sel,p])=>document.querySelectorAll(sel).forEach(el=>el.classList.toggle('hidden',!window.temPermissaoAssistencia(p))));
 };
@@ -1841,5 +1821,9 @@ window.salvarPermissoesUsuario=async function(){
  }catch(e){console.error(e);alert('Não foi possível salvar as permissões. Verifique as Security Rules.\n\n'+(e?.message||e))}
 };
 
+window.initModule=function(p){document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');renderUser(p);load().then(()=>{techAppStamp();iniciarAppTecnico()})};
+})();
+
 </script>
+<script type="module" src="core.js?v=20260915-0919"></script>
 </body></html>
