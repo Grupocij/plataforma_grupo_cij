@@ -732,7 +732,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.50</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.51</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1197,7 +1197,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.50</span>
+        <span class="tag tag-green">FASE 1.51</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1477,7 +1477,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.50 — Offline essencial para atendimento externo
+// FASE 1.51 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1548,10 +1548,51 @@ async function assistOfflineQueue(kind,args,extra={}){
   const id='off_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),rec={id,kind,args,createdAt:Date.now(),createdAtISO:new Date().toISOString(),tentativas:0,...extra};
   await assistOfflineStorePut('queue',rec);if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind))await assistOfflineApplyCache(kind,args);window.__assistOfflineLastQueued=true;await assistOfflineUpdateBadge();return {offlineQueued:true,id};
 }
+
+let __assistOfflineForceUntil=0;
+const ASSIST_NETWORK_TIMEOUT_MS=3500;
+
+function assistOfflineForced(){
+  return Date.now()<Number(__assistOfflineForceUntil||0);
+}
+function assistOfflineMarkNetworkFailure(){
+  __assistOfflineForceUntil=Date.now()+60000;
+  techAppSetConnection?.();
+}
+function assistOfflineClearForced(){
+  __assistOfflineForceUntil=0;
+}
+function assistOfflineSemRede(){
+  return navigator.onLine===false||assistOfflineForced();
+}
+function assistOfflineTimeout(promise,ms=ASSIST_NETWORK_TIMEOUT_MS,label='rede'){
+  let timer;
+  const timeout=new Promise((_,reject)=>{
+    timer=setTimeout(()=>{
+      const e=new Error('Tempo limite de conexão excedido.');
+      e.code='ASSIST_NETWORK_TIMEOUT';
+      e.label=label;
+      reject(e);
+    },ms);
+  });
+  return Promise.race([Promise.resolve(promise),timeout]).finally(()=>clearTimeout(timer));
+}
+
 async function assistOfflineWrite(kind,args,onlineFn){
-  if(assistOfflineExternalSelected()&&navigator.onLine===false)return assistOfflineQueue(kind,args);
-  try{const r=await onlineFn();if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind)&&assistOfflineTechRequested())await assistOfflineApplyCache(kind,args);return r}
-  catch(e){if(assistOfflineExternalSelected())return assistOfflineQueue(kind,args,{erroOriginal:String(e?.message||e)});throw e}
+  const podeFila=assistOfflineExternalSelected();
+  if(podeFila&&assistOfflineSemRede())return assistOfflineQueue(kind,args);
+  try{
+    const r=await assistOfflineTimeout(onlineFn(),ASSIST_NETWORK_TIMEOUT_MS,kind);
+    if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind)&&assistOfflineTechRequested())await assistOfflineApplyCache(kind,args);
+    assistOfflineClearForced();
+    return r;
+  }catch(e){
+    if(podeFila){
+      assistOfflineMarkNetworkFailure();
+      return assistOfflineQueue(kind,args,{erroOriginal:String(e?.message||e),fallbackPorTimeout:e?.code==='ASSIST_NETWORK_TIMEOUT'});
+    }
+    throw e;
+  }
 }
 
 const __assistOfflinePreparedMap={};
@@ -1636,6 +1677,7 @@ window.techPrepararOfflineClick=async function(){
 window.techSincronizarOfflineClick=async function(){
   const btn=document.getElementById('tech-sync-offline-btn');
   try{
+    assistOfflineClearForced();techAppSetConnection();
     if(navigator.onLine===false){
       techOfflineFeedback('<i class="fa-solid fa-wifi mr-1"></i>Sem conexão. As informações continuam salvas no aparelho.','warn');
       return;
@@ -1702,14 +1744,58 @@ window.sincronizarPendenciasOffline=async function(){
   if(ok&&assistOfflineTechRequested()){try{await load()}catch(_){}}
 };
 
-async function read(n){const key='collection:'+n;if(navigator.onLine===false&&assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;throw new Error('Sem conexão e sem cache local para '+n+'.')}try{const snap=await window.fsGetDocs(col(n)),a=[];snap.forEach(d=>a.push({id:d.id,...d.data()}));if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);return a}catch(e){if(assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached}throw e}}
+async function read(n){
+ const key='collection:'+n;
+ if(assistOfflineTechRequested()&&assistOfflineSemRede()){
+   const cached=await assistOfflineCacheGet(key);
+   if(cached!==null)return cached;
+   throw new Error('Sem conexão e sem cache local para '+n+'.');
+ }
+ try{
+   const snap=await assistOfflineTimeout(window.fsGetDocs(col(n)),ASSIST_NETWORK_TIMEOUT_MS,'read:'+n),a=[];
+   snap.forEach(d=>a.push({id:d.id,...d.data()}));
+   if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);
+   assistOfflineClearForced();
+   return a;
+ }catch(e){
+   if(assistOfflineTechRequested()){
+     assistOfflineMarkNetworkFailure();
+     const cached=await assistOfflineCacheGet(key);
+     if(cached!==null)return cached;
+   }
+   throw e;
+ }
+}
 async function nextOSNumber(){const y=new Date().getFullYear();const prefix=`OS-${y}-`;let max=0;state.os.forEach(o=>{const n=String(o.osNumber||o.numero||'');if(n.startsWith(prefix)){const v=parseInt(n.slice(prefix.length),10);if(Number.isFinite(v))max=Math.max(max,v)}});return `${prefix}${String(max+1).padStart(5,'0')}`}
 function selectedText(id){const e=document.getElementById(id);return e?.selectedOptions?.[0]?.textContent?.trim()||''}
 async function saveDoc(collectionName,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('saveDoc',[collectionName,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,collectionName,id),data))}
 async function saveSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('saveSubDoc',[osId,sub,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data))}
 async function mergeOSDoc(osId,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('mergeOSDoc',[osId,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId),data,{merge:true}))}
 async function mergeSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('mergeSubDoc',[osId,sub,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data,{merge:true}))}
-async function readSub(osId,sub){const key=`sub:${osId}:${sub}`;if(navigator.onLine===false&&assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[];throw new Error('Sem conexão e sem cache local para '+sub+'.')}try{const snap=await window.fsGetDocs(window.fsCollection(window.AppDB,...BASE,'os_ordens',osId,sub)),a=[];snap.forEach(d=>a.push({id:d.id,...d.data()}));if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);return a}catch(e){if(assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[]}throw e}}
+async function readSub(osId,sub){
+ const key=`sub:${osId}:${sub}`;
+ if(assistOfflineTechRequested()&&assistOfflineSemRede()){
+   const cached=await assistOfflineCacheGet(key);
+   if(cached!==null)return cached;
+   if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[];
+   throw new Error('Sem conexão e sem cache local para '+sub+'.');
+ }
+ try{
+   const snap=await assistOfflineTimeout(window.fsGetDocs(window.fsCollection(window.AppDB,...BASE,'os_ordens',osId,sub)),ASSIST_NETWORK_TIMEOUT_MS,'readSub:'+sub),a=[];
+   snap.forEach(d=>a.push({id:d.id,...d.data()}));
+   if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);
+   assistOfflineClearForced();
+   return a;
+ }catch(e){
+   if(assistOfflineTechRequested()){
+     assistOfflineMarkNetworkFailure();
+     const cached=await assistOfflineCacheGet(key);
+     if(cached!==null)return cached;
+     if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[];
+   }
+   throw e;
+ }
+}
 async function addHistory(o,tipo,titulo,detalhe='',extra={}){try{if(!o)return;const osid=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),now=new Date().toISOString();await saveSubDoc(osid,'historico',id,{internalId:id,tipo,titulo,detalhe,osId:osid,osNumber:o.osNumber||o.numero||'',createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',usuarioEmail:window.currentUser?.email||'',usuarioPerfil:window.userProfile?.perfil||window.userProfile?.role||'',origemEvento:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:2,...extra})}catch(e){console.warn('[Assistência] histórico não gravado',e)}}
 async function renderHistoricoOS(o){const box=document.getElementById('detalhe-historico');if(!box||!o)return;box.innerHTML='<div class="timeline-empty"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando linha do tempo...</div>';let hist=[];try{hist=await readSub(o.internalId||o.id,'historico')}catch(e){console.warn('[Assistência] leitura histórico',e)}const fallback=[{titulo:'OS criada',createdAtISO:o.createdAtISO||o.createdAt,usuarioNome:o.criadoPorNome||o.criadoPorEmail||'',tipo:'CRIACAO'}];if(o.agendadoParaISO)fallback.push({titulo:'Agendamento registrado',createdAtISO:o.updatedAtISO,usuarioNome:o.tecnicoNome||'',detalhe:'Agendado para '+fmtDate(o.agendadoParaISO),tipo:'AGENDAMENTO'});if(o.finalizadoTecnicoEmISO||o.finalizadoEmISO)fallback.push({titulo:'Finalização técnica',createdAtISO:o.finalizadoTecnicoEmISO||o.finalizadoEmISO,usuarioNome:o.finalizadoTecnicoPorNome||o.finalizadoPorNome||'',tipo:'FINALIZACAO'});if(o.encerradoEmISO)fallback.push({titulo:'Encerramento administrativo',createdAtISO:o.encerradoEmISO,usuarioNome:o.encerradoPorNome||'',detalhe:o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+o.numeroNF:'')),tipo:'ENCERRAMENTO'});const seen=new Set(hist.map(x=>String(x.tipo||'')+'|'+String(x.createdAtISO||'')));fallback.forEach(x=>{const k=String(x.tipo||'')+'|'+String(x.createdAtISO||'');if(!seen.has(k))hist.push(x)});hist.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));box.innerHTML=hist.length?hist.map(h=>`<div class="timeline-item flex gap-3"><span class="timeline-dot"></span><div class="min-w-0"><div class="text-xs font-extrabold">${esc(h.titulo||h.tipo||'Evento')}</div><div class="text-[11px] text-slate-500">${esc(fmtDate(h.createdAtISO))}${h.usuarioNome?' · '+esc(h.usuarioNome):''}</div>${h.detalhe?`<div class="timeline-detail">${esc(h.detalhe)}</div>`:''}${h.equipamentoModelo?`<div class="timeline-detail font-semibold"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>${esc(h.equipamentoModelo)}${h.equipamentoNumeroSerie?' · SN: '+esc(h.equipamentoNumeroSerie):''}</div>`:''}</div></div>`).join(''):'<div class="timeline-empty">Nenhum evento registrado.</div>'}
 function normStage(v){v=String(v||'ENTRADA').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,'_');if(v.includes('ENCERR'))return'ENCERRADOS';if(v.includes('FATUR')||v.includes('FINAL'))return'FATURAMENTO';if(v.includes('AGEND')||v.includes('EXEC'))return'AGENDAMENTO';if(v.includes('ORC'))return'ORCAMENTOS';if(v.includes('TRI')||v.includes('DIAGN'))return'TRIAGEM';return'ENTRADA'}
@@ -1798,7 +1884,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.50 — OS interna x externa e recolhimento para laboratório
+// FASE 1.51 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2697,7 +2783,7 @@ window.salvarCheckoutEquipamento=async function(){
           ? 'Visita externa finalizada. OS enviada para definição administrativa.'
           : 'Visita externa concluída com equipamento resolvido.'
       : (esteCheckoutFinalizaOS?'OS finalizada e materiais conciliados automaticamente.':'Checkout salvo e equipamento concluído.');
-    toast(msg);
+    toast(assistOfflineSemRede()?(msg+' Salvo no aparelho; aguardando sincronização.'):msg);
   }catch(e){
     console.error('[Assistência] checkout/finalização',e);
     alert('Não foi possível registrar a conclusão do atendimento.\n\n'+(e?.message||e));
@@ -2765,7 +2851,7 @@ window.salvarDiagnosticoEquipamento=async function(){
     window.fecharDiagnosticoEquipamento();
     await renderEquipamentosOS(o);
     if(document.body.classList.contains('tech-app-mode'))await window.renderAtendimentoTecnico?.();
-    toast('Diagnóstico salvo com sucesso.');
+    toast(assistOfflineSemRede()?'Diagnóstico salvo no aparelho. Aguardando sincronização.':'Diagnóstico salvo com sucesso.');
   }catch(e){
     console.error('[Assistência] diagnóstico equipamento',e);
     alert('Não foi possível salvar o diagnóstico. Verifique as Security Rules da subcoleção equipamentos.\\n\\n'+(e?.message||e));
@@ -2785,7 +2871,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.50 — leitura de QR Code / número de série do equipamento
+// FASE 1.51 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -2939,7 +3025,7 @@ window.aplicarQREquipamento=async function(raw){
 
 window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toast('Abra uma OS primeiro.');return}const qrf=document.getElementById('eq-qr-feedback');if(qrf){qrf.className='hidden rounded-xl border p-3 text-xs';qrf.innerHTML=''}const machines=state.parque.filter(x=>machineBelongsToClient(x,o)).sort((a,b)=>machineLabel(a).localeCompare(machineLabel(b),'pt-BR'));const sel=document.getElementById('eq-parque-select'),parqueBox=document.getElementById('eq-parque-box'),tempBox=document.getElementById('eq-temp-box'),parqueBtn=document.getElementById('tab-eq-parque'),tempBtn=document.getElementById('tab-eq-temp'),regra=document.getElementById('eq-modal-regra');parqueBtn.classList.remove('active');tempBtn.classList.remove('active');if(machines.length){state.equipmentType='PARQUE';parqueBox.classList.remove('hidden');tempBox.classList.add('hidden');parqueBtn.classList.add('active');tempBtn.classList.add('hidden');sel.innerHTML='<option value="">Selecione um equipamento</option>'+machines.map(x=>`<option value="${esc(x.id)}">${esc(machineLabel(x))}</option>`).join('');if(regra)regra.textContent=`${machines.length} equipamento(s) encontrado(s) no Parque de Máquinas deste cliente. Selecione um deles para vincular à OS.`}else{state.equipmentType='TEMPORARIO';parqueBox.classList.add('hidden');tempBox.classList.remove('hidden');parqueBtn.classList.add('hidden');tempBtn.classList.remove('hidden');tempBtn.classList.add('active');sel.innerHTML='<option value="">Nenhum equipamento vinculado ao cliente</option>';['eq-temp-marca','eq-temp-modelo','eq-temp-sn','eq-temp-tag','eq-temp-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});if(regra)regra.textContent='Nenhum equipamento foi encontrado no Parque de Máquinas deste cliente. O cadastro temporário foi liberado para este atendimento.'}if(document.body.classList.contains('tech-app-mode')&&typeof techAbrirModalAcima==='function'){techAbrirModalAcima('modal-equipamento')}else{document.getElementById('modal-equipamento').classList.remove('hidden')}};
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
-window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast('Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
+window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 window.abrirFaturamentoOS=async function(){
  if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
  const o=state.selectedOS;if(!o)return;
@@ -3069,24 +3155,47 @@ window.salvarAssinaturaCliente=async function(){
  if(!nome){alert('Informe o nome do responsável que está assinando.');return}
  if(!assinaturaTemTraco){alert('Peça ao responsável para assinar no campo de assinatura.');return}
  const btn=document.getElementById('btn-salvar-assinatura');
+ let blob=null;
  try{
   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-  const c=document.getElementById('assinatura-canvas'),blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível gerar a imagem da assinatura.')),'image/png'));
+  const c=document.getElementById('assinatura-canvas');
+  blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível gerar a imagem da assinatura.')),'image/png'));
   const osId=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('ass_'+Date.now()),now=new Date().toISOString();
-  if(assistOfflineExternalSelected()&&navigator.onLine===false){
-    const meta={id,osId,osNumber:o.osNumber||o.numero||'',nome,funcao,obs,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
+  const meta={id,osId,osNumber:o.osNumber||o.numero||'',nome,funcao,obs,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
+
+  const salvarLocal=async()=>{
     await assistOfflineQueue('signature',[],{blob,meta});
     const local={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteEmISO:now,assinaturaOfflinePendente:true,updatedAtISO:now};
     Object.assign(o,local);await assistOfflineApplyCache('mergeOSDoc',[osId,local]);
-    window.fecharAssinaturaCliente();window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura salva no aparelho. Será sincronizada quando houver conexão.');return;
+    window.fecharAssinaturaCliente();window.atualizarEstadoAssinaturaCheckout?.();
+    toast('Assinatura salva no aparelho. Será sincronizada quando houver conexão.');
+  };
+
+  if(assistOfflineExternalSelected()&&assistOfflineSemRede()){await salvarLocal();return}
+
+  try{
+    const api=await assistOfflineTimeout(storageApi(),ASSIST_NETWORK_TIMEOUT_MS,'storage-api');
+    const path=`assistencia_os/${osId}/assinaturas/${id}.png`,ref=api.ref(api.storage,path);
+    await assistOfflineTimeout(api.uploadBytes(ref,blob,{contentType:'image/png'}),5000,'assinatura-upload');
+    const url=await assistOfflineTimeout(api.getDownloadURL(ref),ASSIST_NETWORK_TIMEOUT_MS,'assinatura-url');
+    const payload={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:now,assinaturaRegistradaPorUid:window.currentUser?.uid||'',assinaturaRegistradaPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',assinaturaOfflinePendente:false,updatedAtISO:now};
+    await saveDoc('os_assinaturas',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',responsavelNome:nome,responsavelFuncao:funcao,observacao:obs,downloadURL:url,storagePath:path,createdAtISO:now,registradoPorUid:payload.assinaturaRegistradaPorUid,registradoPorNome:payload.assinaturaRegistradaPorNome,is_deleted:false});
+    await mergeOSDoc(osId,payload);Object.assign(o,payload);await addHistory(o,'ASSINATURA','Assinatura do cliente registrada',nome+(funcao?' · '+funcao:''),{assinaturaId:id});
+    window.fecharAssinaturaCliente();renderHistoricoOS(o);window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura do cliente salva com sucesso.');
+  }catch(e){
+    if(assistOfflineExternalSelected()){
+      assistOfflineMarkNetworkFailure();
+      await salvarLocal();
+      return;
+    }
+    throw e;
   }
-  const api=await storageApi(),path=`assistencia_os/${osId}/assinaturas/${id}.png`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,blob,{contentType:'image/png'});const url=await api.getDownloadURL(ref);
-  const payload={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:now,assinaturaRegistradaPorUid:window.currentUser?.uid||'',assinaturaRegistradaPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',assinaturaOfflinePendente:false,updatedAtISO:now};
-  await saveDoc('os_assinaturas',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',responsavelNome:nome,responsavelFuncao:funcao,observacao:obs,downloadURL:url,storagePath:path,createdAtISO:now,registradoPorUid:payload.assinaturaRegistradaPorUid,registradoPorNome:payload.assinaturaRegistradaPorNome,is_deleted:false});
-  await mergeOSDoc(osId,payload);Object.assign(o,payload);await addHistory(o,'ASSINATURA','Assinatura do cliente registrada',nome+(funcao?' · '+funcao:''),{assinaturaId:id});
-  window.fecharAssinaturaCliente();renderHistoricoOS(o);window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura do cliente salva com sucesso.');
- }catch(e){console.error('[Assistência] assinatura cliente',e);alert('Não foi possível salvar a assinatura.\n\n'+(e?.message||e))}
- finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar assinatura'}
+ }catch(e){
+   console.error('[Assistência] assinatura cliente',e);
+   alert('Não foi possível salvar a assinatura.\n\n'+(e?.message||e));
+ }finally{
+   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar assinatura';
+ }
 };
 
 async function storageApi(){if(window.__assistStorageApi)return window.__assistStorageApi;const appMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js');const stMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js');const app=appMod.getApps()[0];if(!app)throw new Error('Firebase ainda não foi inicializado pelo core.js.');const storage=stMod.getStorage(app);return window.__assistStorageApi={storage,...stMod}}
@@ -3113,24 +3222,57 @@ window.enviarAnexosEquipamento=async function(){
  if(!files.length){alert('Escolha pelo menos uma foto ou arquivo.');return}
  if(files.some(f=>f.size>10*1024*1024)){alert('Cada arquivo pode ter no máximo 10 MB.');return}
  const btn=document.getElementById('btn-enviar-anexos'),osId=o.internalId||o.id,eqId=eq.internalId||eq.id,cat=document.getElementById('anexo-categoria').value,obs=document.getElementById('anexo-observacao').value.trim();
+ const criarMeta=(f)=>{
+   const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase(),path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`,now=new Date().toISOString();
+   return {id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
+ };
+ const salvarLocal=async(f,meta)=>assistOfflineQueue('attachment',[],{blob:f,meta});
  try{
   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-  if(assistOfflineExternalSelected()&&navigator.onLine===false){
-    for(const f of files){
-      const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase(),path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`,now=new Date().toISOString();
-      const meta={id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
-      await assistOfflineQueue('attachment',[],{blob:f,meta});
+
+  if(assistOfflineExternalSelected()&&assistOfflineSemRede()){
+    for(const f of files)await salvarLocal(f,criarMeta(f));
+    document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';
+    await window.carregarAnexosEquipamento();toast(files.length+' arquivo(s) salvo(s) no aparelho.');return;
+  }
+
+  let api=null;
+  try{api=await assistOfflineTimeout(storageApi(),ASSIST_NETWORK_TIMEOUT_MS,'storage-api')}catch(e){
+    if(assistOfflineExternalSelected()){
+      assistOfflineMarkNetworkFailure();
+      for(const f of files)await salvarLocal(f,criarMeta(f));
+      document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';
+      await window.carregarAnexosEquipamento();toast(files.length+' arquivo(s) salvo(s) no aparelho.');return;
     }
-    document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();toast(files.length+' arquivo(s) salvo(s) no aparelho.');return;
+    throw e;
   }
-  const api=await storageApi();
+
   for(const f of files){
-    const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase(),path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,f,{contentType:f.type||'application/octet-stream'});const url=await api.getDownloadURL(ref);
-    await saveDoc('os_arquivos',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,downloadURL:url,enviadoPorUid:window.currentUser?.uid||'',enviadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',enviadoPorEmail:window.currentUser?.email||'',createdAtISO:new Date().toISOString(),is_deleted:false});await addHistory(o,'ANEXO','Arquivo anexado',`${f.name} · ${anexoCategoriaLabel(cat)}`,{equipamentoId:eqId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',arquivoId:id});
+    const meta=criarMeta(f);
+    try{
+      const ref=api.ref(api.storage,meta.storagePath);
+      await assistOfflineTimeout(api.uploadBytes(ref,f,{contentType:f.type||'application/octet-stream'}),5000,'anexo-upload');
+      const url=await assistOfflineTimeout(api.getDownloadURL(ref),ASSIST_NETWORK_TIMEOUT_MS,'anexo-url');
+      await saveDoc('os_arquivos',meta.id,{internalId:meta.id,osId,osNumber:meta.osNumber,equipamentoId:eqId,equipamentoModelo:meta.equipamentoModelo,equipamentoNumeroSerie:meta.equipamentoNumeroSerie,nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:meta.storagePath,downloadURL:url,enviadoPorUid:meta.usuarioUid,enviadoPorNome:meta.usuarioNome,enviadoPorEmail:meta.usuarioEmail,createdAtISO:meta.createdAtISO,is_deleted:false});
+      await addHistory(o,'ANEXO','Arquivo anexado',`${f.name} · ${anexoCategoriaLabel(cat)}`,{equipamentoId:eqId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',arquivoId:meta.id});
+    }catch(e){
+      if(assistOfflineExternalSelected()){
+        assistOfflineMarkNetworkFailure();
+        await salvarLocal(f,meta);
+      }else throw e;
+    }
   }
-  document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast(files.length===1?'Arquivo enviado com sucesso.':files.length+' arquivos enviados com sucesso.');
- }catch(e){console.error('[Assistência] upload anexo',e);alert('Não foi possível salvar o arquivo.\n\n'+(e?.message||e))}
- finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos'}
+
+  document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';
+  await window.carregarAnexosEquipamento();renderHistoricoOS(o);
+  const pend=(await assistOfflinePending()).filter(x=>x.kind==='attachment'&&String(x.meta?.osId)===String(osId)&&String(x.meta?.equipamentoId)===String(eqId)).length;
+  toast(pend?'Arquivo(s) salvo(s); '+pend+' aguardando sincronização.':(files.length===1?'Arquivo enviado com sucesso.':files.length+' arquivos enviados com sucesso.'));
+ }catch(e){
+   console.error('[Assistência] upload anexo',e);
+   alert('Não foi possível salvar o arquivo.\n\n'+(e?.message||e));
+ }finally{
+   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos';
+ }
 };
 window.excluirAnexoEquipamento=async function(id){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq||!confirm('Excluir este anexo? Esta ação removerá o arquivo do Storage.'))return;try{const all=await read('os_arquivos'),a=all.find(x=>x.id===id);if(!a)throw new Error('Anexo não encontrado.');const api=await storageApi();if(a.storagePath)await api.deleteObject(api.ref(api.storage,a.storagePath));if(!window.fsDeleteDoc||!window.fsDoc)throw new Error('core.js não expôs fsDeleteDoc/fsDoc.');await window.fsDeleteDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id));await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{equipamentoId:eq.internalId||eq.id,equipamentoModelo:eq.modelo||'',arquivoId:id});await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast('Anexo excluído.')}catch(e){console.error('[Assistência] excluir anexo',e);alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e))}};
 window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Tipo',tipoAtendimentoLabel(o)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rslot=document.getElementById('slot-reabrir-os');if(rslot)rslot.innerHTML=(stg==='ENCERRADOS'&&window.temPermissaoAssistencia?.('reabrir_os'))?'<button class="btn btn-light reabrir-only" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button>':'';fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>';if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
@@ -3182,7 +3324,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.50 — materiais do técnico no celular
+// FASE 1.51 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -3527,9 +3669,15 @@ window.abrirCheckoutEquipamento=function(eid,resultadoPredefinido){
 // FASE 1.25 — App do Técnico
 let techInstallPrompt=null;
 function techAppStandalone(){return window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true}
-function techAppSetConnection(){const on=navigator.onLine!==false;const dot=document.getElementById('tech-app-dot'),txt=document.getElementById('tech-app-conexao');if(dot)dot.classList.toggle('offline',!on);if(txt)txt.textContent=on?'Online':'Sem conexão';assistOfflineUpdateBadge?.();}
+function techAppSetConnection(){
+ const on=navigator.onLine!==false&&!assistOfflineForced();
+ const dot=document.getElementById('tech-app-dot'),txt=document.getElementById('tech-app-conexao');
+ if(dot)dot.classList.toggle('offline',!on);
+ if(txt)txt.textContent=on?'Online':(navigator.onLine===false?'Sem conexão':'Modo offline');
+ assistOfflineUpdateBadge?.();
+}
 function techAppStamp(){const el=document.getElementById('tech-app-sync');if(el)el.textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-window.addEventListener('online',()=>{techAppSetConnection();window.sincronizarPendenciasOffline?.();window.techAppAtualizar?.()});window.addEventListener('offline',()=>{techAppSetConnection();assistOfflineUpdateBadge?.()});
+window.addEventListener('online',()=>{assistOfflineClearForced();techAppSetConnection();window.sincronizarPendenciasOffline?.();window.techAppAtualizar?.()});window.addEventListener('offline',()=>{techAppSetConnection();assistOfflineUpdateBadge?.()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();techInstallPrompt=e;const b=document.getElementById('tech-install-btn');if(b&&!techAppStandalone())b.classList.remove('hidden')});
 window.addEventListener('appinstalled',()=>{techInstallPrompt=null;document.getElementById('tech-install-btn')?.classList.add('hidden');toast('App do Técnico instalado.')});
 window.instalarAppTecnico=async function(){if(techInstallPrompt){techInstallPrompt.prompt();await techInstallPrompt.userChoice;techInstallPrompt=null;document.getElementById('tech-install-btn')?.classList.add('hidden');return}alert('Para instalar no celular, abra esta página no Chrome/Edge e use “Adicionar à tela inicial” ou “Instalar app” no menu do navegador.')};
@@ -3933,7 +4081,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.50 — exclusão lógica de equipamento e OS
+// FASE 1.51 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -4056,7 +4204,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.50 — reabertura controlada por ciclos
+// FASE 1.51 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4176,7 +4324,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.50 — duplicação controlada de OS
+// FASE 1.51 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4321,7 +4469,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.50 — conciliação de materiais no fechamento da OS
+// FASE 1.51 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
