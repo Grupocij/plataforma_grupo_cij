@@ -417,6 +417,19 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .dup-option small{font-size:10px;color:#64748b}
 </style>
 
+
+<style id="fase141-material-ui">
+.material-link-table{width:100%;border-collapse:collapse;min-width:900px}
+.material-link-table th{font-size:.56rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;text-align:left;padding:.55rem;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.material-link-table td{font-size:.66rem;padding:.55rem;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.material-link-table .input{min-width:0}
+.mat-link-status{display:inline-flex;align-items:center;border-radius:999px;padding:.22rem .45rem;font-size:.54rem;font-weight:900;margin:.08rem}
+.mat-link-status.none{background:#f1f5f9;color:#64748b}.mat-link-status.pending{background:#fff7ed;color:#c2410c}.mat-link-status.withtech{background:#eff6ff;color:#1d4ed8}
+.mat-link-status.used{background:#ecfdf5;color:#047857}.mat-link-status.rejected{background:#fff1f2;color:#be123c}.mat-link-status.returning{background:#f5f3ff;color:#6d28d9}.mat-link-status.returned{background:#f1f5f9;color:#475569}
+.mat-req-official{padding:.7rem 0;border-bottom:1px solid #e2e8f0}.mat-req-official:last-child{border-bottom:0}
+#btn-gerar-requisicoes:disabled{opacity:.45;cursor:not-allowed}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -424,7 +437,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.40</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.41</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -837,15 +850,68 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   </div>
 </div>
 
-<div id="modal-pecas-equipamento" class="modal-backdrop hidden">
-  <div class="modal-card !max-w-none" style="width:min(820px,100%)">
-    <div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.33</span><h2 class="text-xl font-black mt-2">Peças / Materiais do equipamento</h2><p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharPecasEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div>
-    <div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900"><b>Fase 1.33:</b> solicitação, separação, entrega, <b>consumo real</b> e <b>devolução</b> por item, com saldo em poder do técnico e histórico de cada movimentação. O sistema impede que consumo + devolução ultrapassem a quantidade entregue. A baixa no estoque corporativo continuará isolada até revisarmos o módulo oficial de Estoque.</div>
-    <div id="pecas-itens" class="mt-5 space-y-2"></div>
-    <button onclick="window.adicionarItemPeca()" class="btn btn-light mt-2"><i class="fa-solid fa-plus"></i> Adicionar peça/material</button>
-    <label class="block mt-4"><span class="field-label">Observação da solicitação</span><textarea id="pecas-observacao" class="input min-h-20" placeholder="Detalhes para separação, aplicação da peça, urgência..."></textarea></label>
-    <div class="mt-5"><div class="field-label">Solicitações deste equipamento</div><div id="pecas-historico" class="peca-history rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">Carregando...</div></div>
-    <div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharPecasEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-solicitar-pecas" onclick="window.salvarSolicitacaoPecas()" class="btn btn-primary"><i class="fa-solid fa-box-open"></i> Solicitar material</button></div>
+
+<div id="modal-pecas-equipamento" class="modal-backdrop hidden" style="z-index:100033!important">
+  <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-green">FASE 1.41</span>
+        <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
+        <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
+      </div>
+      <button onclick="window.fecharPecasEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="pecas-integracao-aviso" class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
+      As peças vêm da <b>solicitação técnica congelada no orçamento aprovado</b> e as requisições são gravadas diretamente no módulo oficial
+      <b>Requisição de Material</b>. Não é criado um segundo fluxo de estoque.
+    </div>
+
+    <datalist id="materiais-catalogo-assistencia"></datalist>
+
+    <div id="pecas-orcamento-resumo" class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+      Carregando orçamento aprovado...
+    </div>
+
+    <div class="mt-5 overflow-x-auto">
+      <table class="material-link-table">
+        <thead>
+          <tr>
+            <th>Peça aprovada</th>
+            <th class="w-24">Orçada</th>
+            <th>Material oficial / descrição</th>
+            <th class="w-44">Destino</th>
+            <th class="w-28">Qtd.</th>
+            <th class="w-40">Situação</th>
+          </tr>
+        </thead>
+        <tbody id="pecas-planejamento-body"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="btn-gerar-requisicoes" onclick="window.gerarRequisicoesMateriais()" class="btn btn-primary">
+        <i class="fa-solid fa-paper-plane"></i> Gerar requisição
+      </button>
+      <button onclick="window.atualizarCentralMateriais()" class="btn btn-light">
+        <i class="fa-solid fa-rotate"></i> Atualizar situação
+      </button>
+    </div>
+
+    <div class="mt-6 grid lg:grid-cols-2 gap-4">
+      <section class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="field-label">Requisições oficiais deste equipamento</div>
+        <div id="pecas-requisicoes-oficiais" class="mt-2 text-xs text-slate-600">Carregando...</div>
+      </section>
+      <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div class="field-label">Registros anteriores da Assistência</div>
+        <div id="pecas-historico-legado" class="mt-2 text-xs text-slate-500">Carregando...</div>
+      </section>
+    </div>
+
+    <div class="mt-5 flex justify-end">
+      <button onclick="window.fecharPecasEquipamento()" class="btn btn-light">Fechar</button>
+    </div>
   </div>
 </div>
 
@@ -1160,11 +1226,285 @@ ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button
 </div></div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}${e.solucaoRecomendada?`<br><b>Solução:</b> ${esc(e.solucaoRecomendada)}`:''}${e.ultimoOrcamentoVersao?`<div class="orc-summary"><i class="fa-solid fa-file-invoice-dollar"></i> Último orçamento: V${esc(e.ultimoOrcamentoVersao)} · ${esc(e.ultimoOrcamentoTotalFormatado||'')} ${e.ultimoOrcamentoStatus?`· ${esc(e.ultimoOrcamentoStatus)}`:''}</div>`:''}</div>`:''}${e.ultimaSolicitacaoMaterialNumero?`<div class="mt-2 text-[10px] font-bold text-amber-700"><i class="fa-solid fa-box-open mr-1"></i>Material: ${esc(e.ultimaSolicitacaoMaterialNumero)} · ${esc(String(e.ultimaSolicitacaoMaterialStatus||'PENDENTE_SOLICITACAO').replaceAll('_',' '))}</div>`:''}${e.checkoutConcluidoEmISO?`<div class="mt-2 text-[10px] font-bold text-emerald-700"><i class="fa-solid fa-clipboard-check mr-1"></i>Checkout: ${esc(e.checkoutTesteFinal||'CONCLUÍDO')} · ${esc(fmtDate(e.checkoutConcluidoEmISO))}</div>`:''}</div>`}).join('');const macro=deriveMacroStage(items);box.insertAdjacentHTML('beforeend',`<div class="macro-note"><i class="fa-solid fa-circle-info mr-1"></i> Etapa geral calculada: <b>${esc(stages.find(x=>x[0]===macro)?.[1]||macro)}</b>. A OS acompanha o equipamento ativo mais atrasado.</div>`)}catch(e){console.error(e);box.className='mt-4 rounded-xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700';box.textContent='Não foi possível ler a subcoleção de equipamentos. Verifique as Security Rules.'}}
 
 
-window.adicionarItemPeca=function(item={}){const box=document.getElementById('pecas-itens');if(!box)return;const row=document.createElement('div');row.className='peca-row';row.innerHTML=`<label><span class="field-label">Peça / material *</span><input class="input peca-desc" placeholder="Descrição ou código do material" value="${esc(item.descricao||'')}"></label><label><span class="field-label">Quantidade *</span><input class="input peca-qtd" type="number" min="0.01" step="0.01" value="${Number(item.quantidade||1)}"></label><button class="icon-btn" type="button" onclick="this.closest('.peca-row').remove()" title="Remover"><i class="fa-solid fa-trash"></i></button>`;box.appendChild(row)};
-window.abrirPecasEquipamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;document.getElementById('pecas-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('pecas-observacao').value='';document.getElementById('pecas-itens').innerHTML='';window.adicionarItemPeca();document.getElementById('modal-pecas-equipamento').classList.remove('hidden');const hist=document.getElementById('pecas-historico');hist.textContent='Carregando...';try{const all=await readSub(o.internalId||o.id,'solicitacoes_materiais');const rows=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)).sort((a,b)=>String(b.createdAtISO||'').localeCompare(String(a.createdAtISO||'')));hist.innerHTML=rows.length?rows.map(x=>{const st=String(x.statusSolicitacao||'PENDENTE_SOLICITACAO').toUpperCase();const cls=st==='EM_SEPARACAO'?'mat-separacao':st==='SEPARADO'?'mat-separado':st==='ENTREGUE'?'mat-entregue':st==='CANCELADO'?'mat-cancelado':'mat-pendente';const label=st==='PENDENTE_SOLICITACAO'?'Pendente':st==='EM_SEPARACAO'?'Em separação':st==='SEPARADO'?'Separado':st==='ENTREGUE'?'Entregue':st==='CANCELADO'?'Cancelado':st.replaceAll('_',' ');const movs=Array.isArray(x.movimentacoes)?x.movimentacoes:[];const resumo=(x.itens||[]).map(base=>{const c=movs.filter(m=>m.tipo==='CONSUMO').reduce((a,m)=>a+Number((m.itens||[]).find(z=>String(z.descricao)===String(base.descricao))?.quantidadeMovimentada||0),0);const d=movs.filter(m=>m.tipo==='DEVOLUCAO').reduce((a,m)=>a+Number((m.itens||[]).find(z=>String(z.descricao)===String(base.descricao))?.quantidadeMovimentada||0),0);return {descricao:base.descricao,q:Number(base.quantidade||0),c,d,s:Math.max(0,Number(base.quantidade||0)-c-d)}});const entregue=resumo.reduce((a,i)=>a+i.q,0),consumido=resumo.reduce((a,i)=>a+i.c,0),devolvido=resumo.reduce((a,i)=>a+i.d,0),saldo=resumo.reduce((a,i)=>a+i.s,0),fechado=st==='ENTREGUE'&&saldo<=0.000001;return `<div class="py-3 border-b last:border-0"><div class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-2"><b>${esc(x.solicitacaoNumero||x.id)}</b>${fechado?'<span class="mat-closed"><i class="fa-solid fa-check"></i> Movimentação fechada</span>':''}</div><span class="mat-status ${cls}">${esc(label)}</span></div><div class="mt-1">${(x.itens||[]).map(i=>`${esc(i.descricao)} × ${esc(i.quantidade)}`).join(' · ')}</div>${x.observacao?`<div class="text-[10px] text-slate-500 mt-1">${esc(x.observacao)}</div>`:''}${st==='ENTREGUE'?`<div class="mat-summary-grid"><div class="mat-summary-box"><span>Entregue</span><b>${entregue}</b></div><div class="mat-summary-box"><span>Consumido</span><b>${consumido}</b></div><div class="mat-summary-box"><span>Devolvido</span><b>${devolvido}</b></div><div class="mat-summary-box"><span>Com o técnico</span><b>${saldo}</b></div></div>`:''}${movs.length?`<div class="mat-mov-history">${[...movs].reverse().map(m=>`<div class="mat-mov-row"><span><b>${m.tipo==='CONSUMO'?'Consumo':'Devolução'}</b> · ${(m.itens||[]).map(i=>`${esc(i.descricao)} × ${esc(i.quantidadeMovimentada)}`).join(', ')}${m.observacao?` · ${esc(m.observacao)}`:''}</span><span>${esc(fmtDate(m.createdAtISO))} · ${esc(m.usuarioNome||'-')}</span></div>`).join('')}</div>`:''}<div class="text-[10px] text-slate-400 mt-1">Solicitado em ${esc(fmtDate(x.createdAtISO))}${x.statusAtualizadoEmISO?` · Atualizado em ${esc(fmtDate(x.statusAtualizadoEmISO))}`:''}</div><div class="mat-actions"><button class="mat-action" onclick="window.alterarStatusMaterial('${esc(x.id)}','EM_SEPARACAO')"><i class="fa-solid fa-boxes-packing"></i> Em separação</button><button class="mat-action" onclick="window.alterarStatusMaterial('${esc(x.id)}','SEPARADO')"><i class="fa-solid fa-box"></i> Separado</button><button class="mat-action" onclick="window.alterarStatusMaterial('${esc(x.id)}','ENTREGUE')"><i class="fa-solid fa-circle-check"></i> Entregue</button><button class="mat-action" onclick="window.alterarStatusMaterial('${esc(x.id)}','CANCELADO')"><i class="fa-solid fa-ban"></i> Cancelar</button>${st==='ENTREGUE'&&!fechado?`<button class="mat-action consume" onclick="window.abrirMovimentoMaterial('${esc(x.id)}','CONSUMO')"><i class="fa-solid fa-screwdriver-wrench"></i> Registrar consumo</button><button class="mat-action return" onclick="window.abrirMovimentoMaterial('${esc(x.id)}','DEVOLUCAO')"><i class="fa-solid fa-rotate-left"></i> Registrar devolução</button>`:''}</div></div>`}).join(''):'Nenhuma solicitação registrada para este equipamento.'}catch(e){console.error('[Assistência] histórico peças',e);hist.textContent='Não foi possível carregar o histórico de solicitações.'}};
-window.fecharPecasEquipamento=async function(){document.getElementById('modal-pecas-equipamento')?.classList.add('hidden');const o=state.selectedOS;state.selectedEquipment=null;if(o){try{await renderEquipamentosOS(o)}catch(e){console.error('[Assistência] atualização após fechar materiais',e)}}};
-window.alterarStatusMaterial=async function(sid,status){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const labels={EM_SEPARACAO:'Em separação',SEPARADO:'Separado',ENTREGUE:'Entregue',CANCELADO:'Cancelado'};const label=labels[status]||status;if(!confirm(`Alterar esta solicitação para \"${label}\"?`))return;const now=new Date().toISOString();try{await mergeSubDoc(o.internalId||o.id,'solicitacoes_materiais',sid,{statusSolicitacao:status,statusAtualizadoEmISO:now,statusAtualizadoPorUid:window.currentUser?.uid||'',statusAtualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now,baixaEstoqueRealizada:false});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{ultimaSolicitacaoMaterialId:sid,ultimaSolicitacaoMaterialStatus:status,updatedAtISO:now});await addHistory(o,'MATERIAL_STATUS','Material: '+label,'Solicitação '+sid,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||''});Object.assign(eq,{ultimaSolicitacaoMaterialId:sid,ultimaSolicitacaoMaterialStatus:status,updatedAtISO:now});toast('Status do material atualizado para '+label+'.');await renderEquipamentosOS(o);state.selectedEquipment=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eq.id||eq.internalId))||eq;await window.abrirPecasEquipamento(eq.id||eq.internalId)}catch(e){console.error('[Assistência] status material',e);alert('Não foi possível atualizar o status da solicitação de material. Verifique as Security Rules.\n\n'+(e?.message||e))}};
-window.salvarSolicitacaoPecas=async function(){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const itens=[...document.querySelectorAll('#pecas-itens .peca-row')].map(r=>({descricao:r.querySelector('.peca-desc')?.value.trim()||'',quantidade:Number(r.querySelector('.peca-qtd')?.value||0)})).filter(x=>x.descricao&&x.quantidade>0);if(!itens.length){alert('Informe ao menos uma peça/material e uma quantidade válida.');return}const btn=document.getElementById('btn-solicitar-pecas'),now=new Date().toISOString(),sid=window.crypto?.randomUUID?.()||('mat_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));const numero=`MAT-${String(Date.now()).slice(-8)}`;const data={internalId:sid,solicitacaoNumero:numero,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',clienteId:o.clienteId||'',clienteNome:o.clienteNome||o.cliente||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',itens,observacao:document.getElementById('pecas-observacao').value.trim(),statusSolicitacao:'PENDENTE_SOLICITACAO',baixaEstoqueRealizada:false,origem:'ASSISTENCIA_OS',createdAtISO:now,updatedAtISO:now,criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'solicitacoes_materiais',sid,data);await addHistory(o,'MATERIAL','Solicitação de material criada',numero+' · '+itens.map(x=>x.descricao+' x'+x.quantidade).join(', '),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',solicitacaoId:sid});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{ultimaSolicitacaoMaterialId:sid,ultimaSolicitacaoMaterialNumero:numero,ultimaSolicitacaoMaterialStatus:'PENDENTE_SOLICITACAO',updatedAtISO:now});Object.assign(eq,{ultimaSolicitacaoMaterialId:sid,ultimaSolicitacaoMaterialNumero:numero,ultimaSolicitacaoMaterialStatus:'PENDENTE_SOLICITACAO',updatedAtISO:now});window.fecharPecasEquipamento();await renderEquipamentosOS(o);toast('Solicitação de material '+numero+' registrada. Nenhum saldo de estoque foi alterado.')}catch(e){console.error('[Assistência] solicitação peças',e);alert('Não foi possível registrar a solicitação de material. Verifique as Security Rules da subcoleção solicitacoes_materiais.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-box-open"></i> Solicitar material'}};
+
+// FASE 1.41 — integração Assistência ↔ Requisição de Material
+window.materialCentralState={orcamento:null,requisicoes:[],planejamento:null,catalogo:[],legacy:[]};
+
+function matNorm(v){
+ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+function matPlanId(o,eq){
+ return ('PLANO_'+Number(o?.cicloAtendimento||1)+'_'+String(eq?.id||eq?.internalId||'EQ')).replace(/[^A-Za-z0-9_-]/g,'_');
+}
+function matStatusLabel(st){
+ const m={PENDENTE:'Pendente aprovação',COM_TECNICO:'Com técnico',UTILIZADO:'Utilizado',UTILIZADO_RS:'Utilizado RS',
+ AGUARDANDO_DEVOLUCAO:'Aguardando devolução',DEVOLVIDO:'Devolvido',REJEITADO:'Rejeitado'};
+ return m[String(st||'').toUpperCase()]||String(st||'-').replaceAll('_',' ');
+}
+function matStatusClass(st){
+ st=String(st||'').toUpperCase();
+ if(st==='PENDENTE')return 'pending';
+ if(st==='COM_TECNICO')return 'withtech';
+ if(st==='UTILIZADO'||st==='UTILIZADO_RS')return 'used';
+ if(st==='REJEITADO')return 'rejected';
+ if(st==='AGUARDANDO_DEVOLUCAO')return 'returning';
+ if(st==='DEVOLVIDO')return 'returned';
+ return '';
+}
+function assistTecnicoResponsavel(o){
+ const id=String((Array.isArray(o?.tecnicoIds)&&o.tecnicoIds[0])||o?.tecnicoId||o?.tecnicoUid||'');
+ const nome=String((Array.isArray(o?.tecnicoNomes)&&o.tecnicoNomes[0])||o?.tecnicoNome||o?.tecnico||window.nomeUsuarioLogado||'');
+ const u=(state.usuarios||[]).find(x=>String(x.uid||x.id||x.email||'')===id || String(x.nome||x.displayName||x.name||'').toLowerCase()===nome.toLowerCase());
+ return {id,nome:u?.nome||u?.displayName||u?.name||nome||window.nomeUsuarioLogado||'',email:String(u?.email||window.currentUser?.email||'').toLowerCase()};
+}
+function matReqsItem(itemKey){
+ return (window.materialCentralState.requisicoes||[]).filter(r=>String(r.orcamentoItemKey||'')===String(itemKey));
+}
+function matQtdAtiva(itemKey){
+ return matReqsItem(itemKey).filter(r=>!['REJEITADO','DEVOLVIDO'].includes(String(r.status||'').toUpperCase())).reduce((a,r)=>a+Number(r.qtd||0),0);
+}
+function matResumoStatus(itemKey){
+ const rows=matReqsItem(itemKey);
+ if(!rows.length)return '<span class="mat-link-status none">Não requisitado</span>';
+ return rows.map(r=>`<span class="mat-link-status ${matStatusClass(r.status)}">${esc(matStatusLabel(r.status))} · ${esc(r.qtd||0)}</span>`).join(' ');
+}
+function matCatalogSuggestion(desc,catalogo){
+ const n=matNorm(desc);if(!n)return desc||'';
+ const exact=(catalogo||[]).find(x=>matNorm(x.label)===n);
+ if(exact)return exact.label;
+ const contains=(catalogo||[]).find(x=>matNorm(x.nome)===n || matNorm(x.label).includes(n) || n.includes(matNorm(x.nome)));
+ return contains?.label||desc||'';
+}
+function renderPlanejamentoMateriais(){
+ const body=document.getElementById('pecas-planejamento-body');if(!body)return;
+ const orc=window.materialCentralState.orcamento;
+ const eq=state.selectedEquipment;
+ if(!orc){
+   body.innerHTML='<tr><td colspan="6" class="text-center text-slate-400 py-8">Nenhum orçamento aprovado encontrado para este equipamento no ciclo atual.</td></tr>';
+   document.getElementById('btn-gerar-requisicoes')?.setAttribute('disabled','disabled');
+   return;
+ }
+ document.getElementById('btn-gerar-requisicoes')?.removeAttribute('disabled');
+ const pecas=Array.isArray(orc.baseTecnicaSnapshot?.pecas)?orc.baseTecnicaSnapshot.pecas:[];
+ const plano=window.materialCentralState.planejamento?.itens||[];
+ if(!pecas.length){
+   body.innerHTML='<tr><td colspan="6" class="text-center text-amber-700 py-8">O orçamento aprovado não possui peças na solicitação técnica congelada.</td></tr>';
+   return;
+ }
+ body.innerHTML=pecas.map((p,i)=>{
+   const key=String(orc.internalId||orc.id)+':'+i;
+   const salvo=plano.find(x=>String(x.itemKey||'')===key)||{};
+   const desc=p.descricao||p.nome||p.material||('Item '+(i+1));
+   const qtd=Number(p.quantidade||p.qtd||1);
+   const oficial=salvo.materialOficial||matCatalogSuggestion(desc,window.materialCentralState.catalogo);
+   const destino=salvo.destinoMaterial||'REQUISITAR';
+   const qtdReq=Number(salvo.quantidadeDesejada||qtd);
+   return `<tr class="mat-plan-row" data-index="${i}" data-item-key="${esc(key)}">
+     <td><b>${esc(desc)}</b><div class="text-[9px] text-slate-400 mt-1">Item técnico ${i+1}</div></td>
+     <td class="text-center font-black">${esc(qtd)}</td>
+     <td><input class="input mat-material-oficial" list="materiais-catalogo-assistencia" value="${esc(oficial)}" placeholder="Selecione do cadastro ou ajuste a descrição"></td>
+     <td><select class="input mat-destino" onchange="window.ajustarLinhaMaterial(this)">
+       <option value="REQUISITAR" ${destino==='REQUISITAR'?'selected':''}>Requisitar</option>
+       <option value="COM_TECNICO" ${destino==='COM_TECNICO'?'selected':''}>Já está com técnico</option>
+       <option value="CLIENTE" ${destino==='CLIENTE'?'selected':''}>Cliente fornece</option>
+       <option value="NAO_UTILIZAR" ${destino==='NAO_UTILIZAR'?'selected':''}>Não utilizar</option>
+     </select></td>
+     <td><input class="input mat-qtd-desejada" type="number" min="0" step="0.01" value="${qtdReq}"></td>
+     <td>${matResumoStatus(key)}<div class="text-[9px] text-slate-400 mt-1">Já registrado: ${esc(matQtdAtiva(key))}</div></td>
+   </tr>`;
+ }).join('');
+ document.querySelectorAll('#pecas-planejamento-body .mat-destino').forEach(x=>window.ajustarLinhaMaterial(x));
+}
+
+window.ajustarLinhaMaterial=function(sel){
+ const row=sel.closest('.mat-plan-row'),q=row?.querySelector('.mat-qtd-desejada'),m=row?.querySelector('.mat-material-oficial');
+ const disabled=['CLIENTE','NAO_UTILIZAR'].includes(sel.value);
+ if(q)q.disabled=disabled;
+ if(m)m.disabled=sel.value==='NAO_UTILIZAR';
+};
+
+function renderRequisicoesOficiais(){
+ const box=document.getElementById('pecas-requisicoes-oficiais');if(!box)return;
+ const rows=[...(window.materialCentralState.requisicoes||[])].sort((a,b)=>Number(b.timestamp||0)-Number(a.timestamp||0));
+ if(!rows.length){box.innerHTML='<div class="text-slate-400">Nenhuma requisição oficial vinculada a este equipamento.</div>';return}
+ box.innerHTML=rows.map(r=>`<div class="mat-req-official">
+   <div class="flex flex-wrap items-center justify-between gap-2"><b>${esc(r.material||'Material')}</b><span class="mat-link-status ${matStatusClass(r.status)}">${esc(matStatusLabel(r.status))}</span></div>
+   <div class="text-[10px] text-slate-500 mt-1">Qtd. ${esc(r.qtd||0)} · ${esc(r.os||'-')} · ${esc(r.tecnico||'-')}</div>
+   <div class="text-[9px] text-slate-400 mt-1">${esc(fmtDate(r.data_atualizacao||r.data_solicitacao))}${r.grupo_requisicao_numero?' · '+esc(r.grupo_requisicao_numero):''}</div>
+ </div>`).join('');
+}
+function renderMateriaisLegado(){
+ const box=document.getElementById('pecas-historico-legado');if(!box)return;
+ const rows=window.materialCentralState.legacy||[];
+ if(!rows.length){box.innerHTML='Nenhum registro anterior na subcoleção antiga da Assistência.';return}
+ box.innerHTML=`<div class="mb-2">Existem <b>${rows.length}</b> registro(s) do fluxo anterior. Eles foram preservados e não serão apagados.</div>`+
+ rows.slice(0,8).map(x=>`<div class="py-2 border-t border-slate-200"><b>${esc(x.solicitacaoNumero||x.id||'Solicitação')}</b> · ${esc(String(x.statusSolicitacao||'-').replaceAll('_',' '))}<br>${(x.itens||[]).map(i=>esc(i.descricao)+' × '+esc(i.quantidade)).join(' · ')}</div>`).join('');
+}
+
+window.atualizarCentralMateriais=async function(){
+ const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;
+ const resumo=document.getElementById('pecas-orcamento-resumo');
+ if(resumo)resumo.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1"></i> Atualizando integração...';
+ try{
+   const osid=o.internalId||o.id,ciclo=Number(o.cicloAtendimento||1),eid=String(eq.id||eq.internalId);
+   const [orcs,reqs,pecas,cons,planos,legacy]=await Promise.all([
+     readSub(osid,'orcamentos').catch(()=>[]),
+     read('requisicoes_material').catch(()=>[]),
+     read('cadastros_pecas').catch(()=>[]),
+     read('cadastros_consumiveis').catch(()=>[]),
+     readSub(osid,'materiais_planejamento').catch(()=>[]),
+     readSub(osid,'solicitacoes_materiais').catch(()=>[])
+   ]);
+   const aprovado=orcs.filter(x=>String(x.equipamentoId||'')===eid&&Number(x.cicloAtendimento||1)===ciclo&&String(x.statusOrcamento||'').toUpperCase()==='APROVADO')
+     .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0))[0]||null;
+   const vinculadas=reqs.filter(r=>String(r.osId||'')===String(osid)&&String(r.equipamentoId||'')===eid&&Number(r.cicloAtendimento||1)===ciclo);
+   const catalogo=[
+     ...pecas.map(p=>({codigo:p.sku||p.codigo||'',nome:p.nome||p.descricao||'',label:`${p.sku||p.codigo||''} - ${p.nome||p.descricao||''}`.replace(/^\s*-\s*/,'').trim()})),
+     ...cons.map(c=>({codigo:c.codigo||c.sku||'',nome:c.nome||c.descricao||'',label:`${c.codigo||c.sku||''} - ${c.nome||c.descricao||''}`.replace(/^\s*-\s*/,'').trim()}))
+   ].filter(x=>x.label);
+   const pid=matPlanId(o,eq),planejamento=planos.find(x=>String(x.id||x.internalId)===pid)||null;
+   window.materialCentralState={orcamento:aprovado,requisicoes:vinculadas,planejamento,catalogo,legacy:legacy.filter(x=>String(x.equipamentoId||'')===eid)};
+   const dl=document.getElementById('materiais-catalogo-assistencia');
+   if(dl)dl.innerHTML=[...new Set(catalogo.map(x=>x.label))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+   if(resumo){
+     resumo.innerHTML=aprovado
+       ? `<div class="flex flex-wrap items-center justify-between gap-2"><div><b>Orçamento aprovado V${esc(aprovado.versao||1)}</b><div class="text-[10px] text-slate-500 mt-1">Base técnica congelada · Ciclo ${ciclo}</div></div><span class="mat-link-status used">APROVADO</span></div>`
+       : `<div class="text-amber-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Nenhum orçamento aprovado neste ciclo. A geração de requisição fica bloqueada até a aprovação.</div>`;
+   }
+   renderPlanejamentoMateriais();renderRequisicoesOficiais();renderMateriaisLegado();
+ }catch(e){
+   console.error('[Assistência] central de materiais',e);
+   if(resumo)resumo.textContent='Não foi possível carregar a integração de materiais.';
+ }
+};
+
+window.abrirPecasEquipamento=async function(eid){
+ const o=state.selectedOS;if(!o)return;
+ const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+ if(!eq){toast('Equipamento não encontrado.');return}
+ state.selectedEquipment=eq;
+ document.getElementById('pecas-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'')+' · '+(o.osNumber||o.numero||'OS');
+ document.getElementById('modal-pecas-equipamento').classList.remove('hidden');
+ await window.atualizarCentralMateriais();
+};
+
+window.fecharPecasEquipamento=async function(){
+ document.getElementById('modal-pecas-equipamento')?.classList.add('hidden');
+ const o=state.selectedOS;state.selectedEquipment=null;
+ if(o){try{await renderEquipamentosOS(o)}catch(e){console.error('[Assistência] atualização após fechar materiais',e)}}
+};
+
+window.gerarRequisicoesMateriais=async function(){
+ const o=state.selectedOS,eq=state.selectedEquipment,orc=window.materialCentralState.orcamento;
+ if(!o||!eq)return;
+ if(!orc){alert('É necessário possuir um orçamento aprovado antes de gerar a requisição de material.');return}
+ const rows=[...document.querySelectorAll('#pecas-planejamento-body .mat-plan-row')];
+ if(!rows.length){alert('Não há peças aprovadas para requisitar.');return}
+
+ const osid=o.internalId||o.id,eid=eq.id||eq.internalId,ciclo=Number(o.cicloAtendimento||1);
+ const tech=assistTecnicoResponsavel(o);
+ const now=new Date().toISOString();
+ const grupoId='REQOS_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+ const grupoNumero='REQ-'+String(Date.now()).slice(-8);
+ const destinoBase=(o.clienteNome||o.cliente||'Cliente')+' · '+(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN '+eq.numeroSerie:'');
+ const planoItens=[];
+ const criadas=[];
+ const promises=[];
+
+ rows.forEach((row,index)=>{
+   const itemKey=row.dataset.itemKey||String(orc.internalId||orc.id)+':'+index;
+   const material=row.querySelector('.mat-material-oficial')?.value.trim()||'';
+   const destinoMaterial=row.querySelector('.mat-destino')?.value||'REQUISITAR';
+   const quantidadeDesejada=Number(row.querySelector('.mat-qtd-desejada')?.value||0);
+   const orcado=Number(orc.baseTecnicaSnapshot?.pecas?.[index]?.quantidade||orc.baseTecnicaSnapshot?.pecas?.[index]?.qtd||1);
+   planoItens.push({itemKey,descricaoTecnica:orc.baseTecnicaSnapshot?.pecas?.[index]?.descricao||'',materialOficial:material,destinoMaterial,quantidadeDesejada,quantidadeOrcada:orcado});
+   if(['CLIENTE','NAO_UTILIZAR'].includes(destinoMaterial))return;
+   if(!material){throw new Error('Informe o material oficial/descrição do item '+(index+1)+'.')}
+   if(quantidadeDesejada<=0)return;
+   const jaAtivo=matQtdAtiva(itemKey);
+   const delta=Math.max(0,quantidadeDesejada-jaAtivo);
+   if(delta<=0)return;
+
+   const rid='req_'+Date.now()+'_'+index+'_'+Math.random().toString(36).slice(2,5);
+   const statusInicial=destinoMaterial==='COM_TECNICO'?'COM_TECNICO':'PENDENTE';
+   const data={
+     id:rid,
+     tecnico:tech.nome||window.nomeUsuarioLogado||'',
+     autor_email:tech.email||String(window.currentUser?.email||'').toLowerCase(),
+     filial:'Matriz',
+     material,
+     qtd:delta,
+     destino:destinoBase,
+     os:o.osNumber||o.numero||'',
+     status:statusInicial,
+     data_solicitacao:now,
+     timestamp:Date.now()+index,
+
+     origem:'ASSISTENCIA_OS',
+     origemModulo:'ASSISTENCIA_TECNICA',
+     osId:osid,
+     clienteId:o.clienteId||'',
+     clienteNome:o.clienteNome||o.cliente||'',
+     equipamentoId:eid,
+     equipamentoModelo:eq.modelo||'',
+     equipamentoNumeroSerie:eq.numeroSerie||'',
+     cicloAtendimento:ciclo,
+     orcamentoId:orc.internalId||orc.id||'',
+     orcamentoVersao:Number(orc.versao||1),
+     solicitacaoTecnicaId:orc.solicitacaoOrcamentoId||'',
+     orcamentoItemIndex:index,
+     orcamentoItemKey:itemKey,
+     quantidadeOrcada:orcado,
+     grupo_requisicao_id:grupoId,
+     grupo_requisicao_numero:grupoNumero,
+     gerado_por_uid:window.currentUser?.uid||'',
+     gerado_por_nome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+     gerado_por_email:window.currentUser?.email||'',
+     aprovacao_dispensada:destinoMaterial==='COM_TECNICO',
+     observacao_origem:destinoMaterial==='COM_TECNICO'?'Material informado como já em posse do técnico':''
+   };
+   promises.push(saveDoc('requisicoes_material',rid,data));
+   criadas.push(data);
+ });
+
+ const pid=matPlanId(o,eq);
+ const plano={
+   internalId:pid,osId:osid,osNumber:o.osNumber||o.numero||'',equipamentoId:eid,
+   cicloAtendimento:ciclo,orcamentoId:orc.internalId||orc.id||'',orcamentoVersao:Number(orc.versao||1),
+   itens:planoItens,updatedAtISO:now,updatedByUid:window.currentUser?.uid||'',updatedByNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+ };
+ const btn=document.getElementById('btn-gerar-requisicoes');
+ try{
+   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Integrando...';
+   await saveSubDoc(osid,'materiais_planejamento',pid,plano);
+   if(promises.length)await Promise.all(promises);
+   if(criadas.length){
+     const statusResumo=criadas.some(x=>x.status==='PENDENTE')?'PENDENTE':criadas[0].status;
+     await mergeSubDoc(osid,'equipamentos',eid,{
+       ultimaSolicitacaoMaterialId:grupoId,
+       ultimaSolicitacaoMaterialNumero:grupoNumero,
+       ultimaSolicitacaoMaterialStatus:statusResumo,
+       updatedAtISO:now
+     });
+     Object.assign(eq,{ultimaSolicitacaoMaterialId:grupoId,ultimaSolicitacaoMaterialNumero:grupoNumero,ultimaSolicitacaoMaterialStatus:statusResumo,updatedAtISO:now});
+     await addHistory(o,'MATERIAL_REQUISICAO','Requisição de material gerada',grupoNumero+' · '+criadas.map(x=>x.material+' x'+x.qtd).join(', '),{
+       equipamentoId:eid,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',
+       grupoRequisicaoId:grupoId,grupoRequisicaoNumero:grupoNumero,requisicoesIds:criadas.map(x=>x.id),orcamentoId:orc.internalId||orc.id||'',orcamentoVersao:orc.versao||1
+     });
+     toast(criadas.length+' item(ns) enviados para Requisição de Material.');
+   }else{
+     toast('Planejamento salvo. Nenhuma nova requisição precisava ser criada.');
+   }
+   await window.atualizarCentralMateriais();
+   await renderEquipamentosOS(o);
+ }catch(e){
+   console.error('[Assistência] integração requisição material',e);
+   alert('Não foi possível gerar a requisição de material.\n\n'+(e?.message||e));
+ }finally{
+   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Gerar requisição';
+ }
+};
+
 
 function moedaBR(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 window.adicionarItemOrcamento=function(item={}){
@@ -2238,7 +2578,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.40 — exclusão lógica de equipamento e OS
+// FASE 1.41 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -2361,7 +2701,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.40 — reabertura controlada por ciclos
+// FASE 1.41 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -2481,7 +2821,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.40 — duplicação controlada de OS
+// FASE 1.41 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
