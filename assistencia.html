@@ -376,6 +376,12 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .os-danger-btn:hover{background:#ffe4e6!important}
 </style>
 
+
+<style id="fase139-ui">
+#btn-reabrir-os{border-color:#bfdbfe!important;background:#eff6ff!important;color:#1d4ed8!important}
+#btn-reabrir-os:hover{background:#dbeafe!important}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -383,7 +389,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.38</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.39</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -513,10 +519,48 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="os-general-actions flex flex-wrap justify-between gap-3"><div><div class="os-general-actions-label">Navegação</div><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button></div><div><div class="os-general-actions-label">Ações gerais da OS</div><div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button><button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button><button class="btn btn-light" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura cliente</button><button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button><button class="btn btn-light" onclick="window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> Agendar</button><button id="btn-admin-permissoes" class="btn btn-light" onclick="window.abrirPermissoesAssistencia()"><i class="fa-solid fa-user-shield"></i> Permissões</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button><button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button></div></div></div></div></div>
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="os-general-actions flex flex-wrap justify-between gap-3"><div><div class="os-general-actions-label">Navegação</div><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button></div><div><div class="os-general-actions-label">Ações gerais da OS</div><div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button><button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button><button class="btn btn-light" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura cliente</button><button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button><button class="btn btn-light" onclick="window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> Agendar</button><button id="btn-admin-permissoes" class="btn btn-light" onclick="window.abrirPermissoesAssistencia()"><i class="fa-solid fa-user-shield"></i> Permissões</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button><button id="btn-reabrir-os" class="btn btn-light hidden" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button><button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button></div></div></div></div></div>
 
 
 
+
+
+<div id="modal-reabrir-os" class="modal-backdrop hidden" style="z-index:100075!important">
+  <div class="modal-card !max-w-none" style="width:min(680px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">NOVO CICLO</span>
+        <h2 class="text-xl font-black mt-2">Reabrir OS encerrada</h2>
+        <p id="reabrir-os-identificacao" class="text-xs text-slate-500 mt-1">-</p>
+      </div>
+      <button onclick="window.fecharReabrirOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
+      A reabertura cria um <b>novo ciclo de atendimento</b>. O encerramento anterior, faturamento, assinatura e estados anteriores ficam preservados no histórico do ciclo anterior.
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mt-5">
+      <label><span class="field-label">Retomar a partir de *</span>
+        <select id="reabrir-etapa" class="input">
+          <option value="ENTRADA">Entrada / Suporte</option>
+          <option value="TRIAGEM">Triagem / Diagnóstico</option>
+        </select>
+      </label>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <div class="text-[10px] font-black uppercase tracking-wide text-slate-400">Novo ciclo</div>
+        <div id="reabrir-ciclo-info" class="text-lg font-black text-slate-800 mt-1">-</div>
+      </div>
+    </div>
+    <label class="block mt-4"><span class="field-label">Motivo da reabertura *</span>
+      <textarea id="reabrir-motivo" class="input min-h-24" placeholder="Ex.: retorno do cliente, reincidência, necessidade de novo atendimento..."></textarea>
+    </label>
+    <div class="mt-5 flex justify-end gap-2">
+      <button onclick="window.fecharReabrirOS()" class="btn btn-light">Cancelar</button>
+      <button id="btn-confirmar-reabertura" onclick="window.confirmarReabrirOS()" class="btn btn-primary">
+        <i class="fa-solid fa-rotate-left"></i> Criar novo ciclo
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-exclusao-assistencia" class="modal-backdrop hidden" style="z-index:100070!important">
   <div class="modal-card !max-w-none" style="width:min(620px,96vw)">
@@ -1074,7 +1118,8 @@ window.abrirAprovacaoOrcamento=async function(eid){
  state.selectedEquipment=eq;
  let orcs=[];
  try{orcs=await readSub(o.internalId||o.id,'orcamentos')}catch(e){console.error(e)}
- const doEquip=(orcs||[]).filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId))
+ const cicloAtual=Number(o.cicloAtendimento||1);
+ const doEquip=(orcs||[]).filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&Number(x.cicloAtendimento||1)===cicloAtual)
    .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
  const atual=doEquip.find(x=>String(x.internalId||x.id)===String(eq.ultimoOrcamentoId||''))||doEquip[0];
  if(!atual){toast('Este equipamento ainda não possui orçamento comercial.');return}
@@ -1215,10 +1260,10 @@ function renderControlesSolicitacao(st){
  const badge=document.getElementById('sorc-status');
  if(badge){badge.textContent=statusSolicitacaoLabel(st);badge.className='rev-status '+(approved?'rev-ok':wait?'rev-wait':returned?'rev-return':'rev-elab')}
 }
-window.abrirSolicitacaoOrcamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;let req=null;try{const all=await readSub(o.internalId||o.id,'solicitacoes_orcamento');req=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)).sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0]||null}catch(e){console.warn('[Assistência] solicitação orçamento',e)}state.selectedTechBudgetRequest=req;document.getElementById('sorc-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('sorc-servico').value=req?.servicoRecomendado||eq.solucaoRecomendada||'';document.getElementById('sorc-obs').value=req?.observacoesTecnicas||'';document.getElementById('sorc-horas').value=req?.horasEstimadas??'';document.getElementById('sorc-deslocamento').value=req?.necessitaDeslocamento||'NAO';document.getElementById('sorc-prioridade').value=req?.prioridadeTecnica||'NORMAL';document.getElementById('sorc-devolucao').value=req?.motivoDevolucao||'';const box=document.getElementById('sorc-pecas');box.innerHTML='';(req?.pecas||[]).forEach(x=>window.adicionarPecaSolicitacaoOrcamento(x));if(!(req?.pecas||[]).length)window.adicionarPecaSolicitacaoOrcamento();renderControlesSolicitacao(req?.statusSolicitacao||'EM_ELABORACAO_TECNICA');document.getElementById('modal-solicitacao-orcamento').classList.remove('hidden')};
+window.abrirSolicitacaoOrcamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;let req=null;try{const all=await readSub(o.internalId||o.id,'solicitacoes_orcamento');const ciclo=Number(o.cicloAtendimento||1);req=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&Number(x.cicloAtendimento||1)===ciclo).sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0]||null}catch(e){console.warn('[Assistência] solicitação orçamento',e)}state.selectedTechBudgetRequest=req;document.getElementById('sorc-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('sorc-servico').value=req?.servicoRecomendado||eq.solucaoRecomendada||'';document.getElementById('sorc-obs').value=req?.observacoesTecnicas||'';document.getElementById('sorc-horas').value=req?.horasEstimadas??'';document.getElementById('sorc-deslocamento').value=req?.necessitaDeslocamento||'NAO';document.getElementById('sorc-prioridade').value=req?.prioridadeTecnica||'NORMAL';document.getElementById('sorc-devolucao').value=req?.motivoDevolucao||'';const box=document.getElementById('sorc-pecas');box.innerHTML='';(req?.pecas||[]).forEach(x=>window.adicionarPecaSolicitacaoOrcamento(x));if(!(req?.pecas||[]).length)window.adicionarPecaSolicitacaoOrcamento();renderControlesSolicitacao(req?.statusSolicitacao||'EM_ELABORACAO_TECNICA');document.getElementById('modal-solicitacao-orcamento').classList.remove('hidden')};
 window.fecharSolicitacaoOrcamento=function(){document.getElementById('modal-solicitacao-orcamento')?.classList.add('hidden');state.selectedTechBudgetRequest=null};
 function coletarSolicitacaoTecnica(){return {servicoRecomendado:document.getElementById('sorc-servico').value.trim(),observacoesTecnicas:document.getElementById('sorc-obs').value.trim(),horasEstimadas:Number(document.getElementById('sorc-horas').value||0),necessitaDeslocamento:document.getElementById('sorc-deslocamento').value,prioridadeTecnica:document.getElementById('sorc-prioridade').value,pecas:[...document.querySelectorAll('#sorc-pecas .tech-req-row')].map(r=>({descricao:r.querySelector('.sorc-peca-desc')?.value.trim()||'',quantidade:Number(r.querySelector('.sorc-peca-qtd')?.value||0)})).filter(x=>x.descricao&&x.quantidade>0)}}
-window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const atual=state.selectedTechBudgetRequest,motivoAnterior=atual?.motivoDevolucao||atual?.motivoDevolucaoAnterior||'',now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',statusSolicitacao:status,motivoDevolucaoAnterior:motivoAnterior,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
+window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const atual=state.selectedTechBudgetRequest,motivoAnterior=atual?.motivoDevolucao||atual?.motivoDevolucaoAnterior||'',now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),statusSolicitacao:status,motivoDevolucaoAnterior:motivoAnterior,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
 window.revisarSolicitacaoOrcamento=async function(decisao){if(!window.exigirPermissaoAssistencia('revisar_solicitacao'))return;const o=state.selectedOS,eq=state.selectedEquipment,req=state.selectedTechBudgetRequest;if(!o||!eq||!req)return;const dados=coletarSolicitacaoTecnica(),motivo=document.getElementById('sorc-devolucao').value.trim();if(decisao==='DEVOLVIDO_CORRECAO'&&!motivo){alert('Informe o motivo/orientação da devolução.');return}if(dados.horasEstimadas<=0||!dados.servicoRecomendado){alert('Revise o serviço recomendado e o tempo estimado antes de concluir a revisão.');return}const now=new Date().toISOString(),rid=req.internalId||req.id;try{await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,{...dados,statusSolicitacao:decisao,motivoDevolucao:decisao==='DEVOLVIDO_CORRECAO'?motivo:'',revisadoEmISO:now,revisadoPorUid:window.currentUser?.uid||'',revisadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});Object.assign(req,dados,{statusSolicitacao:decisao,motivoDevolucao:motivo,updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoStatus:decisao,solicitacaoOrcamentoRevisadaEmISO:now,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoStatus:decisao});await addHistory(o,'REVISAO_TECNICA',decisao==='APROVADO_TECNICAMENTE'?'Solicitação aprovada tecnicamente':'Solicitação devolvida para correção',decisao==='APROVADO_TECNICAMENTE'?'Encaminhada ao Comercial':motivo,{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(decisao);toast(decisao==='APROVADO_TECNICAMENTE'?'Aprovado tecnicamente. Disponível para o Comercial montar o orçamento.':'Devolvido para correção.')}catch(e){console.error(e);alert('Não foi possível registrar a revisão.\n\n'+(e?.message||e))}};
 
 window.abrirOrcamentoEquipamento=async function(eid){if(!window.exigirPermissaoAssistencia('editar_orcamento'))return;
@@ -1228,15 +1273,16 @@ window.abrirOrcamentoEquipamento=async function(eid){if(!window.exigirPermissaoA
   state.selectedEquipment=eq;
   let req=null,anteriores=[];
   try{
+    const ciclo=Number(o.cicloAtendimento||1);
     const reqs=await readSub(o.internalId||o.id,'solicitacoes_orcamento');
-    req=reqs.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&String(x.statusSolicitacao||'').toUpperCase()==='APROVADO_TECNICAMENTE')
+    req=reqs.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&Number(x.cicloAtendimento||1)===ciclo&&String(x.statusSolicitacao||'').toUpperCase()==='APROVADO_TECNICAMENTE')
       .sort((a,b)=>String(b.updatedAtISO||'').localeCompare(String(a.updatedAtISO||'')))[0]||null;
     anteriores=await readSub(o.internalId||o.id,'orcamentos');
   }catch(e){console.warn('[Assistência] base do orçamento comercial',e)}
   if(!req){alert('O Comercial só pode montar ou alterar o orçamento após a revisão técnica aprovada.');return}
   state.selectedTechBudgetRequest=req;
 
-  const mesmos=anteriores.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId))
+  const cicloAtual=Number(o.cicloAtendimento||1);const mesmos=anteriores.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&Number(x.cicloAtendimento||1)===cicloAtual)
     .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0));
   const anterior=mesmos[0]||null;
   const versao=(anterior?Number(anterior.versao||0):0)+1;
@@ -1294,7 +1340,7 @@ window.salvarOrcamentoEquipamento=async function(){if(!window.exigirPermissaoAss
   const data={
     internalId:oid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',
     equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
-    equipamentoNumeroSerie:eq.numeroSerie||'',versao,statusOrcamento:'RASCUNHO',
+    equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),versao,statusOrcamento:'RASCUNHO',
     versaoAnteriorId:anterior?.internalId||anterior?.id||'',versaoAnterior:Number(anterior?.versao||0),
     solicitacaoOrcamentoId:state.selectedTechBudgetRequest?.internalId||state.selectedTechBudgetRequest?.id||'',
     baseTecnicaSnapshot:state.selectedTechBudgetRequest?{
@@ -1583,10 +1629,10 @@ window.abrirCameraAnexo=function(){let old=document.getElementById('anexo-camera
 window.carregarAnexosEquipamento=async function(){const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');if(!o||!eq||!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando...</div>';try{const all=await read('os_arquivos');const arr=all.filter(a=>a.osId===(o.internalId||o.id)&&a.equipamentoId===(eq.internalId||eq.id)&&!a.is_deleted).sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));document.getElementById('anexo-contagem').textContent=arr.length+' arquivo(s)';box.innerHTML=arr.length?arr.map(a=>`<div class="anexo-card"><div class="anexo-thumb">${String(a.contentType||'').startsWith('image/')?`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener"><img src="${esc(a.downloadURL||'')}" alt="${esc(a.nome||'foto')}"></a>`:`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}</div><div class="anexo-meta"><div class="anexo-name" title="${esc(a.nome||'')}">${esc(a.nome||'Arquivo')}</div><div class="mt-1"><span class="font-bold text-sky-700">${esc(anexoCategoriaLabel(a.categoria))}</span> · ${esc(fmtDate(a.createdAtISO))}</div><div class="mt-1">${esc(a.enviadoPorNome||a.enviadoPorEmail||'')}</div>${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}<div class="flex gap-2 mt-2"><a class="font-bold text-blue-700" href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener">Abrir</a><button class="font-bold text-rose-600" onclick="window.excluirAnexoEquipamento('${esc(a.id)}')">Excluir</button></div></div></div>`).join(''):'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>'}catch(e){console.error('[Assistência] anexos',e);box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos. Verifique as Security Rules de os_arquivos.</div>'}};
 window.enviarAnexosEquipamento=async function(){const o=state.selectedOS,eq=state.selectedEquipment,files=[...(document.getElementById('anexo-arquivos')?.files||[])];if(!o||!eq)return;if(!files.length){alert('Escolha pelo menos uma foto ou arquivo.');return}if(files.some(f=>f.size>10*1024*1024)){alert('Cada arquivo pode ter no máximo 10 MB.');return}const btn=document.getElementById('btn-enviar-anexos');try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';const api=await storageApi(),osId=o.internalId||o.id,eqId=eq.internalId||eq.id,cat=document.getElementById('anexo-categoria').value,obs=document.getElementById('anexo-observacao').value.trim();for(const f of files){const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));const ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();const path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`;const ref=api.ref(api.storage,path);await api.uploadBytes(ref,f,{contentType:f.type||'application/octet-stream'});const url=await api.getDownloadURL(ref);await saveDoc('os_arquivos',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,downloadURL:url,enviadoPorUid:window.currentUser?.uid||'',enviadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',enviadoPorEmail:window.currentUser?.email||'',createdAtISO:new Date().toISOString(),is_deleted:false});await addHistory(o,'ANEXO','Arquivo anexado',`${f.name} · ${anexoCategoriaLabel(cat)}`,{equipamentoId:eqId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',arquivoId:id})}document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast(files.length===1?'Arquivo enviado com sucesso.':files.length+' arquivos enviados com sucesso.')}catch(e){console.error('[Assistência] upload anexo',e);alert('Não foi possível enviar o arquivo. Verifique as regras do Firebase Storage e do Firestore.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos'}};
 window.excluirAnexoEquipamento=async function(id){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq||!confirm('Excluir este anexo? Esta ação removerá o arquivo do Storage.'))return;try{const all=await read('os_arquivos'),a=all.find(x=>x.id===id);if(!a)throw new Error('Anexo não encontrado.');const api=await storageApi();if(a.storagePath)await api.deleteObject(api.ref(api.storage,a.storagePath));if(!window.fsDeleteDoc||!window.fsDoc)throw new Error('core.js não expôs fsDeleteDoc/fsDoc.');await window.fsDeleteDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id));await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{equipamentoId:eq.internalId||eq.id,equipamentoModelo:eq.modelo||'',arquivoId:id});await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast('Anexo excluído.')}catch(e){console.error('[Assistência] excluir anexo',e);alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e))}};
-window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>';if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
+window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rb=document.getElementById('btn-reabrir-os');if(rb)rb.classList.toggle('hidden',stg!=='ENCERRADOS'||!window.temPermissaoAssistencia?.('reabrir_os'));fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>';if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
 window.toastDetalheIndisponivel=(nome)=>toast(`${nome}: será liberado em uma próxima fase.`);
-window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);await addHistory({id:internalId,...data},'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push({id:internalId,...data});renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
+window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);await addHistory({id:internalId,...data},'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push({id:internalId,...data});renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
 window.assistenciaAtualizar=load;window.filtrarKanban=renderKanban;window.legacyPage=(delta)=>{legacyCurrentPage+=delta;renderLegacy();};
 // FASE 1.28 — auditoria e histórico completo
 let auditEventos=[],auditFiltro='TODOS';
@@ -2089,11 +2135,12 @@ window.obterValorOrcamentoAprovadoOS=async function(o){
   try{
     const osid=o.internalId||o.id;
     const [orcs,eqs]=await Promise.all([readSub(osid,'orcamentos').catch(()=>[]),readSub(osid,'equipamentos').catch(()=>[])]);
+    const ciclo=Number(o.cicloAtendimento||1);
     let total=0;
     const ativos=(eqs||[]).filter(e=>e.ativo!==false&&!['RECUSADO','CANCELADO'].includes(String(e.statusEquipamento||'').toUpperCase()));
     ativos.forEach(eq=>{
       const eid=String(eq.id||eq.internalId);
-      const aprov=(orcs||[]).filter(x=>String(x.equipamentoId||'')===eid&&String(x.statusOrcamento||'').toUpperCase()==='APROVADO')
+      const aprov=(orcs||[]).filter(x=>String(x.equipamentoId||'')===eid&&Number(x.cicloAtendimento||1)===ciclo&&String(x.statusOrcamento||'').toUpperCase()==='APROVADO')
         .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0))[0];
       if(aprov)total+=Number(aprov.total||0);
     });
@@ -2108,7 +2155,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.38 — exclusão lógica de equipamento e OS
+// FASE 1.39 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -2226,6 +2273,126 @@ window.confirmarExclusaoAssistencia=async function(){
   }finally{
     btn.disabled=false;
     btn.innerHTML='<i class="fa-solid fa-trash-can"></i> Confirmar';
+  }
+};
+
+
+
+// FASE 1.39 — reabertura controlada por ciclos
+window.abrirReabrirOS=function(){
+  if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
+  const o=state.selectedOS;if(!o)return;
+  if(o.is_deleted===true){alert('Uma OS excluída não pode ser reaberta por esta função.');return}
+  if(normStage(o.etapaKanban||o.status)!=='ENCERRADOS'){alert('Somente OS encerradas podem ser reabertas.');return}
+
+  const atual=Number(o.cicloAtendimento||1),novo=atual+1;
+  document.getElementById('reabrir-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'');
+  document.getElementById('reabrir-ciclo-info').textContent='Ciclo '+atual+' → Ciclo '+novo;
+  document.getElementById('reabrir-etapa').value='ENTRADA';
+  document.getElementById('reabrir-motivo').value='';
+  document.getElementById('modal-reabrir-os').classList.remove('hidden');
+};
+
+window.fecharReabrirOS=function(){
+  document.getElementById('modal-reabrir-os')?.classList.add('hidden');
+};
+
+window.confirmarReabrirOS=async function(){
+  if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
+  const o=state.selectedOS;if(!o)return;
+  const motivo=document.getElementById('reabrir-motivo').value.trim();
+  const etapa=document.getElementById('reabrir-etapa').value;
+  if(!motivo){alert('Informe o motivo da reabertura.');return}
+  if(!['ENTRADA','TRIAGEM'].includes(etapa)){alert('Selecione uma etapa válida para retomada.');return}
+  if(!confirm('Criar um novo ciclo de atendimento para esta OS? O ciclo anterior permanecerá preservado.'))return;
+
+  const btn=document.getElementById('btn-confirmar-reabertura');
+  const osid=o.internalId||o.id;
+  const cicloAnterior=Number(o.cicloAtendimento||1);
+  const novoCiclo=cicloAnterior+1;
+  const now=new Date().toISOString();
+
+  try{
+    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Reabrindo...';
+
+    const equipamentos=(await readSub(osid,'equipamentos').catch(()=>[]))
+      .filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
+
+    const snapshotId='CICLO_'+String(cicloAnterior).padStart(3,'0');
+    const snapshot={
+      internalId:snapshotId,osId:osid,osNumber:o.osNumber||o.numero||'',
+      ciclo:cicloAnterior,encerradoEmISO:o.encerradoEmISO||now,
+      situacaoFaturamento:o.situacaoFaturamento||'',
+      numeroNF:o.numeroNF||'',faturadoEmData:o.faturadoEmData||'',
+      valorFaturado:o.valorFaturado||'',observacaoFaturamento:o.observacaoFaturamento||'',
+      assinaturaClienteURL:o.assinaturaClienteURL||'',
+      assinaturaClienteNome:o.assinaturaClienteNome||'',
+      assinaturaClienteFuncao:o.assinaturaClienteFuncao||'',
+      assinaturaClienteObservacao:o.assinaturaClienteObservacao||'',
+      assinaturaClienteEmISO:o.assinaturaClienteEmISO||'',
+      atendimentoStatus:o.atendimentoStatus||'',
+      atendimentoDuracaoSegundos:Number(o.atendimentoDuracaoSegundos||0),
+      agendaTaskId:o.agendaTaskId||'',agendadoParaISO:o.agendadoParaISO||'',
+      equipamentos:equipamentos.map(e=>({
+        equipamentoId:e.id||e.internalId,modelo:e.modelo||'',numeroSerie:e.numeroSerie||'',
+        statusEquipamento:e.statusEquipamento||'',statusDetalhado:e.statusDetalhado||'',
+        ultimoOrcamentoId:e.ultimoOrcamentoId||'',ultimoOrcamentoVersao:e.ultimoOrcamentoVersao||null,
+        ultimoOrcamentoStatus:e.ultimoOrcamentoStatus||'',checkoutConcluidoEmISO:e.checkoutConcluidoEmISO||''
+      })),
+      snapshotCriadoEmISO:now,
+      snapshotCriadoPorUid:window.currentUser?.uid||'',
+      snapshotCriadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+    };
+    await saveSubDoc(osid,'ciclos',snapshotId,snapshot);
+
+    const statusEq=etapa==='TRIAGEM'?'EM_DIAGNOSTICO':'PENDENTE';
+    for(const eq of equipamentos){
+      const ep={
+        cicloAtendimento:novoCiclo,statusEquipamento:statusEq,statusDetalhado:statusEq,
+        solicitacaoOrcamentoId:'',solicitacaoOrcamentoStatus:'',
+        ultimoOrcamentoId:'',ultimoOrcamentoVersao:null,ultimoOrcamentoTotal:null,
+        ultimoOrcamentoTotalFormatado:'',ultimoOrcamentoStatus:'',
+        ultimaSolicitacaoMaterialId:'',ultimaSolicitacaoMaterialNumero:'',ultimaSolicitacaoMaterialStatus:'',
+        liberadoExecucaoEmISO:null,liberadoExecucaoPorUid:'',liberadoExecucaoPorNome:'',
+        checkoutConcluidoEmISO:null,checkoutConcluidoPorUid:'',checkoutConcluidoPorNome:'',
+        checkoutServicoExecutado:'',checkoutTesteFinal:'',checkoutCondicaoSaida:'',checkoutObservacao:'',
+        updatedAtISO:now
+      };
+      await mergeSubDoc(osid,'equipamentos',eq.id||eq.internalId,ep);
+      Object.assign(eq,ep);
+    }
+
+    const patch={
+      cicloAtendimento:novoCiclo,
+      etapaKanban:etapa,status:etapa,
+      encerradoAdministrativamente:false,encerradoEmISO:null,encerradoPorUid:'',encerradoPorNome:'',
+      faturado:false,situacaoFaturamento:'',numeroNF:'',faturadoEmData:'',valorFaturado:'',observacaoFaturamento:'',
+      finalizadoTecnico:false,finalizadoTecnicoEmISO:null,finalizadoTecnicoPorUid:'',finalizadoTecnicoPorNome:'',
+      statusAgendamento:'',agendaTaskId:'',agendadoParaISO:'',
+      atendimentoStatus:'NAO_INICIADO',atendimentoDuracaoSegundos:0,atendimentoUltimoInicioEmISO:null,
+      assinaturaClienteURL:'',assinaturaClienteNome:'',assinaturaClienteFuncao:'',
+      assinaturaClienteObservacao:'',assinaturaClienteEmISO:null,
+      reabertoEmISO:now,reabertoMotivo:motivo,reabertoPorUid:window.currentUser?.uid||'',
+      reabertoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+      updatedAtISO:now
+    };
+    await mergeOSDoc(osid,patch);
+    Object.assign(o,patch,{_equipamentos:equipamentos});
+
+    await addHistory(o,'OS_REABERTA','OS reaberta — novo ciclo',
+      'Ciclo '+cicloAnterior+' → Ciclo '+novoCiclo+' · '+motivo,
+      {cicloAnterior,novoCiclo,etapaRetomada:etapa,motivoReabertura:motivo});
+
+    window.fecharReabrirOS();
+    renderKanban();renderModoTecnico();renderCentralPendencias?.();renderSLAOperacional?.();
+    state.selectedOS=o;
+    window.abrirDetalheOS(o.id||o.internalId);
+    toast('OS reaberta no Ciclo '+novoCiclo+'.');
+  }catch(e){
+    console.error('[Assistência] reabertura',e);
+    alert('Não foi possível reabrir a OS.\n\n'+(e?.message||e));
+  }finally{
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-rotate-left"></i> Criar novo ciclo';
   }
 };
 
