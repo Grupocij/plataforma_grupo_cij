@@ -440,6 +440,37 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 @media(max-width:700px){.conc-mat-row{flex-direction:column;align-items:stretch}.conc-mat-usebox{width:auto;flex:auto}}
 </style>
 
+
+<style id="fase143-mobile-ui">
+body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
+.tech-mobile-note{display:flex;gap:.55rem;align-items:flex-start;margin-top:1rem;padding:.75rem;border-radius:.85rem;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:.62rem;font-weight:700;line-height:1.45}
+.tech-mobile-note i{margin-top:.1rem}
+.tech-materials{margin-top:.75rem;border:1px solid #e2e8f0;border-radius:.9rem;background:#f8fafc;padding:.7rem}
+.tech-materials-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.tech-materials-title{font-size:.62rem;font-weight:900;color:#334155;text-transform:uppercase;letter-spacing:.04em}
+.tech-material-list{display:grid;gap:.45rem;margin-top:.55rem}
+.tech-material-item{background:#fff;border:1px solid #e2e8f0;border-radius:.7rem;padding:.55rem}
+.tech-material-item-top{display:flex;justify-content:space-between;gap:.55rem;align-items:flex-start}
+.tech-material-name{font-size:.66rem;font-weight:900;color:#0f172a;line-height:1.25}
+.tech-material-meta{font-size:.56rem;color:#64748b;margin-top:.18rem}
+.tech-material-status{flex:none;display:inline-flex;border-radius:999px;padding:.22rem .42rem;font-size:.5rem;font-weight:900}
+.tech-material-status.pending{background:#fff7ed;color:#c2410c}
+.tech-material-status.withtech{background:#eff6ff;color:#1d4ed8}
+.tech-material-status.returning{background:#f5f3ff;color:#6d28d9}
+.tech-material-status.used{background:#ecfdf5;color:#047857}
+.tech-material-status.returned{background:#f1f5f9;color:#475569}
+.tech-material-status.rejected{background:#fff1f2;color:#be123c}
+.tech-material-status.info{background:#f1f5f9;color:#475569}
+.tech-execution-note{margin-top:.65rem;border-radius:.7rem;padding:.55rem .65rem;font-size:.58rem;font-weight:800;line-height:1.35}
+.tech-execution-note.wait{background:#fff7ed;color:#92400e;border:1px solid #fde68a}
+.tech-execution-note.ok{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.tech-action:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.2)}
+@media(max-width:640px){
+  .tech-work-footer{grid-template-columns:1fr!important}
+  .tech-work-footer .col-span-2{grid-column:auto!important}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -447,7 +478,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.42</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.43</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -550,7 +581,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 
 <div id="tech-app-nav" class="tech-app-nav"><button type="button" class="active" onclick="window.techAppInicio(event)"><i class="fa-solid fa-house"></i><span>Atendimentos</span></button><button type="button" onclick="window.techAppAtualizar(event)"><i class="fa-solid fa-rotate"></i><span>Atualizar</span></button><button type="button" onclick="window.techAppSair(event)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Portal</span></button></div>
 
-<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Atendimento do técnico · Fase 1.35</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-work-footer"><button class="btn btn-light justify-center" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button><button class="btn btn-primary justify-center" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button></div></div></div></div>
+<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">APP DO TÉCNICO · USO EM CAMPO</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><div class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Equipamentos do atendimento</div><div id="tech-at-equipamentos"></div></div><div class="tech-mobile-note"><i class="fa-solid fa-mobile-screen-button"></i><span>Este app contém somente ações do técnico. Orçamentos comerciais, aprovações, agendamento, liberações, faturamento e gestão de estoque ficam no administrativo.</span></div><div class="tech-work-footer"><button class="btn btn-primary justify-center col-span-2" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button></div></div></div></div>
 
 <div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o legado <b>suportes_osr</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
 
@@ -865,7 +896,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.42</span>
+        <span class="tag tag-green">FASE 1.43</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1138,7 +1169,7 @@ function isMinhaOS(o){
  const nomes=(Array.isArray(o?.tecnicoNomes)&&o.tecnicoNomes.length?o.tecnicoNomes:[o?.tecnicoNome||o?.tecnico]).filter(Boolean).map(x=>String(x).toLowerCase());
  return (!!uid&&ids.includes(uid))||(!!nome&&nomes.includes(nome));
 }
-function renderModoTecnico(){const lista=document.getElementById('tech-lista');if(!lista)return;const nome=window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'Técnico';const label=document.getElementById('tech-user-label');if(label)label.textContent=nome;const q=(document.getElementById('tech-busca')?.value||'').trim().toLowerCase();let minhas=(state.os||[]).filter(o=>o?.is_deleted!==true).filter(isMinhaOS).filter(o=>normStage(o.etapaKanban||o.etapa||o.status)!=='ENCERRADOS');if(q)minhas=minhas.filter(o=>JSON.stringify([o.osNumber,o.numero,o.clienteNome,o.cliente,o._equipamentos]).toLowerCase().includes(q));const hoje=new Date().toISOString().slice(0,10);const hojeN=minhas.filter(o=>String(o.agendadoParaISO||'').slice(0,10)===hoje).length;const execN=minhas.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)==='AGENDAMENTO').length;const pendN=minhas.filter(o=>['ENTRADA','TRIAGEM','ORCAMENTOS'].includes(normStage(o.etapaKanban||o.etapa||o.status))).length;const resumo=document.getElementById('tech-resumo');if(resumo)resumo.innerHTML=`<div class="kpi-card !p-3"><span class="kpi-label">Hoje</span><strong class="text-xl font-black text-blue-700">${hojeN}</strong></div><div class="kpi-card !p-3"><span class="kpi-label">Em execução</span><strong class="text-xl font-black text-cyan-700">${execN}</strong></div><div class="kpi-card !p-3"><span class="kpi-label">Pendentes</span><strong class="text-xl font-black text-amber-600">${pendN}</strong></div>`;minhas.sort((a,b)=>String(a.agendadoParaISO||'9999').localeCompare(String(b.agendadoParaISO||'9999')));lista.innerHTML=minhas.length?minhas.map(o=>{const stage=normStage(o.etapaKanban||o.etapa||o.status),p=pendenciaOS(o),eqs=o._equipamentos||[],eqtxt=eqs.length?eqs.map(e=>e.modelo||e.nome||'Equipamento').join(', '):'Equipamento ainda não vinculado';return `<article class="tech-os-card ${stage==='FATURAMENTO'?'admin':''}"><div class="flex justify-between gap-3"><div><div class="os-number">${esc(o.osNumber||o.numero||'OS')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(o.clienteNome||o.cliente||'Cliente não informado')}</div></div><span class="priority h-fit">${esc(o.prioridade||'NORMAL')}</span></div><div class="tech-meta-grid"><div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta"><span>Equipamento(s)</span><b>${esc(eqtxt)}</b></div></div><div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span>${esc(p.texto)}</span></div><button class="tech-primary-action" onclick="window.abrirAtendimentoTecnico('${esc(o.id||o.internalId)}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir atendimento</button></article>`}).join(''):`<div class="tech-empty"><i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i><div class="font-black text-slate-700">Nenhum atendimento atribuído a você</div><div class="mt-1">As OS aparecerão aqui quando você estiver definido como técnico responsável.</div></div>`}
+function renderModoTecnico(){const lista=document.getElementById('tech-lista');if(!lista)return;const nome=window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'Técnico';const label=document.getElementById('tech-user-label');if(label)label.textContent=nome;const q=(document.getElementById('tech-busca')?.value||'').trim().toLowerCase();let minhas=(state.os||[]).filter(o=>o?.is_deleted!==true).filter(isMinhaOS).filter(o=>!['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status)));if(q)minhas=minhas.filter(o=>JSON.stringify([o.osNumber,o.numero,o.clienteNome,o.cliente,o._equipamentos]).toLowerCase().includes(q));const hoje=new Date().toISOString().slice(0,10);const hojeN=minhas.filter(o=>String(o.agendadoParaISO||'').slice(0,10)===hoje).length;const execN=minhas.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)==='AGENDAMENTO').length;const pendN=minhas.filter(o=>['ENTRADA','TRIAGEM','ORCAMENTOS'].includes(normStage(o.etapaKanban||o.etapa||o.status))).length;const resumo=document.getElementById('tech-resumo');if(resumo)resumo.innerHTML=`<div class="kpi-card !p-3"><span class="kpi-label">Hoje</span><strong class="text-xl font-black text-blue-700">${hojeN}</strong></div><div class="kpi-card !p-3"><span class="kpi-label">Em execução</span><strong class="text-xl font-black text-cyan-700">${execN}</strong></div><div class="kpi-card !p-3"><span class="kpi-label">Pendentes</span><strong class="text-xl font-black text-amber-600">${pendN}</strong></div>`;minhas.sort((a,b)=>String(a.agendadoParaISO||'9999').localeCompare(String(b.agendadoParaISO||'9999')));lista.innerHTML=minhas.length?minhas.map(o=>{const stage=normStage(o.etapaKanban||o.etapa||o.status),p=pendenciaOS(o),eqs=o._equipamentos||[],eqtxt=eqs.length?eqs.map(e=>e.modelo||e.nome||'Equipamento').join(', '):'Equipamento ainda não vinculado';return `<article class="tech-os-card ${stage==='FATURAMENTO'?'admin':''}"><div class="flex justify-between gap-3"><div><div class="os-number">${esc(o.osNumber||o.numero||'OS')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(o.clienteNome||o.cliente||'Cliente não informado')}</div></div><span class="priority h-fit">${esc(o.prioridade||'NORMAL')}</span></div><div class="tech-meta-grid"><div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta"><span>Equipamento(s)</span><b>${esc(eqtxt)}</b></div></div><div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span>${esc(p.texto)}</span></div><button class="tech-primary-action" onclick="window.abrirAtendimentoTecnico('${esc(o.id||o.internalId)}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir atendimento</button></article>`}).join(''):`<div class="tech-empty"><i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i><div class="font-black text-slate-700">Nenhum atendimento atribuído a você</div><div class="mt-1">As OS aparecerão aqui quando você estiver definido como técnico responsável.</div></div>`}
 window.renderModoTecnico=renderModoTecnico;
 function clientLabel(x){return x.fantasia||x.razao_social||x.nomeFantasia||x.razaoSocial||x.nome||x.cliente||'Cliente sem nome'}
 function fillSelects(){const c=document.getElementById('nova-cliente'),u=document.getElementById('nova-tecnico');if(c)c.innerHTML='<option value="">Selecione o cliente</option>'+[...state.clientes].sort((a,b)=>clientLabel(a).localeCompare(clientLabel(b),'pt-BR')).map(x=>`<option value="${x.id}">${clientLabel(x)}</option>`).join('');if(u)u.innerHTML='<option value="">A definir</option>'+state.usuarios.map(x=>`<option value="${x.uid||x.id}">${x.nome||x.email||x.id}</option>`).join('')}
@@ -1266,7 +1297,7 @@ ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button
 
 
 
-// FASE 1.42 — integração Assistência ↔ Requisição de Material
+// FASE 1.43 — integração Assistência ↔ Requisição de Material
 window.materialCentralState={orcamento:null,requisicoes:[],planejamento:null,catalogo:[],legacy:[]};
 
 function matNorm(v){
@@ -2188,8 +2219,63 @@ window.pausarAtendimentoTecnico=()=>techSalvarControle('PAUSADO','ATENDIMENTO_PA
 window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDIMENTO_RETOMADO','Atendimento retomado');
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
+
+// FASE 1.43 — materiais do técnico no celular
+function techMaterialStatusInfo(st){
+ st=String(st||'').toUpperCase();
+ const map={
+  PENDENTE:['Aguardando aprovação','pending'],
+  COM_TECNICO:['Com você','withtech'],
+  AGUARDANDO_DEVOLUCAO:['Pendente de devolução','returning'],
+  UTILIZADO:['Utilizado','used'],
+  UTILIZADO_RS:['Utilizado','used'],
+  DEVOLVIDO:['Devolvido','returned'],
+  REJEITADO:['Não aprovado','rejected']
+ };
+ return map[st]||[String(st||'Aguardando').replaceAll('_',' '),'info'];
+}
+function techMateriaisHTML(eq,oficiais,planejamentos,solicitacoes,ciclo){
+ const eid=String(eq.id||eq.internalId);
+ const reqs=(oficiais||[]).filter(r=>String(r.equipamentoId||'')===eid&&Number(r.cicloAtendimento||1)===Number(ciclo||1));
+ const plano=(planejamentos||[]).find(p=>String(p.equipamentoId||'')===eid&&Number(p.cicloAtendimento||1)===Number(ciclo||1));
+ const reqTec=(solicitacoes||[]).filter(x=>String(x.equipamentoId||'')===eid&&Number(x.cicloAtendimento||1)===Number(ciclo||1))
+   .sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0];
+
+ let itens=[];
+ if(reqs.length){
+   itens=reqs.map(r=>({nome:r.material||'Material',qtd:r.qtd||0,status:r.status||'',meta:r.os||''}));
+ }else if(plano?.itens?.length){
+   itens=plano.itens.map(i=>{
+     const d=String(i.destinoMaterial||'REQUISITAR').toUpperCase();
+     const map={REQUISITAR:['Aguardando requisição','pending'],COM_TECNICO:['Com você','withtech'],CLIENTE:['Cliente fornece','info'],NAO_UTILIZAR:['Não utilizar','rejected']};
+     const inf=map[d]||['Planejado','info'];
+     return {nome:i.materialOficial||i.descricaoTecnica||'Material',qtd:i.quantidadeDesejada||i.quantidadeOrcada||0,statusLabel:inf[0],statusClass:inf[1],meta:'Planejamento aprovado'};
+   });
+ }else if(reqTec?.pecas?.length){
+   itens=reqTec.pecas.map(i=>({nome:i.descricao||i.nome||i.material||'Peça',qtd:i.quantidade||i.qtd||0,statusLabel:'Solicitado tecnicamente',statusClass:'info',meta:'Aguardando fluxo administrativo'}));
+ }
+
+ if(!itens.length){
+   return `<div class="tech-materials"><div class="tech-materials-head"><div class="tech-materials-title"><i class="fa-solid fa-box-open mr-1"></i>Materiais da OS</div></div><div class="text-[10px] text-slate-400 mt-2">Nenhuma peça/material vinculada a este equipamento.</div></div>`;
+ }
+
+ return `<div class="tech-materials">
+   <div class="tech-materials-head">
+     <div class="tech-materials-title"><i class="fa-solid fa-box-open mr-1"></i>Materiais da OS</div>
+     <button type="button" class="text-[9px] font-black text-blue-700" onclick="window.renderAtendimentoTecnico()"><i class="fa-solid fa-rotate mr-1"></i>Atualizar</button>
+   </div>
+   <div class="tech-material-list">${itens.map(i=>{
+      const inf=i.statusLabel?[i.statusLabel,i.statusClass]:techMaterialStatusInfo(i.status);
+      return `<div class="tech-material-item"><div class="tech-material-item-top"><div class="min-w-0"><div class="tech-material-name">${esc(i.nome)}</div><div class="tech-material-meta">Qtd. ${esc(i.qtd||0)}${i.meta?' · '+esc(i.meta):''}</div></div><span class="tech-material-status ${inf[1]}">${esc(inf[0])}</span></div></div>`;
+   }).join('')}</div>
+ </div>`;
+}
+
+
 window.abrirAtendimentoTecnico=async function(id){
  const o=(state.os||[]).find(x=>String(x.id||x.internalId)===String(id));if(!o){toast('OS não encontrada.');return}
+ if(document.body.classList.contains('tech-app-mode')&&!isMinhaOS(o)){alert('Esta OS não está atribuída ao seu usuário.');return}
+ if(['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status))){toast('Atendimento técnico já finalizado.');return}
  state.selectedOS=o;
  document.getElementById('tech-at-numero').textContent=o.osNumber||o.numero||'Ordem de Serviço';
  document.getElementById('tech-at-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';
@@ -2202,16 +2288,55 @@ window.renderAtendimentoTecnico=async function(){
  const o=state.selectedOS,box=document.getElementById('tech-at-equipamentos');if(!o||!box)return;
  box.innerHTML='<div class="tech-empty"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando atendimento...</div>';
  try{
-  const items=await readSub(o.internalId||o.id,'equipamentos');o._equipamentos=items;
+  const osid=o.internalId||o.id,ciclo=Number(o.cicloAtendimento||1);
+  const [allItems,oficiais,planejamentos,solicitacoes]=await Promise.all([
+    readSub(osid,'equipamentos'),
+    read('requisicoes_material').catch(()=>[]),
+    readSub(osid,'materiais_planejamento').catch(()=>[]),
+    readSub(osid,'solicitacoes_orcamento').catch(()=>[])
+  ]);
+  const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
+  o._equipamentos=items;
   const stage=normStage(o.etapaKanban||o.etapa||o.status),p=pendenciaOS(o);
   document.getElementById('tech-at-resumo').innerHTML=`<div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta"><span>Etapa da OS</span><b>${esc(stages.find(x=>x[0]===stage)?.[1]||stage)}</b></div><div class="tech-meta col-span-2"><span>Pendência atual</span><b>${esc(p.texto)}</b></div>`;
   if(!items.length){box.innerHTML='<div class="tech-empty">Nenhum equipamento vinculado a esta OS.</div>';return}
-  box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const done=st==='CONCLUIDO';return `<article class="tech-eq ${done?'done':''}"><div class="flex justify-between gap-2"><div><div class="text-[10px] font-black text-blue-600">EQUIPAMENTO ${idx+1}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(e.modelo||e.nome||'Equipamento')}</div><div class="text-[11px] text-slate-500 mt-1">SN: ${esc(e.numeroSerie||e.numero_serie||e.sn||'não informado')}</div></div><span class="status-badge ${done?'status-ok':'status-pending'} h-fit">${esc(statusLabel(st))}</span></div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}</div>`:''}<div class="tech-eq-actions"><button class="tech-action primary" onclick="window.techAcaoStatus('${esc(e.id)}','EM_DIAGNOSTICO')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button><button class="tech-action sky" onclick="window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos</button><button class="tech-action amber" onclick="window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitar orçamento</button><button class="tech-action" onclick="window.techAcaoStatus('${esc(e.id)}','EM_EXECUCAO')"><i class="fa-solid fa-screwdriver-wrench"></i> Em execução</button><button class="tech-action green col-span-2" onclick="window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout / concluir equipamento</button></div></article>`}).join('');
- }catch(e){console.error('[Assistência] atendimento técnico',e);box.innerHTML='<div class="tech-empty text-rose-700">Não foi possível carregar os equipamentos.</div>'}
+
+  box.innerHTML=items.map((e,idx)=>{
+    const st=String(e.statusEquipamento||'PENDENTE').toUpperCase(),done=st==='CONCLUIDO',liberado=st==='EM_EXECUCAO';
+    const execNote=done?'':liberado
+      ? '<div class="tech-execution-note ok"><i class="fa-solid fa-circle-check mr-1"></i>Execução liberada pelo administrativo.</div>'
+      : st==='AGUARDANDO_EXECUCAO'
+        ? '<div class="tech-execution-note wait"><i class="fa-solid fa-clock mr-1"></i>Orçamento aprovado. Aguardando agendamento/liberação do administrativo.</div>'
+        : '';
+    const checkout=liberado
+      ? `<button class="tech-action green col-span-2" onclick="window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout / concluir equipamento</button>`
+      : `<button class="tech-action green col-span-2" disabled title="A execução precisa ser liberada pelo administrativo"><i class="fa-solid fa-lock"></i> Checkout bloqueado — aguarde liberação</button>`;
+
+    return `<article class="tech-eq ${done?'done':''}">
+      <div class="flex justify-between gap-2">
+        <div><div class="text-[10px] font-black text-blue-600">EQUIPAMENTO ${idx+1}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(e.modelo||e.nome||'Equipamento')}</div><div class="text-[11px] text-slate-500 mt-1">SN: ${esc(e.numeroSerie||e.numero_serie||e.sn||'não informado')}</div></div>
+        <span class="status-badge ${done?'status-ok':'status-pending'} h-fit">${esc(statusLabel(st))}</span>
+      </div>
+      ${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}</div>`:''}
+      ${execNote}
+      ${techMateriaisHTML(e,oficiais,planejamentos,solicitacoes,ciclo)}
+      ${done?'<div class="tech-execution-note ok"><i class="fa-solid fa-check-double mr-1"></i>Equipamento concluído.</div>':`<div class="tech-eq-actions">
+        <button class="tech-action primary" onclick="window.techAcaoStatus('${esc(e.id)}','EM_DIAGNOSTICO')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button>
+        <button class="tech-action sky" onclick="window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos</button>
+        <button class="tech-action amber col-span-2" onclick="window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitação técnica / peças</button>
+        ${checkout}
+      </div>`}
+    </article>`;
+  }).join('');
+ }catch(e){console.error('[Assistência] atendimento técnico',e);box.innerHTML='<div class="tech-empty text-rose-700">Não foi possível carregar os equipamentos / materiais.</div>'}
 };
 window.techAcaoStatus=async function(eid,status){
  const o=state.selectedOS,eq=(o?._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!o||!eq)return;
  if(status==='EM_DIAGNOSTICO'){window.abrirDiagnosticoEquipamento(eid);return}
+ if(document.body.classList.contains('tech-app-mode')&&status==='EM_EXECUCAO'){
+   alert('A liberação para execução é feita pelo administrativo após aprovação e agendamento.');
+   return;
+ }
  try{const now=new Date().toISOString();await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});eq.statusEquipamento=status;await recalcOSStage(o,o._equipamentos);await window.renderAtendimentoTecnico();toast('Atendimento atualizado.')}catch(e){console.error(e);alert('Não foi possível atualizar o atendimento.\n\n'+(e?.message||e))}
 };
 ['fecharDiagnosticoEquipamento','fecharPecasEquipamento','fecharCheckoutEquipamento','fecharAnexosEquipamento'].forEach(n=>{const old=window[n];if(typeof old==='function')window[n]=function(){const r=old.apply(this,arguments);if(!document.getElementById('modal-tech-atendimento')?.classList.contains('hidden'))setTimeout(()=>window.renderAtendimentoTecnico?.(),50);return r}});
@@ -2248,6 +2373,10 @@ window.abrirCheckoutEquipamento=function(eid){
   const o=state.selectedOS;if(!o)return;
   const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
   if(!eq){toast('Equipamento não encontrado.');return}
+  if(document.body.classList.contains('tech-app-mode')&&String(eq.statusEquipamento||'').toUpperCase()!=='EM_EXECUCAO'){
+    alert('O checkout só é liberado após o administrativo liberar a execução.');
+    return;
+  }
   state.selectedEquipment=eq;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??''};
   const tit=document.getElementById('checkout-equip-titulo');if(tit)tit.textContent=(eq.modelo||eq.nome||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');
@@ -2667,7 +2796,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.42 — exclusão lógica de equipamento e OS
+// FASE 1.43 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -2790,7 +2919,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.42 — reabertura controlada por ciclos
+// FASE 1.43 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -2910,7 +3039,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.42 — duplicação controlada de OS
+// FASE 1.43 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -3054,7 +3183,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.42 — conciliação de materiais no fechamento da OS
+// FASE 1.43 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
