@@ -632,6 +632,99 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:420px){.tech-card-actions{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase150-mobile-toolbar-fix">
+.tech-app-strip{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.tech-app-status-main{
+  min-width:0!important;
+  max-width:100%!important;
+  flex-wrap:wrap!important;
+}
+.tech-app-controls{
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  flex:none;
+  min-width:0;
+}
+.tech-app-controls .tech-install-btn{
+  pointer-events:auto!important;
+  touch-action:manipulation;
+  position:relative;
+  z-index:2;
+}
+.tech-offline-feedback{
+  width:100%;
+  border-radius:.7rem;
+  padding:.5rem .65rem;
+  font-size:.58rem;
+  font-weight:850;
+  line-height:1.35;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+}
+.tech-offline-feedback.ok{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.tech-offline-feedback.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.tech-offline-feedback.error{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+
+@media(max-width:640px){
+  body.tech-app-mode,
+  body.tech-app-mode #main-content,
+  body.tech-app-mode #view-tecnico,
+  body.tech-app-mode .tech-shell{
+    max-width:100vw!important;
+    overflow-x:hidden!important;
+  }
+  .tech-app-strip{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:.55rem!important;
+    width:100%!important;
+    padding:.65rem!important;
+    box-sizing:border-box!important;
+  }
+  .tech-app-status-main{
+    width:100%!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:.35rem!important;
+    font-size:.58rem!important;
+    line-height:1.25!important;
+  }
+  .tech-app-controls{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:.45rem!important;
+  }
+  .tech-app-controls .tech-install-btn{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:46px!important;
+    padding:.55rem .45rem!important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.35rem;
+    font-size:.62rem!important;
+    white-space:normal!important;
+    line-height:1.1!important;
+  }
+  .tech-app-controls #tech-install-btn:not(.hidden){
+    grid-column:1/-1!important;
+  }
+  .tech-app-controls .tech-install-btn.hidden{display:none!important}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -639,7 +732,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.49</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.50</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -726,7 +819,22 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <section id="view-tecnico" class="view-panel hidden">
       <div class="tech-shell space-y-4">
         <div class="tech-hero"><div class="flex items-center justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Área do técnico</div><h2 class="text-xl font-black mt-1">Meus atendimentos</h2><p id="tech-user-label" class="text-xs text-blue-100 mt-1">Carregando técnico...</p></div><div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center text-xl"><i class="fa-solid fa-screwdriver-wrench"></i></div></div></div>
-        <div class="tech-app-strip"><div class="tech-app-status"><span id="tech-app-dot" class="tech-app-dot"></span><span id="tech-app-conexao">Online</span><span class="text-slate-300">•</span><span id="tech-app-sync">Atualizado agora</span><span class="text-slate-300">•</span><span id="tech-offline-pendencias" class="offline-pending-count">0 pendências</span></div><div class="flex gap-2"><button id="tech-prepare-all-btn" class="tech-install-btn" onclick="window.prepararMinhasOSExternasOffline()"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Preparar</button><button id="tech-sync-offline-btn" class="tech-install-btn" onclick="window.sincronizarPendenciasOffline()"><i class="fa-solid fa-rotate mr-1"></i> Sincronizar</button><button id="tech-install-btn" class="tech-install-btn hidden" onclick="window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button mr-1"></i> Instalar app</button></div></div>
+        <div class="tech-app-strip">
+  <div class="tech-app-status tech-app-status-main">
+    <span id="tech-app-dot" class="tech-app-dot"></span>
+    <span id="tech-app-conexao">Online</span>
+    <span class="text-slate-300">•</span>
+    <span id="tech-app-sync">Atualizado agora</span>
+    <span class="text-slate-300">•</span>
+    <span id="tech-offline-pendencias" class="offline-pending-count">0 pendências</span>
+  </div>
+  <div class="tech-app-controls">
+    <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
+    <button type="button" id="tech-sync-offline-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techSincronizarOfflineClick()"><i class="fa-solid fa-rotate"></i><span>Sincronizar</span></button>
+    <button type="button" id="tech-install-btn" class="tech-install-btn hidden" onclick="event.preventDefault();event.stopPropagation();window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button"></i><span>Instalar app</span></button>
+  </div>
+  <div id="tech-offline-feedback" class="tech-offline-feedback hidden"></div>
+</div>
         <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="tech-busca" oninput="window.renderModoTecnico()" class="input pl-9" placeholder="Buscar cliente, OS ou equipamento..."></div></div>
         <div id="tech-resumo" class="grid grid-cols-3 gap-2"></div>
         <div id="tech-lista"></div>
@@ -1089,7 +1197,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.49</span>
+        <span class="tag tag-green">FASE 1.50</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1369,7 +1477,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.49 — Offline essencial para atendimento externo
+// FASE 1.50 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1492,6 +1600,63 @@ window.prepararOSOffline=async function(id,silencioso=false){
     return false;
   }finally{if(btn)btn.disabled=false}
 };
+
+function techOfflineFeedback(msg,tipo='ok'){
+  const el=document.getElementById('tech-offline-feedback');if(!el)return;
+  el.className='tech-offline-feedback '+tipo;
+  el.innerHTML=msg;
+  clearTimeout(window.__techOfflineFeedbackTimer);
+  window.__techOfflineFeedbackTimer=setTimeout(()=>el.classList.add('hidden'),5000);
+}
+window.techPrepararOfflineClick=async function(){
+  const btn=document.getElementById('tech-prepare-all-btn');
+  try{
+    if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i><span>Preparando...</span>'}
+    if(navigator.onLine===false){
+      techOfflineFeedback('<i class="fa-solid fa-wifi mr-1"></i>Sem conexão. Conecte à internet para preparar as OS externas.','warn');
+      return;
+    }
+    const externas=(state.os||[]).filter(o=>o?.is_deleted!==true).filter(isMinhaOS).filter(o=>String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO').filter(o=>!['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status)));
+    if(!externas.length){
+      techOfflineFeedback('<i class="fa-solid fa-circle-info mr-1"></i>Nenhuma OS externa ativa está atribuída a você neste momento.','warn');
+      return;
+    }
+    let ok=0;
+    for(const o of externas)if(await window.prepararOSOffline(o.id||o.internalId,true))ok++;
+    await assistOfflineRefreshPreparedMap?.();
+    renderModoTecnico();
+    techOfflineFeedback(`<i class="fa-solid fa-circle-check mr-1"></i>${ok} OS externa(s) preparada(s) para uso sem internet.`,'ok');
+  }catch(e){
+    console.error('[Assistência] preparar offline botão',e);
+    techOfflineFeedback('<i class="fa-solid fa-triangle-exclamation mr-1"></i>Não foi possível preparar as OS. '+esc(e?.message||e),'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span>'}
+  }
+};
+window.techSincronizarOfflineClick=async function(){
+  const btn=document.getElementById('tech-sync-offline-btn');
+  try{
+    if(navigator.onLine===false){
+      techOfflineFeedback('<i class="fa-solid fa-wifi mr-1"></i>Sem conexão. As informações continuam salvas no aparelho.','warn');
+      return;
+    }
+    const pend=await assistOfflinePending();
+    if(!pend.length){
+      await assistOfflineUpdateBadge();
+      techOfflineFeedback('<i class="fa-solid fa-circle-check mr-1"></i>Tudo sincronizado. Não existem pendências no aparelho.','ok');
+      return;
+    }
+    techOfflineFeedback(`<i class="fa-solid fa-rotate fa-spin mr-1"></i>Sincronizando ${pend.length} pendência(s)...`,'');
+    await window.sincronizarPendenciasOffline();
+    const rest=await assistOfflinePending();
+    if(!rest.length)techOfflineFeedback('<i class="fa-solid fa-circle-check mr-1"></i>Sincronização concluída.','ok');
+    else techOfflineFeedback(`<i class="fa-solid fa-triangle-exclamation mr-1"></i>${rest.length} pendência(s) ainda aguardam sincronização.`,'warn');
+  }catch(e){
+    console.error('[Assistência] sincronizar botão',e);
+    techOfflineFeedback('<i class="fa-solid fa-triangle-exclamation mr-1"></i>Falha ao sincronizar. '+esc(e?.message||e),'error');
+  }
+};
+
 window.prepararMinhasOSExternasOffline=async function(){
   if(navigator.onLine===false){toast('Conecte o aparelho à internet primeiro.');return}
   const minhas=(state.os||[]).filter(o=>o?.is_deleted!==true).filter(isMinhaOS).filter(o=>String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO').filter(o=>!['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status)));
@@ -1633,7 +1798,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.49 — OS interna x externa e recolhimento para laboratório
+// FASE 1.50 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2620,7 +2785,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.49 — leitura de QR Code / número de série do equipamento
+// FASE 1.50 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3017,7 +3182,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.49 — materiais do técnico no celular
+// FASE 1.50 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -3768,7 +3933,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.49 — exclusão lógica de equipamento e OS
+// FASE 1.50 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -3891,7 +4056,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.49 — reabertura controlada por ciclos
+// FASE 1.50 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4011,7 +4176,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.49 — duplicação controlada de OS
+// FASE 1.50 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4156,7 +4321,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.49 — conciliação de materiais no fechamento da OS
+// FASE 1.50 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
