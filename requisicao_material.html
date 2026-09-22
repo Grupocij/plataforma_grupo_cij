@@ -52,7 +52,7 @@
                         <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">Logística & Estoque</span>
                     </div>
                     <h1 class="text-lg md:text-xl font-black text-slate-900 tracking-tight leading-none">Requisição de Material</h1>
-                    <p class="text-slate-500 text-[11px] md:text-xs mt-0.5">Solicitação, aprovação de peças e controle de baixas com OS · integrado à Assistência Técnica.</p>
+                    <p class="text-slate-500 text-[11px] md:text-xs mt-0.5">Solicitação, aprovação de peças e controle de baixas com OS · integrado à Assistência Técnica · fechamento automático por OS.</p>
                 </div>
             </div>
             <button onclick="window.abrirModalNovaReq()" class="w-full lg:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0 text-xs">
@@ -109,7 +109,7 @@
                 <div class="p-3 sm:p-4 border-b border-slate-100 bg-amber-50/30 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 shrink-0">
                     <div>
                         <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-toolbox text-amber-600 mr-1.5"></i> Materiais sob minha responsabilidade</h3>
-                        <p class="text-[10px] text-slate-500 mt-0.5">Após o uso, clique em "Utilizado" e informe a OS. Se não usar, clique em "Devolver".</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Peças utilizadas saem automaticamente desta lista. Peças não utilizadas permanecem aqui como "Pendente de devolução" até o gestor confirmar o retorno.</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-3 sm:p-4 overflow-y-auto custom-scrollbar flex-1 min-h-0 pb-24" id="grid-comigo">
@@ -527,7 +527,7 @@
 
         window.atualizarInterface = function() {
             const meuEmail = window.userEmailLogado;
-            const itensComigo = window.reqData.filter(i => i.autor_email === meuEmail && i.status === 'COM_TECNICO').length;
+            const itensComigo = window.reqData.filter(i => i.autor_email === meuEmail && (i.status === 'COM_TECNICO' || i.status === 'AGUARDANDO_DEVOLUCAO')).length;
             
             const badgeComigo = document.getElementById('badge-comigo');
             if(itensComigo > 0) { badgeComigo.innerText = itensComigo; badgeComigo.classList.remove('hidden'); }
@@ -580,30 +580,45 @@
         // --- ABA: COMIGO (TÉCNICO) ---
         function renderAbaComigo() {
             const grid = document.getElementById('grid-comigo');
-            const itensComigo = window.reqData.filter(i => i.autor_email === window.userEmailLogado && i.status === 'COM_TECNICO');
+            const itensComigo = window.reqData.filter(i =>
+                i.autor_email === window.userEmailLogado &&
+                (i.status === 'COM_TECNICO' || i.status === 'AGUARDANDO_DEVOLUCAO')
+            );
 
             if (itensComigo.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10 font-bold"><i class="fa-solid fa-box-open text-3xl mb-2 opacity-50 block"></i> Você não possui materiais pendentes de baixa.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10 font-bold"><i class="fa-solid fa-box-open text-3xl mb-2 opacity-50 block"></i> Você não possui materiais sob sua responsabilidade.</div>`;
                 return;
             }
 
-            grid.innerHTML = itensComigo.map(i => `
-                <div class="bg-white border-2 border-amber-300 rounded-2xl shadow-sm p-4 flex flex-col justify-between">
+            grid.innerHTML = itensComigo.map(i => {
+                const devolucao = i.status === 'AGUARDANDO_DEVOLUCAO';
+                return `
+                <div class="bg-white border-2 ${devolucao?'border-purple-300':'border-amber-300'} rounded-2xl shadow-sm p-4 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-200">Aprovado p/ Uso</span>
-                            <span class="text-xs font-black text-slate-400">${window.formatarDataBr(i.data_solicitacao)}</span>
+                            <span class="text-[10px] ${devolucao?'bg-purple-100 text-purple-800 border-purple-200':'bg-amber-100 text-amber-800 border-amber-200'} font-bold px-2 py-0.5 rounded border">
+                                ${devolucao?'Pendente de devolução':'Aprovado p/ Uso'}
+                            </span>
+                            <span class="text-xs font-black text-slate-400">${window.formatarDataBr(i.data_atualizacao || i.data_solicitacao)}</span>
                         </div>
                         <h4 class="text-base font-black text-slate-900">${i.material}</h4>
-                        <p class="text-[11px] text-slate-500 mt-1">Destino: <strong>${i.destino}</strong></p>${i.os?`<p class="text-[10px] font-black text-blue-700 mt-1"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>${i.os}${i.equipamentoModelo?' · '+i.equipamentoModelo:''}${i.equipamentoNumeroSerie?' · SN '+i.equipamentoNumeroSerie:''}</p>`:''}
-                        <p class="text-xs font-black text-blue-700 mt-2 bg-blue-50 inline-block px-2 py-1 rounded">Qtd Autorizada: ${i.qtd}</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Destino: <strong>${i.destino}</strong></p>
+                        ${i.os?`<p class="text-[10px] font-black text-blue-700 mt-1"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>${i.os}${i.equipamentoModelo?' · '+i.equipamentoModelo:''}${i.equipamentoNumeroSerie?' · SN '+i.equipamentoNumeroSerie:''}</p>`:''}
+                        <p class="text-xs font-black ${devolucao?'text-purple-700 bg-purple-50':'text-blue-700 bg-blue-50'} mt-2 inline-block px-2 py-1 rounded">
+                            Qtd: ${i.qtd}
+                        </p>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex gap-2">
-                        <button onclick="window.abrirModalUso('${i.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow-sm cursor-pointer">Utilizado (Baixa)</button>
-                        <button onclick="window.devolverMatriz('${i.id}')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-[11px] transition cursor-pointer">Não usei (Devolver)</button>
-                    </div>
-                </div>
-            `).join('');
+                    ${devolucao
+                      ? `<div class="mt-4 pt-3 border-t border-purple-100 rounded-xl bg-purple-50 p-3 text-[11px] font-bold text-purple-800">
+                           <i class="fa-solid fa-rotate-left mr-1"></i> Material não utilizado. Entregue ao gestor para concluir a devolução.
+                         </div>`
+                      : `<div class="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                           <button onclick="window.abrirModalUso('${i.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow-sm cursor-pointer">Utilizado (Baixa)</button>
+                           <button onclick="window.devolverMatriz('${i.id}')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-[11px] transition cursor-pointer">Não usei (Devolver)</button>
+                         </div>`
+                    }
+                </div>`;
+            }).join('');
         }
 
         // --- ABA: GESTOR (CARDS RESPONSIVOS) ---

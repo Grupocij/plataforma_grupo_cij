@@ -430,6 +430,16 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 #btn-gerar-requisicoes:disabled{opacity:.45;cursor:not-allowed}
 </style>
 
+
+<style id="fase142-conciliacao-ui">
+.conc-mat-row{display:flex;align-items:center;gap:1rem;border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:#fff}
+.conc-mat-usebox{width:230px;flex:0 0 230px}
+.conc-quick{flex:1;border-radius:9px;padding:.42rem .55rem;font-size:.58rem;font-weight:900;border:1px solid transparent}
+.conc-quick.used{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+.conc-quick.return{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+@media(max-width:700px){.conc-mat-row{flex-direction:column;align-items:stretch}.conc-mat-usebox{width:auto;flex:auto}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -437,7 +447,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.41</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.42</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -855,7 +865,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.41</span>
+        <span class="tag tag-green">FASE 1.42</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -916,6 +926,35 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 </div>
 
 <div id="modal-movimento-material" class="modal-backdrop hidden" style="z-index:100034!important"><div class="modal-card !max-w-none" style="width:min(720px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.33</span><h2 id="mat-mov-title" class="text-xl font-black mt-2">Movimentação de material</h2><p id="mat-mov-sub" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharMovimentoMaterial()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="mat-mov-itens" class="mt-5 space-y-3"></div><label class="block mt-4"><span class="field-label">Observação</span><textarea id="mat-mov-obs" class="input min-h-20" placeholder="Ex.: peça aplicada, sobra devolvida, motivo da devolução..."></textarea></label><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharMovimentoMaterial()" class="btn btn-light">Cancelar</button><button id="btn-mat-mov" onclick="window.salvarMovimentoMaterial()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Registrar</button></div></div></div>
+
+
+<div id="modal-conciliacao-materiais" class="modal-backdrop hidden" style="z-index:100090!important">
+  <div class="modal-card !max-w-none" style="width:min(820px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-green">FECHAMENTO DE MATERIAIS</span>
+        <h2 class="text-xl font-black mt-2">Confirmar utilização das peças</h2>
+        <p id="conc-mat-os" class="text-xs text-slate-500 mt-1">-</p>
+      </div>
+      <button onclick="window.cancelarConciliacaoMateriais()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
+      Antes de concluir a OS, informe quanto foi realmente utilizado.
+      A quantidade utilizada será baixada automaticamente na OS.
+      O saldo não utilizado ficará como <b>Aguardando devolução</b> na lista do técnico.
+    </div>
+
+    <div id="conc-mat-lista" class="mt-5 space-y-3"></div>
+
+    <div class="mt-5 flex justify-end gap-2">
+      <button onclick="window.cancelarConciliacaoMateriais()" class="btn btn-light">Cancelar finalização</button>
+      <button id="btn-confirmar-conc-mat" onclick="window.confirmarConciliacaoMateriais()" class="btn btn-primary">
+        <i class="fa-solid fa-check-double"></i> Confirmar materiais e finalizar
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-checkout-equipamento" class="modal-backdrop hidden" style="z-index:100002 !important;"><div class="modal-card" style="max-width:760px"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.23</span><h2 class="text-xl font-black mt-2">Checkout / Conclusão do equipamento</h2><p id="checkout-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharCheckoutEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900"><b>Conclusão controlada:</b> o equipamento só será marcado como Concluído após registrar o serviço executado e o resultado do teste final.</div><div class="mt-5 grid md:grid-cols-2 gap-4"><label class="md:col-span-2"><span class="field-label">Serviço executado *</span><textarea id="checkout-servico" class="input min-h-24" placeholder="Descreva o que foi executado no equipamento..."></textarea></label><label><span class="field-label">Teste final *</span><select id="checkout-teste" class="input"><option value="">Selecione</option><option value="APROVADO">Aprovado</option><option value="APROVADO_COM_RESSALVA">Aprovado com ressalva</option><option value="REPROVADO">Reprovado</option></select></label><label><span class="field-label">Condição de saída</span><select id="checkout-condicao" class="input"><option value="OPERACIONAL">Operacional</option><option value="OPERACIONAL_COM_RESSALVA">Operacional com ressalva</option><option value="NAO_OPERACIONAL">Não operacional</option></select></label><label class="md:col-span-2"><span class="field-label">Observações finais</span><textarea id="checkout-observacao" class="input min-h-20" placeholder="Orientações ao cliente, pendências ou observações..."></textarea></label></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharCheckoutEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-checkout" onclick="window.salvarCheckoutEquipamento()" class="btn btn-primary"><i class="fa-solid fa-circle-check"></i> Concluir equipamento</button></div></div></div>
 
@@ -1227,7 +1266,7 @@ ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button
 
 
 
-// FASE 1.41 — integração Assistência ↔ Requisição de Material
+// FASE 1.42 — integração Assistência ↔ Requisição de Material
 window.materialCentralState={orcamento:null,requisicoes:[],planejamento:null,catalogo:[],legacy:[]};
 
 function matNorm(v){
@@ -1837,19 +1876,69 @@ window.salvarCheckoutEquipamento=async function(){
   const condicao=document.getElementById('checkout-condicao').value;
   if(!servico){alert('Informe o serviço executado.');return}
   if(!teste){alert('Informe o resultado do teste final.');return}
-  if(teste==='REPROVADO'||condicao==='NAO_OPERACIONAL'){alert('Um equipamento reprovado ou não operacional não pode ser concluído. Corrija o atendimento ou registre a situação antes de finalizar.');return}
+  if(teste==='REPROVADO'||condicao==='NAO_OPERACIONAL'){
+    alert('Um equipamento reprovado ou não operacional não pode ser concluído. Corrija o atendimento ou registre a situação antes de finalizar.');
+    return;
+  }
+
+  const ativos=(o._equipamentos||[]).filter(x=>x.ativo!==false&&!['RECUSADO','CANCELADO'].includes(String(x.statusEquipamento||'').toUpperCase()));
+  const outros=ativos.filter(x=>String(x.id||x.internalId)!==String(eq.id||eq.internalId));
+  const esteCheckoutFinalizaOS=outros.every(x=>String(x.statusEquipamento||'').toUpperCase()==='CONCLUIDO');
+
+  let conciliacao=[];
+  if(esteCheckoutFinalizaOS){
+    conciliacao=await window.solicitarConciliacaoMateriaisFinalizacao(o);
+    if(conciliacao===null){
+      toast('Finalização cancelada. Nenhum material foi alterado.');
+      return;
+    }
+  }
+
   const btn=document.getElementById('btn-salvar-checkout'),now=new Date().toISOString();
-  const data={statusEquipamento:'CONCLUIDO',checkoutServicoExecutado:servico,checkoutTesteFinal:teste,checkoutCondicaoSaida:condicao,checkoutObservacao:document.getElementById('checkout-observacao').value.trim(),checkoutConcluidoEmISO:now,checkoutConcluidoPorUid:window.currentUser?.uid||'',checkoutConcluidoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};
+  const data={
+    statusEquipamento:'CONCLUIDO',
+    checkoutServicoExecutado:servico,
+    checkoutTesteFinal:teste,
+    checkoutCondicaoSaida:condicao,
+    checkoutObservacao:document.getElementById('checkout-observacao').value.trim(),
+    checkoutConcluidoEmISO:now,
+    checkoutConcluidoPorUid:window.currentUser?.uid||'',
+    checkoutConcluidoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+    updatedAtISO:now,
+    atualizadoPorUid:window.currentUser?.uid||'',
+    atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+  };
+
   try{
     btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Concluindo...';
+
+    // Se este é o último equipamento, primeiro resolve os materiais.
+    if(esteCheckoutFinalizaOS && Array.isArray(conciliacao) && conciliacao.length){
+      await window.aplicarConciliacaoMateriaisFinalizacao(o,conciliacao);
+    }
+
     await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,data);
-    await addHistory(o,'CHECKOUT','Equipamento concluído',servico+' · Teste final: '+teste.replaceAll('_',' '),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||''});
+    await addHistory(o,'CHECKOUT','Equipamento concluído',servico+' · Teste final: '+teste.replaceAll('_',' '),{
+      equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||''
+    });
+
     Object.assign(eq,data);
-    document.getElementById('modal-checkout-equipamento').classList.add('hidden');state.selectedEquipment=null;
-    await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);window.abrirDetalheOS(o.id||o.internalId);
-    toast('Checkout salvo e equipamento concluído.');
-  }catch(e){console.error('[Assistência] checkout',e);alert('Não foi possível concluir o equipamento. Verifique as Security Rules.\n\n'+(e?.message||e))}
-  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-circle-check"></i> Concluir equipamento'}
+    document.getElementById('modal-checkout-equipamento').classList.add('hidden');
+    state.selectedEquipment=null;
+
+    await recalcOSStage(o,o._equipamentos);
+    await renderEquipamentosOS(o);
+    window.abrirDetalheOS(o.id||o.internalId);
+
+    toast(esteCheckoutFinalizaOS
+      ? 'OS finalizada e materiais conciliados automaticamente.'
+      : 'Checkout salvo e equipamento concluído.');
+  }catch(e){
+    console.error('[Assistência] checkout/finalização',e);
+    alert('Não foi possível concluir o equipamento / finalizar a OS.\n\n'+(e?.message||e));
+  }finally{
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-circle-check"></i> Concluir equipamento';
+  }
 };
 
 window.abrirDiagnosticoEquipamento=function(eid){
@@ -2578,7 +2667,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.41 — exclusão lógica de equipamento e OS
+// FASE 1.42 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -2701,7 +2790,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.41 — reabertura controlada por ciclos
+// FASE 1.42 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -2821,7 +2910,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.41 — duplicação controlada de OS
+// FASE 1.42 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -2961,6 +3050,178 @@ window.confirmarDuplicarOS=async function(){
     btn.disabled=false;
     btn.innerHTML='<i class="fa-solid fa-copy"></i> Criar nova OS';
   }
+};
+
+
+
+// FASE 1.42 — conciliação de materiais no fechamento da OS
+window.__conciliacaoMateriaisResolver=null;
+window.__conciliacaoMateriaisRows=[];
+
+window.definirQtdUtilizadaMaterial=function(index,valor){
+  const el=document.querySelector(`#conc-mat-lista [data-conc-index="${index}"] .conc-mat-usada`);
+  if(el)el.value=valor;
+};
+
+window.solicitarConciliacaoMateriaisFinalizacao=async function(o){
+  const osid=o?.internalId||o?.id;if(!osid)return [];
+  const ciclo=Number(o.cicloAtendimento||1);
+  const numero=o.osNumber||o.numero||'';
+  let reqs=[];
+  try{reqs=await read('requisicoes_material')}catch(e){console.warn('[Assistência] leitura de materiais na finalização',e);return []}
+
+  const comigo=(reqs||[]).filter(r=>{
+    const vinculo=(String(r.osId||'')===String(osid)) || (!!numero && String(r.os||'')===String(numero));
+    return vinculo
+      && Number(r.cicloAtendimento||1)===ciclo
+      && String(r.status||'').toUpperCase()==='COM_TECNICO';
+  });
+
+  if(!comigo.length)return [];
+
+  window.__conciliacaoMateriaisRows=comigo;
+  document.getElementById('conc-mat-os').textContent=
+    `${numero||'OS'} · ${o.clienteNome||o.cliente||''} · ${comigo.length} material(is) com o técnico`;
+
+  document.getElementById('conc-mat-lista').innerHTML=comigo.map((r,i)=>{
+    const qtd=Number(r.qtd||0);
+    return `<div class="conc-mat-row" data-conc-index="${i}">
+      <div class="flex-1 min-w-0">
+        <div class="text-xs font-black text-slate-900">${esc(r.material||'Material')}</div>
+        <div class="text-[10px] text-slate-500 mt-1">${esc(r.equipamentoModelo||r.destino||'')}${r.equipamentoNumeroSerie?` · SN ${esc(r.equipamentoNumeroSerie)}`:''}</div>
+        <div class="text-[10px] font-bold text-blue-700 mt-1">Qtd. com técnico: ${qtd}</div>
+      </div>
+      <div class="conc-mat-usebox">
+        <label><span class="field-label">Qtd. utilizada</span>
+          <input class="input conc-mat-usada" type="number" min="0" max="${qtd}" step="0.01" placeholder="0 a ${qtd}">
+        </label>
+        <div class="flex gap-1 mt-2">
+          <button type="button" class="conc-quick used" onclick="window.definirQtdUtilizadaMaterial(${i},${qtd})">Tudo usado</button>
+          <button type="button" class="conc-quick return" onclick="window.definirQtdUtilizadaMaterial(${i},0)">Não usei</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('modal-conciliacao-materiais').classList.remove('hidden');
+
+  return new Promise(resolve=>{
+    window.__conciliacaoMateriaisResolver=resolve;
+  });
+};
+
+window.cancelarConciliacaoMateriais=function(){
+  document.getElementById('modal-conciliacao-materiais')?.classList.add('hidden');
+  const resolver=window.__conciliacaoMateriaisResolver;
+  window.__conciliacaoMateriaisResolver=null;
+  window.__conciliacaoMateriaisRows=[];
+  if(resolver)resolver(null);
+};
+
+window.confirmarConciliacaoMateriais=function(){
+  const rows=window.__conciliacaoMateriaisRows||[];
+  const decisoes=[];
+  for(let i=0;i<rows.length;i++){
+    const req=rows[i];
+    const input=document.querySelector(`#conc-mat-lista [data-conc-index="${i}"] .conc-mat-usada`);
+    if(!input || input.value===''){
+      alert('Informe a quantidade utilizada de '+(req.material||'todos os materiais')+'.');
+      input?.focus();return;
+    }
+    const total=Number(req.qtd||0),usada=Number(input.value);
+    if(!Number.isFinite(usada)||usada<0||usada>total){
+      alert('Quantidade utilizada inválida para '+(req.material||'material')+'.');
+      input?.focus();return;
+    }
+    decisoes.push({req,total,usada,devolver:Math.max(0,total-usada)});
+  }
+  document.getElementById('modal-conciliacao-materiais')?.classList.add('hidden');
+  const resolver=window.__conciliacaoMateriaisResolver;
+  window.__conciliacaoMateriaisResolver=null;
+  window.__conciliacaoMateriaisRows=[];
+  if(resolver)resolver(decisoes);
+};
+
+window.aplicarConciliacaoMateriaisFinalizacao=async function(o,decisoes){
+  if(!Array.isArray(decisoes)||!decisoes.length)return {utilizados:0,devolucao:0,parciais:0};
+  const now=new Date().toISOString(),osNumero=o.osNumber||o.numero||'';
+  let utilizados=0,devolucao=0,parciais=0;
+  const detalhes=[];
+
+  for(let i=0;i<decisoes.length;i++){
+    const d=decisoes[i],req=d.req,total=Number(d.total||0),usada=Number(d.usada||0),retorno=Number(d.devolver||0);
+    const base={
+      ...req,
+      os:osNumero,
+      osId:o.internalId||o.id,
+      data_atualizacao:now,
+      conciliado_finalizacao_os:true,
+      conciliado_finalizacao_em:now,
+      conciliado_finalizacao_por_uid:window.currentUser?.uid||'',
+      conciliado_finalizacao_por_nome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+    };
+
+    if(usada>=total-0.000001){
+      base.status='UTILIZADO';
+      base.qtd_original=Number(req.qtd_original||total);
+      base.qtd=total;
+      base.qtd_utilizada_os=total;
+      await saveDoc('requisicoes_material',req.id,base);
+      utilizados+=total;
+      detalhes.push(`${req.material}: usado ${total}`);
+      continue;
+    }
+
+    if(usada<=0.000001){
+      base.status='AGUARDANDO_DEVOLUCAO';
+      base.qtd_original=Number(req.qtd_original||total);
+      base.qtd=total;
+      base.qtd_utilizada_os=0;
+      base.qtd_pendente_devolucao=total;
+      await saveDoc('requisicoes_material',req.id,base);
+      devolucao+=total;
+      detalhes.push(`${req.material}: devolver ${total}`);
+      continue;
+    }
+
+    // uso parcial: o registro original vira UTILIZADO e o saldo vira novo registro pendente de devolução
+    parciais++;
+    const usadoDoc={
+      ...base,status:'UTILIZADO',qtd_original:Number(req.qtd_original||total),qtd:usada,qtd_utilizada_os:usada,
+      desmembrado_finalizacao:true
+    };
+    await saveDoc('requisicoes_material',req.id,usadoDoc);
+
+    const rid='req_ret_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5);
+    const retornoDoc={
+      ...req,
+      id:rid,
+      qtd:retorno,
+      qtd_original:Number(req.qtd_original||total),
+      status:'AGUARDANDO_DEVOLUCAO',
+      os:osNumero,
+      osId:o.internalId||o.id,
+      data_solicitacao:req.data_solicitacao||now,
+      data_atualizacao:now,
+      timestamp:Date.now()+i,
+      desmembrado_de:req.id,
+      desmembrado_finalizacao:true,
+      qtd_pendente_devolucao:retorno,
+      conciliado_finalizacao_os:true,
+      conciliado_finalizacao_em:now,
+      conciliado_finalizacao_por_uid:window.currentUser?.uid||'',
+      conciliado_finalizacao_por_nome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+    };
+    await saveDoc('requisicoes_material',rid,retornoDoc);
+    utilizados+=usada;devolucao+=retorno;
+    detalhes.push(`${req.material}: usado ${usada} · devolver ${retorno}`);
+  }
+
+  await addHistory(o,'MATERIAL_CONCILIACAO','Materiais conciliados na finalização',
+    detalhes.join(' | '),
+    {utilizados,devolucao,parciais,osNumber:osNumero});
+
+  return {utilizados,devolucao,parciais};
 };
 
 
