@@ -605,6 +605,22 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 }
 </style>
 
+
+<style id="fase148-offline-ui">
+.offline-pending-count{font-weight:900;color:#475569}
+.offline-pending-count.has-pending{color:#c2410c}
+.tech-offline-banner{display:flex;gap:.5rem;align-items:flex-start;margin:.7rem 0;padding:.65rem .75rem;border-radius:.8rem;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:.62rem;font-weight:800;line-height:1.4}
+.offline-local-tag{display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:.2rem .4rem;font-size:.5rem;font-weight:900}
+.offline-attachment{border:1px dashed #fb923c!important;background:#fff7ed!important}
+#tech-sync-offline-btn.syncing i{animation:assist-spin 1s linear infinite}
+@keyframes assist-spin{to{transform:rotate(360deg)}}
+@media(max-width:640px){
+ .tech-app-strip{align-items:flex-start!important}
+ .tech-app-strip>div:last-child{width:100%;display:grid!important;grid-template-columns:1fr 1fr}
+ .tech-app-strip>div:last-child button{justify-content:center}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -612,7 +628,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.47</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.48</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -699,7 +715,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <section id="view-tecnico" class="view-panel hidden">
       <div class="tech-shell space-y-4">
         <div class="tech-hero"><div class="flex items-center justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">Área do técnico</div><h2 class="text-xl font-black mt-1">Meus atendimentos</h2><p id="tech-user-label" class="text-xs text-blue-100 mt-1">Carregando técnico...</p></div><div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center text-xl"><i class="fa-solid fa-screwdriver-wrench"></i></div></div></div>
-        <div class="tech-app-strip"><div class="tech-app-status"><span id="tech-app-dot" class="tech-app-dot"></span><span id="tech-app-conexao">Online</span><span class="text-slate-300">•</span><span id="tech-app-sync">Atualizado agora</span></div><button id="tech-install-btn" class="tech-install-btn hidden" onclick="window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button mr-1"></i> Instalar app</button></div>
+        <div class="tech-app-strip"><div class="tech-app-status"><span id="tech-app-dot" class="tech-app-dot"></span><span id="tech-app-conexao">Online</span><span class="text-slate-300">•</span><span id="tech-app-sync">Atualizado agora</span><span class="text-slate-300">•</span><span id="tech-offline-pendencias" class="offline-pending-count">0 pendências</span></div><div class="flex gap-2"><button id="tech-sync-offline-btn" class="tech-install-btn" onclick="window.sincronizarPendenciasOffline()"><i class="fa-solid fa-rotate mr-1"></i> Sincronizar</button><button id="tech-install-btn" class="tech-install-btn hidden" onclick="window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button mr-1"></i> Instalar app</button></div></div>
         <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="tech-busca" oninput="window.renderModoTecnico()" class="input pl-9" placeholder="Buscar cliente, OS ou equipamento..."></div></div>
         <div id="tech-resumo" class="grid grid-cols-3 gap-2"></div>
         <div id="tech-lista"></div>
@@ -1062,7 +1078,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.47</span>
+        <span class="tag tag-green">FASE 1.48</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1341,14 +1357,128 @@ const fontes=[['clientes','cadastros_clientes','Clientes','Fonte oficial de clie
 const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico'],['ORCAMENTOS','Orçamentos'],['AGENDAMENTO','Agendamento / Execução'],['FATURAMENTO','Aguardando faturamento'],['ENCERRADOS','Encerrados']];
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
-async function read(n){const s=await window.fsGetDocs(col(n)),a=[];s.forEach(d=>a.push({id:d.id,...d.data()}));return a}
+
+// FASE 1.48 — Offline essencial para atendimento externo
+const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
+const ASSIST_OFFLINE_VERSION=1;
+let __assistOfflineDBPromise=null;
+let __assistOfflineSyncing=false;
+
+function assistOfflineTechRequested(){
+  try{
+    const p=new URLSearchParams(location.search);
+    return document.body.classList.contains('tech-app-mode')||p.get('modo')==='tecnico'||p.get('app')==='tecnico'||window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  }catch(_){return document.body.classList.contains('tech-app-mode')}
+}
+function assistOfflineExternalSelected(){
+  const o=state?.selectedOS;
+  return assistOfflineTechRequested()&&!!o&&String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO';
+}
+function assistOfflineDB(){
+  if(__assistOfflineDBPromise)return __assistOfflineDBPromise;
+  __assistOfflineDBPromise=new Promise((resolve,reject)=>{
+    const req=indexedDB.open(ASSIST_OFFLINE_DB,ASSIST_OFFLINE_VERSION);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains('queue'))db.createObjectStore('queue',{keyPath:'id'});
+      if(!db.objectStoreNames.contains('cache'))db.createObjectStore('cache',{keyPath:'key'});
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error('Falha ao abrir armazenamento offline.'));
+  });
+  return __assistOfflineDBPromise;
+}
+async function assistOfflineStorePut(store,value){
+  const db=await assistOfflineDB();
+  return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite'),req=tx.objectStore(store).put(value);req.onsuccess=()=>resolve(value);req.onerror=()=>reject(req.error)});
+}
+async function assistOfflineStoreGet(store,key){
+  const db=await assistOfflineDB();
+  return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),req=tx.objectStore(store).get(key);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error)});
+}
+async function assistOfflineStoreAll(store){
+  const db=await assistOfflineDB();
+  return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),req=tx.objectStore(store).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)});
+}
+async function assistOfflineStoreDelete(store,key){
+  const db=await assistOfflineDB();
+  return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite'),req=tx.objectStore(store).delete(key);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error)});
+}
+async function assistOfflineCacheSet(key,data){try{await assistOfflineStorePut('cache',{key,data,updatedAtISO:new Date().toISOString()})}catch(e){console.warn('[Assistência Offline] cache set',e)}}
+async function assistOfflineCacheGet(key){try{return (await assistOfflineStoreGet('cache',key))?.data??null}catch(e){return null}}
+async function assistOfflineApplyCache(kind,args){
+  try{
+    if(kind==='saveDoc'){
+      const [collectionName,id,data]=args,key='collection:'+collectionName;let arr=(await assistOfflineCacheGet(key))||[];
+      const ix=arr.findIndex(x=>String(x.id||x.internalId)===String(id));const row={id,...(ix>=0?arr[ix]:{}),...data};if(ix>=0)arr[ix]=row;else arr.push(row);await assistOfflineCacheSet(key,arr);
+    }else if(kind==='saveSubDoc'||kind==='mergeSubDoc'){
+      const [osId,sub,id,data]=args,key=`sub:${osId}:${sub}`;let arr=(await assistOfflineCacheGet(key))||[];
+      const ix=arr.findIndex(x=>String(x.id||x.internalId)===String(id));const row={id,...(ix>=0?arr[ix]:{}),...data};if(ix>=0)arr[ix]=row;else arr.push(row);await assistOfflineCacheSet(key,arr);
+      if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.internalId||state.selectedOS.id)===String(osId)){
+        const list=state.selectedOS._equipamentos||[];const li=list.findIndex(x=>String(x.id||x.internalId)===String(id));if(li>=0)Object.assign(list[li],row);else list.push(row);state.selectedOS._equipamentos=list;
+      }
+    }else if(kind==='mergeOSDoc'){
+      const [osId,data]=args,key='collection:os_ordens';let arr=(await assistOfflineCacheGet(key))||[];
+      const ix=arr.findIndex(x=>String(x.id||x.internalId)===String(osId));if(ix>=0)arr[ix]={...arr[ix],...data};else arr.push({id:osId,internalId:osId,...data});await assistOfflineCacheSet(key,arr);
+      const mem=(state.os||[]).find(x=>String(x.id||x.internalId)===String(osId));if(mem)Object.assign(mem,data);
+      if(state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))Object.assign(state.selectedOS,data);
+    }
+  }catch(e){console.warn('[Assistência Offline] cache local',e)}
+}
+async function assistOfflineQueue(kind,args,extra={}){
+  const id='off_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),rec={id,kind,args,createdAt:Date.now(),createdAtISO:new Date().toISOString(),tentativas:0,...extra};
+  await assistOfflineStorePut('queue',rec);if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind))await assistOfflineApplyCache(kind,args);window.__assistOfflineLastQueued=true;await assistOfflineUpdateBadge();return {offlineQueued:true,id};
+}
+async function assistOfflineWrite(kind,args,onlineFn){
+  if(assistOfflineExternalSelected()&&navigator.onLine===false)return assistOfflineQueue(kind,args);
+  try{const r=await onlineFn();if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind)&&assistOfflineTechRequested())await assistOfflineApplyCache(kind,args);return r}
+  catch(e){if(assistOfflineExternalSelected())return assistOfflineQueue(kind,args,{erroOriginal:String(e?.message||e)});throw e}
+}
+async function assistOfflinePending(){try{return (await assistOfflineStoreAll('queue')).sort((a,b)=>a.createdAt-b.createdAt)}catch(_){return []}}
+async function assistOfflineUpdateBadge(){
+  const rows=await assistOfflinePending(),el=document.getElementById('tech-offline-pendencias');if(el){el.textContent=rows.length+' pendência'+(rows.length===1?'':'s');el.classList.toggle('has-pending',rows.length>0)}
+  const sync=document.getElementById('tech-app-sync');if(sync&&rows.length&&navigator.onLine===false)sync.textContent='Salvo no aparelho';return rows.length;
+}
+async function assistOfflineRawHistory(meta,titulo,detalhe,tipo='SINCRONIZACAO'){
+  if(!meta?.osId)return;const id='hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),now=new Date().toISOString();
+  await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',meta.osId,'historico',id),{internalId:id,tipo,titulo,detalhe:detalhe||'',osId:meta.osId,osNumber:meta.osNumber||'',createdAtISO:now,usuarioUid:meta.usuarioUid||'',usuarioNome:meta.usuarioNome||'',usuarioEmail:meta.usuarioEmail||'',origemEvento:'APP_TECNICO_OFFLINE',schemaVersion:2});
+}
+async function assistOfflineRawExecute(op){
+  const k=op.kind,a=op.args||[];
+  if(k==='saveDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,a[0],a[1]),a[2]);
+  if(k==='saveSubDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',a[0],a[1],a[2]),a[3]);
+  if(k==='mergeOSDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',a[0]),a[1],{merge:true});
+  if(k==='mergeSubDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',a[0],a[1],a[2]),a[3],{merge:true});
+  if(k==='signature'){
+    const {blob,meta}=op,api=await storageApi(),path=`assistencia_os/${meta.osId}/assinaturas/${meta.id}.png`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,blob,{contentType:'image/png'});const url=await api.getDownloadURL(ref),now=new Date().toISOString();
+    const payload={assinaturaClienteId:meta.id,assinaturaClienteNome:meta.nome,assinaturaClienteFuncao:meta.funcao||'',assinaturaClienteObservacao:meta.obs||'',assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:meta.createdAtISO||now,assinaturaRegistradaPorUid:meta.usuarioUid||'',assinaturaRegistradaPorNome:meta.usuarioNome||'',assinaturaOfflinePendente:false,updatedAtISO:now};
+    await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_assinaturas',meta.id),{internalId:meta.id,osId:meta.osId,osNumber:meta.osNumber||'',responsavelNome:meta.nome,responsavelFuncao:meta.funcao||'',observacao:meta.obs||'',downloadURL:url,storagePath:path,createdAtISO:meta.createdAtISO||now,registradoPorUid:meta.usuarioUid||'',registradoPorNome:meta.usuarioNome||'',is_deleted:false});
+    await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',meta.osId),payload,{merge:true});await assistOfflineRawHistory(meta,'Assinatura offline sincronizada',meta.nome,'ASSINATURA');
+    const os=(state.os||[]).find(x=>String(x.id||x.internalId)===String(meta.osId));if(os)Object.assign(os,payload);if(state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(meta.osId))Object.assign(state.selectedOS,payload);return;
+  }
+  if(k==='attachment'){
+    const {blob,meta}=op,api=await storageApi(),ref=api.ref(api.storage,meta.storagePath);await api.uploadBytes(ref,blob,{contentType:meta.contentType||'application/octet-stream'});const url=await api.getDownloadURL(ref);
+    await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',meta.id),{internalId:meta.id,osId:meta.osId,osNumber:meta.osNumber||'',equipamentoId:meta.equipamentoId,equipamentoModelo:meta.equipamentoModelo||'',equipamentoNumeroSerie:meta.equipamentoNumeroSerie||'',nome:meta.nome,categoria:meta.categoria,observacao:meta.observacao||'',contentType:meta.contentType||'',size:meta.size||0,storagePath:meta.storagePath,downloadURL:url,enviadoPorUid:meta.usuarioUid||'',enviadoPorNome:meta.usuarioNome||'',enviadoPorEmail:meta.usuarioEmail||'',createdAtISO:meta.createdAtISO,is_deleted:false});await assistOfflineRawHistory(meta,'Arquivo offline sincronizado',meta.nome+' · '+anexoCategoriaLabel(meta.categoria),'ANEXO');return;
+  }
+  throw new Error('Tipo offline desconhecido: '+k);
+}
+window.sincronizarPendenciasOffline=async function(){
+  if(__assistOfflineSyncing)return;if(navigator.onLine===false){toast('Sem conexão. As pendências continuam salvas no aparelho.');await assistOfflineUpdateBadge();return}
+  const rows=await assistOfflinePending();if(!rows.length){toast('Nenhuma pendência de sincronização.');return}
+  __assistOfflineSyncing=true;const btn=document.getElementById('tech-sync-offline-btn');btn?.classList.add('syncing');if(btn)btn.disabled=true;let ok=0,fail=0;
+  for(const op of rows){try{await assistOfflineRawExecute(op);await assistOfflineStoreDelete('queue',op.id);ok++}catch(e){fail++;op.tentativas=Number(op.tentativas||0)+1;op.ultimoErro=String(e?.message||e);op.ultimaTentativaISO=new Date().toISOString();await assistOfflineStorePut('queue',op);console.error('[Assistência Offline] sync',e)}}
+  __assistOfflineSyncing=false;btn?.classList.remove('syncing');if(btn)btn.disabled=false;await assistOfflineUpdateBadge();techAppStamp?.();toast(fail?(ok+' sincronizada(s), '+fail+' pendente(s).'):(ok+' operação(ões) sincronizada(s).'));
+  if(ok&&assistOfflineTechRequested()){try{await load()}catch(_){}}
+};
+
+async function read(n){const key='collection:'+n;if(navigator.onLine===false&&assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;throw new Error('Sem conexão e sem cache local para '+n+'.')}try{const snap=await window.fsGetDocs(col(n)),a=[];snap.forEach(d=>a.push({id:d.id,...d.data()}));if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);return a}catch(e){if(assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached}throw e}}
 async function nextOSNumber(){const y=new Date().getFullYear();const prefix=`OS-${y}-`;let max=0;state.os.forEach(o=>{const n=String(o.osNumber||o.numero||'');if(n.startsWith(prefix)){const v=parseInt(n.slice(prefix.length),10);if(Number.isFinite(v))max=Math.max(max,v)}});return `${prefix}${String(max+1).padStart(5,'0')}`}
 function selectedText(id){const e=document.getElementById(id);return e?.selectedOptions?.[0]?.textContent?.trim()||''}
-async function saveDoc(collectionName,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,collectionName,id),data)}
-async function saveSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data)}
-async function mergeOSDoc(osId,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId),data,{merge:true})}
-async function mergeSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data,{merge:true})}
-async function readSub(osId,sub){const s=await window.fsGetDocs(window.fsCollection(window.AppDB,...BASE,'os_ordens',osId,sub)),a=[];s.forEach(d=>a.push({id:d.id,...d.data()}));return a}
+async function saveDoc(collectionName,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('saveDoc',[collectionName,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,collectionName,id),data))}
+async function saveSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('saveSubDoc',[osId,sub,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data))}
+async function mergeOSDoc(osId,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('mergeOSDoc',[osId,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId),data,{merge:true}))}
+async function mergeSubDoc(osId,sub,id,data){if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');return assistOfflineWrite('mergeSubDoc',[osId,sub,id,data],()=>window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',osId,sub,id),data,{merge:true}))}
+async function readSub(osId,sub){const key=`sub:${osId}:${sub}`;if(navigator.onLine===false&&assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[];throw new Error('Sem conexão e sem cache local para '+sub+'.')}try{const snap=await window.fsGetDocs(window.fsCollection(window.AppDB,...BASE,'os_ordens',osId,sub)),a=[];snap.forEach(d=>a.push({id:d.id,...d.data()}));if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);return a}catch(e){if(assistOfflineTechRequested()){const cached=await assistOfflineCacheGet(key);if(cached!==null)return cached;if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.id||state.selectedOS.internalId)===String(osId))return state.selectedOS._equipamentos||[]}throw e}}
 async function addHistory(o,tipo,titulo,detalhe='',extra={}){try{if(!o)return;const osid=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),now=new Date().toISOString();await saveSubDoc(osid,'historico',id,{internalId:id,tipo,titulo,detalhe,osId:osid,osNumber:o.osNumber||o.numero||'',createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',usuarioEmail:window.currentUser?.email||'',usuarioPerfil:window.userProfile?.perfil||window.userProfile?.role||'',origemEvento:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:2,...extra})}catch(e){console.warn('[Assistência] histórico não gravado',e)}}
 async function renderHistoricoOS(o){const box=document.getElementById('detalhe-historico');if(!box||!o)return;box.innerHTML='<div class="timeline-empty"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando linha do tempo...</div>';let hist=[];try{hist=await readSub(o.internalId||o.id,'historico')}catch(e){console.warn('[Assistência] leitura histórico',e)}const fallback=[{titulo:'OS criada',createdAtISO:o.createdAtISO||o.createdAt,usuarioNome:o.criadoPorNome||o.criadoPorEmail||'',tipo:'CRIACAO'}];if(o.agendadoParaISO)fallback.push({titulo:'Agendamento registrado',createdAtISO:o.updatedAtISO,usuarioNome:o.tecnicoNome||'',detalhe:'Agendado para '+fmtDate(o.agendadoParaISO),tipo:'AGENDAMENTO'});if(o.finalizadoTecnicoEmISO||o.finalizadoEmISO)fallback.push({titulo:'Finalização técnica',createdAtISO:o.finalizadoTecnicoEmISO||o.finalizadoEmISO,usuarioNome:o.finalizadoTecnicoPorNome||o.finalizadoPorNome||'',tipo:'FINALIZACAO'});if(o.encerradoEmISO)fallback.push({titulo:'Encerramento administrativo',createdAtISO:o.encerradoEmISO,usuarioNome:o.encerradoPorNome||'',detalhe:o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+o.numeroNF:'')),tipo:'ENCERRAMENTO'});const seen=new Set(hist.map(x=>String(x.tipo||'')+'|'+String(x.createdAtISO||'')));fallback.forEach(x=>{const k=String(x.tipo||'')+'|'+String(x.createdAtISO||'');if(!seen.has(k))hist.push(x)});hist.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));box.innerHTML=hist.length?hist.map(h=>`<div class="timeline-item flex gap-3"><span class="timeline-dot"></span><div class="min-w-0"><div class="text-xs font-extrabold">${esc(h.titulo||h.tipo||'Evento')}</div><div class="text-[11px] text-slate-500">${esc(fmtDate(h.createdAtISO))}${h.usuarioNome?' · '+esc(h.usuarioNome):''}</div>${h.detalhe?`<div class="timeline-detail">${esc(h.detalhe)}</div>`:''}${h.equipamentoModelo?`<div class="timeline-detail font-semibold"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>${esc(h.equipamentoModelo)}${h.equipamentoNumeroSerie?' · SN: '+esc(h.equipamentoNumeroSerie):''}</div>`:''}</div></div>`).join(''):'<div class="timeline-empty">Nenhum evento registrado.</div>'}
 function normStage(v){v=String(v||'ENTRADA').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,'_');if(v.includes('ENCERR'))return'ENCERRADOS';if(v.includes('FATUR')||v.includes('FINAL'))return'FATURAMENTO';if(v.includes('AGEND')||v.includes('EXEC'))return'AGENDAMENTO';if(v.includes('ORC'))return'ORCAMENTOS';if(v.includes('TRI')||v.includes('DIAGN'))return'TRIAGEM';return'ENTRADA'}
@@ -1421,7 +1551,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.47 — OS interna x externa e recolhimento para laboratório
+// FASE 1.48 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -1468,6 +1598,8 @@ window.atualizarEstadoAssinaturaCheckout=function(){
  const o=state.selectedOS,el=document.getElementById('checkout-assinatura-status');if(!el||!o)return;
  if(o.assinaturaClienteURL){
    el.innerHTML='<span class="text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i>Assinatura registrada · '+esc(o.assinaturaClienteNome||'cliente')+'</span>';
+ }else if(o.assinaturaOfflinePendente){
+   el.innerHTML='<span class="text-amber-700"><i class="fa-solid fa-mobile-screen-button mr-1"></i>Assinatura salva no aparelho · aguardando sincronização</span>';
  }else{
    el.innerHTML='<span class="text-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Assinatura ainda não registrada</span>';
  }
@@ -2216,7 +2348,7 @@ window.salvarCheckoutEquipamento=async function(){
   }
 
   let assinaturaDispensada=false,assinaturaDispensadaMotivo='';
-  if(externo && !o.assinaturaClienteURL){
+  if(externo && !o.assinaturaClienteURL && !o.assinaturaOfflinePendente){
     assinaturaDispensada=!!document.getElementById('checkout-sem-assinatura')?.checked;
     assinaturaDispensadaMotivo=document.getElementById('checkout-sem-assinatura-motivo')?.value.trim()||'';
     if(!assinaturaDispensada){
@@ -2406,7 +2538,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.47 — leitura de QR Code / número de série do equipamento
+// FASE 1.48 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -2684,7 +2816,31 @@ function instalarEventosAssinatura(){const c=document.getElementById('assinatura
 window.limparAssinaturaCliente=function(){prepararCanvasAssinatura()};
 window.abrirAssinaturaCliente=function(){const o=state.selectedOS;if(!o)return;document.getElementById('assinatura-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'');document.getElementById('assinatura-responsavel').value=o.assinaturaClienteNome||'';document.getElementById('assinatura-funcao').value=o.assinaturaClienteFuncao||'';document.getElementById('assinatura-observacao').value=o.assinaturaClienteObservacao||'';const ex=document.getElementById('assinatura-existente');if(o.assinaturaClienteURL){ex.classList.remove('hidden');ex.innerHTML=`<div class="signature-saved"><i class="fa-solid fa-circle-check text-lg"></i><img src="${esc(o.assinaturaClienteURL)}" alt="Assinatura atual"><div>Já existe uma assinatura registrada.<div class="font-normal mt-1">${esc(o.assinaturaClienteNome||'')} · ${esc(fmtDate(o.assinaturaClienteEmISO))}</div><div class="font-normal">Ao salvar novamente, uma nova assinatura substituirá a referência atual da OS.</div></div></div>`}else{ex.classList.add('hidden');ex.innerHTML=''}if(document.body.classList.contains('tech-app-mode')&&typeof techAbrirModalAcima==='function'){techAbrirModalAcima('modal-assinatura-cliente')}else{document.getElementById('modal-assinatura-cliente').classList.remove('hidden')}setTimeout(()=>{instalarEventosAssinatura();prepararCanvasAssinatura()},80)};
 window.fecharAssinaturaCliente=function(){document.getElementById('modal-assinatura-cliente')?.classList.add('hidden');assinaturaDesenhando=false};
-window.salvarAssinaturaCliente=async function(){const o=state.selectedOS;if(!o)return;const nome=document.getElementById('assinatura-responsavel').value.trim(),funcao=document.getElementById('assinatura-funcao').value.trim(),obs=document.getElementById('assinatura-observacao').value.trim();if(!nome){alert('Informe o nome do responsável que está assinando.');return}if(!assinaturaTemTraco){alert('Peça ao responsável para assinar no campo de assinatura.');return}const btn=document.getElementById('btn-salvar-assinatura');try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';const c=document.getElementById('assinatura-canvas'),blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível gerar a imagem da assinatura.')),'image/png'));const api=await storageApi(),osId=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('ass_'+Date.now()),path=`assistencia_os/${osId}/assinaturas/${id}.png`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,blob,{contentType:'image/png'});const url=await api.getDownloadURL(ref),now=new Date().toISOString(),payload={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:now,assinaturaRegistradaPorUid:window.currentUser?.uid||'',assinaturaRegistradaPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now};await saveDoc('os_assinaturas',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',responsavelNome:nome,responsavelFuncao:funcao,observacao:obs,downloadURL:url,storagePath:path,createdAtISO:now,registradoPorUid:payload.assinaturaRegistradaPorUid,registradoPorNome:payload.assinaturaRegistradaPorNome,is_deleted:false});await mergeOSDoc(osId,payload);Object.assign(o,payload);await addHistory(o,'ASSINATURA','Assinatura do cliente registrada',nome+(funcao?' · '+funcao:''),{assinaturaId:id});window.fecharAssinaturaCliente();renderHistoricoOS(o);window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura do cliente salva com sucesso.')}catch(e){console.error('[Assistência] assinatura cliente',e);alert('Não foi possível salvar a assinatura. Verifique as regras do Firebase Storage e do Firestore.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar assinatura'}};
+window.salvarAssinaturaCliente=async function(){
+ const o=state.selectedOS;if(!o)return;
+ const nome=document.getElementById('assinatura-responsavel').value.trim(),funcao=document.getElementById('assinatura-funcao').value.trim(),obs=document.getElementById('assinatura-observacao').value.trim();
+ if(!nome){alert('Informe o nome do responsável que está assinando.');return}
+ if(!assinaturaTemTraco){alert('Peça ao responsável para assinar no campo de assinatura.');return}
+ const btn=document.getElementById('btn-salvar-assinatura');
+ try{
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+  const c=document.getElementById('assinatura-canvas'),blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível gerar a imagem da assinatura.')),'image/png'));
+  const osId=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('ass_'+Date.now()),now=new Date().toISOString();
+  if(assistOfflineExternalSelected()&&navigator.onLine===false){
+    const meta={id,osId,osNumber:o.osNumber||o.numero||'',nome,funcao,obs,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
+    await assistOfflineQueue('signature',[],{blob,meta});
+    const local={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteEmISO:now,assinaturaOfflinePendente:true,updatedAtISO:now};
+    Object.assign(o,local);await assistOfflineApplyCache('mergeOSDoc',[osId,local]);
+    window.fecharAssinaturaCliente();window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura salva no aparelho. Será sincronizada quando houver conexão.');return;
+  }
+  const api=await storageApi(),path=`assistencia_os/${osId}/assinaturas/${id}.png`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,blob,{contentType:'image/png'});const url=await api.getDownloadURL(ref);
+  const payload={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:now,assinaturaRegistradaPorUid:window.currentUser?.uid||'',assinaturaRegistradaPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',assinaturaOfflinePendente:false,updatedAtISO:now};
+  await saveDoc('os_assinaturas',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',responsavelNome:nome,responsavelFuncao:funcao,observacao:obs,downloadURL:url,storagePath:path,createdAtISO:now,registradoPorUid:payload.assinaturaRegistradaPorUid,registradoPorNome:payload.assinaturaRegistradaPorNome,is_deleted:false});
+  await mergeOSDoc(osId,payload);Object.assign(o,payload);await addHistory(o,'ASSINATURA','Assinatura do cliente registrada',nome+(funcao?' · '+funcao:''),{assinaturaId:id});
+  window.fecharAssinaturaCliente();renderHistoricoOS(o);window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura do cliente salva com sucesso.');
+ }catch(e){console.error('[Assistência] assinatura cliente',e);alert('Não foi possível salvar a assinatura.\n\n'+(e?.message||e))}
+ finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar assinatura'}
+};
 
 async function storageApi(){if(window.__assistStorageApi)return window.__assistStorageApi;const appMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js');const stMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js');const app=appMod.getApps()[0];if(!app)throw new Error('Firebase ainda não foi inicializado pelo core.js.');const storage=stMod.getStorage(app);return window.__assistStorageApi={storage,...stMod}}
 function anexoCategoriaLabel(v){return({DEFEITO:'Defeito',ANTES:'Antes',DURANTE:'Durante',DEPOIS:'Depois',ETIQUETA:'Etiqueta / Nº de série',DOCUMENTO:'Documento',OUTRO:'Outro'})[String(v||'').toUpperCase()]||v||'Arquivo'}
@@ -2692,8 +2848,43 @@ window.abrirAnexosEquipamento=async function(eid){const o=state.selectedOS;if(!o
 window.fecharAnexosEquipamento=function(){document.getElementById('modal-anexos-equipamento')?.classList.add('hidden');const inp=document.getElementById('anexo-arquivos');if(inp)inp.value='';document.getElementById('anexo-preview').innerHTML='';state.selectedEquipment=null};
 window.previsualizarAnexos=function(){const fs=[...(document.getElementById('anexo-arquivos')?.files||[])];document.getElementById('anexo-preview').innerHTML=fs.map(f=>`<div class="upload-preview-item"><i class="fa-solid ${f.type.startsWith('image/')?'fa-image':'fa-file'} mr-1"></i>${esc(f.name)} · ${(f.size/1024/1024).toFixed(1)} MB</div>`).join('')};
 window.abrirCameraAnexo=function(){let old=document.getElementById('anexo-camera-input');if(old)old.remove();const i=document.createElement('input');i.type='file';i.id='anexo-camera-input';i.accept='image/*';i.capture='environment';i.className='hidden';i.onchange=()=>{const dt=new DataTransfer();[...(document.getElementById('anexo-arquivos')?.files||[])].forEach(f=>dt.items.add(f));[...(i.files||[])].forEach(f=>dt.items.add(f));document.getElementById('anexo-arquivos').files=dt.files;window.previsualizarAnexos()};document.body.appendChild(i);i.click()};
-window.carregarAnexosEquipamento=async function(){const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');if(!o||!eq||!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando...</div>';try{const all=await read('os_arquivos');const arr=all.filter(a=>a.osId===(o.internalId||o.id)&&a.equipamentoId===(eq.internalId||eq.id)&&!a.is_deleted).sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));document.getElementById('anexo-contagem').textContent=arr.length+' arquivo(s)';box.innerHTML=arr.length?arr.map(a=>`<div class="anexo-card"><div class="anexo-thumb">${String(a.contentType||'').startsWith('image/')?`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener"><img src="${esc(a.downloadURL||'')}" alt="${esc(a.nome||'foto')}"></a>`:`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}</div><div class="anexo-meta"><div class="anexo-name" title="${esc(a.nome||'')}">${esc(a.nome||'Arquivo')}</div><div class="mt-1"><span class="font-bold text-sky-700">${esc(anexoCategoriaLabel(a.categoria))}</span> · ${esc(fmtDate(a.createdAtISO))}</div><div class="mt-1">${esc(a.enviadoPorNome||a.enviadoPorEmail||'')}</div>${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}<div class="flex gap-2 mt-2"><a class="font-bold text-blue-700" href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener">Abrir</a><button class="font-bold text-rose-600" onclick="window.excluirAnexoEquipamento('${esc(a.id)}')">Excluir</button></div></div></div>`).join(''):'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>'}catch(e){console.error('[Assistência] anexos',e);box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos. Verifique as Security Rules de os_arquivos.</div>'}};
-window.enviarAnexosEquipamento=async function(){const o=state.selectedOS,eq=state.selectedEquipment,files=[...(document.getElementById('anexo-arquivos')?.files||[])];if(!o||!eq)return;if(!files.length){alert('Escolha pelo menos uma foto ou arquivo.');return}if(files.some(f=>f.size>10*1024*1024)){alert('Cada arquivo pode ter no máximo 10 MB.');return}const btn=document.getElementById('btn-enviar-anexos');try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';const api=await storageApi(),osId=o.internalId||o.id,eqId=eq.internalId||eq.id,cat=document.getElementById('anexo-categoria').value,obs=document.getElementById('anexo-observacao').value.trim();for(const f of files){const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));const ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();const path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`;const ref=api.ref(api.storage,path);await api.uploadBytes(ref,f,{contentType:f.type||'application/octet-stream'});const url=await api.getDownloadURL(ref);await saveDoc('os_arquivos',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,downloadURL:url,enviadoPorUid:window.currentUser?.uid||'',enviadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',enviadoPorEmail:window.currentUser?.email||'',createdAtISO:new Date().toISOString(),is_deleted:false});await addHistory(o,'ANEXO','Arquivo anexado',`${f.name} · ${anexoCategoriaLabel(cat)}`,{equipamentoId:eqId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',arquivoId:id})}document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast(files.length===1?'Arquivo enviado com sucesso.':files.length+' arquivos enviados com sucesso.')}catch(e){console.error('[Assistência] upload anexo',e);alert('Não foi possível enviar o arquivo. Verifique as regras do Firebase Storage e do Firestore.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos'}};
+window.carregarAnexosEquipamento=async function(){
+ const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');if(!o||!eq||!box)return;
+ box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando...</div>';
+ try{
+   let arr=[];try{const all=await read('os_arquivos');arr=all.filter(a=>a.osId===(o.internalId||o.id)&&a.equipamentoId===(eq.internalId||eq.id)&&!a.is_deleted)}catch(_){}
+   const pend=(await assistOfflinePending()).filter(op=>op.kind==='attachment'&&String(op.meta?.osId)===String(o.internalId||o.id)&&String(op.meta?.equipamentoId)===String(eq.internalId||eq.id));
+   arr.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));
+   document.getElementById('anexo-contagem').textContent=(arr.length+pend.length)+' arquivo(s)'+(pend.length?' · '+pend.length+' aguardando sync':'');
+   const cloud=arr.map(a=>`<div class="anexo-card"><div class="anexo-thumb">${String(a.contentType||'').startsWith('image/')?`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener"><img src="${esc(a.downloadURL||'')}" alt="${esc(a.nome||'foto')}"></a>`:`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}</div><div class="anexo-meta"><div class="anexo-name">${esc(a.nome||'Arquivo')}</div><div class="mt-1"><span class="font-bold text-sky-700">${esc(anexoCategoriaLabel(a.categoria))}</span> · ${esc(fmtDate(a.createdAtISO))}</div>${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}</div></div>`).join('');
+   const local=pend.map(op=>`<div class="anexo-card offline-attachment"><div class="anexo-thumb text-2xl text-orange-500"><i class="fa-solid fa-mobile-screen-button"></i></div><div class="anexo-meta"><div class="anexo-name">${esc(op.meta?.nome||'Arquivo')}</div><div class="mt-1"><span class="offline-local-tag"><i class="fa-solid fa-clock"></i> Salvo no aparelho</span></div><div class="mt-1">${esc(anexoCategoriaLabel(op.meta?.categoria))} · aguardando conexão</div></div></div>`).join('');
+   box.innerHTML=(local+cloud)||'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>';
+ }catch(e){console.error('[Assistência] anexos',e);box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos.</div>'}
+};
+window.enviarAnexosEquipamento=async function(){
+ const o=state.selectedOS,eq=state.selectedEquipment,files=[...(document.getElementById('anexo-arquivos')?.files||[])];if(!o||!eq)return;
+ if(!files.length){alert('Escolha pelo menos uma foto ou arquivo.');return}
+ if(files.some(f=>f.size>10*1024*1024)){alert('Cada arquivo pode ter no máximo 10 MB.');return}
+ const btn=document.getElementById('btn-enviar-anexos'),osId=o.internalId||o.id,eqId=eq.internalId||eq.id,cat=document.getElementById('anexo-categoria').value,obs=document.getElementById('anexo-observacao').value.trim();
+ try{
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+  if(assistOfflineExternalSelected()&&navigator.onLine===false){
+    for(const f of files){
+      const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase(),path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`,now=new Date().toISOString();
+      const meta={id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',usuarioEmail:window.currentUser?.email||''};
+      await assistOfflineQueue('attachment',[],{blob:f,meta});
+    }
+    document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();toast(files.length+' arquivo(s) salvo(s) no aparelho.');return;
+  }
+  const api=await storageApi();
+  for(const f of files){
+    const id=window.crypto?.randomUUID?.()||('arq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),ext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').toLowerCase(),path=`assistencia_os/${osId}/${eqId}/fotos/${id}.${ext}`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,f,{contentType:f.type||'application/octet-stream'});const url=await api.getDownloadURL(ref);
+    await saveDoc('os_arquivos',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',equipamentoId:eqId,equipamentoModelo:eq.modelo||eq.nome||'',equipamentoNumeroSerie:eq.numeroSerie||'',nome:f.name,categoria:cat,observacao:obs,contentType:f.type||'',size:f.size,storagePath:path,downloadURL:url,enviadoPorUid:window.currentUser?.uid||'',enviadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',enviadoPorEmail:window.currentUser?.email||'',createdAtISO:new Date().toISOString(),is_deleted:false});await addHistory(o,'ANEXO','Arquivo anexado',`${f.name} · ${anexoCategoriaLabel(cat)}`,{equipamentoId:eqId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',arquivoId:id});
+  }
+  document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('anexo-observacao').value='';await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast(files.length===1?'Arquivo enviado com sucesso.':files.length+' arquivos enviados com sucesso.');
+ }catch(e){console.error('[Assistência] upload anexo',e);alert('Não foi possível salvar o arquivo.\n\n'+(e?.message||e))}
+ finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos'}
+};
 window.excluirAnexoEquipamento=async function(id){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq||!confirm('Excluir este anexo? Esta ação removerá o arquivo do Storage.'))return;try{const all=await read('os_arquivos'),a=all.find(x=>x.id===id);if(!a)throw new Error('Anexo não encontrado.');const api=await storageApi();if(a.storagePath)await api.deleteObject(api.ref(api.storage,a.storagePath));if(!window.fsDeleteDoc||!window.fsDoc)throw new Error('core.js não expôs fsDeleteDoc/fsDoc.');await window.fsDeleteDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id));await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{equipamentoId:eq.internalId||eq.id,equipamentoModelo:eq.modelo||'',arquivoId:id});await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast('Anexo excluído.')}catch(e){console.error('[Assistência] excluir anexo',e);alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e))}};
 window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Tipo',tipoAtendimentoLabel(o)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rslot=document.getElementById('slot-reabrir-os');if(rslot)rslot.innerHTML=(stg==='ENCERRADOS'&&window.temPermissaoAssistencia?.('reabrir_os'))?'<button class="btn btn-light reabrir-only" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button>':'';fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>';if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
@@ -2744,7 +2935,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.47 — materiais do técnico no celular
+// FASE 1.48 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -2961,7 +3152,7 @@ window.renderAtendimentoTecnico=async function(){
   const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
   o._equipamentos=items;
   const stage=normStage(o.etapaKanban||o.etapa||o.status),p=pendenciaOS(o);
-  document.getElementById('tech-at-resumo').innerHTML=`<div class="tech-meta"><span>Tipo</span><b>${esc(tipoAtendimentoLabel(o))}</b></div><div class="tech-meta"><span>Etapa da OS</span><b>${esc(stages.find(x=>x[0]===stage)?.[1]||stage)}</b></div><div class="tech-meta col-span-2"><span>Pendência atual</span><b>${esc(p.texto)}</b></div>`;
+  document.getElementById('tech-at-resumo').innerHTML=`<div class="tech-meta"><span>Tipo</span><b>${esc(tipoAtendimentoLabel(o))}</b></div><div class="tech-meta"><span>Etapa da OS</span><b>${esc(stages.find(x=>x[0]===stage)?.[1]||stage)}</b></div><div class="tech-meta col-span-2"><span>Pendência atual</span><b>${esc(p.texto)}</b></div>${navigator.onLine===false?'<div class="tech-offline-banner col-span-2"><i class="fa-solid fa-cloud-arrow-down"></i><span><b>Modo offline.</b> Alterações desta OS externa serão salvas no aparelho e sincronizadas quando a conexão voltar.</span></div>':''}`;
   renderTechClientCard(o);
   const clientCard=document.getElementById('tech-client-card');
   if(clientCard){
@@ -3088,9 +3279,9 @@ window.abrirCheckoutEquipamento=function(eid,resultadoPredefinido){
 // FASE 1.25 — App do Técnico
 let techInstallPrompt=null;
 function techAppStandalone(){return window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true}
-function techAppSetConnection(){const on=navigator.onLine!==false;const dot=document.getElementById('tech-app-dot'),txt=document.getElementById('tech-app-conexao');if(dot)dot.classList.toggle('offline',!on);if(txt)txt.textContent=on?'Online':'Sem conexão';}
+function techAppSetConnection(){const on=navigator.onLine!==false;const dot=document.getElementById('tech-app-dot'),txt=document.getElementById('tech-app-conexao');if(dot)dot.classList.toggle('offline',!on);if(txt)txt.textContent=on?'Online':'Sem conexão';assistOfflineUpdateBadge?.();}
 function techAppStamp(){const el=document.getElementById('tech-app-sync');if(el)el.textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-window.addEventListener('online',()=>{techAppSetConnection();window.techAppAtualizar?.()});window.addEventListener('offline',techAppSetConnection);
+window.addEventListener('online',()=>{techAppSetConnection();window.sincronizarPendenciasOffline?.();window.techAppAtualizar?.()});window.addEventListener('offline',()=>{techAppSetConnection();assistOfflineUpdateBadge?.()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();techInstallPrompt=e;const b=document.getElementById('tech-install-btn');if(b&&!techAppStandalone())b.classList.remove('hidden')});
 window.addEventListener('appinstalled',()=>{techInstallPrompt=null;document.getElementById('tech-install-btn')?.classList.add('hidden');toast('App do Técnico instalado.')});
 window.instalarAppTecnico=async function(){if(techInstallPrompt){techInstallPrompt.prompt();await techInstallPrompt.userChoice;techInstallPrompt=null;document.getElementById('tech-install-btn')?.classList.add('hidden');return}alert('Para instalar no celular, abra esta página no Chrome/Edge e use “Adicionar à tela inicial” ou “Instalar app” no menu do navegador.')};
@@ -3098,7 +3289,7 @@ function techAppScrollTop(){const main=document.getElementById('main-content');i
 window.techAppInicio=function(ev){ev?.preventDefault?.();const b=document.querySelector('[data-view="tecnico"]');window.mudarView('tecnico',b);renderModoTecnico();techAppScrollTop();};
 window.techAppAtualizar=async function(ev){ev?.preventDefault?.();if(navigator.onLine===false){techAppSetConnection();toast('Sem conexão. Os dados atuais continuam na tela.');return}const btn=ev?.currentTarget;btn?.classList.add('active');try{await load();techAppStamp();window.mudarView('tecnico',document.querySelector('[data-view="tecnico"]'));techAppScrollTop()}finally{setTimeout(()=>btn?.classList.remove('active'),350)}};
 window.techAppSair=function(ev){ev?.preventDefault?.();document.body.classList.remove('tech-app-mode');try{sessionStorage.removeItem('assistenciaTechAppMode')}catch(_){}const portal=new URL('platform.html',location.href);location.assign(portal.href)};
-function iniciarAppTecnico(){techAppSetConnection();techAppStamp();const p=new URLSearchParams(location.search);const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();if(mobile){document.body.classList.add('tech-app-mode');setTimeout(()=>window.techAppInicio(),80)}if('serviceWorker' in navigator){navigator.serviceWorker.register('assistencia-sw.js').catch(e=>console.warn('[Assistência] Service Worker não registrado:',e))}}
+function iniciarAppTecnico(){techAppSetConnection();techAppStamp();assistOfflineUpdateBadge?.();const p=new URLSearchParams(location.search);const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();if(mobile){document.body.classList.add('tech-app-mode');setTimeout(()=>window.techAppInicio(),80)}if('serviceWorker' in navigator){navigator.serviceWorker.register('assistencia-sw.js').catch(e=>console.warn('[Assistência] Service Worker não registrado:',e))}}
 
 
 
@@ -3494,7 +3685,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.47 — exclusão lógica de equipamento e OS
+// FASE 1.48 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -3617,7 +3808,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.47 — reabertura controlada por ciclos
+// FASE 1.48 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -3737,7 +3928,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.47 — duplicação controlada de OS
+// FASE 1.48 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -3882,7 +4073,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.47 — conciliação de materiais no fechamento da OS
+// FASE 1.48 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
