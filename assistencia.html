@@ -398,6 +398,25 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .reabrir-only:hover{background:#dbeafe!important}
 </style>
 
+
+<style id="fase140-ui">
+.duplicate-os-btn{
+  border-color:#c7d2fe!important;
+  background:#eef2ff!important;
+  color:#4338ca!important;
+}
+.duplicate-os-btn:hover{background:#e0e7ff!important}
+.dup-option{
+  display:flex;align-items:flex-start;gap:.75rem;
+  border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:12px;
+  cursor:pointer;
+}
+.dup-option:hover{border-color:#a5b4fc;background:#fafaff}
+.dup-option input{width:18px;height:18px;margin-top:1px;flex:none}
+.dup-option span{display:flex;flex-direction:column;gap:2px;font-size:12px;color:#334155}
+.dup-option small{font-size:10px;color:#64748b}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -405,7 +424,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.39B</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.40</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -535,11 +554,57 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="os-general-actions flex flex-wrap justify-between gap-3"><div><div class="os-general-actions-label">Navegação</div><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button></div><div><div class="os-general-actions-label">Ações gerais da OS</div><div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button><button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button><button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button><span id="slot-reabrir-os"></span><button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button></div></div></div></div></div>
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS nova em <code>os_ordens</code>. O legado <code>suportes_osr</code> continua intocado.</section></aside></div><div class="os-general-actions flex flex-wrap justify-between gap-3"><div><div class="os-general-actions-label">Navegação</div><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button></div><div><div class="os-general-actions-label">Ações gerais da OS</div><div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button><button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button><button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button><span id="slot-reabrir-os"></span><button class="btn btn-light duplicate-os-btn" data-assist-perm="duplicar_os" onclick="window.abrirDuplicarOS()"><i class="fa-solid fa-copy"></i> Duplicar OS</button><button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button></div></div></div></div></div>
 
 
 
 
+
+
+<div id="modal-duplicar-os" class="modal-backdrop hidden" style="z-index:100076!important">
+  <div class="modal-card !max-w-none" style="width:min(680px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">NOVA ORDEM DE SERVIÇO</span>
+        <h2 class="text-xl font-black mt-2">Duplicar OS</h2>
+        <p id="dup-os-identificacao" class="text-xs text-slate-500 mt-1">-</p>
+      </div>
+      <button onclick="window.fecharDuplicarOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
+      Será criada uma <b>nova OS com novo número</b>. Orçamentos, aprovações, assinaturas, fotos, histórico,
+      apontamentos, agendamento, checkout e faturamento <b>não serão copiados</b>.
+    </div>
+
+    <div class="mt-5 space-y-3">
+      <label class="dup-option">
+        <input id="dup-copiar-equipamentos" type="checkbox" checked>
+        <span><b>Copiar equipamentos</b><small>Marca, modelo, número de série, identificação e vínculo com o Parque.</small></span>
+      </label>
+      <label class="dup-option">
+        <input id="dup-copiar-tecnicos" type="checkbox" checked>
+        <span><b>Copiar técnicos responsáveis</b><small>A nova OS inicia com a mesma equipe, mas sem agendamento.</small></span>
+      </label>
+      <label class="dup-option">
+        <input id="dup-copiar-descricao" type="checkbox" checked>
+        <span><b>Copiar descrição inicial</b><small>O texto poderá ser alterado depois na nova OS.</small></span>
+      </label>
+    </div>
+
+    <label class="block mt-4">
+      <span class="field-label">Motivo / referência da duplicação</span>
+      <textarea id="dup-motivo" class="input min-h-20" placeholder="Ex.: novo atendimento do mesmo equipamento, retorno programado..."></textarea>
+    </label>
+
+    <div class="mt-5 flex justify-end gap-2">
+      <button onclick="window.fecharDuplicarOS()" class="btn btn-light">Cancelar</button>
+      <button id="btn-confirmar-duplicacao" onclick="window.confirmarDuplicarOS()" class="btn btn-primary">
+        <i class="fa-solid fa-copy"></i> Criar nova OS
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-reabrir-os" class="modal-backdrop hidden" style="z-index:100075!important">
   <div class="modal-card !max-w-none" style="width:min(680px,96vw)">
@@ -1895,7 +1960,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
@@ -1906,6 +1971,7 @@ const ASSIST_PERMISSIONS=[
  ['editar_tecnico_pos_revisao','Editar dados técnicos após revisão'],
  ['faturar_encerrar','Faturar / encerrar OS'],
  ['reabrir_os','Reabrir OS'],
+ ['duplicar_os','Duplicar OS'],
  ['excluir_registros','Excluir registros'],
  ['administrar_permissoes','Administrar permissões']
 ];
@@ -2172,7 +2238,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.39B — exclusão lógica de equipamento e OS
+// FASE 1.40 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -2295,7 +2361,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.39B — reabertura controlada por ciclos
+// FASE 1.40 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -2410,6 +2476,150 @@ window.confirmarReabrirOS=async function(){
     alert('Não foi possível reabrir a OS.\n\n'+(e?.message||e));
   }finally{
     btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-rotate-left"></i> Criar novo ciclo';
+  }
+};
+
+
+
+// FASE 1.40 — duplicação controlada de OS
+window.abrirDuplicarOS=function(){
+  if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
+  const o=state.selectedOS;if(!o)return;
+  if(o.is_deleted===true){alert('Uma OS excluída não pode ser duplicada.');return}
+  document.getElementById('dup-os-identificacao').textContent=
+    (o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'Cliente não informado');
+  document.getElementById('dup-copiar-equipamentos').checked=true;
+  document.getElementById('dup-copiar-tecnicos').checked=true;
+  document.getElementById('dup-copiar-descricao').checked=true;
+  document.getElementById('dup-motivo').value='';
+  document.getElementById('modal-duplicar-os').classList.remove('hidden');
+};
+
+window.fecharDuplicarOS=function(){
+  document.getElementById('modal-duplicar-os')?.classList.add('hidden');
+};
+
+window.confirmarDuplicarOS=async function(){
+  if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
+  const origem=state.selectedOS;if(!origem)return;
+  const copiarEq=!!document.getElementById('dup-copiar-equipamentos')?.checked;
+  const copiarTec=!!document.getElementById('dup-copiar-tecnicos')?.checked;
+  const copiarDesc=!!document.getElementById('dup-copiar-descricao')?.checked;
+  const motivo=document.getElementById('dup-motivo')?.value.trim()||'';
+  const btn=document.getElementById('btn-confirmar-duplicacao');
+
+  if(!confirm('Criar uma nova OS a partir de '+(origem.osNumber||origem.numero||'esta OS')+'?'))return;
+
+  const now=new Date().toISOString();
+  const novoId=window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+
+  try{
+    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Criando...';
+
+    const novoNumero=await nextOSNumber();
+    const tecnicoIds=copiarTec
+      ? (Array.isArray(origem.tecnicoIds)&&origem.tecnicoIds.length?origem.tecnicoIds:[origem.tecnicoId||origem.tecnicoUid]).filter(Boolean)
+      : [];
+    const tecnicoNomes=copiarTec
+      ? (Array.isArray(origem.tecnicoNomes)&&origem.tecnicoNomes.length?origem.tecnicoNomes:[origem.tecnicoNome||origem.tecnico]).filter(Boolean)
+      : [];
+
+    const novaOS={
+      internalId:novoId,osNumber:novoNumero,numero:novoNumero,
+      clienteId:origem.clienteId||'',
+      clienteNome:origem.clienteNome||origem.cliente||'',
+      prioridade:origem.prioridade||'NORMAL',
+      origem:'DUPLICADA',
+      cicloAtendimento:1,
+      tecnicoIds,tecnicoNomes,
+      tecnicoId:tecnicoIds[0]||'',
+      tecnicoUid:tecnicoIds[0]||'',
+      tecnicoNome:tecnicoNomes[0]||'',
+      descricaoInicial:copiarDesc?(origem.descricaoInicial||origem.descricao||''):'',
+      etapaKanban:'ENTRADA',status:'ENTRADA',
+      osOrigemDuplicadaId:origem.internalId||origem.id||'',
+      osOrigemDuplicadaNumero:origem.osNumber||origem.numero||'',
+      motivoDuplicacao:motivo,
+      criadoPorUid:window.currentUser?.uid||'',
+      criadoPorEmail:window.currentUser?.email||'',
+      criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+      createdAtISO:now,updatedAtISO:now,
+      schemaVersion:Number(origem.schemaVersion||1),
+      is_deleted:false,ativo:true,
+
+      // campos operacionais explicitamente zerados
+      statusAgendamento:'',agendaTaskId:'',agendadoParaISO:'',
+      atendimentoStatus:'NAO_INICIADO',atendimentoDuracaoSegundos:0,atendimentoUltimoInicioEmISO:null,
+      finalizadoTecnico:false,encerradoAdministrativamente:false,faturado:false,
+      situacaoFaturamento:'',numeroNF:'',faturadoEmData:'',valorFaturado:'',observacaoFaturamento:'',
+      assinaturaClienteURL:'',assinaturaClienteNome:'',assinaturaClienteFuncao:'',
+      assinaturaClienteObservacao:'',assinaturaClienteEmISO:null
+    };
+
+    await saveDoc('os_ordens',novoId,novaOS);
+
+    const equipamentosOrigem=copiarEq
+      ? (await readSub(origem.internalId||origem.id,'equipamentos').catch(()=>[]))
+          .filter(e=>e?.is_deleted!==true&&e?.ativo!==false)
+      : [];
+
+    for(const eq of equipamentosOrigem){
+      const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+      const novoEq={
+        internalId:eid,osId:novoId,osNumber:novoNumero,
+        clienteId:novaOS.clienteId,
+        tipo:eq.tipo||'TEMPORARIO',
+        parqueMaquinaId:eq.parqueMaquinaId||null,
+        marca:eq.marca||'',
+        modelo:eq.modelo||eq.nome||eq.equipamentoNome||'Equipamento',
+        numeroSerie:eq.numeroSerie||'',
+        identificacaoLocal:eq.identificacaoLocal||'',
+        observacao:eq.observacao||'',
+        cicloAtendimento:1,
+        statusEquipamento:'PENDENTE',statusDetalhado:'PENDENTE',
+        ativo:true,is_deleted:false,
+        copiadoDeEquipamentoId:eq.id||eq.internalId||'',
+        createdAtISO:now,updatedAtISO:now,
+        criadoPorUid:window.currentUser?.uid||'',
+        criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
+      };
+      await saveSubDoc(novoId,'equipamentos',eid,novoEq);
+    }
+
+    // Novo histórico começa limpo, com apenas o evento de criação por duplicação.
+    const novaOSMem={id:novoId,...novaOS,_equipamentos:[]};
+    await addHistory(
+      novaOSMem,
+      'CRIACAO_DUPLICADA',
+      'OS criada por duplicação',
+      'Origem: '+(origem.osNumber||origem.numero||'-')+(motivo?' · '+motivo:''),
+      {osOrigemDuplicadaId:origem.internalId||origem.id||'',osOrigemDuplicadaNumero:origem.osNumber||origem.numero||'',equipamentosCopiados:equipamentosOrigem.length}
+    );
+
+    // A OS de origem recebe apenas o registro de que gerou uma nova OS.
+    await addHistory(
+      origem,
+      'OS_DUPLICADA',
+      'Nova OS criada a partir desta OS',
+      novoNumero+(motivo?' · '+motivo:''),
+      {novaOSId:novoId,novaOSNumero:novoNumero}
+    );
+
+    state.os.push(novaOSMem);
+    window.fecharDuplicarOS();
+    renderKanban();
+    renderCentralPendencias?.();
+    renderSLAOperacional?.();
+    toast('Nova OS '+novoNumero+' criada com sucesso.');
+
+    // Abre a nova OS para conferência.
+    setTimeout(()=>window.abrirDetalheOS(novoId),50);
+  }catch(e){
+    console.error('[Assistência] duplicação OS',e);
+    alert('Não foi possível duplicar a OS.\n\n'+(e?.message||e));
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-copy"></i> Criar nova OS';
   }
 };
 
