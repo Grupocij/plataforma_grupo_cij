@@ -569,6 +569,42 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:640px){.tech-external-actions{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase147-ui">
+#modal-assinatura-cliente{
+  z-index:2147483647!important;
+  position:fixed!important;inset:0!important;
+  pointer-events:auto!important
+}
+#modal-assinatura-cliente .modal-card{
+  max-height:96dvh!important;overflow:auto!important;
+  overscroll-behavior:contain
+}
+#modal-qr-equipamento{position:fixed!important;inset:0!important;pointer-events:auto!important}
+.qr-reader-card{max-height:96dvh;overflow:auto}
+.qr-camera-wrap{
+  position:relative;overflow:hidden;border-radius:18px;background:#020617;
+  min-height:300px;border:1px solid #1e293b
+}
+#qr-equip-video{display:block;width:100%;height:340px;object-fit:cover;background:#020617}
+.qr-scan-frame{
+  position:absolute;left:50%;top:50%;width:210px;height:210px;transform:translate(-50%,-50%);
+  border:3px solid rgba(255,255,255,.92);border-radius:18px;
+  box-shadow:0 0 0 999px rgba(2,6,23,.30);pointer-events:none
+}
+.qr-camera-msg{
+  position:absolute;left:12px;right:12px;bottom:12px;background:rgba(15,23,42,.82);
+  color:white;border-radius:10px;padding:.55rem .7rem;font-size:.65rem;font-weight:800;text-align:center
+}
+#eq-qr-feedback.ok,#qr-equip-result.ok{display:block;background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+#eq-qr-feedback.warn,#qr-equip-result.warn{display:block;background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+#eq-qr-feedback.error,#qr-equip-result.error{display:block;background:#fff1f2;border-color:#fecdd3;color:#be123c}
+@media(max-width:640px){
+ #qr-equip-video{height:55dvh;max-height:430px}
+ .qr-camera-wrap{min-height:280px}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -576,7 +612,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.46</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.47</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1026,7 +1062,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.46</span>
+        <span class="tag tag-green">FASE 1.47</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1157,8 +1193,46 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 
 <div id="modal-historico-equipamento" class="modal-backdrop hidden" style="z-index:100033!important"><div class="modal-card !max-w-none" style="width:min(860px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Histórico do equipamento</h2><p id="eq-hist-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharHistoricoEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-hist-conteudo" class="mt-5"><div class="text-xs text-slate-400">Carregando histórico...</div></div></div></div>
 
-<div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p id="eq-modal-regra" class="text-xs text-slate-500 mt-1">Primeiro são verificados somente os equipamentos vinculados ao cliente desta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-tabs" class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Equipamento do cliente</button><button id="tab-eq-temp" class="nav-pill hidden" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Equipamento do cliente *</span><select id="eq-parque-select" class="input"><option value="">Selecione um equipamento</option></select></label><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">São exibidos <b>somente</b> equipamentos do Parque de Máquinas vinculados ao cliente desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><input id="eq-temp-sn" class="input" placeholder="Se houver"></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><div class="md:col-span-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900"><b>Importante:</b> este cadastro não altera o Parque de Máquinas oficial.</div></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharAdicionarEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-equipamento" onclick="window.salvarEquipamentoOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Vincular equipamento</button></div></div></div>
+<div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p id="eq-modal-regra" class="text-xs text-slate-500 mt-1">Primeiro são verificados somente os equipamentos vinculados ao cliente desta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-tabs" class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Equipamento do cliente</button><button id="tab-eq-temp" class="nav-pill hidden" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Equipamento do cliente *</span><select id="eq-parque-select" class="input"><option value="">Selecione um equipamento</option></select></label><button type="button" class="btn btn-light w-full justify-center" onclick="window.abrirLeitorQREquipamento()"><i class="fa-solid fa-qrcode"></i> Ler QR Code / Número de série</button><div id="eq-qr-feedback" class="hidden rounded-xl border p-3 text-xs"></div><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">São exibidos <b>somente</b> equipamentos do Parque de Máquinas vinculados ao cliente desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><div class="flex gap-2"><input id="eq-temp-sn" class="input" placeholder="Se houver"><button type="button" class="btn btn-light shrink-0" onclick="window.abrirLeitorQREquipamento()" title="Ler QR Code"><i class="fa-solid fa-qrcode"></i></button></div></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><div class="md:col-span-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900"><b>Importante:</b> este cadastro não altera o Parque de Máquinas oficial.</div></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharAdicionarEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-equipamento" onclick="window.salvarEquipamentoOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Vincular equipamento</button></div></div></div>
 
+
+
+<div id="modal-qr-equipamento" class="modal-backdrop hidden" style="z-index:2147483647!important">
+  <div class="modal-card !max-w-none qr-reader-card" style="width:min(560px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">LEITURA DO EQUIPAMENTO</span>
+        <h2 class="text-xl font-black mt-2">Ler QR Code</h2>
+        <p class="text-xs text-slate-500 mt-1">Aponte a câmera para o QR Code que contém o número de série da máquina.</p>
+      </div>
+      <button onclick="window.fecharLeitorQREquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="qr-camera-wrap mt-5">
+      <video id="qr-equip-video" playsinline muted></video>
+      <div class="qr-scan-frame"></div>
+      <div id="qr-camera-msg" class="qr-camera-msg">Iniciando câmera...</div>
+    </div>
+
+    <div id="qr-reader-support" class="mt-3 text-[11px] text-slate-500"></div>
+
+    <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div class="field-label">Número de série / conteúdo do QR</div>
+      <div class="flex gap-2 mt-2">
+        <input id="qr-equip-manual" class="input" placeholder="Você também pode digitar o número de série">
+        <button type="button" class="btn btn-primary shrink-0" onclick="window.aplicarQREquipamento(document.getElementById('qr-equip-manual').value)">
+          Usar
+        </button>
+      </div>
+    </div>
+
+    <div id="qr-equip-result" class="hidden mt-4 rounded-xl border p-3 text-xs"></div>
+
+    <div class="mt-5 flex justify-end">
+      <button onclick="window.fecharLeitorQREquipamento()" class="btn btn-light">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-editar-equipamento" class="modal-backdrop hidden" style="z-index:100045!important">
   <div class="modal-card !max-w-none" style="width:min(720px,96vw)">
@@ -1347,7 +1421,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.46 — OS interna x externa e recolhimento para laboratório
+// FASE 1.47 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2331,9 +2405,162 @@ window.fecharHistoricoEquipamento=function(){document.getElementById('modal-hist
 window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedOS;if(!atual)return;const eq=(atual._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}const modal=document.getElementById('modal-historico-equipamento'),box=document.getElementById('eq-hist-conteudo');document.getElementById('eq-hist-titulo').textContent=`${eq.modelo||'Equipamento'} · SN: ${eq.numeroSerie||'não informado'}`;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Consultando atendimentos anteriores...</div>';modal.classList.remove('hidden');try{const rows=[];for(const o of state.os){try{const list=await readSub(o.internalId||o.id,'equipamentos');for(const x of list)if(sameEquipment(eq,x))rows.push({o,e:x,date:osEventDate(o,x)})}catch(_){}}rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));const currentId=String(atual.internalId||atual.id),previous=rows.filter(r=>String(r.o.internalId||r.o.id)!==currentId);const currentDate=new Date(osEventDate(atual,eq)||Date.now());const recent=previous.filter(r=>{const d=new Date(r.date);return !isNaN(d)&&((currentDate-d)/86400000)>=0&&((currentDate-d)/86400000)<=90});const last=previous[0];const dias=last?Math.max(0,Math.floor((currentDate-new Date(last.date))/86400000)):null;const origemGarantia=String(atual.origem||'').toUpperCase()==='GARANTIA';const garantia=origemGarantia?'GARANTIA INFORMADA NA OS':recent.length?'VERIFICAR GARANTIA / REINCIDÊNCIA':'SEM INDÍCIO AUTOMÁTICO';const hist=rows.length?rows.map(r=>{const isCurrent=String(r.o.internalId||r.o.id)===currentId;const rec=!isCurrent&&recent.includes(r);return `<div class="eq-history-item ${isCurrent?'current':rec?'recurrence':''}"><div class="flex flex-wrap justify-between gap-2"><b class="text-xs">${esc(r.o.osNumber||r.o.numero||'OS')}</b><span class="text-[10px] text-slate-500">${esc(fmtDate(r.date))}</span></div><div class="text-[11px] text-slate-600 mt-1">${esc(r.o.clienteNome||r.o.cliente||'')} · ${esc(statusLabel(r.e.statusEquipamento||'PENDENTE'))}</div>${r.e.diagnosticoTecnico?`<div class="text-[11px] mt-2"><b>Diagnóstico:</b> ${esc(r.e.diagnosticoTecnico)}</div>`:''}${r.e.checkoutServicoExecutado||r.e.servicoExecutado?`<div class="text-[11px] mt-1"><b>Serviço:</b> ${esc(r.e.checkoutServicoExecutado||r.e.servicoExecutado)}</div>`:''}${rec?'<div class="mt-2 warranty-chip warn"><i class="fa-solid fa-rotate-left"></i> ocorrência nos últimos 90 dias</div>':''}${isCurrent?'<div class="mt-2 warranty-chip ok">OS atual</div>':''}</div>`}).join(''):'<div class="text-xs text-slate-400">Nenhum atendimento localizado para este equipamento.</div>';box.innerHTML=`<div class="eq-history-summary"><div class="eq-history-kpi"><span>Atendimentos localizados</span><b>${rows.length}</b></div><div class="eq-history-kpi"><span>Último atendimento anterior</span><b>${dias===null?'Não localizado':dias+' dia(s)'}</b></div><div class="eq-history-kpi"><span>Garantia / reincidência</span><b class="${recent.length||origemGarantia?'text-amber-700':'text-slate-700'}">${esc(garantia)}</b></div></div><div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-[11px] text-blue-900 mt-4"><b>Critério da Fase 1.32:</b> o sistema relaciona o histórico pelo ID do Parque de Máquinas ou, quando disponível, pelo número de série. Uma ocorrência em até 90 dias é sinalizada para conferência; isso <b>não aprova garantia automaticamente</b>.</div><div class="mt-4"><h3 class="section-title">Atendimentos deste equipamento</h3>${hist}</div>`}catch(e){console.error('[Assistência] histórico equipamento',e);box.innerHTML='<div class="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">Não foi possível consolidar o histórico do equipamento.</div>'}};
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
-window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toast('Abra uma OS primeiro.');return}const machines=state.parque.filter(x=>machineBelongsToClient(x,o)).sort((a,b)=>machineLabel(a).localeCompare(machineLabel(b),'pt-BR'));const sel=document.getElementById('eq-parque-select'),parqueBox=document.getElementById('eq-parque-box'),tempBox=document.getElementById('eq-temp-box'),parqueBtn=document.getElementById('tab-eq-parque'),tempBtn=document.getElementById('tab-eq-temp'),regra=document.getElementById('eq-modal-regra');parqueBtn.classList.remove('active');tempBtn.classList.remove('active');if(machines.length){state.equipmentType='PARQUE';parqueBox.classList.remove('hidden');tempBox.classList.add('hidden');parqueBtn.classList.add('active');tempBtn.classList.add('hidden');sel.innerHTML='<option value="">Selecione um equipamento</option>'+machines.map(x=>`<option value="${esc(x.id)}">${esc(machineLabel(x))}</option>`).join('');if(regra)regra.textContent=`${machines.length} equipamento(s) encontrado(s) no Parque de Máquinas deste cliente. Selecione um deles para vincular à OS.`}else{state.equipmentType='TEMPORARIO';parqueBox.classList.add('hidden');tempBox.classList.remove('hidden');parqueBtn.classList.add('hidden');tempBtn.classList.remove('hidden');tempBtn.classList.add('active');sel.innerHTML='<option value="">Nenhum equipamento vinculado ao cliente</option>';['eq-temp-marca','eq-temp-modelo','eq-temp-sn','eq-temp-tag','eq-temp-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});if(regra)regra.textContent='Nenhum equipamento foi encontrado no Parque de Máquinas deste cliente. O cadastro temporário foi liberado para este atendimento.'}document.getElementById('modal-equipamento').classList.remove('hidden')};
-window.fecharAdicionarEquipamento=()=>document.getElementById('modal-equipamento').classList.add('hidden');
-window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast('Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
+
+// FASE 1.47 — leitura de QR Code / número de série do equipamento
+let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
+
+function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function qrMachineSerial(m){return String(m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'').trim()}
+function qrExtrairPossiveisSeriais(raw){
+ const txt=String(raw||'').trim(),out=[];
+ if(!txt)return out;
+ try{
+   const j=JSON.parse(txt);
+   ['numeroSerie','numero_serie','serial','sn','serie','serialNumber','serial_number'].forEach(k=>{if(j?.[k])out.push(String(j[k]))});
+ }catch(_){}
+ const patterns=[
+   /(?:SN|S\/N|SERIAL|SERIE|SÉRIE|NUMERO\s*DE\s*SERIE|NÚMERO\s*DE\s*SÉRIE)\s*[:=#-]?\s*([A-Z0-9._\/-]{3,})/ig,
+   /([A-Z0-9][A-Z0-9._\/-]{4,})/ig
+ ];
+ patterns.forEach(re=>{let m;while((m=re.exec(txt))!==null){if(m[1])out.push(m[1])}});
+ out.unshift(txt);
+ return [...new Set(out.map(x=>String(x).trim()).filter(Boolean))];
+}
+function qrEncontrarMaquina(raw,o){
+ const candidates=qrExtrairPossiveisSeriais(raw);
+ const normalized=candidates.map(qrSerialNorm).filter(Boolean);
+ const all=(state.parque||[]).filter(m=>qrMachineSerial(m));
+ const exact=all.find(m=>normalized.includes(qrSerialNorm(qrMachineSerial(m))));
+ if(exact)return exact;
+ const rawNorm=qrSerialNorm(raw);
+ return all.find(m=>{
+   const sn=qrSerialNorm(qrMachineSerial(m));
+   return sn.length>=4 && rawNorm.includes(sn);
+ })||null;
+}
+function qrFeedback(msg,tipo='ok'){
+ const el=document.getElementById('qr-equip-result');if(el){el.className='mt-4 rounded-xl border p-3 text-xs '+tipo;el.innerHTML=msg}
+}
+function qrModalFeedback(msg,tipo='ok'){
+ const el=document.getElementById('eq-qr-feedback');if(el){el.className='rounded-xl border p-3 text-xs '+tipo;el.innerHTML=msg}
+}
+async function qrPararCamera(){
+ qrEquipScanning=false;
+ if(qrEquipRAF){cancelAnimationFrame(qrEquipRAF);qrEquipRAF=null}
+ if(qrEquipStream){qrEquipStream.getTracks().forEach(t=>t.stop());qrEquipStream=null}
+ const v=document.getElementById('qr-equip-video');if(v){try{v.pause()}catch(_){}v.srcObject=null}
+}
+async function qrLoop(){
+ if(!qrEquipScanning||!qrEquipDetector)return;
+ const video=document.getElementById('qr-equip-video');
+ if(video?.readyState>=2){
+   try{
+     const codes=await qrEquipDetector.detect(video);
+     if(codes?.length){
+       const raw=String(codes[0].rawValue||'').trim();
+       if(raw){
+         qrEquipScanning=false;
+         const input=document.getElementById('qr-equip-manual');if(input)input.value=raw;
+         await window.aplicarQREquipamento(raw);
+         return;
+       }
+     }
+   }catch(e){console.warn('[Assistência] leitura QR',e)}
+ }
+ if(qrEquipScanning)qrEquipRAF=requestAnimationFrame(qrLoop);
+}
+window.abrirLeitorQREquipamento=async function(){
+ const o=state.selectedOS;if(!o){toast('Abra uma OS primeiro.');return}
+ const modal=document.getElementById('modal-qr-equipamento');
+ if(typeof techAbrirModalAcima==='function')techAbrirModalAcima('modal-qr-equipamento');else modal?.classList.remove('hidden');
+ const msg=document.getElementById('qr-camera-msg'),support=document.getElementById('qr-reader-support'),result=document.getElementById('qr-equip-result'),manual=document.getElementById('qr-equip-manual');
+ if(result){result.className='hidden mt-4 rounded-xl border p-3 text-xs';result.innerHTML=''}
+ if(manual)manual.value='';
+ if(!('BarcodeDetector' in window)){
+   if(msg)msg.textContent='Leitor automático não disponível neste navegador.';
+   if(support)support.innerHTML='<b>Use o Chrome/Edge atualizado no Android</b> ou digite o número de série no campo abaixo.';
+   return;
+ }
+ try{
+   const formatos=await BarcodeDetector.getSupportedFormats?.().catch(()=>[])||[];
+   if(formatos.length && !formatos.includes('qr_code')){
+     if(msg)msg.textContent='Este navegador não oferece leitura de QR Code.';
+     if(support)support.textContent='Digite o número de série no campo abaixo.';
+     return;
+   }
+   qrEquipDetector=new BarcodeDetector({formats:['qr_code']});
+   qrEquipStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+   const video=document.getElementById('qr-equip-video');video.srcObject=qrEquipStream;await video.play();
+   qrEquipScanning=true;
+   if(msg)msg.textContent='Aponte a câmera para o QR Code.';
+   if(support)support.innerHTML='A leitura procura o <b>número de série</b> no QR e tenta localizar automaticamente a máquina no Parque do cliente.';
+   qrEquipRAF=requestAnimationFrame(qrLoop);
+ }catch(e){
+   console.error('[Assistência] câmera QR',e);
+   if(msg)msg.textContent='Não foi possível abrir a câmera.';
+   if(support)support.textContent='Autorize o uso da câmera no navegador ou digite o número de série manualmente.';
+ }
+};
+window.fecharLeitorQREquipamento=async function(){
+ await qrPararCamera();
+ document.getElementById('modal-qr-equipamento')?.classList.add('hidden');
+};
+window.aplicarQREquipamento=async function(raw){
+ const o=state.selectedOS;if(!o)return;
+ const valor=String(raw||'').trim();
+ if(!valor){alert('Informe ou leia um número de série.');return}
+ const machine=qrEncontrarMaquina(valor,o);
+ const clientMachines=(state.parque||[]).filter(x=>machineBelongsToClient(x,o));
+ if(machine){
+   const sn=qrMachineSerial(machine);
+   if(machineBelongsToClient(machine,o)){
+     state.equipmentType='PARQUE';
+     document.getElementById('eq-parque-box')?.classList.remove('hidden');
+     document.getElementById('eq-temp-box')?.classList.add('hidden');
+     document.getElementById('tab-eq-parque')?.classList.add('active');
+     document.getElementById('tab-eq-temp')?.classList.remove('active');
+     const sel=document.getElementById('eq-parque-select');
+     if(sel){
+       if(![...sel.options].some(op=>String(op.value)===String(machine.id))){
+         const op=document.createElement('option');op.value=machine.id;op.textContent=machineLabel(machine);sel.appendChild(op);
+       }
+       sel.value=machine.id;
+     }
+     const msg=`<b>Equipamento localizado.</b><br>${esc(machineLabel(machine))}`;
+     qrFeedback(msg,'ok');qrModalFeedback(msg,'ok');
+     await qrPararCamera();
+     document.getElementById('modal-qr-equipamento')?.classList.add('hidden');
+     toast('Equipamento localizado pelo QR Code.');
+     return;
+   }
+   qrFeedback(`<b>Série localizada no Parque, mas vinculada a outro cliente.</b><br>SN: ${esc(sn)}<br>Confira o cadastro antes de vincular esta máquina à OS.`,'warn');
+   qrModalFeedback(`QR lido: <b>${esc(sn)}</b>, porém a máquina está vinculada a outro cliente.`,'warn');
+   return;
+ }
+ const candidates=qrExtrairPossiveisSeriais(valor);
+ const serial=candidates.find(x=>qrSerialNorm(x).length>=3)||valor;
+ if(!clientMachines.length){
+   state.equipmentType='TEMPORARIO';
+   document.getElementById('eq-parque-box')?.classList.add('hidden');
+   document.getElementById('eq-temp-box')?.classList.remove('hidden');
+   document.getElementById('tab-eq-temp')?.classList.remove('hidden');
+   document.getElementById('tab-eq-temp')?.classList.add('active');
+   const sn=document.getElementById('eq-temp-sn');if(sn)sn.value=serial;
+   const msg=`Número de série <b>${esc(serial)}</b> lido. Como este cliente não possui máquina cadastrada no Parque, o número foi preenchido no equipamento temporário.`;
+   qrFeedback(msg,'ok');qrModalFeedback(msg,'ok');
+   await qrPararCamera();
+   document.getElementById('modal-qr-equipamento')?.classList.add('hidden');
+   toast('Número de série preenchido pelo QR Code.');
+   return;
+ }
+ qrFeedback(`<b>Número lido:</b> ${esc(serial)}<br>Não encontrei esta série entre os equipamentos do Parque vinculados ao cliente. Selecione manualmente ou corrija o cadastro do Parque.`,'warn');
+ qrModalFeedback(`QR lido: <b>${esc(serial)}</b>, mas não corresponde às máquinas cadastradas para este cliente.`,'warn');
+};
+
+
+window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toast('Abra uma OS primeiro.');return}const qrf=document.getElementById('eq-qr-feedback');if(qrf){qrf.className='hidden rounded-xl border p-3 text-xs';qrf.innerHTML=''}const machines=state.parque.filter(x=>machineBelongsToClient(x,o)).sort((a,b)=>machineLabel(a).localeCompare(machineLabel(b),'pt-BR'));const sel=document.getElementById('eq-parque-select'),parqueBox=document.getElementById('eq-parque-box'),tempBox=document.getElementById('eq-temp-box'),parqueBtn=document.getElementById('tab-eq-parque'),tempBtn=document.getElementById('tab-eq-temp'),regra=document.getElementById('eq-modal-regra');parqueBtn.classList.remove('active');tempBtn.classList.remove('active');if(machines.length){state.equipmentType='PARQUE';parqueBox.classList.remove('hidden');tempBox.classList.add('hidden');parqueBtn.classList.add('active');tempBtn.classList.add('hidden');sel.innerHTML='<option value="">Selecione um equipamento</option>'+machines.map(x=>`<option value="${esc(x.id)}">${esc(machineLabel(x))}</option>`).join('');if(regra)regra.textContent=`${machines.length} equipamento(s) encontrado(s) no Parque de Máquinas deste cliente. Selecione um deles para vincular à OS.`}else{state.equipmentType='TEMPORARIO';parqueBox.classList.add('hidden');tempBox.classList.remove('hidden');parqueBtn.classList.add('hidden');tempBtn.classList.remove('hidden');tempBtn.classList.add('active');sel.innerHTML='<option value="">Nenhum equipamento vinculado ao cliente</option>';['eq-temp-marca','eq-temp-modelo','eq-temp-sn','eq-temp-tag','eq-temp-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});if(regra)regra.textContent='Nenhum equipamento foi encontrado no Parque de Máquinas deste cliente. O cadastro temporário foi liberado para este atendimento.'}if(document.body.classList.contains('tech-app-mode')&&typeof techAbrirModalAcima==='function'){techAbrirModalAcima('modal-equipamento')}else{document.getElementById('modal-equipamento').classList.remove('hidden')}};
+window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
+window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast('Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 window.abrirFaturamentoOS=async function(){
  if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
  const o=state.selectedOS;if(!o)return;
@@ -2455,7 +2682,7 @@ function moverAssinatura(ev){if(!assinaturaDesenhando)return;ev.preventDefault()
 function terminarAssinatura(ev){if(assinaturaDesenhando)ev?.preventDefault?.();assinaturaDesenhando=false}
 function instalarEventosAssinatura(){const c=document.getElementById('assinatura-canvas');if(!c||c.dataset.ready)return;c.dataset.ready='1';c.addEventListener('pointerdown',iniciarAssinatura);c.addEventListener('pointermove',moverAssinatura);window.addEventListener('pointerup',terminarAssinatura);c.addEventListener('touchstart',iniciarAssinatura,{passive:false});c.addEventListener('touchmove',moverAssinatura,{passive:false});c.addEventListener('touchend',terminarAssinatura,{passive:false})}
 window.limparAssinaturaCliente=function(){prepararCanvasAssinatura()};
-window.abrirAssinaturaCliente=function(){const o=state.selectedOS;if(!o)return;document.getElementById('assinatura-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'');document.getElementById('assinatura-responsavel').value=o.assinaturaClienteNome||'';document.getElementById('assinatura-funcao').value=o.assinaturaClienteFuncao||'';document.getElementById('assinatura-observacao').value=o.assinaturaClienteObservacao||'';const ex=document.getElementById('assinatura-existente');if(o.assinaturaClienteURL){ex.classList.remove('hidden');ex.innerHTML=`<div class="signature-saved"><i class="fa-solid fa-circle-check text-lg"></i><img src="${esc(o.assinaturaClienteURL)}" alt="Assinatura atual"><div>Já existe uma assinatura registrada.<div class="font-normal mt-1">${esc(o.assinaturaClienteNome||'')} · ${esc(fmtDate(o.assinaturaClienteEmISO))}</div><div class="font-normal">Ao salvar novamente, uma nova assinatura substituirá a referência atual da OS.</div></div></div>`}else{ex.classList.add('hidden');ex.innerHTML=''}document.getElementById('modal-assinatura-cliente').classList.remove('hidden');setTimeout(()=>{instalarEventosAssinatura();prepararCanvasAssinatura()},80)};
+window.abrirAssinaturaCliente=function(){const o=state.selectedOS;if(!o)return;document.getElementById('assinatura-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'');document.getElementById('assinatura-responsavel').value=o.assinaturaClienteNome||'';document.getElementById('assinatura-funcao').value=o.assinaturaClienteFuncao||'';document.getElementById('assinatura-observacao').value=o.assinaturaClienteObservacao||'';const ex=document.getElementById('assinatura-existente');if(o.assinaturaClienteURL){ex.classList.remove('hidden');ex.innerHTML=`<div class="signature-saved"><i class="fa-solid fa-circle-check text-lg"></i><img src="${esc(o.assinaturaClienteURL)}" alt="Assinatura atual"><div>Já existe uma assinatura registrada.<div class="font-normal mt-1">${esc(o.assinaturaClienteNome||'')} · ${esc(fmtDate(o.assinaturaClienteEmISO))}</div><div class="font-normal">Ao salvar novamente, uma nova assinatura substituirá a referência atual da OS.</div></div></div>`}else{ex.classList.add('hidden');ex.innerHTML=''}if(document.body.classList.contains('tech-app-mode')&&typeof techAbrirModalAcima==='function'){techAbrirModalAcima('modal-assinatura-cliente')}else{document.getElementById('modal-assinatura-cliente').classList.remove('hidden')}setTimeout(()=>{instalarEventosAssinatura();prepararCanvasAssinatura()},80)};
 window.fecharAssinaturaCliente=function(){document.getElementById('modal-assinatura-cliente')?.classList.add('hidden');assinaturaDesenhando=false};
 window.salvarAssinaturaCliente=async function(){const o=state.selectedOS;if(!o)return;const nome=document.getElementById('assinatura-responsavel').value.trim(),funcao=document.getElementById('assinatura-funcao').value.trim(),obs=document.getElementById('assinatura-observacao').value.trim();if(!nome){alert('Informe o nome do responsável que está assinando.');return}if(!assinaturaTemTraco){alert('Peça ao responsável para assinar no campo de assinatura.');return}const btn=document.getElementById('btn-salvar-assinatura');try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';const c=document.getElementById('assinatura-canvas'),blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Não foi possível gerar a imagem da assinatura.')),'image/png'));const api=await storageApi(),osId=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('ass_'+Date.now()),path=`assistencia_os/${osId}/assinaturas/${id}.png`,ref=api.ref(api.storage,path);await api.uploadBytes(ref,blob,{contentType:'image/png'});const url=await api.getDownloadURL(ref),now=new Date().toISOString(),payload={assinaturaClienteId:id,assinaturaClienteNome:nome,assinaturaClienteFuncao:funcao,assinaturaClienteObservacao:obs,assinaturaClienteURL:url,assinaturaClienteStoragePath:path,assinaturaClienteEmISO:now,assinaturaRegistradaPorUid:window.currentUser?.uid||'',assinaturaRegistradaPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now};await saveDoc('os_assinaturas',id,{internalId:id,osId,osNumber:o.osNumber||o.numero||'',responsavelNome:nome,responsavelFuncao:funcao,observacao:obs,downloadURL:url,storagePath:path,createdAtISO:now,registradoPorUid:payload.assinaturaRegistradaPorUid,registradoPorNome:payload.assinaturaRegistradaPorNome,is_deleted:false});await mergeOSDoc(osId,payload);Object.assign(o,payload);await addHistory(o,'ASSINATURA','Assinatura do cliente registrada',nome+(funcao?' · '+funcao:''),{assinaturaId:id});window.fecharAssinaturaCliente();renderHistoricoOS(o);window.atualizarEstadoAssinaturaCheckout?.();toast('Assinatura do cliente salva com sucesso.')}catch(e){console.error('[Assistência] assinatura cliente',e);alert('Não foi possível salvar a assinatura. Verifique as regras do Firebase Storage e do Firestore.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar assinatura'}};
 
@@ -2517,7 +2744,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.46 — materiais do técnico no celular
+// FASE 1.47 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -3267,7 +3494,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.46 — exclusão lógica de equipamento e OS
+// FASE 1.47 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -3390,7 +3617,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.46 — reabertura controlada por ciclos
+// FASE 1.47 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -3510,7 +3737,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.46 — duplicação controlada de OS
+// FASE 1.47 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -3655,7 +3882,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.46 — conciliação de materiais no fechamento da OS
+// FASE 1.47 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
