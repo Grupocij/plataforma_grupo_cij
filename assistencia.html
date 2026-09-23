@@ -898,6 +898,26 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:420px){.offline-center-kpis{grid-template-columns:1fr!important}}
 </style>
 
+
+<style id="fase162-anexos-ui">
+.anexo-card{display:flex;flex-direction:column}
+.anexo-meta{display:flex;flex-direction:column;flex:1}
+.anexo-actions{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:auto;padding-top:.55rem}
+.anexo-action{display:inline-flex;align-items:center;justify-content:center;gap:.28rem;border-radius:.55rem;border:1px solid #cbd5e1;background:#fff;color:#334155;padding:.4rem .45rem;font-size:.54rem;font-weight:900;min-height:34px}
+.anexo-action.open{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.anexo-action.delete{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+.anexo-action.local{grid-column:1/-1;background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.anexo-uploader{margin-top:.3rem;font-size:.53rem;color:#64748b;line-height:1.35}
+.anexo-size{font-weight:800}
+.anexo-offline-note{margin-top:.35rem;border-radius:.55rem;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:.4rem .48rem;font-size:.52rem;font-weight:800}
+@media(max-width:520px){
+  .anexo-grid{grid-template-columns:1fr 1fr}
+  .anexo-actions{grid-template-columns:1fr}
+  .anexo-action.local{grid-column:auto}
+}
+@media(max-width:390px){.anexo-grid{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -905,7 +925,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.61</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.62</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1505,7 +1525,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.61</span>
+        <span class="tag tag-green">FASE 1.62</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1828,7 +1848,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.61 — Offline essencial para atendimento externo
+// FASE 1.62 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1875,7 +1895,7 @@ async function assistOfflineStoreDelete(store,key){
   return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite'),req=tx.objectStore(store).delete(key);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error)});
 }
 
-// FASE 1.61 — isolamento do cache offline por usuário
+// FASE 1.62 — isolamento do cache offline por usuário
 function assistOfflineCacheOwner(){
   return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'').trim();
 }
@@ -1942,7 +1962,7 @@ async function assistOfflineApplyCache(kind,args){
   }catch(e){console.warn('[Assistência Offline] cache local',e)}
 }
 
-// FASE 1.61 — central de sincronização offline e ownership por usuário
+// FASE 1.62 — central de sincronização offline e ownership por usuário
 function assistOfflineCurrentUid(){
   return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'');
 }
@@ -2007,7 +2027,7 @@ async function assistOfflineAllQueue(){
 }
 
 
-// FASE 1.61 — detecção de conflito entre trabalho offline e alterações do servidor
+// FASE 1.62 — detecção de conflito entre trabalho offline e alterações do servidor
 function assistOfflineComparable(v){
   if(v===undefined)return'__UNDEFINED__';
   if(v===null)return null;
@@ -2253,7 +2273,7 @@ async function assistOfflineWrite(kind,args,onlineFn){
 }
 
 
-// FASE 1.61 — preparo offline validado e armazenamento persistente
+// FASE 1.62 — preparo offline validado e armazenamento persistente
 async function assistOfflineStorageStatus(tentarPersistir=false){
   const out={supported:false,persisted:false,usage:0,quota:0,percentual:0};
   try{
@@ -3059,7 +3079,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.61 — OS interna x externa e recolhimento para laboratório
+// FASE 1.62 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -4155,7 +4175,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.61 — leitura de QR Code / número de série do equipamento
+// FASE 1.62 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -4311,7 +4331,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.61 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.62 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -4601,24 +4621,98 @@ window.salvarAssinaturaCliente=async function(){
 };
 
 async function storageApi(){if(window.__assistStorageApi)return window.__assistStorageApi;const appMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js');const stMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js');const app=appMod.getApps()[0];if(!app)throw new Error('Firebase ainda não foi inicializado pelo core.js.');const storage=stMod.getStorage(app);return window.__assistStorageApi={storage,...stMod}}
+
+// FASE 1.62 — anexos completos, rastreabilidade e controles restaurados
+function anexoTamanhoLabel(v){
+  const n=Number(v||0);
+  if(!n)return'';
+  return assistOfflineBytes(n);
+}
+function podeExcluirAnexoEquipamento(a){
+  const uid=String(window.currentUser?.uid||'');
+  if(window.temPermissaoAssistencia?.('excluir_registros'))return true;
+  return !!uid&&String(a?.enviadoPorUid||'')===uid;
+}
+window.descartarAnexoOffline=async function(id){
+  const op=(await assistOfflineAllQueue()).find(x=>String(x.id)===String(id));
+  if(!op||op.kind!=='attachment'||!assistOfflineOpOwnerOk(op)){
+    toast('Anexo local não disponível para este usuário.');
+    return;
+  }
+  if(!confirm('Descartar este arquivo salvo somente no aparelho?\n\nEle ainda não foi sincronizado com o servidor.'))return;
+  await assistOfflineStoreDelete('queue',op.id);
+  await assistOfflineUpdateBadge();
+  await window.carregarAnexosEquipamento();
+  toast('Arquivo local descartado.');
+};
+
 function anexoCategoriaLabel(v){return({DEFEITO:'Defeito',ANTES:'Antes',DURANTE:'Durante',DEPOIS:'Depois',ETIQUETA:'Etiqueta / Nº de série',DOCUMENTO:'Documento',OUTRO:'Outro'})[String(v||'').toUpperCase()]||v||'Arquivo'}
 window.abrirAnexosEquipamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;state.selectedEquipment=eq;document.getElementById('anexo-equip-titulo').textContent=(eq.modelo||eq.nome||'Equipamento')+' · SN: '+(eq.numeroSerie||'não informado');document.getElementById('anexo-categoria').value='DEFEITO';document.getElementById('anexo-observacao').value='';document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('modal-anexos-equipamento').classList.remove('hidden');await window.carregarAnexosEquipamento()};
 window.fecharAnexosEquipamento=function(){document.getElementById('modal-anexos-equipamento')?.classList.add('hidden');const inp=document.getElementById('anexo-arquivos');if(inp)inp.value='';document.getElementById('anexo-preview').innerHTML='';state.selectedEquipment=null};
 window.previsualizarAnexos=function(){const fs=[...(document.getElementById('anexo-arquivos')?.files||[])];document.getElementById('anexo-preview').innerHTML=fs.map(f=>`<div class="upload-preview-item"><i class="fa-solid ${f.type.startsWith('image/')?'fa-image':'fa-file'} mr-1"></i>${esc(f.name)} · ${(f.size/1024/1024).toFixed(1)} MB</div>`).join('')};
 window.abrirCameraAnexo=function(){let old=document.getElementById('anexo-camera-input');if(old)old.remove();const i=document.createElement('input');i.type='file';i.id='anexo-camera-input';i.accept='image/*';i.capture='environment';i.className='hidden';i.onchange=()=>{const dt=new DataTransfer();[...(document.getElementById('anexo-arquivos')?.files||[])].forEach(f=>dt.items.add(f));[...(i.files||[])].forEach(f=>dt.items.add(f));document.getElementById('anexo-arquivos').files=dt.files;window.previsualizarAnexos()};document.body.appendChild(i);i.click()};
 window.carregarAnexosEquipamento=async function(){
- const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');if(!o||!eq||!box)return;
+ const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');
+ if(!o||!eq||!box)return;
  box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando...</div>';
  try{
-   let arr=[];try{const all=await read('os_arquivos');arr=all.filter(a=>a.osId===(o.internalId||o.id)&&a.equipamentoId===(eq.internalId||eq.id)&&!a.is_deleted)}catch(_){}
+   let arr=[];
+   try{
+     const all=await read('os_arquivos');
+     arr=all.filter(a=>String(a.osId)===String(o.internalId||o.id)&&String(a.equipamentoId)===String(eq.internalId||eq.id)&&a.is_deleted!==true);
+   }catch(_){}
+
    const pend=(await assistOfflinePending()).filter(op=>op.kind==='attachment'&&String(op.meta?.osId)===String(o.internalId||o.id)&&String(op.meta?.equipamentoId)===String(eq.internalId||eq.id));
    arr.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));
-   document.getElementById('anexo-contagem').textContent=(arr.length+pend.length)+' arquivo(s)'+(pend.length?' · '+pend.length+' aguardando sync':'');
-   const cloud=arr.map(a=>`<div class="anexo-card"><div class="anexo-thumb">${String(a.contentType||'').startsWith('image/')?`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener"><img src="${esc(a.downloadURL||'')}" alt="${esc(a.nome||'foto')}"></a>`:`<a href="${esc(a.downloadURL||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}</div><div class="anexo-meta"><div class="anexo-name">${esc(a.nome||'Arquivo')}</div><div class="mt-1"><span class="font-bold text-sky-700">${esc(anexoCategoriaLabel(a.categoria))}</span> · ${esc(fmtDate(a.createdAtISO))}</div>${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}</div></div>`).join('');
-   const local=pend.map(op=>`<div class="anexo-card offline-attachment"><div class="anexo-thumb text-2xl text-orange-500"><i class="fa-solid fa-mobile-screen-button"></i></div><div class="anexo-meta"><div class="anexo-name">${esc(op.meta?.nome||'Arquivo')}</div><div class="mt-1"><span class="offline-local-tag"><i class="fa-solid fa-clock"></i> Salvo no aparelho</span></div><div class="mt-1">${esc(anexoCategoriaLabel(op.meta?.categoria))} · aguardando conexão</div></div></div>`).join('');
+   pend.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+
+   const count=document.getElementById('anexo-contagem');
+   if(count)count.textContent=(arr.length+pend.length)+' arquivo(s)'+(pend.length?' · '+pend.length+' aguardando sync':'');
+
+   const cloud=arr.map(a=>{
+     const url=String(a.downloadURL||'');
+     const image=String(a.contentType||'').startsWith('image/');
+     const canDelete=podeExcluirAnexoEquipamento(a);
+     const uploader=a.enviadoPorNome||a.enviadoPorEmail||'Usuário não informado';
+     const size=anexoTamanhoLabel(a.size);
+     return `<div class="anexo-card">
+       <div class="anexo-thumb">
+         ${image&&url
+           ?`<a href="${esc(url)}" target="_blank" rel="noopener" class="w-full h-full"><img src="${esc(url)}" alt="${esc(a.nome||'foto')}"></a>`
+           :`<a href="${esc(url||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}
+       </div>
+       <div class="anexo-meta">
+         <div class="anexo-name" title="${esc(a.nome||'Arquivo')}">${esc(a.nome||'Arquivo')}</div>
+         <div class="mt-1"><span class="font-bold text-sky-700">${esc(anexoCategoriaLabel(a.categoria))}</span> · ${esc(fmtDate(a.createdAtISO))}</div>
+         ${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}
+         <div class="anexo-uploader"><i class="fa-solid fa-user mr-1"></i>${esc(uploader)}${size?` · <span class="anexo-size">${esc(size)}</span>`:''}</div>
+         <div class="anexo-actions">
+           ${url?`<a href="${esc(url)}" target="_blank" rel="noopener" class="anexo-action open"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir</a>`:'<button type="button" class="anexo-action" disabled><i class="fa-solid fa-link-slash"></i> Sem link</button>'}
+           ${canDelete?`<button type="button" class="anexo-action delete" onclick="window.excluirAnexoEquipamento('${esc(a.id||a.internalId)}')"><i class="fa-solid fa-trash-can"></i> Excluir</button>`:'<button type="button" class="anexo-action" disabled title="Sem permissão para excluir este arquivo"><i class="fa-solid fa-lock"></i> Protegido</button>'}
+         </div>
+       </div>
+     </div>`;
+   }).join('');
+
+   const local=pend.map(op=>`<div class="anexo-card offline-attachment">
+      <div class="anexo-thumb text-2xl text-orange-500"><i class="fa-solid fa-mobile-screen-button"></i></div>
+      <div class="anexo-meta">
+        <div class="anexo-name" title="${esc(op.meta?.nome||'Arquivo')}">${esc(op.meta?.nome||'Arquivo')}</div>
+        <div class="mt-1"><span class="offline-local-tag"><i class="fa-solid fa-clock"></i> Salvo no aparelho</span></div>
+        <div class="mt-1">${esc(anexoCategoriaLabel(op.meta?.categoria))} · ${esc(fmtDate(op.meta?.createdAtISO))}</div>
+        ${op.meta?.observacao?`<div class="mt-1 text-slate-700">${esc(op.meta.observacao)}</div>`:''}
+        <div class="anexo-uploader"><i class="fa-solid fa-user mr-1"></i>${esc(op.ownerNome||op.meta?.usuarioNome||'Usuário atual')}${op.meta?.size?` · <span class="anexo-size">${esc(anexoTamanhoLabel(op.meta.size))}</span>`:''}</div>
+        <div class="anexo-offline-note"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Aguardando sincronização. O arquivo permanece neste aparelho.</div>
+        <div class="anexo-actions"><button type="button" class="anexo-action local" onclick="window.descartarAnexoOffline('${esc(op.id)}')"><i class="fa-solid fa-trash-can"></i> Descartar arquivo local</button></div>
+      </div>
+   </div>`).join('');
+
    box.innerHTML=(local+cloud)||'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>';
- }catch(e){console.error('[Assistência] anexos',e);box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos.</div>'}
-};
+ }catch(e){
+   console.error('[Assistência] anexos',e);
+   box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos.</div>';
+ }
+}
 window.enviarAnexosEquipamento=async function(){
  const o=state.selectedOS,eq=state.selectedEquipment,files=[...(document.getElementById('anexo-arquivos')?.files||[])];if(!o||!eq)return;
  if(!files.length){alert('Escolha pelo menos uma foto ou arquivo.');return}
@@ -4676,7 +4770,59 @@ window.enviarAnexosEquipamento=async function(){
    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> Enviar arquivos';
  }
 };
-window.excluirAnexoEquipamento=async function(id){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq||!confirm('Excluir este anexo? Esta ação removerá o arquivo do Storage.'))return;try{const all=await read('os_arquivos'),a=all.find(x=>x.id===id);if(!a)throw new Error('Anexo não encontrado.');const api=await storageApi();if(a.storagePath)await api.deleteObject(api.ref(api.storage,a.storagePath));if(!window.fsDeleteDoc||!window.fsDoc)throw new Error('core.js não expôs fsDeleteDoc/fsDoc.');await window.fsDeleteDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id));await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{equipamentoId:eq.internalId||eq.id,equipamentoModelo:eq.modelo||'',arquivoId:id});await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast('Anexo excluído.')}catch(e){console.error('[Assistência] excluir anexo',e);alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e))}};
+window.excluirAnexoEquipamento=async function(id){
+ const o=state.selectedOS,eq=state.selectedEquipment;
+ if(!o||!eq)return;
+ if(assistOfflineSemRede()){
+   alert('A exclusão de um arquivo já sincronizado exige conexão com a internet.\n\nArquivos que ainda estão somente no aparelho podem ser descartados pelo botão "Descartar arquivo local".');
+   return;
+ }
+ try{
+   const all=await read('os_arquivos'),a=all.find(x=>String(x.id||x.internalId)===String(id)&&x.is_deleted!==true);
+   if(!a)throw new Error('Anexo não encontrado.');
+   if(!podeExcluirAnexoEquipamento(a)){
+     alert('Seu usuário não possui permissão para excluir este arquivo.');
+     return;
+   }
+   if(!confirm('Excluir este anexo?\n\nO arquivo será removido do Storage, mas os metadados da exclusão serão preservados para auditoria.'))return;
+
+   const api=await storageApi();
+   if(a.storagePath){
+     try{await api.deleteObject(api.ref(api.storage,a.storagePath))}catch(e){
+       const code=String(e?.code||'');
+       if(!code.includes('object-not-found'))throw e;
+     }
+   }
+
+   const now=new Date().toISOString();
+   if(!window.fsSetDoc||!window.fsDoc)throw new Error('core.js não expôs fsSetDoc/fsDoc.');
+   await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id),{
+     is_deleted:true,
+     deletedAtISO:now,
+     deletedByUid:window.currentUser?.uid||'',
+     deletedByNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',
+     downloadURL:'',
+     updatedAtISO:now
+   },{merge:true});
+
+   await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{
+     equipamentoId:eq.internalId||eq.id,
+     equipamentoModelo:eq.modelo||'',
+     equipamentoNumeroSerie:eq.numeroSerie||'',
+     arquivoId:id,
+     categoria:a.categoria||'',
+     storagePath:a.storagePath||'',
+     exclusaoLogicaMetadados:true
+   });
+
+   await window.carregarAnexosEquipamento();
+   renderHistoricoOS(o);
+   toast('Anexo excluído. O registro da exclusão foi preservado.');
+ }catch(e){
+   console.error('[Assistência] excluir anexo',e);
+   alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e));
+ }
+}
 window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Tipo',tipoAtendimentoLabel(o)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rslot=document.getElementById('slot-reabrir-os');if(rslot)rslot.innerHTML=(stg==='ENCERRADOS'&&window.temPermissaoAssistencia?.('reabrir_os'))?'<button class="btn btn-light reabrir-only" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button>':'';const retSlot=document.getElementById('slot-retorno-externo');if(retSlot)retSlot.innerHTML=(osTemRetornoExterno(o)&&window.temPermissaoAssistencia?.('tratar_retorno_externo'))?'<button class="btn btn-primary" onclick="window.abrirRetornoExterno()"><i class="fa-solid fa-truck-arrow-right"></i> Tratar retorno externo</button>':'';fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){const fat=o.situacaoFaturamento==='NAO_FATURAVEL';const ap=Number(o.valorOrcamentoAprovadoNoEncerramento||0),vf=Number(o.valorFaturado||0),df=Number(o.diferencaFaturamento||0);fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(fat?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>'+(fat?`<div class="fat-audit-summary"><div class="fat-audit-item"><span>Orçamento aprovado</span><b>${moedaBR(ap)}</b></div><div class="fat-audit-item"><span>Situação</span><b>Não faturável</b></div><div class="fat-audit-item"><span>Motivo</span><b>${esc(o.observacaoFaturamento||'-')}</b></div></div>`:`<div class="fat-audit-summary"><div class="fat-audit-item"><span>Aprovado</span><b>${moedaBR(ap)}</b></div><div class="fat-audit-item"><span>Faturado</span><b>${moedaBR(vf)}</b></div><div class="fat-audit-item"><span>Diferença</span><b class="${Math.abs(df)>0.01?'text-amber-700':'text-emerald-700'}">${df>0?'+ ':''}${moedaBR(df)}</b></div></div>${o.faturamentoDivergente?`<div class="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-2 text-[10px] text-amber-900"><b>Justificativa da diferença:</b> ${esc(o.justificativaDivergenciaFaturamento||'-')}</div>`:''}`);if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
 window.toastDetalheIndisponivel=(nome)=>toast(`${nome}: será liberado em uma próxima fase.`);
@@ -4726,7 +4872,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.61 — materiais do técnico no celular
+// FASE 1.62 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -5153,7 +5299,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.61 — SLA configurável por prioridade
+// FASE 1.62 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -5288,7 +5434,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.61 — Tratamento administrativo após atendimento externo
+// FASE 1.62 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -5433,7 +5579,7 @@ window.salvarRetornoExterno=async function(){
 };
 
 
-// FASE 1.61 — verificação automática de integridade operacional
+// FASE 1.62 — verificação automática de integridade operacional
 function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
   return {nivel,codigo,titulo,detalhe,...extra};
 }
@@ -5535,7 +5681,7 @@ async function verificarIntegridadeOSCompleta(o){
   return issues;
 }
 
-// FASE 1.61 — travas preventivas e correções guiadas
+// FASE 1.62 — travas preventivas e correções guiadas
 function integrityErrors(issues){return (issues||[]).filter(x=>x.nivel==='ERROR')}
 function integrityIssueAction(issue,o){
   const eid=issue?.equipamentoId;
@@ -5984,7 +6130,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.61 — exclusão lógica de equipamento e OS
+// FASE 1.62 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -6107,7 +6253,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.61 — reabertura controlada por ciclos
+// FASE 1.62 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -6227,7 +6373,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.61 — duplicação controlada de OS
+// FASE 1.62 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -6372,7 +6518,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.61 — conciliação de materiais no fechamento da OS
+// FASE 1.62 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
