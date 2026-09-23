@@ -1081,7 +1081,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.64</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.64.1</button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
@@ -1113,7 +1113,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.64</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.64.1</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -1130,6 +1130,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
       <button id="tech-diag-run-btn" type="button" class="btn btn-primary" onclick="window.executarDiagnosticoAppTecnico()"><i class="fa-solid fa-stethoscope"></i> Executar diagnóstico</button>
       <button type="button" class="btn btn-light" onclick="window.baixarDiagnosticoAppTecnico()"><i class="fa-solid fa-file-arrow-down"></i> Baixar relatório TXT</button>
       <button type="button" class="btn btn-light" onclick="window.copiarDiagnosticoAppTecnico()"><i class="fa-solid fa-copy"></i> Copiar resumo</button>
+      <button id="tech-diag-repair-btn" type="button" class="btn btn-light" onclick="window.repararAtualizacaoApp()"><i class="fa-solid fa-screwdriver-wrench"></i> Reparar atualização</button>
     </div>
 
     <div id="tech-diag-list" class="tech-diag-list mt-4"></div>
@@ -5323,18 +5324,18 @@ async function techDiagSWVersion(){
   try{
     if(!('serviceWorker' in navigator))return null;
     const reg=techSWRegistration||await navigator.serviceWorker.getRegistration();
-    const worker=navigator.serviceWorker.controller||reg?.active||reg?.waiting;
-    if(!worker)return null;
-    if(typeof MessageChannel==='undefined')return {scriptURL:worker.scriptURL||'',state:worker.state||'',build:''};
+    if(!reg)return null;
 
-    return await new Promise(resolve=>{
-      const channel=new MessageChannel();
-      let done=false;
-      const finish=data=>{if(done)return;done=true;clearTimeout(timer);resolve({...data,scriptURL:worker.scriptURL||'',state:worker.state||''})};
-      const timer=setTimeout(()=>finish({build:'',version:''}),1800);
-      channel.port1.onmessage=e=>finish(e.data||{});
-      try{worker.postMessage({type:'GET_VERSION'},[channel.port2])}catch(_){finish({build:'',version:''})}
-    });
+    const waitingInfo=reg.waiting?await techAppQueryWorkerVersion(reg.waiting):null;
+    const activeWorker=navigator.serviceWorker.controller||reg.active;
+    const activeInfo=activeWorker?await techAppQueryWorkerVersion(activeWorker):null;
+
+    return {
+      waiting:waitingInfo,
+      active:activeInfo,
+      hasWaiting:!!reg.waiting,
+      hasActive:!!activeWorker
+    };
   }catch(e){
     return {error:String(e?.message||e)};
   }
@@ -5360,12 +5361,15 @@ async function techDiagnosticoColetar(){
     const reg=techSWRegistration||await navigator.serviceWorker.getRegistration();
     const sw=await techDiagSWVersion();
     if(reg?.waiting&&navigator.serviceWorker.controller){
-      checks.push(techDiagItem('WARN','SW_UPDATE','Atualização aguardando instalação',`Existe um Service Worker novo em espera. Build detectado: ${sw?.build||'não informado'}.`));
+      const wb=sw?.waiting?.build||'não informado';
+      const ab=sw?.active?.build||'não informado';
+      const same=String(wb)!=='não informado'&&String(wb)===String(ASSISTENCIA_BUILD);
+      checks.push(techDiagItem(same?'WARN':'WARN','SW_UPDATE',same?'Service Worker da mesma versão aguardando ativação':'Atualização aguardando instalação',`Worker ativo: ${ab} · worker em espera: ${wb} · página: ${ASSISTENCIA_BUILD}. ${same?'Use “Reparar atualização” somente se ele não for ativado automaticamente.':''}`));
     }else if(reg?.active||navigator.serviceWorker.controller){
-      const build=sw?.build||'não informado';
+      const build=sw?.active?.build||'não informado';
       const expected=ASSISTENCIA_BUILD;
-      const status=sw?.build&&String(sw.build)!==String(expected)?'WARN':'OK';
-      checks.push(techDiagItem(status,'SERVICE_WORKER','Service Worker ativo',`Script: ${sw?.scriptURL||reg?.active?.scriptURL||'-'} · build SW: ${build} · página: ${expected}.`));
+      const status=build!=='não informado'&&String(build)!==String(expected)?'WARN':'OK';
+      checks.push(techDiagItem(status,'SERVICE_WORKER','Service Worker ativo',`Script: ${sw?.active?.scriptURL||reg?.active?.scriptURL||'-'} · build SW: ${build} · página: ${expected}.`));
     }else{
       checks.push(techDiagItem('ERROR','SERVICE_WORKER','Service Worker não está ativo','O uso confiável como PWA/offline requer um Service Worker ativo.'));
     }
@@ -5550,8 +5554,115 @@ window.copiarDiagnosticoAppTecnico=async function(){
   }
 };
 
+
+// FASE 1.64.1 — correção de atualização PWA presa em "waiting"
+async function techAppQueryWorkerVersion(worker,timeout=1800){
+  if(!worker)return {build:'',version:'',state:'',scriptURL:''};
+  const base={build:'',version:'',state:worker.state||'',scriptURL:worker.scriptURL||''};
+  try{
+    if(typeof MessageChannel==='undefined')return base;
+    return await new Promise(resolve=>{
+      const channel=new MessageChannel();
+      let done=false;
+      const finish=data=>{
+        if(done)return;
+        done=true;
+        clearTimeout(timer);
+        resolve({...base,...(data||{})});
+      };
+      const timer=setTimeout(()=>finish(base),timeout);
+      channel.port1.onmessage=e=>finish(e.data||{});
+      try{worker.postMessage({type:'GET_VERSION'},[channel.port2])}catch(_){finish(base)}
+    });
+  }catch(_){
+    return base;
+  }
+}
+async function techAppEvaluateWaiting(reg,{autoPromoteSameBuild=true,showToast=false}={}){
+  if(!reg)return {waiting:false};
+  const waiting=reg.waiting;
+  if(!waiting){
+    techAppHideUpdate();
+    if(showToast)toast('Você já está usando a versão mais recente disponível.');
+    return {waiting:false};
+  }
+
+  const info=await techAppQueryWorkerVersion(waiting);
+  const waitingBuild=String(info.build||'');
+  const same=waitingBuild&&waitingBuild===String(ASSISTENCIA_BUILD);
+
+  if(same&&autoPromoteSameBuild){
+    try{
+      waiting.postMessage({type:'SKIP_WAITING'});
+      techAppHideUpdate();
+      techOfflineFeedback?.('<i class="fa-solid fa-circle-check mr-1"></i>Service Worker da mesma versão foi ativado.','ok');
+      return {waiting:true,promoted:true,info};
+    }catch(_){}
+  }
+
+  techAppShowUpdate(waiting);
+  const btn=document.getElementById('tech-update-btn');
+  if(btn){
+    const span=btn.querySelector('span');
+    if(span)span.textContent=waitingBuild?('Ativar v'+waitingBuild):'Atualizar app';
+  }
+
+  if(showToast){
+    toast(waitingBuild
+      ?`Existe uma atualização aguardando ativação: v${waitingBuild}.`
+      :'Existe um Service Worker aguardando ativação. Se continuar preso, use “Reparar atualização”.');
+  }
+  return {waiting:true,promoted:false,info};
+}
+window.repararAtualizacaoApp=async function(){
+  if(!('serviceWorker' in navigator)){
+    alert('Este navegador não oferece suporte a Service Worker.');
+    return;
+  }
+  let pend=0;
+  try{pend=(await assistOfflinePending()).length}catch(_){}
+  const msg=
+`Reparar o mecanismo de atualização do App do Técnico?
+
+Esta ação:
+• remove somente Service Workers e caches do App do Técnico;
+• NÃO apaga IndexedDB;
+• NÃO apaga OS preparadas por usuário;
+• NÃO apaga ${pend} pendência(s) offline existente(s);
+• recarrega a página e registra novamente o assistencia-sw-v4.js.
+
+Use esta opção quando o aplicativo continuar dizendo que existe atualização mesmo depois de atualizar.`;
+  if(!confirm(msg))return;
+
+  const btn=document.getElementById('tech-diag-repair-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Reparando...'}
+
+  try{
+    const regs=await navigator.serviceWorker.getRegistrations();
+    for(const reg of regs){
+      const urls=[reg.active?.scriptURL,reg.waiting?.scriptURL,reg.installing?.scriptURL].filter(Boolean).join(' ');
+      if(/assistencia-sw-v[34]\.js/i.test(urls))await reg.unregister();
+    }
+
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(k=>String(k).startsWith('cij-assistencia-tecnico-')).map(k=>caches.delete(k)));
+    }
+
+    techSWRegistration=null;
+    techSWWaiting=null;
+    techSWRefreshRequested=false;
+    try{sessionStorage.setItem('assistenciaPwaRepairedAt',new Date().toISOString())}catch(_){}
+    location.reload();
+  }catch(e){
+    console.error('[Assistência] reparar PWA',e);
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-screwdriver-wrench"></i> Reparar atualização'}
+    alert('Não foi possível concluir o reparo.\n\n'+(e?.message||e));
+  }
+};
+
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.64';
+const ASSISTENCIA_BUILD='1.64.1';
 const ASSISTENCIA_SW_FILE='assistencia-sw-v4.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -5615,18 +5726,14 @@ window.verificarAtualizacaoApp=async function(mostrarResultado=false){
       techAppBindSWRegistration(reg);
     }
     await reg.update();
-    if(reg.waiting&&navigator.serviceWorker.controller){
-      techAppShowUpdate(reg.waiting);
-      return true;
-    }
-    if(mostrarResultado)toast('Você já está usando a versão mais recente disponível.');
-    return false;
+    const result=await techAppEvaluateWaiting(reg,{autoPromoteSameBuild:true,showToast:mostrarResultado});
+    return !!result.waiting&&!result.promoted;
   }catch(e){
     console.warn('[Assistência] verificar atualização',e);
     if(mostrarResultado)toast('Não foi possível verificar atualização agora.');
     return false;
   }
-};
+}
 window.aplicarAtualizacaoApp=async function(ev){
   ev?.preventDefault?.();
   let worker=techSWWaiting||techSWRegistration?.waiting;
@@ -5663,11 +5770,16 @@ async function techRegisterServiceWorker(){
     await techAppPostCurrentPage(reg);
 
     try{await reg.update()}catch(_){}
-    if(reg.waiting&&navigator.serviceWorker.controller)techAppShowUpdate(reg.waiting);
+    await techAppEvaluateWaiting(reg,{autoPromoteSameBuild:true,showToast:false});
 
     if(techSWUpdateTimer)clearInterval(techSWUpdateTimer);
-    techSWUpdateTimer=setInterval(()=>{
-      if(navigator.onLine!==false)reg.update().catch(()=>{});
+    techSWUpdateTimer=setInterval(async()=>{
+      if(navigator.onLine!==false){
+        try{
+          await reg.update();
+          await techAppEvaluateWaiting(reg,{autoPromoteSameBuild:true,showToast:false});
+        }catch(_){}
+      }
     },30*60*1000);
   }catch(e){
     console.warn('[Assistência] Service Worker não registrado:',e);
@@ -5675,9 +5787,12 @@ async function techRegisterServiceWorker(){
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    techAppHideUpdate();
     if(techSWRefreshRequested){
       techSWRefreshRequested=false;
       location.reload();
+    }else{
+      techOfflineFeedback?.('<i class="fa-solid fa-circle-check mr-1"></i>Service Worker atualizado e ativo.','ok');
     }
   });
   navigator.serviceWorker.addEventListener('message',event=>{

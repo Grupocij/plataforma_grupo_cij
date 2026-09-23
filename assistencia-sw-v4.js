@@ -1,5 +1,5 @@
-const SW_VERSION='4.0.0';
-const APP_BUILD='1.63';
+const SW_VERSION='4.1.1';
+const APP_BUILD='1.64.1';
 const CACHE_SHELL='cij-assistencia-tecnico-v4-shell';
 const CACHE_RUNTIME='cij-assistencia-tecnico-v4-runtime';
 const SHELL=[
@@ -43,7 +43,11 @@ self.addEventListener('message',event=>{
     return;
   }
   if(data.type==='GET_VERSION'){
-    try{event.source?.postMessage({type:'SW_VERSION',version:SW_VERSION,build:APP_BUILD})}catch(_){}
+    const payload={type:'SW_VERSION',version:SW_VERSION,build:APP_BUILD};
+    try{
+      if(event.ports&&event.ports[0])event.ports[0].postMessage(payload);
+      else event.source?.postMessage(payload);
+    }catch(_){}
     return;
   }
   if(data.type==='CACHE_CURRENT_PAGE'&&data.url){
