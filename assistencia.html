@@ -810,6 +810,17 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:640px){#integridade-kpis{grid-template-columns:1fr!important}}
 </style>
 
+
+<style id="fase157-integridade-gates-ui">
+.integrity-context-block{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
+.integrity-context-info{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.integrity-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.integrity-fix-btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;border-radius:.6rem;border:1px solid #cbd5e1;background:#fff;color:#334155;padding:.38rem .55rem;font-size:.55rem;font-weight:900}
+.integrity-fix-btn:hover{background:#f8fafc}
+.integrity-fix-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
+.flow-gate-note{margin-top:.45rem;border-radius:.7rem;padding:.5rem .6rem;font-size:.56rem;font-weight:800;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -817,7 +828,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.56</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.57</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1374,7 +1385,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.56</span>
+        <span class="tag tag-green">FASE 1.57</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1621,6 +1632,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
       <button onclick="window.fecharVerificacaoIntegridadeOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
+    <div id="integridade-contexto" class="hidden mt-4 rounded-xl border p-3 text-xs"></div>
     <div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
       Esta verificação procura estados incompatíveis, etapas incompletas e pendências que podem gerar erro operacional.
       Ela <b>não altera dados automaticamente</b>.
@@ -1696,7 +1708,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.56 — Offline essencial para atendimento externo
+// FASE 1.57 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -2114,7 +2126,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.56 — OS interna x externa e recolhimento para laboratório
+// FASE 1.57 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2273,7 +2285,38 @@ window.salvarAgendamentoOS=async function(){
  }catch(e){console.error('[Assistência] agendamento',e);alert('Não foi possível salvar o agendamento. Verifique as Security Rules da agenda_tasks_v2.\\n\\n'+(e?.message||e))}
 };
 
-window.alterarStatusEquipamento=async function(eid,status){if(status==='EM_EXECUCAO'){window.liberarExecucaoEquipamento(eid);return}const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;if(status==='CONCLUIDO'){window.abrirCheckoutEquipamento(eid);return}const label=statusLabel(status),statusAnterior=eq.statusEquipamento||'PENDENTE';if(!confirm(`Alterar o status de ${eq.modelo||'equipamento'} para "${label}"?`))return;try{const now=new Date().toISOString();await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});eq.statusEquipamento=status;eq.updatedAtISO=now;await addHistory(o,'EQUIPAMENTO_STATUS','Status do equipamento alterado',statusLabel(statusAnterior)+' → '+label,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',novoStatus:status});await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);window.abrirDetalheOS(o.id||o.internalId);toast(`Status alterado para ${label}.`)}catch(e){console.error('[Assistência] status equipamento',e);alert('Não foi possível alterar o status do equipamento. Verifique as Security Rules.\n\n'+(e?.message||e))}};
+window.alterarStatusEquipamento=async function(eid,status){
+ if(status==='EM_EXECUCAO'){window.liberarExecucaoEquipamento(eid);return}
+ const o=state.selectedOS;if(!o)return;
+ const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;
+ if(status==='CONCLUIDO'){window.abrirCheckoutEquipamento(eid);return}
+
+ const novo=String(status||'').toUpperCase();
+ if(novo==='AGUARDANDO_EXECUCAO'&&String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
+   const issues=[integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Não é possível avançar para execução','O orçamento comercial deste equipamento ainda não está aprovado.',{equipamentoId:eq.id||eq.internalId})];
+   abrirIntegridadeBloqueante(o,issues,'Alteração de status');return;
+ }
+ if(novo==='AGUARDANDO_ORCAMENTO'){
+   const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
+   if(!['AGUARDANDO_REVISAO','APROVADO_TECNICAMENTE'].includes(req)&&!eq.ultimoOrcamentoId){
+     const issues=[integrityIssue('WARN','STATUS_ORCAMENTO_SEM_BASE','Etapa de orçamento sem base técnica','Antes de avançar manualmente, registre a solicitação técnica para orçamento.',{equipamentoId:eq.id||eq.internalId})];
+     abrirIntegridadeBloqueante(o,issues,'Alteração de status');return;
+   }
+ }
+
+ const label=statusLabel(status),statusAnterior=eq.statusEquipamento||'PENDENTE';
+ if(!confirm(`Alterar o status de ${eq.modelo||'equipamento'} para "${label}"?`))return;
+ try{
+   const now=new Date().toISOString();
+   await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});
+   eq.statusEquipamento=status;eq.updatedAtISO=now;
+   await addHistory(o,'EQUIPAMENTO_STATUS','Status do equipamento alterado',statusLabel(statusAnterior)+' → '+label,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',novoStatus:status,alteracaoManual:true});
+   await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);window.abrirDetalheOS(o.id||o.internalId);toast(`Status alterado para ${label}.`);
+ }catch(e){
+   console.error('[Assistência] status equipamento',e);
+   alert('Não foi possível alterar o status do equipamento. Verifique as Security Rules.\n\n'+(e?.message||e));
+ }
+};
 async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const allItems=await readSub(o.internalId||o.id,'equipamentos');const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');const clsDiag=equipmentActionFlowClass(e,'diag');const clsSol=equipmentActionFlowClass(e,'solicitacao');const clsOrc=equipmentActionFlowClass(e,'orcamento');const clsApr=equipmentActionFlowClass(e,'aprovacao');const clsAge=equipmentActionFlowClass(e,'agendamento');const clsChk=equipmentActionFlowClass(e,'checkout');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div></div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div><div class="eq-tools-block">
 <div class="eq-block-label"><i class="fa-solid fa-toolbox"></i> Ações do equipamento · ordem do fluxo</div>
 <div class="eq-actions">
@@ -3179,7 +3222,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.56 — leitura de QR Code / número de série do equipamento
+// FASE 1.57 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3335,7 +3378,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.56 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.57 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -3393,6 +3436,8 @@ window.atualizarComparativoFaturamento=function(){
 window.abrirFaturamentoOS=async function(){
  if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
  const o=state.selectedOS;if(!o)return;
+ const preIssues=await verificarIntegridadePreEncerramento(o);
+ if(integrityErrors(preIssues).length){abrirIntegridadeBloqueante(o,preIssues,'Faturamento / encerramento');return}
  document.getElementById('fat-os-identificacao').textContent=`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||''}`;
  document.getElementById('fat-situacao').value=o.situacaoFaturamento||'FATURADO';
  document.getElementById('fat-nf').value=o.numeroNF||'';
@@ -3418,6 +3463,8 @@ window.alternarCamposFaturamento=function(){
 window.salvarFaturamentoOS=async function(){
  if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
  const o=state.selectedOS;if(!o)return;
+ const preIssues=await verificarIntegridadePreEncerramento(o);
+ if(integrityErrors(preIssues).length){abrirIntegridadeBloqueante(o,preIssues,'Encerramento da OS');return}
  const situacao=document.getElementById('fat-situacao').value,nf=document.getElementById('fat-nf').value.trim(),data=document.getElementById('fat-data').value,valorRaw=document.getElementById('fat-valor').value.trim(),obs=document.getElementById('fat-obs').value.trim(),just=document.getElementById('fat-justificativa').value.trim();
  const valorNum=valorFaturamentoFormatadoInput(valorRaw),aprovado=Number(window.__fatValorAprovadoAtual||0),diferenca=valorNum-aprovado,pct=aprovado>0?(diferenca/aprovado)*100:0,diverge=Math.abs(diferenca)>0.01;
 
@@ -3746,7 +3793,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.56 — materiais do técnico no celular
+// FASE 1.57 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -4173,7 +4220,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.56 — SLA configurável por prioridade
+// FASE 1.57 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -4308,7 +4355,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.56 — Tratamento administrativo após atendimento externo
+// FASE 1.57 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4453,7 +4500,7 @@ window.salvarRetornoExterno=async function(){
 };
 
 
-// FASE 1.56 — verificação automática de integridade operacional
+// FASE 1.57 — verificação automática de integridade operacional
 function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
   return {nivel,codigo,titulo,detalhe,...extra};
 }
@@ -4483,28 +4530,28 @@ function verificarIntegridadeOSLocal(o){
     const orc=String(eq.ultimoOrcamentoStatus||'').toUpperCase();
 
     if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
-      issues.push(integrityIssue('ERROR','CONCLUIDO_SEM_CHECKOUT','Equipamento concluído sem checkout',`${modelo}${sn} está como Concluído, porém não possui registro de checkout.`));
+      issues.push(integrityIssue('ERROR','CONCLUIDO_SEM_CHECKOUT','Equipamento concluído sem checkout',`${modelo}${sn} está como Concluído, porém não possui registro de checkout.`,{equipamentoId:eq.id||eq.internalId}));
     }
     if(st==='EM_EXECUCAO'&&tipo==='INTERNO'){
       const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
       if(!agendado){
-        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_AGENDAMENTO','Execução interna sem agendamento',`${modelo}${sn} está em execução sem agendamento válido da OS.`));
+        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_AGENDAMENTO','Execução interna sem agendamento',`${modelo}${sn} está em execução sem agendamento válido da OS.`,{equipamentoId:eq.id||eq.internalId}));
       }
       if(orc!=='APROVADO'){
-        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_APROVACAO','Execução sem orçamento aprovado',`${modelo}${sn} está em execução, mas o último orçamento não está aprovado.`));
+        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_APROVACAO','Execução sem orçamento aprovado',`${modelo}${sn} está em execução, mas o último orçamento não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
       }
     }
     if(['AGUARDANDO_EXECUCAO','EM_EXECUCAO'].includes(st)&&tipo==='INTERNO'&&orc!=='APROVADO'){
-      issues.push(integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Etapa de execução incompatível com orçamento',`${modelo}${sn} está em fase de execução sem aprovação comercial válida.`));
+      issues.push(integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Etapa de execução incompatível com orçamento',`${modelo}${sn} está em fase de execução sem aprovação comercial válida.`,{equipamentoId:eq.id||eq.internalId}));
     }
     if(req==='APROVADO_TECNICAMENTE'&&!eq.ultimoOrcamentoId&&st!=='CONCLUIDO'){
-      issues.push(integrityIssue('WARN','REVISAO_SEM_ORCAMENTO','Base técnica aprovada sem orçamento comercial',`${modelo}${sn} já foi aprovado tecnicamente, mas ainda não possui orçamento comercial criado.`));
+      issues.push(integrityIssue('WARN','REVISAO_SEM_ORCAMENTO','Base técnica aprovada sem orçamento comercial',`${modelo}${sn} já foi aprovado tecnicamente, mas ainda não possui orçamento comercial criado.`,{equipamentoId:eq.id||eq.internalId}));
     }
     if(st==='RECOLHIDO_LABORATORIO'&&tipo!=='INTERNO'){
-      issues.push(integrityIssue('WARN','RECOLHIDO_OS_EXTERNA','Equipamento recolhido com OS ainda externa',`${modelo}${sn} foi recolhido para laboratório, mas a OS permanece como Externo / Campo.`));
+      issues.push(integrityIssue('WARN','RECOLHIDO_OS_EXTERNA','Equipamento recolhido com OS ainda externa',`${modelo}${sn} foi recolhido para laboratório, mas a OS permanece como Externo / Campo.`,{equipamentoId:eq.id||eq.internalId}));
     }
     if(st==='AGUARDANDO_ADMINISTRATIVO'){
-      issues.push(integrityIssue('WARN','RETORNO_CAMPO_PENDENTE','Retorno externo aguardando tratamento',`${modelo}${sn} aguarda uma decisão administrativa após atendimento em campo.`));
+      issues.push(integrityIssue('WARN','RETORNO_CAMPO_PENDENTE','Retorno externo aguardando tratamento',`${modelo}${sn} aguarda uma decisão administrativa após atendimento em campo.`,{equipamentoId:eq.id||eq.internalId}));
     }
   });
 
@@ -4554,6 +4601,74 @@ async function verificarIntegridadeOSCompleta(o){
   }
   return issues;
 }
+
+// FASE 1.57 — travas preventivas e correções guiadas
+function integrityErrors(issues){return (issues||[]).filter(x=>x.nivel==='ERROR')}
+function integrityIssueAction(issue,o){
+  const eid=issue?.equipamentoId;
+  const code=String(issue?.codigo||'');
+  if(code==='SEM_TECNICO')return {label:'Definir técnico',icon:'fa-users-gear',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirTrocaTecnicos()}};
+  if(code==='SEM_EQUIPAMENTO')return {label:'Adicionar equipamento',icon:'fa-plus',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirAdicionarEquipamento()}};
+  if(['EXECUCAO_SEM_AGENDAMENTO','AGENDAMENTO_SEM_AVANCO'].includes(code))return {label:'Abrir agendamento',icon:'fa-calendar-days',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirAgendamentoOS()}};
+  if(['EXECUCAO_SEM_APROVACAO','FLUXO_COMERCIAL_INCOMPLETO'].includes(code)&&eid)return {label:'Ver aprovação',icon:'fa-circle-check',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirAprovacaoOrcamento(eid)}};
+  if(code==='REVISAO_SEM_ORCAMENTO'&&eid)return {label:'Criar orçamento',icon:'fa-file-invoice-dollar',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirOrcamentoEquipamento(eid)}};
+  if(code==='RETORNO_CAMPO_PENDENTE'&&eid)return {label:'Tratar retorno',icon:'fa-route',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirRetornoExterno(o.id||o.internalId,eid)}};
+  if(code==='RECOLHIDO_OS_EXTERNA')return {label:'Alterar tipo da OS',icon:'fa-right-left',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirAlterarTipoAtendimento()}};
+  if(code==='CONCLUIDO_SEM_CHECKOUT'&&eid)return {label:'Abrir checkout',icon:'fa-clipboard-check',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirCheckoutEquipamento(eid)}};
+  return {label:'Abrir detalhe da OS',icon:'fa-folder-open',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirDetalheOS(o.id||o.internalId)}};
+}
+window.executarCorrecaoIntegridade=function(index){
+  const issue=(window.__integrityCurrentIssues||[])[Number(index)],o=state.selectedOS;
+  if(!issue||!o)return;
+  const action=integrityIssueAction(issue,o);
+  try{action?.fn?.()}catch(e){console.error('[Assistência] correção guiada',e);toast('Não foi possível abrir a correção sugerida.')}
+};
+async function verificarIntegridadePreEncerramento(o){
+  const issues=verificarIntegridadeOSLocal(o);
+  const ativos=integrityAtivos(o);
+  if(!ativos.length){
+    issues.push(integrityIssue('ERROR','ENCERRAR_SEM_EQUIPAMENTO','Não é possível encerrar uma OS sem equipamento ativo','Inclua ao menos um equipamento ativo ou cancele a OS pelo fluxo apropriado.'));
+  }else{
+    ativos.forEach(eq=>{
+      const st=String(eq.statusEquipamento||'PENDENTE').toUpperCase();
+      if(st!=='CONCLUIDO'){
+        issues.push(integrityIssue('ERROR','ENCERRAR_EQUIPAMENTO_PENDENTE','Equipamento ainda não concluído',`${eq.modelo||eq.nome||'Equipamento'} ainda está em ${statusLabel(st)}.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+      if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
+        issues.push(integrityIssue('ERROR','ENCERRAR_SEM_CHECKOUT','Equipamento sem checkout válido',`${eq.modelo||eq.nome||'Equipamento'} precisa possuir checkout antes do faturamento.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+    });
+  }
+  try{
+    const reqs=await read('requisicoes_material');
+    const osid=String(o.internalId||o.id),osnum=String(o.osNumber||o.numero||''),ciclo=Number(o.cicloAtendimento||1);
+    const vinculadas=(reqs||[]).filter(r=>(String(r.osId||'')===osid||String(r.os||'')===osnum)&&Number(r.cicloAtendimento||1)===ciclo);
+    const comTecnico=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='COM_TECNICO');
+    const devolucao=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='AGUARDANDO_DEVOLUCAO');
+    if(comTecnico.length){
+      issues.push(integrityIssue('ERROR','PREENCERRAMENTO_MATERIAL_COM_TECNICO','Material ainda em poder do técnico',`${comTecnico.length} requisição(ões) continuam como Com técnico. Confirme utilização ou devolução antes de encerrar.`));
+    }
+    if(devolucao.length){
+      issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_DEVOLUCAO','Material aguardando devolução',`${devolucao.length} requisição(ões) possuem saldo aguardando devolução. A OS pode ser analisada, mas esta pendência permanecerá visível.`));
+    }
+  }catch(e){
+    issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_NAO_VERIFICADO','Materiais não puderam ser verificados','Não foi possível consultar as requisições de material neste momento.'));
+  }
+  return issues;
+}
+function abrirIntegridadeBloqueante(o,issues,acao){
+  state.selectedOS=o;
+  window.__integrityCurrentIssues=issues||[];
+  const ctx=document.getElementById('integridade-contexto');
+  if(ctx){
+    ctx.className='mt-4 rounded-xl border p-3 text-xs integrity-context-block';
+    ctx.innerHTML=`<b><i class="fa-solid fa-lock mr-1"></i>${esc(acao||'Ação')} bloqueada preventivamente.</b><div class="mt-1">Corrija as inconsistências críticas abaixo e tente novamente. Avisos de atenção, sem erro crítico, não bloqueiam o fluxo.</div>`;
+  }
+  document.getElementById('integridade-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'Cliente');
+  document.getElementById('modal-integridade-os').classList.remove('hidden');
+  renderIntegridadeOS(issues||[]);
+}
+
 function integrityResumo(issues){
   return {
     errors:issues.filter(x=>x.nivel==='ERROR').length,
@@ -4577,10 +4692,14 @@ function renderIntegridadeOS(issues){
     box.innerHTML=`<div class="integrity-item ok"><div class="integrity-icon"><i class="fa-solid fa-circle-check"></i></div><div><div class="integrity-title">Nenhuma inconsistência encontrada</div><div class="integrity-detail">A estrutura atual da OS está coerente com as principais regras do fluxo.</div><div class="integrity-code">VERIFICAÇÃO AUTOMÁTICA</div></div></div>`;
     return;
   }
-  box.innerHTML=issues.map(x=>`<div class="integrity-item ${x.nivel==='ERROR'?'error':'warn'}"><div class="integrity-icon"><i class="fa-solid ${integrityIcon(x)}"></i></div><div><div class="flex flex-wrap justify-between gap-2"><div class="integrity-title">${esc(x.titulo)}</div><span class="integrity-pill ${x.nivel==='WARN'?'warn':''}">${x.nivel==='ERROR'?'Crítico':'Atenção'}</span></div><div class="integrity-detail">${esc(x.detalhe)}</div><div class="integrity-code">${esc(x.codigo)}</div></div></div>`).join('');
+  box.innerHTML=issues.map((x,i)=>{
+    const act=integrityIssueAction(x,state.selectedOS);
+    return `<div class="integrity-item ${x.nivel==='ERROR'?'error':'warn'}"><div class="integrity-icon"><i class="fa-solid ${integrityIcon(x)}"></i></div><div><div class="flex flex-wrap justify-between gap-2"><div class="integrity-title">${esc(x.titulo)}</div><span class="integrity-pill ${x.nivel==='WARN'?'warn':''}">${x.nivel==='ERROR'?'Crítico':'Atenção'}</span></div><div class="integrity-detail">${esc(x.detalhe)}</div><div class="integrity-code">${esc(x.codigo)}</div><div class="integrity-actions"><button type="button" class="integrity-fix-btn ${x.nivel==='ERROR'?'primary':''}" onclick="window.executarCorrecaoIntegridade(${i})"><i class="fa-solid ${act.icon}"></i>${esc(act.label)}</button></div></div></div>`;
+  }).join('');
 }
 window.abrirVerificacaoIntegridadeOS=async function(){
   const o=state.selectedOS;if(!o)return;
+  const ctx=document.getElementById('integridade-contexto');if(ctx){ctx.classList.add('hidden');ctx.innerHTML=''}
   document.getElementById('integridade-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'Cliente');
   document.getElementById('integridade-lista').innerHTML='<div class="text-center text-xs text-slate-400 py-8"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando fluxo...</div>';
   document.getElementById('modal-integridade-os').classList.remove('hidden');
@@ -4889,6 +5008,8 @@ window.liberarExecucaoEquipamento=async function(eid){
   const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
   if(!agendado){alert('Agende a OS antes de liberar o equipamento para execução.');return}
   if(String(eq.statusEquipamento||'').toUpperCase()==='EM_EXECUCAO'){toast('Este equipamento já está liberado para execução.');return}
+  const gateIssues=verificarIntegridadeOSLocal(o).filter(x=>x.nivel==='ERROR'&&['SEM_TECNICO','FLUXO_COMERCIAL_INCOMPLETO','EXECUCAO_SEM_APROVACAO'].includes(x.codigo));
+  if(gateIssues.length){abrirIntegridadeBloqueante(o,gateIssues,'Liberação para execução');return}
   if(!confirm('Liberar '+(eq.modelo||'este equipamento')+' para execução?'))return;
   const now=new Date().toISOString();
   try{
@@ -4930,7 +5051,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.56 — exclusão lógica de equipamento e OS
+// FASE 1.57 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -5053,7 +5174,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.56 — reabertura controlada por ciclos
+// FASE 1.57 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5173,7 +5294,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.56 — duplicação controlada de OS
+// FASE 1.57 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5318,7 +5439,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.56 — conciliação de materiais no fechamento da OS
+// FASE 1.57 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
