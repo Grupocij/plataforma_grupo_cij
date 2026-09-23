@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Assistência Técnica - Portal CIJ</title>
-  <link rel="manifest" href="assistencia-manifest-v3.json">
+  <link rel="manifest" href="assistencia-manifest-v4.json">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -918,6 +918,19 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:390px){.anexo-grid{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase163-pwa-update-ui">
+.tech-build-badge{display:inline-flex;align-items:center;border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:999px;padding:.18rem .42rem;font-size:.5rem;font-weight:950;white-space:nowrap;cursor:pointer}
+.tech-build-badge:hover{background:#f8fafc}
+.tech-update-btn{background:#fff7ed!important;border-color:#fdba74!important;color:#c2410c!important;animation:assist-update-pulse 1.8s ease-in-out infinite}
+.tech-update-btn.ready{display:flex!important}
+@keyframes assist-update-pulse{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}50%{box-shadow:0 0 0 4px rgba(249,115,22,.12)}}
+@media(max-width:640px){
+  .tech-app-status-main .tech-build-badge{margin-left:auto}
+  .tech-app-controls #tech-update-btn:not(.hidden){grid-column:1/-1!important}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -1043,10 +1056,13 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span id="tech-app-sync">Atualizado agora</span>
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
+    <span class="text-slate-300">•</span>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.63</button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
     <button type="button" id="tech-sync-offline-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techSincronizarOfflineClick()"><i class="fa-solid fa-rotate"></i><span>Sincronizar</span></button>
+    <button type="button" id="tech-update-btn" class="tech-install-btn tech-update-btn hidden" onclick="event.preventDefault();event.stopPropagation();window.aplicarAtualizacaoApp(event)"><i class="fa-solid fa-arrow-rotate-right"></i><span>Atualizar app</span></button>
     <button type="button" id="tech-install-btn" class="tech-install-btn hidden" onclick="event.preventDefault();event.stopPropagation();window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button"></i><span>Instalar app</span></button>
   </div>
   <div id="tech-offline-feedback" class="tech-offline-feedback hidden"></div>
@@ -5215,6 +5231,148 @@ window.abrirCheckoutEquipamento=function(eid,resultadoPredefinido){
 };
 
 // FASE 1.25 — App do Técnico
+
+// FASE 1.63 — controle de versão e atualização do PWA
+const ASSISTENCIA_BUILD='1.63';
+const ASSISTENCIA_SW_FILE='assistencia-sw-v4.js';
+let techSWRegistration=null;
+let techSWWaiting=null;
+let techSWRefreshRequested=false;
+let techSWUpdateTimer=null;
+
+function techAppSetBuild(){
+  const el=document.getElementById('tech-build-badge');
+  if(el)el.textContent='v'+ASSISTENCIA_BUILD;
+}
+function techAppShowUpdate(worker){
+  if(worker)techSWWaiting=worker;
+  const btn=document.getElementById('tech-update-btn');
+  if(btn){
+    btn.classList.remove('hidden');
+    btn.classList.add('ready');
+  }
+  techOfflineFeedback?.('<i class="fa-solid fa-arrow-rotate-right mr-1"></i>Nova versão do App do Técnico disponível. Toque em “Atualizar app”.','warn');
+}
+function techAppHideUpdate(){
+  const btn=document.getElementById('tech-update-btn');
+  if(btn){
+    btn.classList.add('hidden');
+    btn.classList.remove('ready');
+  }
+  techSWWaiting=null;
+}
+async function techAppPostCurrentPage(reg){
+  try{
+    await navigator.serviceWorker.ready;
+    const sw=navigator.serviceWorker.controller||reg?.active||reg?.waiting;
+    if(sw)sw.postMessage({type:'CACHE_CURRENT_PAGE',url:location.href,build:ASSISTENCIA_BUILD});
+  }catch(e){console.warn('[Assistência] cache da página atual',e)}
+}
+function techAppBindSWRegistration(reg){
+  if(!reg)return;
+  techSWRegistration=reg;
+
+  if(reg.waiting&&navigator.serviceWorker.controller)techAppShowUpdate(reg.waiting);
+
+  reg.addEventListener('updatefound',()=>{
+    const worker=reg.installing;
+    if(!worker)return;
+    worker.addEventListener('statechange',()=>{
+      if(worker.state==='installed'){
+        if(navigator.serviceWorker.controller)techAppShowUpdate(worker);
+        else techAppHideUpdate();
+      }
+    });
+  });
+}
+window.verificarAtualizacaoApp=async function(mostrarResultado=false){
+  if(!('serviceWorker' in navigator)){
+    if(mostrarResultado)toast('Este navegador não oferece suporte a atualização PWA.');
+    return false;
+  }
+  try{
+    let reg=techSWRegistration||await navigator.serviceWorker.getRegistration();
+    if(!reg){
+      reg=await navigator.serviceWorker.register(ASSISTENCIA_SW_FILE,{updateViaCache:'none'});
+      techAppBindSWRegistration(reg);
+    }
+    await reg.update();
+    if(reg.waiting&&navigator.serviceWorker.controller){
+      techAppShowUpdate(reg.waiting);
+      return true;
+    }
+    if(mostrarResultado)toast('Você já está usando a versão mais recente disponível.');
+    return false;
+  }catch(e){
+    console.warn('[Assistência] verificar atualização',e);
+    if(mostrarResultado)toast('Não foi possível verificar atualização agora.');
+    return false;
+  }
+};
+window.aplicarAtualizacaoApp=async function(ev){
+  ev?.preventDefault?.();
+  let worker=techSWWaiting||techSWRegistration?.waiting;
+  if(!worker){
+    const found=await window.verificarAtualizacaoApp(false);
+    worker=techSWWaiting||techSWRegistration?.waiting;
+    if(!found||!worker){toast('Nenhuma atualização pendente.');return}
+  }
+
+  let pend=0;
+  try{pend=(await assistOfflinePending()).length}catch(_){}
+  const aviso=pend
+    ?`Existe(m) ${pend} pendência(s) offline salva(s) neste aparelho. Elas serão preservadas após a atualização.`
+    :'Os dados offline preparados e a fila de sincronização serão preservados.';
+  if(!confirm('Instalar a nova versão do App do Técnico agora?\n\n'+aviso+'\n\nA tela será recarregada.'))return;
+
+  techSWRefreshRequested=true;
+  const btn=document.getElementById('tech-update-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i><span>Atualizando...</span>'}
+  try{
+    worker.postMessage({type:'SKIP_WAITING'});
+    setTimeout(()=>{if(techSWRefreshRequested)location.reload()},5000);
+  }catch(e){
+    techSWRefreshRequested=false;
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-arrow-rotate-right"></i><span>Atualizar app</span>'}
+    alert('Não foi possível aplicar a atualização.\n\n'+(e?.message||e));
+  }
+};
+async function techRegisterServiceWorker(){
+  if(!('serviceWorker' in navigator))return;
+  try{
+    const reg=await navigator.serviceWorker.register(ASSISTENCIA_SW_FILE,{updateViaCache:'none'});
+    techAppBindSWRegistration(reg);
+    await techAppPostCurrentPage(reg);
+
+    try{await reg.update()}catch(_){}
+    if(reg.waiting&&navigator.serviceWorker.controller)techAppShowUpdate(reg.waiting);
+
+    if(techSWUpdateTimer)clearInterval(techSWUpdateTimer);
+    techSWUpdateTimer=setInterval(()=>{
+      if(navigator.onLine!==false)reg.update().catch(()=>{});
+    },30*60*1000);
+  }catch(e){
+    console.warn('[Assistência] Service Worker não registrado:',e);
+  }
+}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(techSWRefreshRequested){
+      techSWRefreshRequested=false;
+      location.reload();
+    }
+  });
+  navigator.serviceWorker.addEventListener('message',event=>{
+    const data=event.data||{};
+    if(data.type==='SW_VERSION'){
+      const badge=document.getElementById('tech-build-badge');
+      if(badge&&data.build&&String(data.build)!==String(ASSISTENCIA_BUILD)){
+        badge.title='Página v'+ASSISTENCIA_BUILD+' · Service Worker '+String(data.build);
+      }
+    }
+  });
+}
+
 let techInstallPrompt=null;
 function techAppStandalone(){return window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true}
 function techAppSetConnection(){
@@ -5231,9 +5389,23 @@ window.addEventListener('appinstalled',()=>{techInstallPrompt=null;document.getE
 window.instalarAppTecnico=async function(){if(techInstallPrompt){techInstallPrompt.prompt();await techInstallPrompt.userChoice;techInstallPrompt=null;document.getElementById('tech-install-btn')?.classList.add('hidden');return}alert('Para instalar no celular, abra esta página no Chrome/Edge e use “Adicionar à tela inicial” ou “Instalar app” no menu do navegador.')};
 function techAppScrollTop(){const main=document.getElementById('main-content');if(main){try{main.scrollTo({top:0,behavior:'smooth'})}catch(_){main.scrollTop=0}}else{window.scrollTo({top:0,behavior:'smooth'})}}
 window.techAppInicio=function(ev){ev?.preventDefault?.();const b=document.querySelector('[data-view="tecnico"]');window.mudarView('tecnico',b);renderModoTecnico();techAppScrollTop();};
-window.techAppAtualizar=async function(ev){ev?.preventDefault?.();if(navigator.onLine===false){techAppSetConnection();toast('Sem conexão. Os dados atuais continuam na tela.');return}const btn=ev?.currentTarget;btn?.classList.add('active');try{await load();techAppStamp();window.mudarView('tecnico',document.querySelector('[data-view="tecnico"]'));techAppScrollTop()}finally{setTimeout(()=>btn?.classList.remove('active'),350)}};
+window.techAppAtualizar=async function(ev){ev?.preventDefault?.();if(navigator.onLine===false){techAppSetConnection();toast('Sem conexão. Os dados atuais continuam na tela.');return}const btn=ev?.currentTarget;btn?.classList.add('active');try{await load();techAppStamp();await window.verificarAtualizacaoApp(false);window.mudarView('tecnico',document.querySelector('[data-view="tecnico"]'));techAppScrollTop()}finally{setTimeout(()=>btn?.classList.remove('active'),350)}};
 window.techAppSair=function(ev){ev?.preventDefault?.();document.body.classList.remove('tech-app-mode');try{sessionStorage.removeItem('assistenciaTechAppMode')}catch(_){}const portal=new URL('platform.html',location.href);location.assign(portal.href)};
-function iniciarAppTecnico(){techAppSetConnection();techAppStamp();assistOfflineUpdateBadge?.();const p=new URLSearchParams(location.search);const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();if(mobile){document.body.classList.add('tech-app-mode');setTimeout(()=>window.techAppInicio(),80)}if('serviceWorker' in navigator){navigator.serviceWorker.register('assistencia-sw-v3.js').then(async reg=>{try{await navigator.serviceWorker.ready;const sw=navigator.serviceWorker.controller||reg.active||reg.waiting;if(sw)sw.postMessage({type:'CACHE_CURRENT_PAGE',url:location.href})}catch(_){}}).catch(e=>console.warn('[Assistência] Service Worker não registrado:',e))}}
+function iniciarAppTecnico(){
+ techAppSetBuild();
+ techAppSetConnection();
+ techAppStamp();
+ assistOfflineUpdateBadge?.();
+
+ const p=new URLSearchParams(location.search);
+ const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();
+ if(mobile){
+   document.body.classList.add('tech-app-mode');
+   setTimeout(()=>window.techAppInicio(),80);
+ }
+
+ techRegisterServiceWorker();
+}
 
 
 
