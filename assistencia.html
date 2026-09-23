@@ -931,6 +931,30 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 }
 </style>
 
+
+<style id="fase164-autodiag-ui">
+.tech-diag-card{max-height:94dvh;overflow:auto}
+.tech-diag-summary{display:flex;align-items:flex-start;gap:.55rem;border-radius:.9rem;padding:.75rem .8rem;font-size:.68rem;font-weight:850;line-height:1.4;background:#f8fafc;border:1px solid #e2e8f0;color:#475569}
+.tech-diag-summary.ok{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.tech-diag-summary.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.tech-diag-summary.error{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+.tech-diag-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem}
+.tech-diag-kpi{border:1px solid #e2e8f0;background:#fff;border-radius:.8rem;padding:.65rem}
+.tech-diag-kpi span{display:block;font-size:.5rem;font-weight:900;text-transform:uppercase;color:#94a3b8}
+.tech-diag-kpi b{display:block;font-size:1.05rem;font-weight:950;color:#0f172a;margin-top:.12rem}
+.tech-diag-list{display:flex;flex-direction:column;gap:.5rem}
+.tech-diag-item{display:grid;grid-template-columns:34px minmax(0,1fr);gap:.65rem;border:1px solid #e2e8f0;border-radius:.85rem;padding:.7rem;background:#fff}
+.tech-diag-icon{width:34px;height:34px;border-radius:.7rem;display:flex;align-items:center;justify-content:center;background:#f1f5f9;color:#64748b}
+.tech-diag-item.ok{border-color:#a7f3d0;background:#f0fdf4}.tech-diag-item.ok .tech-diag-icon{background:#d1fae5;color:#047857}
+.tech-diag-item.warn{border-color:#fed7aa;background:#fffbeb}.tech-diag-item.warn .tech-diag-icon{background:#ffedd5;color:#c2410c}
+.tech-diag-item.error{border-color:#fecdd3;background:#fff7f8}.tech-diag-item.error .tech-diag-icon{background:#ffe4e6;color:#be123c}
+.tech-diag-title{font-size:.68rem;font-weight:950;color:#0f172a}
+.tech-diag-detail{font-size:.57rem;line-height:1.45;color:#64748b;margin-top:.18rem;word-break:break-word}
+.tech-diag-code{font-size:.47rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-top:.3rem}
+@media(max-width:700px){.tech-diag-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.tech-diag-kpis{grid-template-columns:1fr}.tech-diag-card{width:100%!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -1057,11 +1081,12 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.63</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.64</button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
     <button type="button" id="tech-sync-offline-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techSincronizarOfflineClick()"><i class="fa-solid fa-rotate"></i><span>Sincronizar</span></button>
+    <button type="button" id="tech-diagnostic-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.abrirDiagnosticoAppTecnico()"><i class="fa-solid fa-stethoscope"></i><span>Diagnóstico</span></button>
     <button type="button" id="tech-update-btn" class="tech-install-btn tech-update-btn hidden" onclick="event.preventDefault();event.stopPropagation();window.aplicarAtualizacaoApp(event)"><i class="fa-solid fa-arrow-rotate-right"></i><span>Atualizar app</span></button>
     <button type="button" id="tech-install-btn" class="tech-install-btn hidden" onclick="event.preventDefault();event.stopPropagation();window.instalarAppTecnico()"><i class="fa-solid fa-mobile-screen-button"></i><span>Instalar app</span></button>
   </div>
@@ -1082,6 +1107,42 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 
 <div id="tech-app-nav" class="tech-app-nav"><button type="button" class="active" onclick="window.techAppInicio(event)"><i class="fa-solid fa-house"></i><span>Atendimentos</span></button><button type="button" onclick="window.techAppAtualizar(event)"><i class="fa-solid fa-rotate"></i><span>Atualizar</span></button><button type="button" onclick="window.techAppSair(event)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Portal</span></button></div>
 
+
+
+<div id="modal-tech-diagnostico-app" class="modal-backdrop hidden" style="z-index:2147483646!important">
+  <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.64</span>
+        <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
+        <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
+      </div>
+      <button type="button" class="icon-btn" onclick="window.fecharDiagnosticoAppTecnico()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="tech-diag-summary" class="tech-diag-summary mt-4">
+      <i class="fa-solid fa-spinner fa-spin"></i><span>Preparando diagnóstico...</span>
+    </div>
+
+    <div id="tech-diag-kpis" class="tech-diag-kpis mt-4"></div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="tech-diag-run-btn" type="button" class="btn btn-primary" onclick="window.executarDiagnosticoAppTecnico()"><i class="fa-solid fa-stethoscope"></i> Executar diagnóstico</button>
+      <button type="button" class="btn btn-light" onclick="window.baixarDiagnosticoAppTecnico()"><i class="fa-solid fa-file-arrow-down"></i> Baixar relatório TXT</button>
+      <button type="button" class="btn btn-light" onclick="window.copiarDiagnosticoAppTecnico()"><i class="fa-solid fa-copy"></i> Copiar resumo</button>
+    </div>
+
+    <div id="tech-diag-list" class="tech-diag-list mt-4"></div>
+
+    <div class="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-3 text-[11px] text-blue-900">
+      <b>Importante:</b> o diagnóstico não altera OS, não sincroniza pendências e não apaga cache. Ele apenas lê o estado atual do aparelho e do aplicativo.
+    </div>
+
+    <div class="mt-5 flex justify-end">
+      <button type="button" class="btn btn-light" onclick="window.fecharDiagnosticoAppTecnico()">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-central-offline" class="modal-backdrop hidden" style="z-index:2147483645!important">
   <div class="modal-card !max-w-none offline-center-card" style="width:min(860px,96vw)">
@@ -5232,8 +5293,265 @@ window.abrirCheckoutEquipamento=function(eid,resultadoPredefinido){
 
 // FASE 1.25 — App do Técnico
 
+
+// FASE 1.64 — autodiagnóstico do App do Técnico
+let __techDiagLast=null;
+
+function techDiagItem(status,code,titulo,detalhe){
+  return {status:String(status||'WARN').toUpperCase(),code,titulo,detalhe:String(detalhe||'')};
+}
+function techDiagStatusRank(s){return s==='ERROR'?3:s==='WARN'?2:1}
+function techDiagIcon(s){return s==='ERROR'?'fa-circle-xmark':s==='WARN'?'fa-triangle-exclamation':'fa-circle-check'}
+
+async function techDiagFetchOrCache(url){
+  try{
+    if(navigator.onLine!==false){
+      const r=await assistOfflineTimeout(fetch(url,{cache:'no-store'}),5000,'diag-fetch');
+      if(r&&r.ok)return {ok:true,source:'rede',status:r.status};
+    }
+  }catch(_){}
+  try{
+    if('caches' in window){
+      const r=await caches.match(url);
+      if(r)return {ok:true,source:'cache',status:r.status||200};
+    }
+  }catch(_){}
+  return {ok:false,source:'-',status:0};
+}
+
+async function techDiagSWVersion(){
+  try{
+    if(!('serviceWorker' in navigator))return null;
+    const reg=techSWRegistration||await navigator.serviceWorker.getRegistration();
+    const worker=navigator.serviceWorker.controller||reg?.active||reg?.waiting;
+    if(!worker)return null;
+    if(typeof MessageChannel==='undefined')return {scriptURL:worker.scriptURL||'',state:worker.state||'',build:''};
+
+    return await new Promise(resolve=>{
+      const channel=new MessageChannel();
+      let done=false;
+      const finish=data=>{if(done)return;done=true;clearTimeout(timer);resolve({...data,scriptURL:worker.scriptURL||'',state:worker.state||''})};
+      const timer=setTimeout(()=>finish({build:'',version:''}),1800);
+      channel.port1.onmessage=e=>finish(e.data||{});
+      try{worker.postMessage({type:'GET_VERSION'},[channel.port2])}catch(_){finish({build:'',version:''})}
+    });
+  }catch(e){
+    return {error:String(e?.message||e)};
+  }
+}
+
+async function techDiagnosticoColetar(){
+  const checks=[];
+  const uid=assistOfflineCurrentUid();
+  checks.push(uid
+    ?techDiagItem('OK','AUTH','Usuário autenticado',window.currentUser?.email||window.nomeUsuarioLogado||uid)
+    :techDiagItem('ERROR','AUTH','Usuário não identificado','O trabalho offline seguro exige uma sessão autenticada.'));
+
+  const coreOk=!!window.AppDB&&typeof window.fsGetDocs==='function'&&typeof window.fsSetDoc==='function'&&typeof window.fsDoc==='function';
+  checks.push(coreOk
+    ?techDiagItem('OK','CORE','Core / Firebase carregado','AppDB e operações principais do Firestore estão disponíveis.')
+    :techDiagItem('ERROR','CORE','Core / Firebase incompleto','Uma ou mais funções essenciais do core.js não estão disponíveis.'));
+
+  checks.push(navigator.onLine!==false
+    ?techDiagItem('OK','CONNECTION','Conexão disponível','O navegador informa que há conexão com a rede.')
+    :techDiagItem('WARN','CONNECTION','Sem conexão no momento','O diagnóstico continuará usando os dados locais disponíveis.'));
+
+  if('serviceWorker' in navigator){
+    const reg=techSWRegistration||await navigator.serviceWorker.getRegistration();
+    const sw=await techDiagSWVersion();
+    if(reg?.waiting&&navigator.serviceWorker.controller){
+      checks.push(techDiagItem('WARN','SW_UPDATE','Atualização aguardando instalação',`Existe um Service Worker novo em espera. Build detectado: ${sw?.build||'não informado'}.`));
+    }else if(reg?.active||navigator.serviceWorker.controller){
+      const build=sw?.build||'não informado';
+      const expected=ASSISTENCIA_BUILD;
+      const status=sw?.build&&String(sw.build)!==String(expected)?'WARN':'OK';
+      checks.push(techDiagItem(status,'SERVICE_WORKER','Service Worker ativo',`Script: ${sw?.scriptURL||reg?.active?.scriptURL||'-'} · build SW: ${build} · página: ${expected}.`));
+    }else{
+      checks.push(techDiagItem('ERROR','SERVICE_WORKER','Service Worker não está ativo','O uso confiável como PWA/offline requer um Service Worker ativo.'));
+    }
+  }else{
+    checks.push(techDiagItem('ERROR','SERVICE_WORKER','Service Worker não suportado','Este navegador não oferece suporte ao mecanismo offline do aplicativo.'));
+  }
+
+  const manifestUrl=document.querySelector('link[rel="manifest"]')?.href||new URL('assistencia-manifest-v4.json',location.href).href;
+  const manifestCheck=await techDiagFetchOrCache(manifestUrl);
+  checks.push(manifestCheck.ok
+    ?techDiagItem('OK','MANIFEST','Manifest disponível',`Encontrado via ${manifestCheck.source}.`)
+    :techDiagItem('WARN','MANIFEST','Manifest não localizado','Verifique se assistencia-manifest-v4.json foi publicado na mesma pasta do assistencia.html.'));
+
+  const pageCached=await techDiagFetchOrCache(location.href);
+  const fallbackCached=await techDiagFetchOrCache(new URL('assistencia.html',location.href).href);
+  checks.push(pageCached.ok||fallbackCached.ok
+    ?techDiagItem('OK','APP_SHELL','Página disponível para cache/offline',`Origem detectada: ${(pageCached.ok?pageCached:fallbackCached).source}.`)
+    :techDiagItem('ERROR','APP_SHELL','Página principal não encontrada no cache','Prepare/abra o aplicativo online antes de depender do uso offline.'));
+
+  const icon192=await techDiagFetchOrCache(new URL('assistencia-icon-192.png',location.href).href);
+  const icon512=await techDiagFetchOrCache(new URL('assistencia-icon-512.png',location.href).href);
+  checks.push(icon192.ok&&icon512.ok
+    ?techDiagItem('OK','ICONS','Ícones PWA disponíveis','Ícones 192×192 e 512×512 localizados.')
+    :techDiagItem('WARN','ICONS','Ícones PWA incompletos',`192px: ${icon192.ok?'OK':'ausente'} · 512px: ${icon512.ok?'OK':'ausente'}.`));
+
+  try{
+    const q=await assistOfflineAllQueue();
+    const mine=q.filter(assistOfflineOpOwnerOk);
+    const conflicts=mine.filter(x=>!!x.conflito);
+    const errors=mine.filter(x=>!x.conflito&&(Number(x.tentativas||0)>0||x.ultimoErro));
+    checks.push(conflicts.length
+      ?techDiagItem('WARN','QUEUE_CONFLICT','Conflitos de sincronização',`${conflicts.length} conflito(s) aguardam decisão na Central Offline.`)
+      :errors.length
+        ?techDiagItem('WARN','QUEUE_ERROR','Pendências com erro',`${errors.length} pendência(s) precisam de nova tentativa. Total do usuário: ${mine.length}.`)
+        :techDiagItem('OK','QUEUE','Fila offline',mine.length?`${mine.length} pendência(s) preservadas e sem conflito detectado.`:'Nenhuma pendência de sincronização.'));
+  }catch(e){
+    checks.push(techDiagItem('ERROR','INDEXEDDB_QUEUE','Fila offline indisponível',String(e?.message||e)));
+  }
+
+  try{
+    const cs=await assistOfflineCacheStats();
+    checks.push(techDiagItem(cs.legacy?'WARN':'OK','CACHE_USER','Isolamento de cache',`${cs.mine} registro(s) deste usuário · ${cs.foreign} protegido(s) de outros usuários · ${cs.legacy} legado(s) sem proprietário.`));
+  }catch(e){
+    checks.push(techDiagItem('ERROR','INDEXEDDB_CACHE','Cache local indisponível',String(e?.message||e)));
+  }
+
+  const storage=await assistOfflineStorageStatus(false);
+  const pct=Number(storage.percentual||0);
+  checks.push(pct>=95
+    ?techDiagItem('ERROR','STORAGE','Armazenamento quase cheio',`${assistOfflineBytes(storage.usage)} de ${assistOfflineBytes(storage.quota)} utilizados (${pct.toFixed(1)}%).`)
+    :pct>=80
+      ?techDiagItem('WARN','STORAGE','Armazenamento com pouco espaço',`${assistOfflineBytes(storage.usage)} de ${assistOfflineBytes(storage.quota)} utilizados (${pct.toFixed(1)}%).`)
+      :techDiagItem(storage.persisted?'OK':'WARN','STORAGE','Armazenamento local',`${storage.quota?assistOfflineBytes(storage.usage)+' de '+assistOfflineBytes(storage.quota):'Quota não informada'} · ${storage.persisted?'persistência ativa':'persistência não confirmada pelo navegador'}.`));
+
+  const externas=(state.os||[])
+    .filter(o=>o?.is_deleted!==true)
+    .filter(isMinhaOS)
+    .filter(o=>String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO')
+    .filter(o=>!['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status)));
+  if(!externas.length){
+    checks.push(techDiagItem('OK','OFFLINE_READY','OS externas preparadas','Nenhuma OS externa ativa atribuída a este técnico.'));
+  }else{
+    const counts={READY:0,PARTIAL:0,FAILED:0,NONE:0};
+    externas.forEach(o=>{const st=assistOfflineReadyState(o);counts[st]=(counts[st]||0)+1});
+    const bad=counts.FAILED+counts.NONE;
+    const status=bad?'ERROR':counts.PARTIAL?'WARN':'OK';
+    checks.push(techDiagItem(status,'OFFLINE_READY','Prontidão das OS externas',`${counts.READY} pronta(s) · ${counts.PARTIAL} parcial(is) · ${counts.FAILED} com falha · ${counts.NONE} não preparada(s).`));
+  }
+
+  checks.push(techAppStandalone()
+    ?techDiagItem('OK','INSTALL','Executando como aplicativo instalado','Display standalone detectado.')
+    :techDiagItem('WARN','INSTALL','Executando no navegador','O sistema funciona no navegador, mas a instalação como app melhora a experiência de campo.'));
+
+  return {
+    build:ASSISTENCIA_BUILD,
+    generatedAtISO:new Date().toISOString(),
+    online:navigator.onLine!==false,
+    standalone:techAppStandalone(),
+    user:window.currentUser?.email||window.nomeUsuarioLogado||'',
+    userAgent:navigator.userAgent||'',
+    checks
+  };
+}
+
+function techDiagnosticoRender(data){
+  __techDiagLast=data;
+  const checks=data?.checks||[];
+  const errors=checks.filter(x=>x.status==='ERROR').length;
+  const warns=checks.filter(x=>x.status==='WARN').length;
+  const oks=checks.filter(x=>x.status==='OK').length;
+
+  const k=document.getElementById('tech-diag-kpis');
+  if(k)k.innerHTML=`
+    <div class="tech-diag-kpi"><span>OK</span><b class="text-emerald-600">${oks}</b></div>
+    <div class="tech-diag-kpi"><span>Atenção</span><b class="text-amber-600">${warns}</b></div>
+    <div class="tech-diag-kpi"><span>Crítico</span><b class="text-rose-600">${errors}</b></div>
+    <div class="tech-diag-kpi"><span>Build</span><b class="text-blue-700">v${esc(data.build||'-')}</b></div>`;
+
+  const summary=document.getElementById('tech-diag-summary');
+  if(summary){
+    const status=errors?'error':warns?'warn':'ok';
+    summary.className='tech-diag-summary mt-4 '+status;
+    summary.innerHTML=errors
+      ?`<i class="fa-solid fa-circle-xmark mt-[2px]"></i><span><b>Há ${errors} item(ns) crítico(s).</b> Corrija-os antes de depender do aplicativo sem internet.</span>`
+      :warns
+        ?`<i class="fa-solid fa-triangle-exclamation mt-[2px]"></i><span><b>Aplicativo funcional com ${warns} atenção(ões).</b> Revise os itens abaixo antes de sair para atendimento.</span>`
+        :'<i class="fa-solid fa-circle-check mt-[2px]"></i><span><b>Pronto para uso em campo.</b> Nenhuma inconsistência técnica foi encontrada neste aparelho.</span>';
+  }
+
+  const box=document.getElementById('tech-diag-list');
+  if(box)box.innerHTML=checks.map(x=>{
+    const cls=x.status==='ERROR'?'error':x.status==='WARN'?'warn':'ok';
+    return `<div class="tech-diag-item ${cls}">
+      <div class="tech-diag-icon"><i class="fa-solid ${techDiagIcon(x.status)}"></i></div>
+      <div><div class="tech-diag-title">${esc(x.titulo)}</div><div class="tech-diag-detail">${esc(x.detalhe)}</div><div class="tech-diag-code">${esc(x.code)} · ${esc(x.status)}</div></div>
+    </div>`;
+  }).join('');
+}
+
+window.executarDiagnosticoAppTecnico=async function(){
+  const btn=document.getElementById('tech-diag-run-btn');
+  const list=document.getElementById('tech-diag-list');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Verificando...'}
+  if(list)list.innerHTML='<div class="text-center text-xs text-slate-400 py-8"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Executando verificações...</div>';
+  try{
+    const data=await techDiagnosticoColetar();
+    techDiagnosticoRender(data);
+  }catch(e){
+    console.error('[Assistência] autodiagnóstico',e);
+    const summary=document.getElementById('tech-diag-summary');
+    if(summary){summary.className='tech-diag-summary mt-4 error';summary.innerHTML='<i class="fa-solid fa-circle-xmark"></i><span>Falha ao executar diagnóstico: '+esc(e?.message||e)+'</span>'}
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-stethoscope"></i> Executar diagnóstico'}
+  }
+};
+
+window.abrirDiagnosticoAppTecnico=async function(){
+  document.getElementById('modal-tech-diagnostico-app')?.classList.remove('hidden');
+  await window.executarDiagnosticoAppTecnico();
+};
+window.fecharDiagnosticoAppTecnico=function(){document.getElementById('modal-tech-diagnostico-app')?.classList.add('hidden')};
+
+function techDiagnosticoTexto(){
+  const d=__techDiagLast;
+  if(!d)return'Nenhum diagnóstico executado.';
+  const lines=[
+    'CIJ - AUTODIAGNÓSTICO DO APP DO TÉCNICO',
+    'Build da página: '+d.build,
+    'Gerado em: '+new Date(d.generatedAtISO).toLocaleString('pt-BR'),
+    'Usuário: '+(d.user||'-'),
+    'Conexão: '+(d.online?'Online':'Offline'),
+    'Modo instalado: '+(d.standalone?'Sim':'Não'),
+    'Navegador: '+d.userAgent,
+    '',
+    'VERIFICAÇÕES'
+  ];
+  (d.checks||[]).forEach((x,i)=>{
+    lines.push(`${i+1}. [${x.status}] ${x.titulo}`);
+    lines.push('   '+x.detalhe);
+    lines.push('   Código: '+x.code);
+  });
+  return lines.join('\n');
+}
+window.baixarDiagnosticoAppTecnico=function(){
+  if(!__techDiagLast){toast('Execute o diagnóstico primeiro.');return}
+  const blob=new Blob([techDiagnosticoTexto()],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='diagnostico-app-tecnico-v'+ASSISTENCIA_BUILD+'-'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+window.copiarDiagnosticoAppTecnico=async function(){
+  if(!__techDiagLast){toast('Execute o diagnóstico primeiro.');return}
+  const txt=techDiagnosticoTexto();
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast('Resumo do diagnóstico copiado.');
+  }catch(_){
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Resumo copiado.');
+  }
+};
+
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.63';
+const ASSISTENCIA_BUILD='1.64';
 const ASSISTENCIA_SW_FILE='assistencia-sw-v4.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -5999,7 +6317,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
