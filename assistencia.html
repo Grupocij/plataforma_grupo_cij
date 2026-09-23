@@ -738,6 +738,23 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:640px){.return-summary-grid{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase153-faturamento-ui">
+.fat-compare-box{border:1px solid #e2e8f0;background:#fff;border-radius:.8rem;padding:.7rem}
+.fat-compare-box span{display:block;font-size:.55rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8}
+.fat-compare-box b{display:block;margin-top:.2rem;font-size:.9rem;font-weight:900;color:#0f172a}
+.fat-compare-box small{display:block;margin-top:.15rem;font-size:.55rem;font-weight:800;color:#64748b}
+.fat-diff-status{display:flex;align-items:flex-start;gap:.45rem;border-radius:.75rem;padding:.6rem .7rem;font-size:.62rem;font-weight:850;line-height:1.35}
+.fat-diff-status.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
+.fat-diff-status.warn{background:#fff7ed;border:1px solid #fed7aa;color:#c2410c}
+.fat-diff-status.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.fat-audit-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin-top:.55rem}
+.fat-audit-item{border:1px solid #e2e8f0;border-radius:.65rem;background:#fff;padding:.5rem}
+.fat-audit-item span{display:block;font-size:.5rem;text-transform:uppercase;color:#94a3b8;font-weight:900}
+.fat-audit-item b{display:block;margin-top:.15rem;font-size:.65rem;color:#0f172a}
+@media(max-width:640px){.fat-audit-summary{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -745,7 +762,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.52</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.53</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1091,7 +1108,21 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   </div>
 </div>
 
-<div id="modal-faturamento-os" class="modal-backdrop hidden" style="z-index:99999"><div class="modal-card !max-w-none" style="width:min(720px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.23</span><h2 class="text-xl font-black mt-2">Encerramento administrativo</h2><p id="fat-os-identificacao" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharFaturamentoOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900">A OS já foi concluída tecnicamente. Confirme o faturamento ou indique que o atendimento não é faturável para encerrar administrativamente.</div><label class="block mt-4"><span class="field-label">SITUAÇÃO *</span><select id="fat-situacao" class="input" onchange="window.alternarCamposFaturamento()"><option value="FATURADO">Serviço faturado</option><option value="NAO_FATURAVEL">Não faturável</option></select></label><div id="fat-campos-fatura" class="grid md:grid-cols-3 gap-3 mt-4"><label><span class="field-label">Nº DA NF *</span><input id="fat-nf" class="input" placeholder="Ex.: 12345"></label><label><span class="field-label">DATA *</span><input id="fat-data" type="date" class="input"></label><label><span class="field-label">VALOR FATURADO</span><input id="fat-valor" class="input" inputmode="decimal" placeholder="0,00"><small id="fat-valor-sugestao" class="block mt-1 text-[10px] text-slate-500"></small></label></div><label class="block mt-4"><span id="fat-obs-label" class="field-label">OBSERVAÇÃO</span><textarea id="fat-obs" class="input min-h-24" placeholder="Observações do faturamento..."></textarea></label><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharFaturamentoOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-faturamento" onclick="window.salvarFaturamentoOS()" class="btn btn-primary"><i class="fa-solid fa-check"></i> Encerrar OS</button></div></div></div>
+<div id="modal-faturamento-os" class="modal-backdrop hidden" style="z-index:99999"><div class="modal-card !max-w-none" style="width:min(720px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.23</span><h2 class="text-xl font-black mt-2">Encerramento administrativo</h2><p id="fat-os-identificacao" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharFaturamentoOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900">A OS já foi concluída tecnicamente. Confirme o faturamento ou indique que o atendimento não é faturável para encerrar administrativamente.</div><label class="block mt-4"><span class="field-label">SITUAÇÃO *</span><select id="fat-situacao" class="input" onchange="window.alternarCamposFaturamento()"><option value="FATURADO">Serviço faturado</option><option value="NAO_FATURAVEL">Não faturável</option></select></label><div id="fat-campos-fatura" class="grid md:grid-cols-3 gap-3 mt-4"><label><span class="field-label">Nº DA NF *</span><input id="fat-nf" class="input" placeholder="Ex.: 12345"></label><label><span class="field-label">DATA *</span><input id="fat-data" type="date" class="input"></label><label><span class="field-label">VALOR FATURADO *</span><input id="fat-valor" class="input" inputmode="decimal" placeholder="0,00" oninput="window.atualizarComparativoFaturamento()"><small id="fat-valor-sugestao" class="block mt-1 text-[10px] text-slate-500"></small></label></div>
+
+<div id="fat-comparativo" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+  <div class="text-[10px] uppercase font-black tracking-wide text-slate-400">Conciliação comercial</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+    <div class="fat-compare-box"><span>Orçamento aprovado</span><b id="fat-aprovado">R$ 0,00</b></div>
+    <div class="fat-compare-box"><span>Valor faturado</span><b id="fat-faturado-preview">R$ 0,00</b></div>
+    <div class="fat-compare-box"><span>Diferença</span><b id="fat-diferenca">R$ 0,00</b><small id="fat-percentual-diferenca"></small></div>
+  </div>
+  <div id="fat-diferenca-status" class="fat-diff-status ok mt-3"><i class="fa-solid fa-circle-check"></i><span>Valor faturado confere com o orçamento aprovado.</span></div>
+</div>
+
+<label id="fat-justificativa-wrap" class="hidden block mt-4"><span class="field-label">JUSTIFICATIVA DA DIFERENÇA *</span><textarea id="fat-justificativa" class="input min-h-20" placeholder="Ex.: serviço parcial, desconto adicional, item não executado, acréscimo autorizado..."></textarea><small class="block mt-1 text-[10px] text-amber-700 font-bold">Obrigatório quando o valor faturado for diferente do total aprovado.</small></label>
+
+<label class="block mt-4"><span id="fat-obs-label" class="field-label">OBSERVAÇÃO</span><textarea id="fat-obs" class="input min-h-24" placeholder="Observações do faturamento..."></textarea></label><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharFaturamentoOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-faturamento" onclick="window.salvarFaturamentoOS()" class="btn btn-primary"><i class="fa-solid fa-check"></i> Encerrar OS</button></div></div></div>
 
 <div id="modal-aprovacao-orcamento" class="modal-backdrop hidden">
  <div class="modal-card !max-w-none" style="width:min(760px,100%)">
@@ -1263,7 +1294,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.52</span>
+        <span class="tag tag-green">FASE 1.53</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1543,7 +1574,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.52 — Offline essencial para atendimento externo
+// FASE 1.53 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1950,7 +1981,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.52 — OS interna x externa e recolhimento para laboratório
+// FASE 1.53 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2937,7 +2968,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.52 — leitura de QR Code / número de série do equipamento
+// FASE 1.53 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3092,24 +3123,138 @@ window.aplicarQREquipamento=async function(raw){
 window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toast('Abra uma OS primeiro.');return}const qrf=document.getElementById('eq-qr-feedback');if(qrf){qrf.className='hidden rounded-xl border p-3 text-xs';qrf.innerHTML=''}const machines=state.parque.filter(x=>machineBelongsToClient(x,o)).sort((a,b)=>machineLabel(a).localeCompare(machineLabel(b),'pt-BR'));const sel=document.getElementById('eq-parque-select'),parqueBox=document.getElementById('eq-parque-box'),tempBox=document.getElementById('eq-temp-box'),parqueBtn=document.getElementById('tab-eq-parque'),tempBtn=document.getElementById('tab-eq-temp'),regra=document.getElementById('eq-modal-regra');parqueBtn.classList.remove('active');tempBtn.classList.remove('active');if(machines.length){state.equipmentType='PARQUE';parqueBox.classList.remove('hidden');tempBox.classList.add('hidden');parqueBtn.classList.add('active');tempBtn.classList.add('hidden');sel.innerHTML='<option value="">Selecione um equipamento</option>'+machines.map(x=>`<option value="${esc(x.id)}">${esc(machineLabel(x))}</option>`).join('');if(regra)regra.textContent=`${machines.length} equipamento(s) encontrado(s) no Parque de Máquinas deste cliente. Selecione um deles para vincular à OS.`}else{state.equipmentType='TEMPORARIO';parqueBox.classList.add('hidden');tempBox.classList.remove('hidden');parqueBtn.classList.add('hidden');tempBtn.classList.remove('hidden');tempBtn.classList.add('active');sel.innerHTML='<option value="">Nenhum equipamento vinculado ao cliente</option>';['eq-temp-marca','eq-temp-modelo','eq-temp-sn','eq-temp-tag','eq-temp-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});if(regra)regra.textContent='Nenhum equipamento foi encontrado no Parque de Máquinas deste cliente. O cadastro temporário foi liberado para este atendimento.'}if(document.body.classList.contains('tech-app-mode')&&typeof techAbrirModalAcima==='function'){techAbrirModalAcima('modal-equipamento')}else{document.getElementById('modal-equipamento').classList.remove('hidden')}};
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
+
+// FASE 1.53 — conciliação entre orçamento aprovado e faturamento
+window.__fatValorAprovadoAtual=0;
+
+function parseValorBR(v){
+  const raw=String(v??'').trim();
+  if(!raw)return 0;
+  let t=raw.replace(/[R$\s]/gi,'');
+  if(t.includes(',')&&t.includes('.')){
+    if(t.lastIndexOf(',')>t.lastIndexOf('.'))t=t.replace(/\./g,'').replace(',','.');
+    else t=t.replace(/,/g,'');
+  }else if(t.includes(',')){
+    t=t.replace(/\./g,'').replace(',','.');
+  }
+  t=t.replace(/[^0-9.-]/g,'');
+  const n=Number(t);
+  return Number.isFinite(n)?n:0;
+}
+function valorFaturamentoFormatadoInput(v){
+  const n=parseValorBR(v);
+  return Number.isFinite(n)?n:0;
+}
+window.atualizarComparativoFaturamento=function(){
+  const situacao=document.getElementById('fat-situacao')?.value||'FATURADO';
+  const aprovado=Number(window.__fatValorAprovadoAtual||0);
+  const faturado=valorFaturamentoFormatadoInput(document.getElementById('fat-valor')?.value||'');
+  const diferenca=faturado-aprovado;
+  const pct=aprovado>0?(diferenca/aprovado)*100:0;
+  const diverge=Math.abs(diferenca)>0.01;
+
+  const a=document.getElementById('fat-aprovado'),f=document.getElementById('fat-faturado-preview'),d=document.getElementById('fat-diferenca'),p=document.getElementById('fat-percentual-diferenca'),st=document.getElementById('fat-diferenca-status'),wrap=document.getElementById('fat-justificativa-wrap');
+  if(a)a.textContent=moedaBR(aprovado);
+  if(f)f.textContent=moedaBR(faturado);
+  if(d){
+    d.textContent=(diferenca>0?'+ ':'')+moedaBR(diferenca);
+    d.className=diferenca>0?'text-amber-700':diferenca<0?'text-rose-700':'text-emerald-700';
+  }
+  if(p)p.textContent=aprovado>0?((pct>0?'+':'')+pct.toFixed(2).replace('.',',')+'% sobre o aprovado'):'Sem base aprovada para percentual.';
+  if(wrap)wrap.classList.toggle('hidden',situacao!=='FATURADO'||!diverge);
+
+  if(!st)return;
+  if(situacao!=='FATURADO'){
+    st.className='fat-diff-status info mt-3';
+    st.innerHTML='<i class="fa-solid fa-circle-info"></i><span>OS marcada como não faturável. O valor aprovado permanece registrado apenas para auditoria.</span>';
+  }else if(!aprovado){
+    st.className='fat-diff-status info mt-3';
+    st.innerHTML='<i class="fa-solid fa-circle-info"></i><span>Não existe orçamento aprovado para comparação automática.</span>';
+  }else if(diverge){
+    st.className='fat-diff-status warn mt-3';
+    st.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i><span>O valor faturado é diferente do orçamento aprovado. Registre a justificativa antes de encerrar.</span>';
+  }else{
+    st.className='fat-diff-status ok mt-3';
+    st.innerHTML='<i class="fa-solid fa-circle-check"></i><span>Valor faturado confere com o orçamento aprovado.</span>';
+  }
+};
+
 window.abrirFaturamentoOS=async function(){
  if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
  const o=state.selectedOS;if(!o)return;
  document.getElementById('fat-os-identificacao').textContent=`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||''}`;
- document.getElementById('fat-situacao').value='FATURADO';
+ document.getElementById('fat-situacao').value=o.situacaoFaturamento||'FATURADO';
  document.getElementById('fat-nf').value=o.numeroNF||'';
  document.getElementById('fat-data').value=(o.faturadoEmData||new Date().toISOString().slice(0,10));
  let sugerido=0;try{sugerido=await window.obterValorOrcamentoAprovadoOS(o)}catch(_){}
- document.getElementById('fat-valor').value=o.valorFaturado||(sugerido>0?sugerido.toFixed(2):'');
+ window.__fatValorAprovadoAtual=Number(sugerido||0);
+ document.getElementById('fat-valor').value=o.valorFaturado!==undefined&&o.valorFaturado!==''?o.valorFaturado:(sugerido>0?sugerido.toFixed(2):'');
  document.getElementById('fat-obs').value=o.observacaoFaturamento||'';
- const hint=document.getElementById('fat-valor-sugestao');if(hint)hint.textContent=sugerido>0?'Sugestão pelos orçamentos aprovados: '+moedaBR(sugerido):'Nenhum orçamento aprovado encontrado para sugerir valor.';
+ document.getElementById('fat-justificativa').value=o.justificativaDivergenciaFaturamento||'';
+ const hint=document.getElementById('fat-valor-sugestao');if(hint)hint.textContent=sugerido>0?'Total dos orçamentos aprovados do ciclo atual: '+moedaBR(sugerido):'Nenhum orçamento aprovado encontrado para comparação.';
  window.alternarCamposFaturamento();
+ window.atualizarComparativoFaturamento();
  document.getElementById('modal-faturamento-os').classList.remove('hidden');
 };
 window.fecharFaturamentoOS=()=>document.getElementById('modal-faturamento-os')?.classList.add('hidden');
-window.alternarCamposFaturamento=function(){const nao=document.getElementById('fat-situacao').value==='NAO_FATURAVEL';document.getElementById('fat-campos-fatura').classList.toggle('hidden',nao);document.getElementById('fat-obs-label').textContent=nao?'MOTIVO DO NÃO FATURAMENTO *':'OBSERVAÇÃO'};
-window.salvarFaturamentoOS=async function(){if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
-const o=state.selectedOS;if(!o)return;const situacao=document.getElementById('fat-situacao').value,nf=document.getElementById('fat-nf').value.trim(),data=document.getElementById('fat-data').value,valor=document.getElementById('fat-valor').value.trim(),obs=document.getElementById('fat-obs').value.trim();if(situacao==='FATURADO'&&(!nf||!data)){alert('Informe o número da NF e a data do faturamento.');return}if(situacao==='NAO_FATURAVEL'&&!obs){alert('Informe o motivo pelo qual esta OS não é faturável.');return}const now=new Date().toISOString(),payload={situacaoFaturamento:situacao,faturado:situacao==='FATURADO',numeroNF:situacao==='FATURADO'?nf:'',faturadoEmData:situacao==='FATURADO'?data:'',valorFaturado:situacao==='FATURADO'?valor:'',observacaoFaturamento:obs,encerradoAdministrativamente:true,encerradoEmISO:now,encerradoPorUid:window.currentUser?.uid||'',encerradoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',etapaKanban:'ENCERRADOS',status:'ENCERRADOS',updatedAtISO:now};const btn=document.getElementById('btn-salvar-faturamento');try{btn.disabled=true;await mergeOSDoc(o.internalId||o.id,payload);Object.assign(o,payload);await addHistory(o,'FATURAMENTO',situacao==='FATURADO'?'Serviço faturado':'OS marcada como não faturável',situacao==='FATURADO'?('NF '+nf+(valor?' · R$ '+valor:'')):obs,{situacaoFaturamento:situacao,numeroNF:nf||'',valorFaturado:valor||''});window.fecharFaturamentoOS();renderKanban();window.abrirDetalheOS(o.id||o.internalId);toast('OS encerrada administrativamente.')}catch(e){console.error('[Assistência] faturamento',e);alert('Não foi possível encerrar a OS. Verifique as Security Rules.\n\n'+(e?.message||e))}finally{btn.disabled=false}};
+window.alternarCamposFaturamento=function(){
+ const nao=document.getElementById('fat-situacao').value==='NAO_FATURAVEL';
+ document.getElementById('fat-campos-fatura').classList.toggle('hidden',nao);
+ document.getElementById('fat-comparativo').classList.toggle('hidden',false);
+ document.getElementById('fat-obs-label').textContent=nao?'MOTIVO DO NÃO FATURAMENTO *':'OBSERVAÇÃO';
+ window.atualizarComparativoFaturamento?.();
+};
+window.salvarFaturamentoOS=async function(){
+ if(!window.exigirPermissaoAssistencia('faturar_encerrar'))return;
+ const o=state.selectedOS;if(!o)return;
+ const situacao=document.getElementById('fat-situacao').value,nf=document.getElementById('fat-nf').value.trim(),data=document.getElementById('fat-data').value,valorRaw=document.getElementById('fat-valor').value.trim(),obs=document.getElementById('fat-obs').value.trim(),just=document.getElementById('fat-justificativa').value.trim();
+ const valorNum=valorFaturamentoFormatadoInput(valorRaw),aprovado=Number(window.__fatValorAprovadoAtual||0),diferenca=valorNum-aprovado,pct=aprovado>0?(diferenca/aprovado)*100:0,diverge=Math.abs(diferenca)>0.01;
+
+ if(situacao==='FATURADO'&&(!nf||!data)){alert('Informe o número da NF e a data do faturamento.');return}
+ if(situacao==='FATURADO'&&(!valorRaw||valorNum<0)){alert('Informe o valor faturado.');return}
+ if(situacao==='FATURADO'&&diverge&&!just){alert('O valor faturado é diferente do orçamento aprovado. Informe a justificativa da diferença.');return}
+ if(situacao==='NAO_FATURAVEL'&&!obs){alert('Informe o motivo pelo qual esta OS não é faturável.');return}
+
+ const now=new Date().toISOString(),payload={
+   situacaoFaturamento:situacao,
+   faturado:situacao==='FATURADO',
+   numeroNF:situacao==='FATURADO'?nf:'',
+   faturadoEmData:situacao==='FATURADO'?data:'',
+   valorFaturado:situacao==='FATURADO'?valorNum:'',
+   valorOrcamentoAprovadoNoEncerramento:aprovado,
+   diferencaFaturamento:situacao==='FATURADO'?diferenca:null,
+   percentualDiferencaFaturamento:situacao==='FATURADO'?pct:null,
+   faturamentoDivergente:situacao==='FATURADO'?diverge:false,
+   justificativaDivergenciaFaturamento:situacao==='FATURADO'&&diverge?just:'',
+   observacaoFaturamento:obs,
+   encerradoAdministrativamente:true,
+   encerradoEmISO:now,
+   encerradoPorUid:window.currentUser?.uid||'',
+   encerradoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+   etapaKanban:'ENCERRADOS',status:'ENCERRADOS',updatedAtISO:now
+ };
+ const btn=document.getElementById('btn-salvar-faturamento');
+ try{
+   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Encerrando...';
+   await mergeOSDoc(o.internalId||o.id,payload);Object.assign(o,payload);
+   const detalhe=situacao==='FATURADO'
+     ? `NF ${nf} · Faturado ${moedaBR(valorNum)} · Aprovado ${moedaBR(aprovado)} · Diferença ${(diferenca>=0?'+ ':'')+moedaBR(diferenca)}${diverge?' · Justificativa: '+just:''}`
+     : `Não faturável · Base aprovada: ${moedaBR(aprovado)} · Motivo: ${obs}`;
+   await addHistory(o,'FATURAMENTO',situacao==='FATURADO'?'Serviço faturado':'OS marcada como não faturável',detalhe,{
+     situacaoFaturamento:situacao,numeroNF:nf||'',valorFaturado:situacao==='FATURADO'?valorNum:'',
+     valorOrcamentoAprovado:aprovado,diferencaFaturamento:situacao==='FATURADO'?diferenca:null,
+     percentualDiferenca:situacao==='FATURADO'?pct:null,faturamentoDivergente:situacao==='FATURADO'?diverge:false,
+     justificativaDivergencia:situacao==='FATURADO'&&diverge?just:''
+   });
+   window.fecharFaturamentoOS();renderKanban();window.abrirDetalheOS(o.id||o.internalId);
+   toast(diverge&&situacao==='FATURADO'?'OS encerrada com divergência de faturamento registrada.':'OS encerrada administrativamente.');
+ }catch(e){
+   console.error('[Assistência] faturamento',e);
+   alert('Não foi possível encerrar a OS. Verifique as Security Rules.\n\n'+(e?.message||e));
+ }finally{
+   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-check"></i> Encerrar OS';
+ }
+};
 
 
 function relTxt(v){return esc(v===undefined||v===null||v===''?'-':v)}
@@ -3341,7 +3486,7 @@ window.enviarAnexosEquipamento=async function(){
  }
 };
 window.excluirAnexoEquipamento=async function(id){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq||!confirm('Excluir este anexo? Esta ação removerá o arquivo do Storage.'))return;try{const all=await read('os_arquivos'),a=all.find(x=>x.id===id);if(!a)throw new Error('Anexo não encontrado.');const api=await storageApi();if(a.storagePath)await api.deleteObject(api.ref(api.storage,a.storagePath));if(!window.fsDeleteDoc||!window.fsDoc)throw new Error('core.js não expôs fsDeleteDoc/fsDoc.');await window.fsDeleteDoc(window.fsDoc(window.AppDB,...BASE,'os_arquivos',id));await addHistory(o,'ANEXO_EXCLUIDO','Arquivo excluído',a.nome||'',{equipamentoId:eq.internalId||eq.id,equipamentoModelo:eq.modelo||'',arquivoId:id});await window.carregarAnexosEquipamento();renderHistoricoOS(o);toast('Anexo excluído.')}catch(e){console.error('[Assistência] excluir anexo',e);alert('Não foi possível excluir o anexo.\n\n'+(e?.message||e))}};
-window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Tipo',tipoAtendimentoLabel(o)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rslot=document.getElementById('slot-reabrir-os');if(rslot)rslot.innerHTML=(stg==='ENCERRADOS'&&window.temPermissaoAssistencia?.('reabrir_os'))?'<button class="btn btn-light reabrir-only" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button>':'';const retSlot=document.getElementById('slot-retorno-externo');if(retSlot)retSlot.innerHTML=(osTemRetornoExterno(o)&&window.temPermissaoAssistencia?.('tratar_retorno_externo'))?'<button class="btn btn-primary" onclick="window.abrirRetornoExterno()"><i class="fa-solid fa-truck-arrow-right"></i> Tratar retorno externo</button>':'';fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>';if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
+window.abrirDetalheOS=function(id){const o=state.os.find(x=>x.id===id||x.internalId===id);if(!o){toast('OS não encontrada.');return}state.selectedOS=o;document.getElementById('detalhe-numero').textContent=o.osNumber||o.numero||'OS sem número';document.getElementById('detalhe-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';const boxes=[['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],['Tipo',tipoAtendimentoLabel(o)],['Prioridade',o.prioridade||'NORMAL'],['Origem',o.origem||'MANUAL'],['Técnico',o.tecnicoNome||o.tecnico||'A definir'],['Criada em',fmtDate(o.createdAtISO||o.createdAt)],['Atualizada em',fmtDate(o.updatedAtISO||o.updatedAt)],['ID interno',o.internalId||o.id],['Criada por',o.criadoPorNome||o.criadoPorEmail||'-']];document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';renderHistoricoOS(o);document.getElementById('modal-detalhe-os').classList.remove('hidden');const fb=document.getElementById('detalhe-faturamento-box'),fs=document.getElementById('detalhe-faturamento-status'),fbtn=document.getElementById('btn-abrir-faturamento');const stg=normStage(o.etapaKanban||o.status);const rslot=document.getElementById('slot-reabrir-os');if(rslot)rslot.innerHTML=(stg==='ENCERRADOS'&&window.temPermissaoAssistencia?.('reabrir_os'))?'<button class="btn btn-light reabrir-only" onclick="window.abrirReabrirOS()"><i class="fa-solid fa-rotate-left"></i> Reabrir OS</button>':'';const retSlot=document.getElementById('slot-retorno-externo');if(retSlot)retSlot.innerHTML=(osTemRetornoExterno(o)&&window.temPermissaoAssistencia?.('tratar_retorno_externo'))?'<button class="btn btn-primary" onclick="window.abrirRetornoExterno()"><i class="fa-solid fa-truck-arrow-right"></i> Tratar retorno externo</button>':'';fb?.classList.toggle('hidden',!['FATURAMENTO','ENCERRADOS'].includes(stg));if(fs&&stg==='FATURAMENTO'){fs.innerHTML='<b class="text-amber-700">Pendente de faturamento</b><div class="mt-1 text-slate-500">Finalização técnica concluída. Falta o encerramento administrativo.</div>';if(fbtn)fbtn.classList.remove('hidden')}else if(fs&&stg==='ENCERRADOS'){const fat=o.situacaoFaturamento==='NAO_FATURAVEL';const ap=Number(o.valorOrcamentoAprovadoNoEncerramento||0),vf=Number(o.valorFaturado||0),df=Number(o.diferencaFaturamento||0);fs.innerHTML='<b class="text-emerald-700">Encerrado</b><div class="mt-1 text-slate-500">'+(fat?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+esc(o.numeroNF):'')))+'</div>'+(fat?`<div class="fat-audit-summary"><div class="fat-audit-item"><span>Orçamento aprovado</span><b>${moedaBR(ap)}</b></div><div class="fat-audit-item"><span>Situação</span><b>Não faturável</b></div><div class="fat-audit-item"><span>Motivo</span><b>${esc(o.observacaoFaturamento||'-')}</b></div></div>`:`<div class="fat-audit-summary"><div class="fat-audit-item"><span>Aprovado</span><b>${moedaBR(ap)}</b></div><div class="fat-audit-item"><span>Faturado</span><b>${moedaBR(vf)}</b></div><div class="fat-audit-item"><span>Diferença</span><b class="${Math.abs(df)>0.01?'text-amber-700':'text-emerald-700'}">${df>0?'+ ':''}${moedaBR(df)}</b></div></div>${o.faturamentoDivergente?`<div class="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-2 text-[10px] text-amber-900"><b>Justificativa da diferença:</b> ${esc(o.justificativaDivergenciaFaturamento||'-')}</div>`:''}`);if(fbtn)fbtn.classList.add('hidden')}renderEquipamentosOS(o)};
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
 window.toastDetalheIndisponivel=(nome)=>toast(`${nome}: será liberado em uma próxima fase.`);
 window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);await addHistory({id:internalId,...data},'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push({id:internalId,...data});renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tipo-atendimento').value='INTERNO';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
@@ -3390,7 +3535,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.52 — materiais do técnico no celular
+// FASE 1.53 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -3854,7 +3999,7 @@ function pendingCenterInfo(o){
  return {p,stage,overdue,semTecnico};
 }
 
-// FASE 1.52 — Tratamento administrativo após atendimento externo
+// FASE 1.53 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4305,7 +4450,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.52 — exclusão lógica de equipamento e OS
+// FASE 1.53 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -4428,7 +4573,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.52 — reabertura controlada por ciclos
+// FASE 1.53 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4548,7 +4693,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.52 — duplicação controlada de OS
+// FASE 1.53 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4693,7 +4838,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.52 — conciliação de materiais no fechamento da OS
+// FASE 1.53 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
