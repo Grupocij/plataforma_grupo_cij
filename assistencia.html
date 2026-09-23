@@ -777,6 +777,19 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:560px){.sla-config-grid{grid-template-columns:1fr}.sla-config-card{padding:.8rem}}
 </style>
 
+
+<style id="fase155-permissoes-ui">
+.perm-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.perm-preset{display:flex;align-items:center;justify-content:flex-start;gap:.35rem;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;border-radius:.65rem;padding:.48rem .55rem;font-size:.58rem;font-weight:900;text-align:left}
+.perm-preset:hover{background:#dbeafe}.perm-preset.gestor{grid-column:1/-1;background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9}
+.tech-lock-box.locked{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.tech-lock-box.allowed{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.tech-readonly{background:#f8fafc!important;color:#64748b!important;cursor:not-allowed!important}
+#modal-solicitacao-orcamento .tech-req-row.locked{opacity:.78}
+#modal-solicitacao-orcamento .tech-req-row.locked .icon-btn{display:none!important}
+@media(max-width:520px){.perm-preset-grid{grid-template-columns:1fr}.perm-preset.gestor{grid-column:auto}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -784,7 +797,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.54</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.55</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -825,7 +838,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
               <h3 class="text-sm font-black text-slate-900 mt-1">Prazo máximo por prioridade</h3>
               <p class="text-[11px] text-slate-500 mt-1">Os valores abaixo são metas operacionais e podem ser ajustados pelo administrativo.</p>
             </div>
-            <button id="btn-salvar-sla" class="btn btn-primary" onclick="window.salvarConfiguracaoSLA()"><i class="fa-solid fa-floppy-disk"></i> Salvar metas</button>
+            <button id="btn-salvar-sla" data-assist-perm="configurar_sla" class="btn btn-primary" onclick="window.salvarConfiguracaoSLA()"><i class="fa-solid fa-floppy-disk"></i> Salvar metas</button>
           </div>
           <div class="sla-config-grid mt-4">
             <label><span class="field-label">BAIXA</span><div class="sla-hours-input"><input id="sla-meta-baixa" type="number" min="1" step="1" class="input" value="72"><span>horas</span></div></label>
@@ -1204,9 +1217,10 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
  <div class="modal-card !max-w-none" style="width:min(920px,100%)">
   <div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.35</span><h2 class="text-xl font-black mt-2">Solicitação técnica para orçamento</h2><p id="sorc-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharSolicitacaoOrcamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="tech-req-info mt-5"><div class="flex flex-wrap items-center justify-between gap-2"><div class="text-xs font-black text-cyan-900">Base técnica do orçamento</div><span id="sorc-status" class="rev-status rev-elab">EM ELABORAÇÃO TÉCNICA</span></div><p class="text-[11px] text-cyan-800 mt-2">O técnico informa peças, tempo e serviço recomendado. Os valores comerciais não são preenchidos nesta etapa. A revisão pode corrigir estas informações antes do envio ao Comercial.</p></div>
+  <div id="sorc-lock-aviso" class="hidden mt-3 rounded-xl border p-3 text-xs"></div>
   <div class="mt-5 grid md:grid-cols-2 gap-4"><label><span class="field-label">Serviço recomendado</span><textarea id="sorc-servico" class="input min-h-24" placeholder="Descreva o serviço necessário..."></textarea></label><label><span class="field-label">Observações técnicas</span><textarea id="sorc-obs" class="input min-h-24" placeholder="Informações úteis para revisão e orçamento..."></textarea></label></div>
   <div class="mt-4 grid md:grid-cols-3 gap-3"><label><span class="field-label">Tempo estimado de serviço (horas)</span><input id="sorc-horas" class="input" type="number" min="0" step="0.25" placeholder="Ex.: 3"></label><label><span class="field-label">Deslocamento / visita</span><select id="sorc-deslocamento" class="input"><option value="NAO">Não</option><option value="SIM">Sim</option></select></label><label><span class="field-label">Prioridade técnica</span><select id="sorc-prioridade" class="input"><option>NORMAL</option><option>ALTA</option><option>URGENTE</option></select></label></div>
-  <div class="mt-5"><div class="flex items-center justify-between"><div><div class="section-title">Peças / materiais necessários</div><div class="text-[10px] text-slate-500 mt-1">Sem preço de venda nesta etapa.</div></div><button class="btn btn-light" onclick="window.adicionarPecaSolicitacaoOrcamento()"><i class="fa-solid fa-plus"></i> Adicionar</button></div><div id="sorc-pecas" class="space-y-2 mt-3"></div></div>
+  <div class="mt-5"><div class="flex items-center justify-between"><div><div class="section-title">Peças / materiais necessários</div><div class="text-[10px] text-slate-500 mt-1">Sem preço de venda nesta etapa.</div></div><button id="btn-sorc-add-peca" class="btn btn-light" onclick="window.adicionarPecaSolicitacaoOrcamento()"><i class="fa-solid fa-plus"></i> Adicionar</button></div><div id="sorc-pecas" class="space-y-2 mt-3"></div></div>
   <label id="sorc-devolucao-wrap" class="block mt-4 hidden"><span class="field-label">Motivo / orientação da devolução</span><textarea id="sorc-devolucao" class="input min-h-20" placeholder="Informe o que deve ser corrigido pelo técnico..."></textarea></label>
   <div class="mt-5 border-t pt-4 review-actions"><button onclick="window.fecharSolicitacaoOrcamento()" class="btn btn-light">Fechar</button><button id="btn-sorc-salvar" onclick="window.salvarSolicitacaoOrcamento(false)" class="btn btn-light"><i class="fa-solid fa-floppy-disk"></i> Salvar rascunho</button><button id="btn-sorc-enviar" onclick="window.salvarSolicitacaoOrcamento(true)" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Enviar para revisão</button><button id="btn-sorc-devolver" data-assist-perm="revisar_solicitacao" onclick="window.revisarSolicitacaoOrcamento('DEVOLVIDO_CORRECAO')" class="btn btn-light hidden" style="color:#be123c"><i class="fa-solid fa-rotate-left"></i> Devolver para correção</button><button id="btn-sorc-aprovar" data-assist-perm="revisar_solicitacao" onclick="window.revisarSolicitacaoOrcamento('APROVADO_TECNICAMENTE')" class="btn btn-primary hidden"><i class="fa-solid fa-check"></i> Aprovar e enviar ao Comercial</button></div>
  </div>
@@ -1321,6 +1335,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
       </label>
     </div>
 
+    <div id="diag-lock-aviso" class="hidden mt-4 rounded-xl border p-3 text-xs"></div>
     <div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
       <b>Regra da Fase 1.6:</b> o diagnóstico pertence ao equipamento da OS. Ele não altera o cadastro oficial do Parque de Máquinas.
     </div>
@@ -1339,7 +1354,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.54</span>
+        <span class="tag tag-green">FASE 1.55</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1522,6 +1537,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
       <button onclick="window.fecharEditarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
+    <div id="edit-eq-lock-aviso" class="hidden mt-4 rounded-xl border p-3 text-xs"></div>
     <div id="edit-eq-parque-aviso" class="hidden mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
       <b>Equipamento vinculado ao Parque:</b> as alterações feitas aqui valem somente para esta OS e não modificam o cadastro oficial do Parque de Máquinas.
     </div>
@@ -1594,6 +1610,17 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
    <div>
     <span class="field-label">Usuário</span>
     <select id="perm-usuario" class="input" onchange="window.carregarPermissoesUsuario()"></select>
+    <div class="mt-4">
+      <span class="field-label">Perfis rápidos</span>
+      <div class="perm-preset-grid mt-2">
+        <button type="button" class="perm-preset" onclick="window.aplicarPresetPermissoesAssistencia('TECNICO')"><i class="fa-solid fa-screwdriver-wrench"></i> Técnico</button>
+        <button type="button" class="perm-preset" onclick="window.aplicarPresetPermissoesAssistencia('REVISOR')"><i class="fa-solid fa-clipboard-check"></i> Revisor</button>
+        <button type="button" class="perm-preset" onclick="window.aplicarPresetPermissoesAssistencia('COMERCIAL')"><i class="fa-solid fa-file-invoice-dollar"></i> Comercial</button>
+        <button type="button" class="perm-preset" onclick="window.aplicarPresetPermissoesAssistencia('ADMIN')"><i class="fa-solid fa-gears"></i> Administrativo</button>
+        <button type="button" class="perm-preset gestor" onclick="window.aplicarPresetPermissoesAssistencia('GESTOR')"><i class="fa-solid fa-shield-halved"></i> Gestor completo</button>
+      </div>
+      <div id="perm-preset-status" class="text-[10px] text-slate-500 mt-2">Os perfis apenas preenchem as opções. Você pode ajustar antes de salvar.</div>
+    </div>
     <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 mt-3 text-xs text-slate-600">
      <b>Importante:</b> ocultar um botão melhora a interface, mas operações sensíveis também devem ser protegidas pelas Security Rules do Firebase.
     </div>
@@ -1619,7 +1646,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.54 — Offline essencial para atendimento externo
+// FASE 1.55 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -2037,7 +2064,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.54 — OS interna x externa e recolhimento para laboratório
+// FASE 1.55 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2644,10 +2671,23 @@ function statusSolicitacaoLabel(st){return ({EM_ELABORACAO_TECNICA:'EM ELABORAÇ
 function renderControlesSolicitacao(st){
  st=String(st||'EM_ELABORACAO_TECNICA').toUpperCase();
  const wait=st==='AGUARDANDO_REVISAO',approved=st==='APROVADO_TECNICAMENTE',returned=st==='DEVOLVIDO_CORRECAO';
- document.getElementById('btn-sorc-salvar')?.classList.toggle('hidden',approved);
+ const reviewer=window.temPermissaoAssistencia('revisar_solicitacao');
+ const readonly=approved||(wait&&!reviewer);
+
+ document.getElementById('btn-sorc-salvar')?.classList.toggle('hidden',wait||approved);
  document.getElementById('btn-sorc-enviar')?.classList.toggle('hidden',wait||approved);
- document.getElementById('btn-sorc-devolver')?.classList.toggle('hidden',!wait);
- document.getElementById('btn-sorc-aprovar')?.classList.toggle('hidden',!wait);
+ document.getElementById('btn-sorc-devolver')?.classList.toggle('hidden',!wait||!reviewer);
+ document.getElementById('btn-sorc-aprovar')?.classList.toggle('hidden',!wait||!reviewer);
+ document.getElementById('btn-sorc-add-peca')?.classList.toggle('hidden',readonly);
+
+ ['sorc-servico','sorc-obs','sorc-horas','sorc-deslocamento','sorc-prioridade'].forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;el.disabled=readonly;el.classList.toggle('tech-readonly',readonly);
+ });
+ document.querySelectorAll('#sorc-pecas .tech-req-row').forEach(row=>{
+   row.classList.toggle('locked',readonly);
+   row.querySelectorAll('input').forEach(el=>{el.disabled=readonly;el.classList.toggle('tech-readonly',readonly)});
+ });
+
  const wrap=document.getElementById('sorc-devolucao-wrap');
  if(wrap){
    wrap.classList.toggle('hidden',!(wait||returned));
@@ -2655,16 +2695,32 @@ function renderControlesSolicitacao(st){
  }
  const area=document.getElementById('sorc-devolucao');
  if(area){
-   area.readOnly=returned;
+   area.readOnly=returned||!reviewer;
+   area.disabled=approved;
    area.placeholder=returned?'Orientação registrada na devolução. Corrija os campos técnicos acima e envie novamente para revisão.':'Informe o que deve ser corrigido pelo técnico...';
  }
+
+ const lock=document.getElementById('sorc-lock-aviso');
+ if(lock){
+   const show=wait||approved;
+   lock.classList.toggle('hidden',!show);
+   if(show){
+     lock.className='mt-3 rounded-xl border p-3 text-xs tech-lock-box '+(approved||!reviewer?'locked':'allowed');
+     lock.innerHTML=approved
+       ? '<b><i class="fa-solid fa-lock mr-1"></i>Solicitação técnica aprovada e congelada.</b> Esta versão é a base auditável do orçamento e não pode mais ser modificada.'
+       : reviewer
+         ? '<b><i class="fa-solid fa-clipboard-check mr-1"></i>Em revisão técnica.</b> Você pode ajustar os dados antes de aprovar ou devolver para correção.'
+         : '<b><i class="fa-solid fa-lock mr-1"></i>Aguardando revisão.</b> O técnico não pode alterar a solicitação enquanto ela estiver com o revisor.';
+   }
+ }
+
  const badge=document.getElementById('sorc-status');
  if(badge){badge.textContent=statusSolicitacaoLabel(st);badge.className='rev-status '+(approved?'rev-ok':wait?'rev-wait':returned?'rev-return':'rev-elab')}
 }
 window.abrirSolicitacaoOrcamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!eq){toast('Equipamento não encontrado.');return}state.selectedEquipment=eq;let req=null;try{const all=await readSub(o.internalId||o.id,'solicitacoes_orcamento');const ciclo=Number(o.cicloAtendimento||1);req=all.filter(x=>String(x.equipamentoId||'')===String(eq.id||eq.internalId)&&Number(x.cicloAtendimento||1)===ciclo).sort((a,b)=>String(b.updatedAtISO||b.createdAtISO||'').localeCompare(String(a.updatedAtISO||a.createdAtISO||'')))[0]||null}catch(e){console.warn('[Assistência] solicitação orçamento',e)}state.selectedTechBudgetRequest=req;document.getElementById('sorc-equip-titulo').textContent=(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN: '+eq.numeroSerie:'');document.getElementById('sorc-servico').value=req?.servicoRecomendado||eq.solucaoRecomendada||'';document.getElementById('sorc-obs').value=req?.observacoesTecnicas||'';document.getElementById('sorc-horas').value=req?.horasEstimadas??'';document.getElementById('sorc-deslocamento').value=req?.necessitaDeslocamento||'NAO';document.getElementById('sorc-prioridade').value=req?.prioridadeTecnica||'NORMAL';document.getElementById('sorc-devolucao').value=req?.motivoDevolucao||'';const box=document.getElementById('sorc-pecas');box.innerHTML='';(req?.pecas||[]).forEach(x=>window.adicionarPecaSolicitacaoOrcamento(x));if(!(req?.pecas||[]).length)window.adicionarPecaSolicitacaoOrcamento();renderControlesSolicitacao(req?.statusSolicitacao||'EM_ELABORACAO_TECNICA');document.getElementById('modal-solicitacao-orcamento').classList.remove('hidden')};
 window.fecharSolicitacaoOrcamento=function(){document.getElementById('modal-solicitacao-orcamento')?.classList.add('hidden');state.selectedTechBudgetRequest=null};
 function coletarSolicitacaoTecnica(){return {servicoRecomendado:document.getElementById('sorc-servico').value.trim(),observacoesTecnicas:document.getElementById('sorc-obs').value.trim(),horasEstimadas:Number(document.getElementById('sorc-horas').value||0),necessitaDeslocamento:document.getElementById('sorc-deslocamento').value,prioridadeTecnica:document.getElementById('sorc-prioridade').value,pecas:[...document.querySelectorAll('#sorc-pecas .tech-req-row')].map(r=>({descricao:r.querySelector('.sorc-peca-desc')?.value.trim()||'',quantidade:Number(r.querySelector('.sorc-peca-qtd')?.value||0)})).filter(x=>x.descricao&&x.quantidade>0)}}
-window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const atual=state.selectedTechBudgetRequest,motivoAnterior=atual?.motivoDevolucao||atual?.motivoDevolucaoAnterior||'',now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),statusSolicitacao:status,motivoDevolucaoAnterior:motivoAnterior,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});if(enviar){await autoAtualizarStatusEquipamento(o,eq,'AGUARDANDO_ORCAMENTO','AGUARDANDO_REVISAO')}else{await autoAtualizarStatusEquipamento(o,eq,'EM_DIAGNOSTICO','SOLICITACAO_TECNICA_EM_ELABORACAO')}await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode'))await window.renderAtendimentoTecnico?.();toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
+window.salvarSolicitacaoOrcamento=async function(enviar){const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;const atual=state.selectedTechBudgetRequest,statusAtual=String(atual?.statusSolicitacao||'EM_ELABORACAO_TECNICA').toUpperCase();if(statusAtual==='APROVADO_TECNICAMENTE'){alert('Esta solicitação técnica já foi aprovada e está congelada. Crie um novo ciclo/atendimento quando for necessária uma nova base técnica.');return}if(statusAtual==='AGUARDANDO_REVISAO'){alert('A solicitação está aguardando revisão e não pode ser alterada pelo fluxo técnico.');return}const dados=coletarSolicitacaoTecnica();if(!dados.servicoRecomendado){alert('Informe o serviço recomendado.');return}if(dados.horasEstimadas<=0){alert('Informe o tempo estimado de serviço.');return}const motivoAnterior=atual?.motivoDevolucao||atual?.motivoDevolucaoAnterior||'',now=new Date().toISOString(),rid=atual?.internalId||atual?.id||window.crypto?.randomUUID?.()||('sorc_'+Date.now()),status=enviar?'AGUARDANDO_REVISAO':(String(atual?.statusSolicitacao||'')==='DEVOLVIDO_CORRECAO'?'DEVOLVIDO_CORRECAO':'EM_ELABORACAO_TECNICA');const data={...dados,internalId:rid,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),statusSolicitacao:status,motivoDevolucaoAnterior:motivoAnterior,updatedAtISO:now,createdAtISO:atual?.createdAtISO||now,criadoPorUid:atual?.criadoPorUid||window.currentUser?.uid||'',criadoPorNome:atual?.criadoPorNome||window.nomeUsuarioLogado||window.userProfile?.nome||'',ultimaEdicaoPorUid:window.currentUser?.uid||'',ultimaEdicaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};try{if(atual)await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);else await saveSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,data);state.selectedTechBudgetRequest=data;await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoId:rid,solicitacaoOrcamentoStatus:status});if(enviar){await autoAtualizarStatusEquipamento(o,eq,'AGUARDANDO_ORCAMENTO','AGUARDANDO_REVISAO')}else{await autoAtualizarStatusEquipamento(o,eq,'EM_DIAGNOSTICO','SOLICITACAO_TECNICA_EM_ELABORACAO')}await addHistory(o,'SOLICITACAO_ORCAMENTO',enviar?'Solicitação enviada para revisão':'Solicitação técnica salva',statusSolicitacaoLabel(status),{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(status);await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode'))await window.renderAtendimentoTecnico?.();toast(enviar?'Solicitação enviada. Status: Aguardando revisão.':'Solicitação técnica salva.')}catch(e){console.error(e);alert('Não foi possível salvar a solicitação técnica.\n\n'+(e?.message||e))}};
 window.revisarSolicitacaoOrcamento=async function(decisao){if(!window.exigirPermissaoAssistencia('revisar_solicitacao'))return;const o=state.selectedOS,eq=state.selectedEquipment,req=state.selectedTechBudgetRequest;if(!o||!eq||!req)return;const dados=coletarSolicitacaoTecnica(),motivo=document.getElementById('sorc-devolucao').value.trim();if(decisao==='DEVOLVIDO_CORRECAO'&&!motivo){alert('Informe o motivo/orientação da devolução.');return}if(dados.horasEstimadas<=0||!dados.servicoRecomendado){alert('Revise o serviço recomendado e o tempo estimado antes de concluir a revisão.');return}const now=new Date().toISOString(),rid=req.internalId||req.id;try{await mergeSubDoc(o.internalId||o.id,'solicitacoes_orcamento',rid,{...dados,statusSolicitacao:decisao,motivoDevolucao:decisao==='DEVOLVIDO_CORRECAO'?motivo:'',revisadoEmISO:now,revisadoPorUid:window.currentUser?.uid||'',revisadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now});Object.assign(req,dados,{statusSolicitacao:decisao,motivoDevolucao:motivo,updatedAtISO:now});await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{solicitacaoOrcamentoStatus:decisao,solicitacaoOrcamentoRevisadaEmISO:now,updatedAtISO:now});Object.assign(eq,{solicitacaoOrcamentoStatus:decisao});if(decisao==='APROVADO_TECNICAMENTE'){await autoAtualizarStatusEquipamento(o,eq,'AGUARDANDO_ORCAMENTO','AGUARDANDO_ORCAMENTO')}else{const p={statusEquipamento:'EM_DIAGNOSTICO',statusDetalhado:'DEVOLVIDO_CORRECAO',updatedAtISO:now};await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,p);Object.assign(eq,p);await recalcOSStage(o,o._equipamentos||[])}await addHistory(o,'REVISAO_TECNICA',decisao==='APROVADO_TECNICAMENTE'?'Solicitação aprovada tecnicamente':'Solicitação devolvida para correção',decisao==='APROVADO_TECNICAMENTE'?'Encaminhada ao Comercial':motivo,{equipamentoId:eq.id||eq.internalId,solicitacaoOrcamentoId:rid});renderControlesSolicitacao(decisao);await renderEquipamentosOS(o);toast(decisao==='APROVADO_TECNICAMENTE'?'Aprovado tecnicamente. Disponível para o Comercial montar o orçamento.':'Devolvido para correção.')}catch(e){console.error(e);alert('Não foi possível registrar a revisão.\n\n'+(e?.message||e))}};
 
 window.abrirOrcamentoEquipamento=async function(eid){if(!window.exigirPermissaoAssistencia('editar_orcamento'))return;
@@ -2945,6 +3001,53 @@ window.salvarCheckoutEquipamento=async function(){
   }
 };
 
+
+function assistTecnicaJaRevisada(eq){
+ const req=String(eq?.solicitacaoOrcamentoStatus||'').toUpperCase();
+ const st=String(eq?.statusEquipamento||'PENDENTE').toUpperCase();
+ return req==='APROVADO_TECNICAMENTE'||!!eq?.ultimoOrcamentoId||['AGUARDANDO_EXECUCAO','EM_EXECUCAO','CONCLUIDO'].includes(st);
+}
+function assistPodeEditarTecnicaPosRevisao(eq){
+ return !assistTecnicaJaRevisada(eq)||window.temPermissaoAssistencia('editar_tecnico_pos_revisao');
+}
+function assistSetDisabled(ids,disabled){
+ ids.forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;
+   el.disabled=!!disabled;
+   el.classList.toggle('tech-readonly',!!disabled);
+ });
+}
+function aplicarBloqueioDiagnostico(eq){
+ const locked=assistTecnicaJaRevisada(eq),allowed=window.temPermissaoAssistencia('editar_tecnico_pos_revisao');
+ const bloqueado=locked&&!allowed,box=document.getElementById('diag-lock-aviso');
+ assistSetDisabled(['diag-defeito','diag-diagnostico','diag-causa','diag-solucao','diag-condicao','diag-orcamento'],bloqueado);
+ const btn=document.getElementById('btn-salvar-diagnostico');if(btn)btn.classList.toggle('hidden',bloqueado);
+ if(box){
+   box.classList.toggle('hidden',!locked);
+   if(locked){
+     box.className='mt-4 rounded-xl border p-3 text-xs tech-lock-box '+(allowed?'allowed':'locked');
+     box.innerHTML=allowed
+       ? '<b><i class="fa-solid fa-key mr-1"></i>Edição pós-revisão autorizada.</b> Alterações no diagnóstico ficam registradas no histórico, mas não alteram o snapshot técnico de orçamentos já criados.'
+       : '<b><i class="fa-solid fa-lock mr-1"></i>Dados técnicos protegidos.</b> Esta solicitação já passou pela revisão técnica / processo comercial. Seu usuário pode consultar o diagnóstico, mas não alterá-lo.';
+   }
+ }
+}
+function aplicarBloqueioEdicaoEquipamento(eq){
+ const locked=assistTecnicaJaRevisada(eq),allowed=window.temPermissaoAssistencia('editar_tecnico_pos_revisao'),bloqueado=locked&&!allowed;
+ assistSetDisabled(['edit-eq-marca','edit-eq-modelo','edit-eq-sn','edit-eq-tag','edit-eq-obs'],bloqueado);
+ const btn=document.getElementById('btn-salvar-editar-equipamento');if(btn)btn.classList.toggle('hidden',bloqueado);
+ const box=document.getElementById('edit-eq-lock-aviso');
+ if(box){
+   box.classList.toggle('hidden',!locked);
+   if(locked){
+     box.className='mt-4 rounded-xl border p-3 text-xs tech-lock-box '+(allowed?'allowed':'locked');
+     box.innerHTML=allowed
+       ? '<b><i class="fa-solid fa-key mr-1"></i>Edição autorizada após revisão.</b> Toda alteração ficará registrada somente nesta OS e na auditoria.'
+       : '<b><i class="fa-solid fa-lock mr-1"></i>Equipamento protegido após revisão.</b> Consulte os dados normalmente; para alterá-los é necessária a permissão de edição técnica pós-revisão.';
+   }
+ }
+}
+
 window.abrirDiagnosticoEquipamento=function(eid){
   const o=state.selectedOS;if(!o)return;
   const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);
@@ -2957,6 +3060,7 @@ window.abrirDiagnosticoEquipamento=function(eid){
   document.getElementById('diag-solucao').value=eq.solucaoRecomendada||'';
   document.getElementById('diag-condicao').value=eq.condicaoEncontrada||'NAO_INFORMADA';
   document.getElementById('diag-orcamento').value=eq.necessitaOrcamento||'NAO_DEFINIDO';
+  aplicarBloqueioDiagnostico(eq);
   document.getElementById('modal-diagnostico-equipamento').classList.remove('hidden');
 };
 window.fecharDiagnosticoEquipamento=function(){
@@ -2979,6 +3083,7 @@ async function autoAtualizarStatusEquipamento(o,eq,status,statusDetalhado,extra=
 
 window.salvarDiagnosticoEquipamento=async function(){
   const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;
+  if(!assistPodeEditarTecnicaPosRevisao(eq)){alert('Os dados técnicos estão protegidos após a revisão. Seu usuário não possui permissão para alterá-los.');return}
   const diagnostico=document.getElementById('diag-diagnostico').value.trim();
   if(!diagnostico){alert('Informe o diagnóstico técnico.');return}
   const btn=document.getElementById('btn-salvar-diagnostico');
@@ -3000,7 +3105,7 @@ window.salvarDiagnosticoEquipamento=async function(){
     await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,data);
     Object.assign(eq,data);
     await autoAtualizarStatusEquipamento(o,eq,'EM_DIAGNOSTICO','DIAGNOSTICO_CONCLUIDO');
-    await addHistory(o,'DIAGNOSTICO','Diagnóstico técnico registrado',diagnostico,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',statusAutomatico:'EM_DIAGNOSTICO'});
+    await addHistory(o,'DIAGNOSTICO','Diagnóstico técnico registrado',diagnostico,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',statusAutomatico:'EM_DIAGNOSTICO',edicaoPosRevisao:assistTecnicaJaRevisada(eq)});
     window.fecharDiagnosticoEquipamento();
     await renderEquipamentosOS(o);
     if(document.body.classList.contains('tech-app-mode'))await window.renderAtendimentoTecnico?.();
@@ -3024,7 +3129,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.54 — leitura de QR Code / número de série do equipamento
+// FASE 1.55 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3180,7 +3285,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.54 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.55 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -3591,7 +3696,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.54 — materiais do técnico no celular
+// FASE 1.55 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -4018,7 +4123,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.54 — SLA configurável por prioridade
+// FASE 1.55 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -4079,6 +4184,7 @@ async function carregarConfiguracaoSLA(){
   if(st)st.textContent=assistSLAConfig.configurado?'Configuração salva'+(assistSLAConfig.updatedAtISO?' · '+fmtDate(assistSLAConfig.updatedAtISO):''):'Usando metas iniciais editáveis.';
 }
 window.salvarConfiguracaoSLA=async function(){
+  if(!window.exigirPermissaoAssistencia('configurar_sla'))return;
   const get=id=>Number(document.getElementById(id)?.value||0);
   const cfg={BAIXA:get('sla-meta-baixa'),NORMAL:get('sla-meta-normal'),ALTA:get('sla-meta-alta'),URGENTE:get('sla-meta-urgente'),avisoPercentual:get('sla-aviso-percentual')};
   if(Object.values(cfg).some(v=>!Number.isFinite(v)||v<=0)){alert('Informe valores válidos para todas as metas.');return}
@@ -4152,7 +4258,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.54 — Tratamento administrativo após atendimento externo
+// FASE 1.55 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4333,7 +4439,8 @@ const ASSIST_PERMISSIONS=[
  ['tratar_retorno_externo','Tratar retorno de atendimento externo'],
  ['alterar_tecnicos','Alterar técnicos da OS'],
  ['liberar_execucao','Liberar para execução'],
- ['editar_tecnico_pos_revisao','Editar dados técnicos após revisão'],
+ ['editar_tecnico_pos_revisao','Editar diagnóstico / dados técnicos após revisão'],
+ ['configurar_sla','Configurar metas de SLA'],
  ['faturar_encerrar','Faturar / encerrar OS'],
  ['reabrir_os','Reabrir OS'],
  ['duplicar_os','Duplicar OS'],
@@ -4370,6 +4477,24 @@ window.aplicarPermissoesAssistencia=function(){
  ];
  map.forEach(([sel,p])=>document.querySelectorAll(sel).forEach(el=>el.classList.toggle('hidden',!window.temPermissaoAssistencia(p))));
  document.querySelectorAll('[data-assist-perm]').forEach(el=>{const p=el.getAttribute('data-assist-perm');el.classList.toggle('hidden',!window.temPermissaoAssistencia(p));});
+};
+
+
+const ASSIST_PERMISSION_PRESETS={
+ TECNICO:[],
+ REVISOR:['revisar_solicitacao','editar_tecnico_pos_revisao'],
+ COMERCIAL:['editar_orcamento','conceder_desconto','registrar_aprovacao'],
+ ADMIN:['tratar_retorno_externo','alterar_tecnicos','liberar_execucao','configurar_sla','faturar_encerrar','reabrir_os','duplicar_os'],
+ GESTOR:'ALL'
+};
+window.aplicarPresetPermissoesAssistencia=function(nome){
+ const uid=document.getElementById('perm-usuario')?.value;
+ if(!uid){alert('Selecione primeiro o usuário.');return}
+ const preset=ASSIST_PERMISSION_PRESETS[nome];
+ const allow=preset==='ALL'?ASSIST_PERMISSIONS.map(x=>x[0]):(preset||[]);
+ document.querySelectorAll('#perm-grid [data-perm]').forEach(el=>el.checked=allow.includes(el.getAttribute('data-perm')));
+ const labels={TECNICO:'Técnico de campo',REVISOR:'Revisor técnico',COMERCIAL:'Comercial',ADMIN:'Administrativo',GESTOR:'Gestor completo'};
+ const st=document.getElementById('perm-preset-status');if(st)st.textContent='Perfil aplicado: '+(labels[nome]||nome)+'. Revise as opções e clique em Salvar permissões.';
 };
 
 window.abrirTrocaTecnicos=function(){
@@ -4458,6 +4583,7 @@ window.abrirEditarEquipamento=function(eid){
   document.getElementById('edit-eq-sn').value=eq.numeroSerie||'';
   document.getElementById('edit-eq-tag').value=eq.identificacaoLocal||'';
   document.getElementById('edit-eq-obs').value=eq.observacao||'';
+  aplicarBloqueioEdicaoEquipamento(eq);
 
   document.getElementById('edit-eq-parque-aviso')?.classList.toggle('hidden',String(eq.tipo||'').toUpperCase()!=='PARQUE');
   document.getElementById('modal-editar-equipamento').classList.remove('hidden');
@@ -4469,6 +4595,7 @@ window.fecharEditarEquipamento=function(){
 
 window.salvarEditarEquipamento=async function(){
   const o=state.selectedOS,eq=state.selectedEquipment;if(!o||!eq)return;
+  if(!assistPodeEditarTecnicaPosRevisao(eq)){alert('Este equipamento já passou pela revisão técnica. Seu usuário não possui permissão para alterar seus dados nesta etapa.');return}
 
   const modelo=document.getElementById('edit-eq-modelo').value.trim();
   if(!modelo){alert('Informe o modelo do equipamento.');return}
@@ -4531,7 +4658,8 @@ window.salvarEditarEquipamento=async function(){
         equipamentoModelo:novo.modelo,
         equipamentoNumeroSerie:novo.numeroSerie,
         alteracoes:alteracoes.map(k=>({campo:k,antes:anterior[k]||'',depois:novo[k]||''})),
-        alteraParqueOficial:false
+        alteraParqueOficial:false,
+        edicaoPosRevisao:assistTecnicaJaRevisada(eq)
       }
     );
 
@@ -4603,7 +4731,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.54 — exclusão lógica de equipamento e OS
+// FASE 1.55 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -4726,7 +4854,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.54 — reabertura controlada por ciclos
+// FASE 1.55 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4846,7 +4974,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.54 — duplicação controlada de OS
+// FASE 1.55 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4991,7 +5119,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.54 — conciliação de materiais no fechamento da OS
+// FASE 1.55 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
