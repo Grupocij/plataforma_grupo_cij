@@ -1081,7 +1081,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.65</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.66</button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
@@ -1113,7 +1113,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.65</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.66</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -3330,7 +3330,7 @@ window.alterarStatusEquipamento=async function(eid,status){
  if(novo==='AGUARDANDO_ORCAMENTO'){
    const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
    if(!['AGUARDANDO_REVISAO','APROVADO_TECNICAMENTE'].includes(req)&&!eq.ultimoOrcamentoId){
-     const issues=[integrityIssue('WARN','STATUS_ORCAMENTO_SEM_BASE','Etapa de orçamento sem base técnica','Antes de avançar manualmente, registre a solicitação técnica para orçamento.',{equipamentoId:eq.id||eq.internalId})];
+     const issues=[integrityIssue('ERROR','STATUS_ORCAMENTO_SEM_BASE','Etapa de orçamento sem base técnica','Antes de avançar manualmente, registre a solicitação técnica para orçamento.',{equipamentoId:eq.id||eq.internalId})];
      abrirIntegridadeBloqueante(o,issues,'Alteração de status');return;
    }
  }
@@ -5718,7 +5718,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.65';
+const ASSISTENCIA_BUILD='1.66';
 const ASSISTENCIA_SW_FILE='assistencia-sw-v4.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -6247,58 +6247,105 @@ function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
 function integrityAtivos(o){
   return (o?._equipamentos||[]).filter(e=>e?.ativo!==false&&!['RECUSADO','CANCELADO'].includes(String(e.statusEquipamento||'').toUpperCase()));
 }
+
+// FASE 1.66 — integridade baseada em dados realmente carregados
+function integrityEquipamentosCarregados(o){
+  return Array.isArray(o?._equipamentos);
+}
+async function integrityCarregarEquipamentos(o){
+  if(!o)return {ok:false,items:[],error:'OS não informada'};
+  try{
+    const all=await readSub(o.internalId||o.id,'equipamentos');
+    const items=(all||[]).filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
+    o._equipamentos=items;
+    return {ok:true,items,error:''};
+  }catch(e){
+    return {ok:false,items:[],error:String(e?.message||e)};
+  }
+}
+function integrityRequisicoesVinculadas(o,reqs){
+  const osid=String(o?.internalId||o?.id||'');
+  const osnum=String(o?.osNumber||o?.numero||'');
+  const ciclo=Number(o?.cicloAtendimento||1);
+  return (reqs||[]).filter(r=>{
+    const mesmaOS=(!!r?.osId&&String(r.osId)===osid)||(!!r?.os&&String(r.os)===osnum);
+    if(!mesmaOS)return false;
+    const rc=r?.cicloAtendimento;
+    // Registros legados sem ciclo pertencem somente ao primeiro ciclo.
+    if(rc===undefined||rc===null||rc==='')return ciclo===1;
+    return Number(rc)===ciclo;
+  });
+}
+function integrityTecnicosOS(o){
+  return (Array.isArray(o?.tecnicoIds)&&o.tecnicoIds.length?o.tecnicoIds:[o?.tecnicoId||o?.tecnicoUid]).filter(Boolean);
+}
+
 function verificarIntegridadeOSLocal(o){
   const issues=[];
   if(!o)return issues;
+
   const stage=normStage(o.etapaKanban||o.etapa||o.status);
-  const ativos=integrityAtivos(o);
+  const temEquipamentosCarregados=integrityEquipamentosCarregados(o);
+  const ativos=temEquipamentosCarregados?integrityAtivos(o):[];
   const tipo=String(o.tipoAtendimento||'INTERNO').toUpperCase();
-  const tecnicoIds=(Array.isArray(o.tecnicoIds)&&o.tecnicoIds.length?o.tecnicoIds:[o.tecnicoId||o.tecnicoUid]).filter(Boolean);
+  const tecnicoIds=integrityTecnicosOS(o);
 
   if(!tecnicoIds.length){
     issues.push(integrityIssue('ERROR','SEM_TECNICO','OS sem técnico responsável','Defina ao menos um técnico responsável para evitar atendimento sem responsável.'));
   }
-  if(!ativos.length&&stage!=='ENCERRADOS'){
-    issues.push(integrityIssue('WARN','SEM_EQUIPAMENTO','OS sem equipamento ativo','A OS está aberta, mas não possui equipamento ativo vinculado.'));
+
+  // Só conclui "sem equipamento" quando a subcoleção foi realmente lida.
+  if(temEquipamentosCarregados&&!ativos.length&&stage!=='ENCERRADOS'){
+    issues.push(integrityIssue('WARN','SEM_EQUIPAMENTO','OS sem equipamento ativo','A subcoleção foi verificada e a OS não possui equipamento ativo vinculado.'));
   }
 
-  ativos.forEach(eq=>{
-    const st=String(eq.statusEquipamento||'PENDENTE').toUpperCase();
-    const modelo=eq.modelo||eq.nome||'Equipamento';
-    const sn=eq.numeroSerie?` · SN ${eq.numeroSerie}`:'';
-    const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
-    const orc=String(eq.ultimoOrcamentoStatus||'').toUpperCase();
+  if(temEquipamentosCarregados){
+    ativos.forEach(eq=>{
+      const st=String(eq.statusEquipamento||'PENDENTE').toUpperCase();
+      const modelo=eq.modelo||eq.nome||'Equipamento';
+      const sn=eq.numeroSerie?` · SN ${eq.numeroSerie}`:'';
+      const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
+      const orc=String(eq.ultimoOrcamentoStatus||'').toUpperCase();
 
-    if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
-      issues.push(integrityIssue('ERROR','CONCLUIDO_SEM_CHECKOUT','Equipamento concluído sem checkout',`${modelo}${sn} está como Concluído, porém não possui registro de checkout.`,{equipamentoId:eq.id||eq.internalId}));
-    }
-    if(st==='EM_EXECUCAO'&&tipo==='INTERNO'){
-      const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
-      if(!agendado){
-        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_AGENDAMENTO','Execução interna sem agendamento',`${modelo}${sn} está em execução sem agendamento válido da OS.`,{equipamentoId:eq.id||eq.internalId}));
+      if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
+        issues.push(integrityIssue('ERROR','CONCLUIDO_SEM_CHECKOUT','Equipamento concluído sem checkout',`${modelo}${sn} está como Concluído, porém não possui registro de checkout.`,{equipamentoId:eq.id||eq.internalId}));
       }
-      if(orc!=='APROVADO'){
-        issues.push(integrityIssue('ERROR','EXECUCAO_SEM_APROVACAO','Execução sem orçamento aprovado',`${modelo}${sn} está em execução, mas o último orçamento não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
-      }
-    }
-    if(['AGUARDANDO_EXECUCAO','EM_EXECUCAO'].includes(st)&&tipo==='INTERNO'&&orc!=='APROVADO'){
-      issues.push(integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Etapa de execução incompatível com orçamento',`${modelo}${sn} está em fase de execução sem aprovação comercial válida.`,{equipamentoId:eq.id||eq.internalId}));
-    }
-    if(req==='APROVADO_TECNICAMENTE'&&!eq.ultimoOrcamentoId&&st!=='CONCLUIDO'){
-      issues.push(integrityIssue('WARN','REVISAO_SEM_ORCAMENTO','Base técnica aprovada sem orçamento comercial',`${modelo}${sn} já foi aprovado tecnicamente, mas ainda não possui orçamento comercial criado.`,{equipamentoId:eq.id||eq.internalId}));
-    }
-    if(st==='RECOLHIDO_LABORATORIO'&&tipo!=='INTERNO'){
-      issues.push(integrityIssue('WARN','RECOLHIDO_OS_EXTERNA','Equipamento recolhido com OS ainda externa',`${modelo}${sn} foi recolhido para laboratório, mas a OS permanece como Externo / Campo.`,{equipamentoId:eq.id||eq.internalId}));
-    }
-    if(st==='AGUARDANDO_ADMINISTRATIVO'){
-      issues.push(integrityIssue('WARN','RETORNO_CAMPO_PENDENTE','Retorno externo aguardando tratamento',`${modelo}${sn} aguarda uma decisão administrativa após atendimento em campo.`,{equipamentoId:eq.id||eq.internalId}));
-    }
-  });
 
-  const todosConcluidos=ativos.length>0&&ativos.every(e=>String(e.statusEquipamento||'').toUpperCase()==='CONCLUIDO');
-  if(stage==='FATURAMENTO'&&!todosConcluidos){
-    issues.push(integrityIssue('ERROR','FATURAMENTO_PREMATURO','OS em faturamento com equipamento não concluído','A etapa geral está em Aguardando faturamento, mas existe equipamento ativo ainda não concluído.'));
+      if(st==='EM_EXECUCAO'&&tipo==='INTERNO'){
+        const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
+        if(!agendado){
+          issues.push(integrityIssue('ERROR','EXECUCAO_SEM_AGENDAMENTO','Execução interna sem agendamento',`${modelo}${sn} está em execução sem agendamento válido da OS.`,{equipamentoId:eq.id||eq.internalId}));
+        }
+        if(orc!=='APROVADO'){
+          issues.push(integrityIssue('ERROR','EXECUCAO_SEM_APROVACAO','Execução sem orçamento aprovado',`${modelo}${sn} está em execução, mas o último orçamento não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
+        }
+      }
+
+      // Não duplica EXECUCAO_SEM_APROVACAO: este código vale apenas antes da liberação.
+      if(st==='AGUARDANDO_EXECUCAO'&&tipo==='INTERNO'&&orc!=='APROVADO'){
+        issues.push(integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Aguardando execução sem aprovação comercial',`${modelo}${sn} aguarda liberação para execução, mas o orçamento ainda não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+
+      if(req==='APROVADO_TECNICAMENTE'&&!eq.ultimoOrcamentoId&&st!=='CONCLUIDO'){
+        issues.push(integrityIssue('WARN','REVISAO_SEM_ORCAMENTO','Base técnica aprovada sem orçamento comercial',`${modelo}${sn} já foi aprovado tecnicamente, mas ainda não possui orçamento comercial criado.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+
+      if(st==='RECOLHIDO_LABORATORIO'&&tipo!=='INTERNO'){
+        issues.push(integrityIssue('WARN','RECOLHIDO_OS_EXTERNA','Equipamento recolhido com OS ainda externa',`${modelo}${sn} foi recolhido para laboratório, mas a OS permanece como Externo / Campo.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+
+      if(st==='AGUARDANDO_ADMINISTRATIVO'){
+        issues.push(integrityIssue('WARN','RETORNO_CAMPO_PENDENTE','Retorno externo aguardando tratamento',`${modelo}${sn} aguarda uma decisão administrativa após atendimento em campo.`,{equipamentoId:eq.id||eq.internalId}));
+      }
+    });
+
+    const todosConcluidos=ativos.length>0&&ativos.every(e=>String(e.statusEquipamento||'').toUpperCase()==='CONCLUIDO');
+    if(stage==='FATURAMENTO'&&!todosConcluidos){
+      issues.push(integrityIssue('ERROR','FATURAMENTO_PREMATURO','OS em faturamento com equipamento não concluído','A etapa geral está em Aguardando faturamento, mas existe equipamento ativo ainda não concluído.'));
+    }
   }
+
+  // Regras exclusivamente da OS podem ser verificadas mesmo sem hidratar equipamentos.
   if(stage==='ENCERRADOS'){
     if(!o.encerradoAdministrativamente){
       issues.push(integrityIssue('ERROR','ENCERRADO_SEM_FECHAMENTO','OS encerrada sem encerramento administrativo','A etapa está Encerrados, mas o marcador de encerramento administrativo não foi gravado.'));
@@ -6306,7 +6353,7 @@ function verificarIntegridadeOSLocal(o){
     if(o.situacaoFaturamento==='FATURADO'&&(!o.numeroNF||!o.faturadoEmData)){
       issues.push(integrityIssue('ERROR','FATURADO_SEM_NF','Faturamento incompleto','A OS está marcada como faturada, porém falta número da NF ou data do faturamento.'));
     }
-    if(o.situacaoFaturamento==='FATURADO'&&o.valorFaturado==='' ){
+    if(o.situacaoFaturamento==='FATURADO'&&o.valorFaturado===''){
       issues.push(integrityIssue('WARN','FATURADO_SEM_VALOR','Valor faturado não registrado','A OS foi encerrada como faturada sem valor faturado registrado.'));
     }
   }
@@ -6318,26 +6365,32 @@ function verificarIntegridadeOSLocal(o){
   return issues;
 }
 async function verificarIntegridadeOSCompleta(o){
+  const carga=await integrityCarregarEquipamentos(o);
   const issues=verificarIntegridadeOSLocal(o);
+
+  if(!carga.ok){
+    issues.push(integrityIssue('WARN','EQUIPAMENTOS_NAO_VERIFICADOS','Equipamentos não puderam ser verificados','A subcoleção de equipamentos não respondeu. As regras da OS foram verificadas, mas a análise técnica ficou parcial.'));
+  }
+
   try{
     const reqs=await read('requisicoes_material');
-    const osid=String(o.internalId||o.id),osnum=String(o.osNumber||o.numero||''),ciclo=Number(o.cicloAtendimento||1);
-    const vinculadas=(reqs||[]).filter(r=>
-      (String(r.osId||'')===osid||String(r.os||'')===osnum) &&
-      Number(r.cicloAtendimento||1)===ciclo
-    );
+    const vinculadas=integrityRequisicoesVinculadas(o,reqs);
     const devolucao=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='AGUARDANDO_DEVOLUCAO');
+
     if(devolucao.length){
-      issues.push(integrityIssue('WARN','MATERIAL_PENDENTE_DEVOLUCAO','Material aguardando devolução',`${devolucao.length} requisição(ões) desta OS ainda possuem material pendente de devolução pelo técnico.`));
+      const qtd=devolucao.reduce((a,r)=>a+Number(r.qtd_pendente_devolucao||r.qtd||0),0);
+      issues.push(integrityIssue('WARN','MATERIAL_PENDENTE_DEVOLUCAO','Material aguardando devolução',`${devolucao.length} requisição(ões) desta OS aguardam devolução${qtd?` · saldo total ${qtd}`:''}.`));
     }
+
     if(normStage(o.etapaKanban||o.etapa||o.status)==='ENCERRADOS'){
       const comTecnico=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='COM_TECNICO');
       if(comTecnico.length){
-        issues.push(integrityIssue('ERROR','ENCERRADO_COM_MATERIAL_TECNICO','OS encerrada com material ainda em poder do técnico',`${comTecnico.length} requisição(ões) continuam com status Com técnico após o encerramento.`));
+        const qtd=comTecnico.reduce((a,r)=>a+Number(r.qtd||0),0);
+        issues.push(integrityIssue('ERROR','ENCERRADO_COM_MATERIAL_TECNICO','OS encerrada com material ainda em poder do técnico',`${comTecnico.length} requisição(ões) permanecem como Com técnico${qtd?` · quantidade total ${qtd}`:''}.`));
       }
     }
   }catch(e){
-    issues.push(integrityIssue('WARN','MATERIAL_NAO_VERIFICADO','Materiais não puderam ser verificados','A leitura do módulo de Requisição de Material não respondeu. As demais verificações continuam válidas.'));
+    issues.push(integrityIssue('WARN','MATERIAL_NAO_VERIFICADO','Materiais não puderam ser verificados','A coleção oficial requisicoes_material não respondeu. As demais verificações continuam válidas.'));
   }
   return issues;
 }
@@ -6354,7 +6407,7 @@ function integrityIssueAction(issue,o){
   if(code==='REVISAO_SEM_ORCAMENTO'&&eid)return {label:'Criar orçamento',icon:'fa-file-invoice-dollar',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirOrcamentoEquipamento(eid)}};
   if(code==='RETORNO_CAMPO_PENDENTE'&&eid)return {label:'Tratar retorno',icon:'fa-route',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirRetornoExterno(o.id||o.internalId,eid)}};
   if(code==='RECOLHIDO_OS_EXTERNA')return {label:'Alterar tipo da OS',icon:'fa-right-left',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirAlterarTipoAtendimento()}};
-  if(code==='CONCLUIDO_SEM_CHECKOUT'&&eid)return {label:'Abrir checkout',icon:'fa-clipboard-check',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirCheckoutEquipamento(eid)}};
+  if(['CONCLUIDO_SEM_CHECKOUT','ENCERRAR_SEM_CHECKOUT'].includes(code)&&eid)return {label:'Abrir checkout',icon:'fa-clipboard-check',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirCheckoutEquipamento(eid)}};
   return {label:'Abrir detalhe da OS',icon:'fa-folder-open',fn:()=>{window.fecharVerificacaoIntegridadeOS();window.abrirDetalheOS(o.id||o.internalId)}};
 }
 window.executarCorrecaoIntegridade=function(index){
@@ -6364,36 +6417,44 @@ window.executarCorrecaoIntegridade=function(index){
   try{action?.fn?.()}catch(e){console.error('[Assistência] correção guiada',e);toast('Não foi possível abrir a correção sugerida.')}
 };
 async function verificarIntegridadePreEncerramento(o){
+  const carga=await integrityCarregarEquipamentos(o);
   const issues=verificarIntegridadeOSLocal(o);
-  const ativos=integrityAtivos(o);
-  if(!ativos.length){
-    issues.push(integrityIssue('ERROR','ENCERRAR_SEM_EQUIPAMENTO','Não é possível encerrar uma OS sem equipamento ativo','Inclua ao menos um equipamento ativo ou cancele a OS pelo fluxo apropriado.'));
+
+  if(!carga.ok){
+    issues.push(integrityIssue('ERROR','ENCERRAMENTO_EQUIPAMENTOS_NAO_VERIFICADOS','Não foi possível validar os equipamentos','O encerramento foi bloqueado porque a subcoleção de equipamentos não pôde ser lida neste momento.'));
   }else{
-    ativos.forEach(eq=>{
-      const st=String(eq.statusEquipamento||'PENDENTE').toUpperCase();
-      if(st!=='CONCLUIDO'){
-        issues.push(integrityIssue('ERROR','ENCERRAR_EQUIPAMENTO_PENDENTE','Equipamento ainda não concluído',`${eq.modelo||eq.nome||'Equipamento'} ainda está em ${statusLabel(st)}.`,{equipamentoId:eq.id||eq.internalId}));
-      }
-      if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
-        issues.push(integrityIssue('ERROR','ENCERRAR_SEM_CHECKOUT','Equipamento sem checkout válido',`${eq.modelo||eq.nome||'Equipamento'} precisa possuir checkout antes do faturamento.`,{equipamentoId:eq.id||eq.internalId}));
-      }
-    });
+    const ativos=integrityAtivos(o);
+    if(!ativos.length){
+      issues.push(integrityIssue('ERROR','ENCERRAR_SEM_EQUIPAMENTO','Não é possível encerrar uma OS sem equipamento ativo','Inclua ao menos um equipamento ativo ou cancele a OS pelo fluxo apropriado.'));
+    }else{
+      ativos.forEach(eq=>{
+        const st=String(eq.statusEquipamento||'PENDENTE').toUpperCase();
+        if(st!=='CONCLUIDO'){
+          issues.push(integrityIssue('ERROR','ENCERRAR_EQUIPAMENTO_PENDENTE','Equipamento ainda não concluído',`${eq.modelo||eq.nome||'Equipamento'} ainda está em ${statusLabel(st)}.`,{equipamentoId:eq.id||eq.internalId}));
+        }
+        // Checkout ausente já é coberto por CONCLUIDO_SEM_CHECKOUT em verificarIntegridadeOSLocal.
+      });
+    }
   }
+
   try{
     const reqs=await read('requisicoes_material');
-    const osid=String(o.internalId||o.id),osnum=String(o.osNumber||o.numero||''),ciclo=Number(o.cicloAtendimento||1);
-    const vinculadas=(reqs||[]).filter(r=>(String(r.osId||'')===osid||String(r.os||'')===osnum)&&Number(r.cicloAtendimento||1)===ciclo);
+    const vinculadas=integrityRequisicoesVinculadas(o,reqs);
     const comTecnico=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='COM_TECNICO');
     const devolucao=vinculadas.filter(r=>String(r.status||'').toUpperCase()==='AGUARDANDO_DEVOLUCAO');
+
     if(comTecnico.length){
-      issues.push(integrityIssue('ERROR','PREENCERRAMENTO_MATERIAL_COM_TECNICO','Material ainda em poder do técnico',`${comTecnico.length} requisição(ões) continuam como Com técnico. Confirme utilização ou devolução antes de encerrar.`));
+      const qtd=comTecnico.reduce((a,r)=>a+Number(r.qtd||0),0);
+      issues.push(integrityIssue('ERROR','PREENCERRAMENTO_MATERIAL_COM_TECNICO','Material ainda em poder do técnico',`${comTecnico.length} requisição(ões) continuam como Com técnico${qtd?` · quantidade total ${qtd}`:''}. Confirme utilização ou devolução antes de encerrar.`));
     }
     if(devolucao.length){
-      issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_DEVOLUCAO','Material aguardando devolução',`${devolucao.length} requisição(ões) possuem saldo aguardando devolução. A OS pode ser analisada, mas esta pendência permanecerá visível.`));
+      const qtd=devolucao.reduce((a,r)=>a+Number(r.qtd_pendente_devolucao||r.qtd||0),0);
+      issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_DEVOLUCAO','Material aguardando devolução',`${devolucao.length} requisição(ões) possuem saldo aguardando devolução${qtd?` · quantidade total ${qtd}`:''}. A pendência permanecerá visível após o encerramento.`));
     }
   }catch(e){
-    issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_NAO_VERIFICADO','Materiais não puderam ser verificados','Não foi possível consultar as requisições de material neste momento.'));
+    issues.push(integrityIssue('WARN','PREENCERRAMENTO_MATERIAL_NAO_VERIFICADO','Materiais não puderam ser verificados','Não foi possível consultar requisicoes_material neste momento.'));
   }
+
   return issues;
 }
 function abrirIntegridadeBloqueante(o,issues,acao){
@@ -6459,9 +6520,18 @@ window.fecharVerificacaoIntegridadeOS=function(){document.getElementById('modal-
 function renderCentralPendencias(){
  const box=document.getElementById('pending-center-list'),kpis=document.getElementById('pending-center-kpis');if(!box||!kpis)return;
  const all=(state.os||[]).filter(o=>normStage(o.etapaKanban||o.etapa||o.status)!=='ENCERRADOS');
- const infos=all.map(o=>{const integrity=verificarIntegridadeOSLocal(o),intSummary=integrityResumo(integrity);return {o,...pendingCenterInfo(o),retornoExterno:osTemRetornoExterno(o),integrity,intSummary}});
- const admin=infos.filter(x=>x.p.tipo==='admin').length,retornos=infos.filter(x=>x.retornoExterno).length,overdue=infos.filter(x=>x.overdue).length,sem=infos.filter(x=>x.semTecnico).length,incons=infos.filter(x=>x.integrity.length).length;
- kpis.innerHTML=`<div class="kpi-card"><span class="kpi-label">Pendências abertas</span><strong class="kpi-value text-amber-600">${infos.length}</strong></div><div class="kpi-card"><span class="kpi-label">Administrativas</span><strong class="kpi-value text-blue-700">${admin}</strong></div><div class="kpi-card"><span class="kpi-label">Retornos externos</span><strong class="kpi-value text-violet-700">${retornos}</strong></div><div class="kpi-card"><span class="kpi-label">Inconsistências</span><strong class="kpi-value text-rose-600">${incons}</strong></div><div class="kpi-card"><span class="kpi-label">Agendamentos atrasados</span><strong class="kpi-value text-rose-600">${overdue}</strong></div><div class="kpi-card"><span class="kpi-label">Sem técnico</span><strong class="kpi-value text-slate-700">${sem}</strong></div>`;
+ const infos=all.map(o=>{
+   const integrity=verificarIntegridadeOSLocal(o),intSummary=integrityResumo(integrity),integrityFull=integrityEquipamentosCarregados(o);
+   return {o,...pendingCenterInfo(o),retornoExterno:integrityFull?osTemRetornoExterno(o):false,integrity,intSummary,integrityFull};
+ });
+ const admin=infos.filter(x=>x.p.tipo==='admin').length,
+       retornos=infos.filter(x=>x.retornoExterno).length,
+       overdue=infos.filter(x=>x.overdue).length,
+       sem=infos.filter(x=>x.semTecnico).length,
+       incons=infos.filter(x=>x.integrity.length).length;
+
+ kpis.innerHTML=`<div class="kpi-card"><span class="kpi-label">Pendências abertas</span><strong class="kpi-value text-amber-600">${infos.length}</strong></div><div class="kpi-card"><span class="kpi-label">Administrativas</span><strong class="kpi-value text-blue-700">${admin}</strong></div><div class="kpi-card"><span class="kpi-label">Retornos externos</span><strong class="kpi-value text-violet-700">${retornos}</strong></div><div class="kpi-card"><span class="kpi-label">Inconsistências carregadas</span><strong class="kpi-value text-rose-600">${incons}</strong></div><div class="kpi-card"><span class="kpi-label">Agendamentos atrasados</span><strong class="kpi-value text-rose-600">${overdue}</strong></div><div class="kpi-card"><span class="kpi-label">Sem técnico</span><strong class="kpi-value text-slate-700">${sem}</strong></div>`;
+
  const q=(document.getElementById('pending-center-search')?.value||'').trim().toLowerCase(),f=document.getElementById('pending-center-filter')?.value||'TODAS';
  let rows=infos.filter(x=>{
    if(f==='TECNICA'&&x.p.tipo==='admin')return false;
@@ -6470,17 +6540,27 @@ function renderCentralPendencias(){
    if(f==='INCONSISTENCIA'&&!x.integrity.length)return false;
    if(f==='ATRASADA'&&!x.overdue)return false;
    if(f==='SEM_TECNICO'&&!x.semTecnico)return false;
-   return true
+   return true;
  });
  if(q)rows=rows.filter(x=>JSON.stringify([x.o.osNumber,x.o.numero,x.o.clienteNome,x.o.cliente,x.o.tecnicoNome,x.o.tecnico,x.p.texto,x.stage,x.integrity]).toLowerCase().includes(q));
+
  const stageName=v=>stages.find(s=>s[0]===v)?.[1]||v;
  rows.sort((a,b)=>Number(b.intSummary.errors>0)-Number(a.intSummary.errors>0)||Number(b.retornoExterno)-Number(a.retornoExterno)||Number(b.overdue)-Number(a.overdue)||Number(b.p.tipo==='admin')-Number(a.p.tipo==='admin')||String(a.o.osNumber||a.o.numero||'').localeCompare(String(b.o.osNumber||b.o.numero||'')));
+
  box.innerHTML=rows.length?rows.map(x=>`<article class="pending-center-card ${x.intSummary.errors?'integrity-problem':x.overdue?'overdue':x.p.tipo==='admin'?'admin':''}" onclick="window.abrirDetalheOS('${esc(x.o.id)}')">
    <div class="flex items-start justify-between gap-3"><div><div class="os-number">${esc(x.o.osNumber||x.o.numero||'OS sem número')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(x.o.clienteNome||x.o.cliente||'Cliente não informado')}</div></div><span class="priority">${esc(x.o.prioridade||'NORMAL')}</span></div>
    <div class="mt-3 text-xs font-bold ${x.intSummary.errors?'text-rose-700':x.retornoExterno?'text-violet-700':x.overdue?'text-rose-700':x.p.tipo==='admin'?'text-blue-700':'text-amber-700'}"><i class="fa-solid ${x.intSummary.errors?'fa-circle-xmark':x.retornoExterno?'fa-truck-arrow-right':x.overdue?'fa-clock':'fa-triangle-exclamation'} mr-1"></i>${esc(x.intSummary.errors?x.intSummary.errors+' inconsistência(s) crítica(s) detectada(s)':x.retornoExterno?'Retorno de atendimento externo aguardando definição':x.overdue?'Agendamento atrasado — '+x.p.texto:x.p.texto)}</div>
-   <div class="pending-center-meta"><span class="pending-center-pill"><i class="fa-solid fa-layer-group"></i>${esc(stageName(x.stage))}</span><span class="pending-center-pill"><i class="fa-solid fa-user-gear"></i>${esc(x.o.tecnicoNome||x.o.tecnico||'Técnico a definir')}</span>${x.integrity.length?`<span class="pending-center-pill ${x.intSummary.errors?'overdue':'admin'}"><i class="fa-solid fa-stethoscope"></i>${x.integrity.length} alerta(s) de integridade</span>`:''}${x.o.agendadoParaISO?`<span class="pending-center-pill ${x.overdue?'overdue':''}"><i class="fa-solid fa-calendar-days"></i>${esc(fmtDate(x.o.agendadoParaISO))}</span>`:''}${x.p.tipo==='admin'?'<span class="pending-center-pill admin"><i class="fa-solid fa-file-invoice-dollar"></i>Administrativo</span>':''}${x.retornoExterno?'<span class="pending-center-pill admin"><i class="fa-solid fa-truck"></i>Retorno externo</span>':''}</div>
+   <div class="pending-center-meta">
+     <span class="pending-center-pill"><i class="fa-solid fa-layer-group"></i>${esc(stageName(x.stage))}</span>
+     <span class="pending-center-pill"><i class="fa-solid fa-user-gear"></i>${esc(x.o.tecnicoNome||x.o.tecnico||'Técnico a definir')}</span>
+     ${x.integrity.length?`<span class="pending-center-pill ${x.intSummary.errors?'overdue':'admin'}"><i class="fa-solid fa-stethoscope"></i>${x.integrity.length} alerta(s) de integridade</span>`:''}
+     ${!x.integrityFull?'<span class="pending-center-pill"><i class="fa-solid fa-circle-half-stroke"></i>Integridade parcial</span>':''}
+     ${x.o.agendadoParaISO?`<span class="pending-center-pill ${x.overdue?'overdue':''}"><i class="fa-solid fa-calendar-days"></i>${esc(fmtDate(x.o.agendadoParaISO))}</span>`:''}
+     ${x.p.tipo==='admin'?'<span class="pending-center-pill admin"><i class="fa-solid fa-file-invoice-dollar"></i>Administrativo</span>':''}
+     ${x.retornoExterno?'<span class="pending-center-pill admin"><i class="fa-solid fa-truck"></i>Retorno externo</span>':''}
+   </div>
    <div class="flex flex-wrap gap-2 mt-2">
-     ${x.integrity.length?`<button class="btn btn-light !text-[10px]" onclick="event.stopPropagation();state.selectedOS=(state.os||[]).find(o=>String(o.id||o.internalId)===String('${esc(x.o.id||x.o.internalId)}'));window.abrirVerificacaoIntegridadeOS()"><i class="fa-solid fa-stethoscope"></i> Verificar OS</button>`:''}
+     <button class="btn btn-light !text-[10px]" onclick="event.stopPropagation();state.selectedOS=(state.os||[]).find(o=>String(o.id||o.internalId)===String('${esc(x.o.id||x.o.internalId)}'));window.abrirVerificacaoIntegridadeOS()"><i class="fa-solid fa-stethoscope"></i> Verificar OS</button>
      ${x.retornoExterno&&window.temPermissaoAssistencia?.('tratar_retorno_externo')?`<button class="pending-return-btn !mt-0 !w-auto" onclick="event.stopPropagation();window.abrirRetornoExterno('${esc(x.o.id||x.o.internalId)}')"><i class="fa-solid fa-route"></i> Tratar retorno</button>`:''}
    </div>
  </article>`).join(''):'<div class="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center text-sm text-slate-500 col-span-full"><i class="fa-solid fa-circle-check text-emerald-500 text-xl mb-2"></i><br>Nenhuma pendência encontrada para este filtro.</div>';
@@ -6745,28 +6825,58 @@ window.liberarExecucaoEquipamento=async function(eid){
   const o=state.selectedOS;if(!o)return;
   const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
   if(!eq){toast('Equipamento não encontrado.');return}
+
   if(String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
-    alert('O equipamento só pode ser liberado após a aprovação do orçamento.');return;
+    alert('O equipamento só pode ser liberado após a aprovação do orçamento.');
+    return;
   }
+
   const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
-  if(!agendado){alert('Agende a OS antes de liberar o equipamento para execução.');return}
-  if(String(eq.statusEquipamento||'').toUpperCase()==='EM_EXECUCAO'){toast('Este equipamento já está liberado para execução.');return}
-  const gateIssues=verificarIntegridadeOSLocal(o).filter(x=>x.nivel==='ERROR'&&['SEM_TECNICO','FLUXO_COMERCIAL_INCOMPLETO','EXECUCAO_SEM_APROVACAO'].includes(x.codigo));
-  if(gateIssues.length){abrirIntegridadeBloqueante(o,gateIssues,'Liberação para execução');return}
+  if(!agendado){
+    alert('Agende a OS antes de liberar o equipamento para execução.');
+    return;
+  }
+
+  if(String(eq.statusEquipamento||'').toUpperCase()==='EM_EXECUCAO'){
+    toast('Este equipamento já está liberado para execução.');
+    return;
+  }
+
+  // A liberação de um equipamento não pode ser bloqueada por inconsistência comercial de outro equipamento da mesma OS.
+  const gateIssues=[];
+  if(!integrityTecnicosOS(o).length){
+    gateIssues.push(integrityIssue('ERROR','SEM_TECNICO','OS sem técnico responsável','Defina ao menos um técnico responsável antes de liberar a execução.'));
+  }
+  if(gateIssues.length){
+    abrirIntegridadeBloqueante(o,gateIssues,'Liberação para execução');
+    return;
+  }
+
   if(!confirm('Liberar '+(eq.modelo||'este equipamento')+' para execução?'))return;
+
   const now=new Date().toISOString();
   try{
-    const patch={statusEquipamento:'EM_EXECUCAO',statusDetalhado:'EM_EXECUCAO',liberadoExecucaoEmISO:now,
-      liberadoExecucaoPorUid:window.currentUser?.uid||'',liberadoExecucaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',updatedAtISO:now};
+    const patch={
+      statusEquipamento:'EM_EXECUCAO',statusDetalhado:'EM_EXECUCAO',
+      liberadoExecucaoEmISO:now,
+      liberadoExecucaoPorUid:window.currentUser?.uid||'',
+      liberadoExecucaoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+      updatedAtISO:now
+    };
     await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,patch);
     Object.assign(eq,patch);
     await addHistory(o,'LIBERACAO_EXECUCAO','Equipamento liberado para execução',
       (eq.modelo||'Equipamento')+(o.agendadoParaISO?' · Agendado: '+fmtDate(o.agendadoParaISO):''),
       {equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||''});
-    await recalcOSStage(o,o._equipamentos);await renderEquipamentosOS(o);renderModoTecnico();
+    await recalcOSStage(o,o._equipamentos);
+    await renderEquipamentosOS(o);
+    renderModoTecnico();
     toast('Equipamento liberado para execução.');
-  }catch(e){console.error('[Assistência] liberação execução',e);alert('Não foi possível liberar o equipamento para execução.\n\n'+(e?.message||e))}
-};
+  }catch(e){
+    console.error('[Assistência] liberação execução',e);
+    alert('Não foi possível liberar o equipamento para execução.\n\n'+(e?.message||e));
+  }
+}
 
 
 window.obterValorOrcamentoAprovadoOS=async function(o){
