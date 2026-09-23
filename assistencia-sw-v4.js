@@ -1,5 +1,5 @@
-const SW_VERSION='4.1.1';
-const APP_BUILD='1.64.1';
+const SW_VERSION='4.2.0';
+const APP_BUILD='1.65';
 const CACHE_SHELL='cij-assistencia-tecnico-v4-shell';
 const CACHE_RUNTIME='cij-assistencia-tecnico-v4-runtime';
 const SHELL=[
