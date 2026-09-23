@@ -755,6 +755,28 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:640px){.fat-audit-summary{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase154-sla-ui">
+.sla-config-card{border:1px solid #bfdbfe;background:linear-gradient(180deg,#f8fbff,#eff6ff);border-radius:1rem;padding:1rem}
+.sla-config-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+.sla-hours-input{display:flex;align-items:center;gap:.45rem}
+.sla-hours-input span{flex:none;font-size:.58rem;font-weight:900;color:#64748b}
+.sla-state{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.28rem .5rem;font-size:.55rem;font-weight:900;white-space:nowrap}
+.sla-state.ok{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.sla-state.warn{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.sla-state.danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+.sla-state.none{background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1}
+.sla-progress{min-width:120px}
+.sla-progress-line{height:.42rem;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:.25rem}
+.sla-progress-line span{display:block;height:100%;border-radius:999px;background:#10b981}
+.sla-progress-line.warn span{background:#f59e0b}.sla-progress-line.danger span{background:#e11d48}
+.sla-os-chip{display:inline-flex;border-radius:999px;padding:.22rem .42rem;font-size:.52rem;font-weight:900;background:#f1f5f9;color:#475569}
+.sla-os-chip.urgent{background:#fff1f2;color:#be123c}.sla-os-chip.high{background:#fff7ed;color:#c2410c}.sla-os-chip.low{background:#eff6ff;color:#1d4ed8}
+.os-card.sla-danger{box-shadow:0 0 0 2px #fecdd3 inset}.os-card.sla-warn{box-shadow:0 0 0 2px #fed7aa inset}
+@media(max-width:900px){.sla-config-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.sla-config-grid{grid-template-columns:1fr}.sla-config-card{padding:.8rem}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -762,7 +784,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.53</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.54</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -796,6 +818,29 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
           <button class="btn btn-light" onclick="window.atualizarSLAOperacional()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
         </div>
         <div id="sla-kpis" class="sla-grid mt-5"></div>
+        <div class="sla-config-card mt-5">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div>
+              <div class="text-[10px] uppercase font-black tracking-wide text-blue-600">Metas configuráveis</div>
+              <h3 class="text-sm font-black text-slate-900 mt-1">Prazo máximo por prioridade</h3>
+              <p class="text-[11px] text-slate-500 mt-1">Os valores abaixo são metas operacionais e podem ser ajustados pelo administrativo.</p>
+            </div>
+            <button id="btn-salvar-sla" class="btn btn-primary" onclick="window.salvarConfiguracaoSLA()"><i class="fa-solid fa-floppy-disk"></i> Salvar metas</button>
+          </div>
+          <div class="sla-config-grid mt-4">
+            <label><span class="field-label">BAIXA</span><div class="sla-hours-input"><input id="sla-meta-baixa" type="number" min="1" step="1" class="input" value="72"><span>horas</span></div></label>
+            <label><span class="field-label">NORMAL</span><div class="sla-hours-input"><input id="sla-meta-normal" type="number" min="1" step="1" class="input" value="48"><span>horas</span></div></label>
+            <label><span class="field-label">ALTA</span><div class="sla-hours-input"><input id="sla-meta-alta" type="number" min="1" step="1" class="input" value="24"><span>horas</span></div></label>
+            <label><span class="field-label">URGENTE</span><div class="sla-hours-input"><input id="sla-meta-urgente" type="number" min="1" step="1" class="input" value="8"><span>horas</span></div></label>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3 mt-4">
+            <label><span class="field-label">Aviso preventivo</span><div class="sla-hours-input"><input id="sla-aviso-percentual" type="number" min="1" max="99" step="1" class="input" value="75"><span>% da meta</span></div></label>
+            <div class="rounded-xl border border-slate-200 bg-white p-3 text-[11px] text-slate-600">
+              <b>Leitura:</b> até o percentual de aviso = dentro do prazo; acima dele = atenção; acima de 100% = SLA vencido.
+            </div>
+          </div>
+          <div id="sla-config-status" class="text-[10px] font-bold text-slate-500 mt-3">Carregando configuração...</div>
+        </div>
       </div>
       <div class="grid xl:grid-cols-2 gap-4">
         <section class="sla-panel">
@@ -812,7 +857,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
           <div><h3 class="section-title">OS há mais tempo em aberto</h3><p class="text-[11px] text-slate-500 mt-1">Prioriza os registros mais antigos para acompanhamento.</p></div>
           <div class="relative lg:w-80"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="sla-search" oninput="window.renderSLAOperacional()" class="input pl-9" placeholder="Buscar OS, cliente ou técnico..."></div>
         </div>
-        <div class="overflow-x-auto mt-3"><table class="sla-table"><thead><tr><th>OS</th><th>Cliente</th><th>Etapa</th><th>Técnico</th><th>Aberta há</th><th>Pendência atual</th></tr></thead><tbody id="sla-table-body"></tbody></table></div>
+        <div class="overflow-x-auto mt-3"><table class="sla-table"><thead><tr><th>OS</th><th>Cliente</th><th>Prioridade</th><th>Etapa</th><th>Técnico</th><th>Aberta há</th><th>Meta</th><th>SLA</th><th>Pendência atual</th></tr></thead><tbody id="sla-table-body"></tbody></table></div>
 
       <section class="sla-panel">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -1294,7 +1339,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.53</span>
+        <span class="tag tag-green">FASE 1.54</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1574,7 +1619,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.53 — Offline essencial para atendimento externo
+// FASE 1.54 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1947,7 +1992,18 @@ function pendenciaOS(o){
 async function carregarPendenciasOS(){
  await Promise.all((state.os||[]).map(async o=>{try{o._equipamentos=(await readSub(o.internalId||o.id,'equipamentos')).filter(e=>e?.is_deleted!==true&&e?.ativo!==false)}catch(_){o._equipamentos=o._equipamentos||[]}}));
 }
-function renderKanban(){const data=filtered(),b=document.getElementById('kanban-board');document.getElementById('empty-os').classList.toggle('hidden',(state.os||[]).filter(o=>o?.is_deleted!==true).length!==0);const counts={};stages.forEach(s=>counts[s[0]]=0);state.os.filter(o=>o?.is_deleted!==true).forEach(o=>counts[normStage(o.etapaKanban||o.etapa||o.status)]++);document.getElementById('kpi-os').textContent=(state.os||[]).filter(o=>o?.is_deleted!==true).length;document.getElementById('kpi-entrada').textContent=counts.ENTRADA;document.getElementById('kpi-triagem').textContent=counts.TRIAGEM;document.getElementById('kpi-orcamentos').textContent=counts.ORCAMENTOS;document.getElementById('kpi-agendamento').textContent=counts.AGENDAMENTO;document.getElementById('kpi-finalizados').textContent=counts.ENCERRADOS;b.innerHTML=stages.map(s=>{const rows=data.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)===s[0]);return `<div class="kanban-column"><div class="kanban-head"><span>${s[1]}</span><span class="kanban-count">${rows.length}</span></div><div class="kanban-cards">${rows.map(o=>`<div class="os-card" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${esc(p.texto)}</div>`})()}</div>`).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS</div>'}</div></div>`}).join('')}
+function renderKanban(){
+ const data=filtered(),b=document.getElementById('kanban-board');
+ document.getElementById('empty-os').classList.toggle('hidden',(state.os||[]).filter(o=>o?.is_deleted!==true).length!==0);
+ const counts={};stages.forEach(s=>counts[s[0]]=0);state.os.filter(o=>o?.is_deleted!==true).forEach(o=>counts[normStage(o.etapaKanban||o.etapa||o.status)]++);
+ document.getElementById('kpi-os').textContent=(state.os||[]).filter(o=>o?.is_deleted!==true).length;
+ document.getElementById('kpi-entrada').textContent=counts.ENTRADA;document.getElementById('kpi-triagem').textContent=counts.TRIAGEM;document.getElementById('kpi-orcamentos').textContent=counts.ORCAMENTOS;document.getElementById('kpi-agendamento').textContent=counts.AGENDAMENTO;document.getElementById('kpi-finalizados').textContent=counts.ENCERRADOS;
+ b.innerHTML=stages.map(sg=>{const rows=data.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)===sg[0]);return `<div class="kanban-column"><div class="kanban-head"><span>${sg[1]}</span><span class="kanban-count">${rows.length}</span></div><div class="kanban-cards">${rows.map(o=>{
+   const sla=normStage(o.etapaKanban||o.etapa||o.status)==='ENCERRADOS'?null:slaEstadoOS(o);
+   const slaCls=sla?.classe==='danger'?'sla-danger':sla?.classe==='warn'?'sla-warn':'';
+   return `<div class="os-card ${slaCls}" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${sla?`<div class="mt-2"><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)} · ${esc(slaMetaLabel(sla.meta))}</span></div>`:''}${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${esc(p.texto)}</div>`})()}</div>`;
+ }).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS</div>'}</div></div>`}).join('');
+}
 function isMinhaOS(o){
  const uid=String(window.currentUser?.uid||'').trim();
  const nome=String(window.nomeUsuarioLogado||window.userProfile?.nome||'').trim().toLowerCase();
@@ -1975,13 +2031,13 @@ function renderModoTecnico(){
 window.renderModoTecnico=renderModoTecnico;
 function clientLabel(x){return x.fantasia||x.razao_social||x.nomeFantasia||x.razaoSocial||x.nome||x.cliente||'Cliente sem nome'}
 function fillSelects(){const c=document.getElementById('nova-cliente'),u=document.getElementById('nova-tecnico');if(c)c.innerHTML='<option value="">Selecione o cliente</option>'+[...state.clientes].sort((a,b)=>clientLabel(a).localeCompare(clientLabel(b),'pt-BR')).map(x=>`<option value="${x.id}">${clientLabel(x)}</option>`).join('');if(u)u.innerHTML='<option value="">A definir</option>'+state.usuarios.map(x=>`<option value="${x.uid||x.id}">${x.nome||x.email||x.id}</option>`).join('')}
-async function load(){const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}const r={};for(const f of fontes){try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];/* coleção nova pode ainda não existir/ter regra */r[f[0]]={ok:false,error:e?.message||'erro'}}}renderIntegrations(r);renderLegacy();await carregarPendenciasOS();renderKanban();await assistOfflineRefreshPreparedMap?.();renderModoTecnico();renderCentralPendencias();renderSLAOperacional();renderProdutividadeTecnica();fillSelects();await window.carregarMinhasPermissoesAssistencia?.();window.aplicarPermissoesAssistencia?.();const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}toast('Dados atualizados.')}
+async function load(){const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}const r={};for(const f of fontes){try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];/* coleção nova pode ainda não existir/ter regra */r[f[0]]={ok:false,error:e?.message||'erro'}}}renderIntegrations(r);renderLegacy();await carregarPendenciasOS();await carregarConfiguracaoSLA();renderKanban();await assistOfflineRefreshPreparedMap?.();renderModoTecnico();renderCentralPendencias();renderSLAOperacional();renderProdutividadeTecnica();fillSelects();await window.carregarMinhasPermissoesAssistencia?.();window.aplicarPermissoesAssistencia?.();const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}toast('Dados atualizados.')}
 function fmtDate(v){if(!v)return'-';try{const d=v?.toDate?v.toDate():new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString('pt-BR')}catch(_){return String(v)}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.53 — OS interna x externa e recolhimento para laboratório
+// FASE 1.54 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -2968,7 +3024,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.53 — leitura de QR Code / número de série do equipamento
+// FASE 1.54 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3124,7 +3180,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.53 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.54 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -3535,7 +3591,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.53 — materiais do técnico no celular
+// FASE 1.54 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -3961,6 +4017,89 @@ function slaDateValue(v){
   return Number.isNaN(d.getTime())?null:d;
  }catch(_){return null}
 }
+
+// FASE 1.54 — SLA configurável por prioridade
+const SLA_CONFIG_DOC='config_sla_operacional';
+let assistSLAConfig={
+  BAIXA:72,
+  NORMAL:48,
+  ALTA:24,
+  URGENTE:8,
+  avisoPercentual:75,
+  configurado:false
+};
+
+function slaPrioridade(o){
+  const p=String(o?.prioridade||'NORMAL').toUpperCase();
+  return ['BAIXA','NORMAL','ALTA','URGENTE'].includes(p)?p:'NORMAL';
+}
+function slaMetaHoras(o){
+  const p=slaPrioridade(o);
+  return Math.max(1,Number(assistSLAConfig?.[p]||48));
+}
+function slaEstadoOS(o){
+  const h=slaAgeHours(o),meta=slaMetaHoras(o),aviso=Math.max(1,Math.min(99,Number(assistSLAConfig.avisoPercentual||75)));
+  if(h===null)return {status:'SEM_DATA',classe:'none',label:'Sem data',percentual:null,horas:h,meta};
+  const percentual=(h/meta)*100;
+  if(percentual>100)return {status:'VENCIDO',classe:'danger',label:'SLA vencido',percentual,horas:h,meta};
+  if(percentual>=aviso)return {status:'ATENCAO',classe:'warn',label:'Atenção',percentual,horas:h,meta};
+  return {status:'NO_PRAZO',classe:'ok',label:'No prazo',percentual,horas:h,meta};
+}
+function slaMetaLabel(h){
+  if(h<24)return h+'h';
+  const d=Math.floor(h/24),r=h%24;
+  return r?d+'d '+r+'h':d+'d';
+}
+function slaPrioridadeClasse(p){
+  return p==='URGENTE'?'urgent':p==='ALTA'?'high':p==='BAIXA'?'low':'';
+}
+async function carregarConfiguracaoSLA(){
+  try{
+    const arr=await read('assistencia_configuracoes');
+    const doc=arr.find(x=>String(x.id||x.internalId)===SLA_CONFIG_DOC);
+    if(doc){
+      assistSLAConfig={
+        BAIXA:Math.max(1,Number(doc.BAIXA||72)),
+        NORMAL:Math.max(1,Number(doc.NORMAL||48)),
+        ALTA:Math.max(1,Number(doc.ALTA||24)),
+        URGENTE:Math.max(1,Number(doc.URGENTE||8)),
+        avisoPercentual:Math.max(1,Math.min(99,Number(doc.avisoPercentual||75))),
+        configurado:true,
+        updatedAtISO:doc.updatedAtISO||''
+      };
+    }
+  }catch(e){console.warn('[Assistência] config SLA',e)}
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v};
+  set('sla-meta-baixa',assistSLAConfig.BAIXA);
+  set('sla-meta-normal',assistSLAConfig.NORMAL);
+  set('sla-meta-alta',assistSLAConfig.ALTA);
+  set('sla-meta-urgente',assistSLAConfig.URGENTE);
+  set('sla-aviso-percentual',assistSLAConfig.avisoPercentual);
+  const st=document.getElementById('sla-config-status');
+  if(st)st.textContent=assistSLAConfig.configurado?'Configuração salva'+(assistSLAConfig.updatedAtISO?' · '+fmtDate(assistSLAConfig.updatedAtISO):''):'Usando metas iniciais editáveis.';
+}
+window.salvarConfiguracaoSLA=async function(){
+  const get=id=>Number(document.getElementById(id)?.value||0);
+  const cfg={BAIXA:get('sla-meta-baixa'),NORMAL:get('sla-meta-normal'),ALTA:get('sla-meta-alta'),URGENTE:get('sla-meta-urgente'),avisoPercentual:get('sla-aviso-percentual')};
+  if(Object.values(cfg).some(v=>!Number.isFinite(v)||v<=0)){alert('Informe valores válidos para todas as metas.');return}
+  if(cfg.avisoPercentual>=100){alert('O aviso preventivo deve ser menor que 100%.');return}
+  const btn=document.getElementById('btn-salvar-sla'),now=new Date().toISOString();
+  try{
+    if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}
+    const payload={internalId:SLA_CONFIG_DOC,...cfg,updatedAtISO:now,updatedByUid:window.currentUser?.uid||'',updatedByNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};
+    await saveDoc('assistencia_configuracoes',SLA_CONFIG_DOC,payload);
+    assistSLAConfig={...cfg,configurado:true,updatedAtISO:now};
+    const st=document.getElementById('sla-config-status');if(st)st.textContent='Configuração salva · '+fmtDate(now);
+    renderSLAOperacional();renderKanban();renderCentralPendencias();
+    toast('Metas de SLA salvas.');
+  }catch(e){
+    console.error('[Assistência] salvar SLA',e);
+    alert('Não foi possível salvar as metas de SLA.\n\n'+(e?.message||e));
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar metas'}
+  }
+};
+
 function slaAgeHours(o){
  const d=slaDateValue(o?.createdAtISO||o?.createdAt||o?.criadoEmISO||o?.dataCriacao);
  return d?Math.max(0,(Date.now()-d.getTime())/3600000):null;
@@ -3974,19 +4113,33 @@ function slaAgeLabel(h){
 function renderSLAOperacional(){
  const k=document.getElementById('sla-kpis'),et=document.getElementById('sla-etapas'),fx=document.getElementById('sla-faixas'),tb=document.getElementById('sla-table-body');
  if(!k||!et||!fx||!tb)return;
- const abertas=(state.os||[]).filter(o=>normStage(o.etapaKanban||o.etapa||o.status)!=='ENCERRADOS').map(o=>({o,h:slaAgeHours(o)}));
- const comData=abertas.filter(x=>x.h!==null),ate24=comData.filter(x=>x.h<24).length,de24a72=comData.filter(x=>x.h>=24&&x.h<72).length,mais72=comData.filter(x=>x.h>=72).length;
+ const abertas=(state.os||[]).filter(o=>normStage(o.etapaKanban||o.etapa||o.status)!=='ENCERRADOS').map(o=>({o,h:slaAgeHours(o),sla:slaEstadoOS(o)}));
+ const comData=abertas.filter(x=>x.h!==null),noprazo=abertas.filter(x=>x.sla.status==='NO_PRAZO').length,atencao=abertas.filter(x=>x.sla.status==='ATENCAO').length,vencido=abertas.filter(x=>x.sla.status==='VENCIDO').length;
  const media=comData.length?comData.reduce((a,x)=>a+x.h,0)/comData.length:0;
- k.innerHTML=`<div class="kpi-card"><span class="kpi-label">OS abertas</span><strong class="kpi-value text-blue-700">${abertas.length}</strong></div><div class="kpi-card"><span class="kpi-label">Até 24 horas</span><strong class="kpi-value text-emerald-600">${ate24}</strong></div><div class="kpi-card"><span class="kpi-label">Acima de 72 horas</span><strong class="kpi-value text-rose-600">${mais72}</strong></div><div class="kpi-card"><span class="kpi-label">Idade média</span><strong class="kpi-value text-slate-700">${comData.length?slaAgeLabel(media):'-'}</strong></div>`;
+ k.innerHTML=`<div class="kpi-card"><span class="kpi-label">OS abertas</span><strong class="kpi-value text-blue-700">${abertas.length}</strong></div><div class="kpi-card"><span class="kpi-label">Dentro do SLA</span><strong class="kpi-value text-emerald-600">${noprazo}</strong></div><div class="kpi-card"><span class="kpi-label">Em atenção</span><strong class="kpi-value text-amber-600">${atencao}</strong></div><div class="kpi-card"><span class="kpi-label">SLA vencido</span><strong class="kpi-value text-rose-600">${vencido}</strong></div>`;
  const total=Math.max(1,abertas.length),stageName=v=>stages.find(s=>s[0]===v)?.[1]||v;
  et.innerHTML=stages.filter(s=>s[0]!=='ENCERRADOS').map(sg=>{const n=abertas.filter(x=>normStage(x.o.etapaKanban||x.o.etapa||x.o.status)===sg[0]).length,p=Math.round(n*100/total);return `<div><div class="flex justify-between text-xs"><b>${esc(sg[1])}</b><span class="text-slate-500">${n} · ${p}%</span></div><div class="sla-bar"><span style="width:${p}%"></span></div></div>`}).join('');
- const faixas=[['Até 24 horas',ate24],['24 a 72 horas',de24a72],['Acima de 72 horas',mais72],['Sem data de criação',abertas.length-comData.length]];
- fx.innerHTML=faixas.map(([nome,n])=>{const p=Math.round(n*100/total);return `<div><div class="flex justify-between text-xs"><b>${esc(nome)}</b><span class="text-slate-500">${n} · ${p}%</span></div><div class="sla-bar"><span style="width:${p}%"></span></div></div>`}).join('');
+ const faixas=[['Dentro do SLA',noprazo],['Em atenção',atencao],['SLA vencido',vencido],['Sem data de criação',abertas.filter(x=>x.sla.status==='SEM_DATA').length]];
+ fx.innerHTML=faixas.map(([nome,n],idx)=>{const p=Math.round(n*100/total),cls=idx===2?'danger':idx===1?'warn':'';return `<div><div class="flex justify-between text-xs"><b>${esc(nome)}</b><span class="text-slate-500">${n} · ${p}%</span></div><div class="sla-bar ${cls}"><span style="width:${p}%"></span></div></div>`}).join('');
  const q=(document.getElementById('sla-search')?.value||'').trim().toLowerCase();
  let rows=[...abertas];
- if(q)rows=rows.filter(x=>JSON.stringify([x.o.osNumber,x.o.numero,x.o.clienteNome,x.o.cliente,x.o.tecnicoNome,x.o.tecnico]).toLowerCase().includes(q));
- rows.sort((a,b)=>(b.h??-1)-(a.h??-1));
- tb.innerHTML=rows.length?rows.map(x=>{const o=x.o,p=pendenciaOS(o),cl=x.h!==null&&x.h>=72?'danger':x.h!==null&&x.h>=24?'warn':'';return `<tr class="cursor-pointer hover:bg-slate-50" onclick="window.abrirDetalheOS('${esc(o.id)}')"><td class="font-black text-blue-700">${esc(o.osNumber||o.numero||'OS')}</td><td class="font-bold">${esc(o.clienteNome||o.cliente||'-')}</td><td>${esc(stageName(normStage(o.etapaKanban||o.etapa||o.status)))}</td><td>${esc(o.tecnicoNome||o.tecnico||'A definir')}</td><td><span class="sla-age ${cl}">${esc(slaAgeLabel(x.h))}</span></td><td>${esc(p.texto)}</td></tr>`}).join(''):'<tr><td colspan="6" class="text-center text-slate-400 !py-8">Nenhuma OS encontrada.</td></tr>';
+ if(q)rows=rows.filter(x=>JSON.stringify([x.o.osNumber,x.o.numero,x.o.clienteNome,x.o.cliente,x.o.tecnicoNome,x.o.tecnico,x.o.prioridade]).toLowerCase().includes(q));
+ const peso={VENCIDO:3,ATENCAO:2,NO_PRAZO:1,SEM_DATA:0};
+ rows.sort((a,b)=>(peso[b.sla.status]-peso[a.sla.status])||((b.sla.percentual??-1)-(a.sla.percentual??-1)));
+ tb.innerHTML=rows.length?rows.map(x=>{
+   const o=x.o,p=pendenciaOS(o),prio=slaPrioridade(o),sla=x.sla,perc=sla.percentual===null?0:Math.min(100,Math.max(0,sla.percentual));
+   return `<tr class="cursor-pointer hover:bg-slate-50" onclick="window.abrirDetalheOS('${esc(o.id)}')">
+     <td class="font-black text-blue-700">${esc(o.osNumber||o.numero||'OS')}</td>
+     <td class="font-bold">${esc(o.clienteNome||o.cliente||'-')}</td>
+     <td><span class="sla-os-chip ${slaPrioridadeClasse(prio)}">${esc(prio)}</span></td>
+     <td>${esc(stageName(normStage(o.etapaKanban||o.etapa||o.status)))}</td>
+     <td>${esc(o.tecnicoNome||o.tecnico||'A definir')}</td>
+     <td><span class="sla-age ${sla.classe==='danger'?'danger':sla.classe==='warn'?'warn':''}">${esc(slaAgeLabel(x.h))}</span></td>
+     <td><div class="sla-progress"><b>${esc(slaMetaLabel(sla.meta))}</b><div class="sla-progress-line ${sla.classe}"><span style="width:${perc}%"></span></div><div class="text-[9px] text-slate-400 mt-1">${sla.percentual===null?'-':sla.percentual.toFixed(0)+'% da meta'}</div></div></td>
+     <td><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)}</span></td>
+     <td>${esc(p.texto)}</td>
+   </tr>`;
+ }).join(''):'<tr><td colspan="9" class="text-center text-slate-400 !py-8">Nenhuma OS encontrada.</td></tr>';
 }
 window.renderSLAOperacional=renderSLAOperacional;
 window.atualizarSLAOperacional=async function(){try{await carregarPendenciasOS();renderSLAOperacional();renderProdutividadeTecnica();toast('Indicadores atualizados.')}catch(e){console.error(e);toast('Não foi possível atualizar os indicadores.')}};
@@ -3996,10 +4149,10 @@ function pendingCenterInfo(o){
  const p=pendenciaOS(o),stage=normStage(o?.etapaKanban||o?.etapa||o?.status),ag=String(o?.agendadoParaISO||'');
  const agDate=ag?new Date(ag):null,overdue=!!(agDate&&!Number.isNaN(agDate.getTime())&&agDate.getTime()<Date.now()&&!['ENCERRADOS','FATURAMENTO'].includes(stage));
  const semTecnico=!String(o?.tecnicoId||o?.tecnicoUid||o?.tecnicoNome||o?.tecnico||'').trim();
- return {p,stage,overdue,semTecnico};
+ const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.53 — Tratamento administrativo após atendimento externo
+// FASE 1.54 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4450,7 +4603,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.53 — exclusão lógica de equipamento e OS
+// FASE 1.54 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -4573,7 +4726,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.53 — reabertura controlada por ciclos
+// FASE 1.54 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4693,7 +4846,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.53 — duplicação controlada de OS
+// FASE 1.54 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -4838,7 +4991,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.53 — conciliação de materiais no fechamento da OS
+// FASE 1.54 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
