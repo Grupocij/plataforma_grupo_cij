@@ -871,6 +871,18 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 @media(max-width:520px){.offline-resource-list{grid-template-columns:1fr}}
 </style>
 
+
+<style id="fase160-offline-user-isolation-ui">
+.offline-user-status{display:flex;align-items:flex-start;gap:.5rem;border-radius:.8rem;border:1px solid #dbeafe;background:#eff6ff;padding:.6rem .7rem;font-size:.58rem;font-weight:850;line-height:1.4;color:#1d4ed8}
+.offline-center-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.offline-legacy-card{border:1px dashed #f59e0b;background:#fffbeb;border-radius:.9rem;padding:.75rem}
+.offline-legacy-note{font-size:.57rem;color:#92400e;line-height:1.45}
+.offline-owner-pill{display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;padding:.2rem .4rem;font-size:.49rem;font-weight:900;background:#f1f5f9;color:#475569}
+.offline-protected-box{border:1px solid #e2e8f0;background:#f8fafc;border-radius:.8rem;padding:.65rem;font-size:.58rem;color:#64748b}
+@media(max-width:760px){.offline-center-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:460px){.offline-center-kpis{grid-template-columns:1fr!important}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -878,7 +890,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.59</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.60</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1032,12 +1044,14 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     </div>
 
     <div id="offline-center-connection" class="offline-center-connection mt-4"></div>
+    <div id="offline-center-user" class="offline-user-status mt-3"><i class="fa-solid fa-user-shield"></i><span>Identificando usuário...</span></div>
     <div id="offline-center-storage" class="offline-storage-status mt-3"><i class="fa-solid fa-hard-drive"></i><span>Verificando armazenamento local...</span></div>
 
     <div class="offline-center-kpis mt-4">
-      <div class="offline-center-kpi"><span>Pendentes</span><b id="offline-kpi-pendentes">0</b></div>
+      <div class="offline-center-kpi"><span>Minhas pendências</span><b id="offline-kpi-pendentes">0</b></div>
       <div class="offline-center-kpi"><span>Com erro</span><b id="offline-kpi-erros">0</b></div>
-      <div class="offline-center-kpi"><span>Outros usuários</span><b id="offline-kpi-outros">0</b></div>
+      <div class="offline-center-kpi"><span>Protegidas</span><b id="offline-kpi-outros">0</b></div>
+      <div class="offline-center-kpi"><span>Legadas</span><b id="offline-kpi-legadas">0</b></div>
     </div>
 
     <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600">
@@ -1045,8 +1059,10 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     </div>
 
     <div class="mt-4 flex flex-wrap gap-2">
-      <button id="offline-sync-all-btn" type="button" class="btn btn-primary" onclick="window.sincronizarPendenciasOffline(true)"><i class="fa-solid fa-rotate"></i> Sincronizar tudo</button>
+      <button id="offline-sync-all-btn" type="button" class="btn btn-primary" onclick="window.sincronizarPendenciasOffline(true)"><i class="fa-solid fa-rotate"></i> Sincronizar minhas pendências</button>
       <button type="button" class="btn btn-light" onclick="window.renderCentralOffline()"><i class="fa-solid fa-rotate-right"></i> Atualizar lista</button>
+      <button type="button" class="btn btn-light" onclick="window.limparMeusDadosOfflinePreparados()"><i class="fa-solid fa-broom"></i> Limpar meus dados preparados</button>
+      <button id="offline-clear-legacy-cache-btn" type="button" class="btn btn-light hidden" onclick="window.limparCacheOfflineLegado()"><i class="fa-solid fa-shield"></i> Excluir cache antigo</button>
     </div>
 
     <div id="offline-center-list" class="offline-center-list mt-4"></div>
@@ -1473,7 +1489,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.59</span>
+        <span class="tag tag-green">FASE 1.60</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1796,7 +1812,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.59 — Offline essencial para atendimento externo
+// FASE 1.60 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1842,8 +1858,54 @@ async function assistOfflineStoreDelete(store,key){
   const db=await assistOfflineDB();
   return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite'),req=tx.objectStore(store).delete(key);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error)});
 }
-async function assistOfflineCacheSet(key,data){try{await assistOfflineStorePut('cache',{key,data,updatedAtISO:new Date().toISOString()})}catch(e){console.warn('[Assistência Offline] cache set',e)}}
-async function assistOfflineCacheGet(key){try{return (await assistOfflineStoreGet('cache',key))?.data??null}catch(e){return null}}
+
+// FASE 1.60 — isolamento do cache offline por usuário
+function assistOfflineCacheOwner(){
+  return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'').trim();
+}
+function assistOfflineCacheScopeKey(key){
+  const uid=assistOfflineCacheOwner();
+  if(!uid)return null;
+  return `u:${encodeURIComponent(uid)}:${String(key)}`;
+}
+function assistOfflineCacheIsScopedKey(key){
+  return String(key||'').startsWith('u:');
+}
+async function assistOfflineCacheStats(){
+  const uid=assistOfflineCacheOwner();
+  const all=await assistOfflineStoreAll('cache').catch(()=>[]);
+  if(!uid)return {mine:0,foreign:0,legacy:all.filter(x=>!assistOfflineCacheIsScopedKey(x?.key)).length};
+  const prefix=`u:${encodeURIComponent(uid)}:`;
+  return {
+    mine:all.filter(x=>String(x?.key||'').startsWith(prefix)).length,
+    foreign:all.filter(x=>assistOfflineCacheIsScopedKey(x?.key)&&!String(x?.key||'').startsWith(prefix)).length,
+    legacy:all.filter(x=>!assistOfflineCacheIsScopedKey(x?.key)).length
+  };
+}
+
+async function assistOfflineCacheSet(key,data){
+  try{
+    const scoped=assistOfflineCacheScopeKey(key);
+    if(!scoped)return false;
+    await assistOfflineStorePut('cache',{key:scoped,logicalKey:String(key),ownerUid:assistOfflineCacheOwner(),data,updatedAtISO:new Date().toISOString()});
+    return true;
+  }catch(e){
+    console.warn('[Assistência Offline] cache set',e);
+    return false;
+  }
+}
+async function assistOfflineCacheGet(key){
+  try{
+    const scoped=assistOfflineCacheScopeKey(key);
+    if(!scoped)return null;
+    const row=await assistOfflineStoreGet('cache',scoped);
+    if(!row)return null;
+    if(row.ownerUid&&String(row.ownerUid)!==assistOfflineCacheOwner())return null;
+    return row.data??null;
+  }catch(e){
+    return null;
+  }
+}
 async function assistOfflineApplyCache(kind,args){
   try{
     if(kind==='saveDoc'){
@@ -1864,7 +1926,7 @@ async function assistOfflineApplyCache(kind,args){
   }catch(e){console.warn('[Assistência Offline] cache local',e)}
 }
 
-// FASE 1.59 — central de sincronização offline e ownership por usuário
+// FASE 1.60 — central de sincronização offline e ownership por usuário
 function assistOfflineCurrentUid(){
   return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'');
 }
@@ -1889,7 +1951,7 @@ function assistOfflineQueueContext(kind,args=[],extra={}){
 function assistOfflineOpOwnerOk(op){
   const uid=assistOfflineCurrentUid();
   const owner=String(op?.ownerUid||'');
-  return !owner||!uid||owner===uid;
+  return !!uid&&!!owner&&owner===uid;
 }
 function assistOfflineOpOsId(op){
   if(op?.osId)return String(op.osId);
@@ -1929,6 +1991,8 @@ async function assistOfflineAllQueue(){
 }
 
 async function assistOfflineQueue(kind,args,extra={}){
+  const ownerUid=assistOfflineCurrentUid();
+  if(!ownerUid)throw new Error('Sessão do usuário não identificada. Reconecte ao Portal antes de continuar o trabalho offline.');
   const id='off_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
   const ctx=assistOfflineQueueContext(kind,args,extra);
   const rec={
@@ -1936,7 +2000,7 @@ async function assistOfflineQueue(kind,args,extra={}){
     createdAt:Date.now(),
     createdAtISO:new Date().toISOString(),
     tentativas:0,
-    ownerUid:assistOfflineCurrentUid(),
+    ownerUid,
     ownerNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',
     ownerEmail:window.currentUser?.email||'',
     osId:ctx.osId||'',
@@ -1998,7 +2062,7 @@ async function assistOfflineWrite(kind,args,onlineFn){
 }
 
 
-// FASE 1.59 — preparo offline validado e armazenamento persistente
+// FASE 1.60 — preparo offline validado e armazenamento persistente
 async function assistOfflineStorageStatus(tentarPersistir=false){
   const out={supported:false,persisted:false,usage:0,quota:0,percentual:0};
   try{
@@ -2027,7 +2091,9 @@ function assistOfflineBytes(v){
   return (n/1024/1024/1024).toFixed(2).replace('.',',')+' GB';
 }
 async function assistOfflineCacheSetStrict(key,data){
-  await assistOfflineStorePut('cache',{key,data,updatedAtISO:new Date().toISOString()});
+  const scoped=assistOfflineCacheScopeKey(key);
+  if(!scoped)throw new Error('Usuário não identificado. Não é seguro preparar dados offline sem uma sessão autenticada.');
+  await assistOfflineStorePut('cache',{key:scoped,logicalKey:String(key),ownerUid:assistOfflineCacheOwner(),data,updatedAtISO:new Date().toISOString()});
   return true;
 }
 async function assistOfflineFetchCollectionDirect(nome,timeout=10000){
@@ -2090,6 +2156,7 @@ function assistOfflineReadyLabel(o){
 }
 window.prepararOSOffline=async function(id,silencioso=false){
   const o=(state.os||[]).find(x=>String(x.id||x.internalId)===String(id));
+  if(!assistOfflineCacheOwner()){if(!silencioso)alert('Não foi possível identificar o usuário conectado. O preparo offline foi bloqueado para evitar misturar dados entre usuários.');return false}
   if(!o){if(!silencioso)toast('OS não encontrada.');return false}
   if(String(o.tipoAtendimento||'INTERNO').toUpperCase()!=='EXTERNO'){if(!silencioso)toast('A preparação offline é destinada às OS externas.');return false}
   if(navigator.onLine===false){if(!silencioso)toast('Conecte o aparelho à internet para preparar a OS offline.');return false}
@@ -2284,14 +2351,19 @@ async function assistOfflinePending(){
   return all.filter(assistOfflineOpOwnerOk);
 }
 async function assistOfflineUpdateBadge(){
-  const all=await assistOfflineAllQueue(),rows=all.filter(assistOfflineOpOwnerOk),foreign=all.filter(x=>!assistOfflineOpOwnerOk(x));
+  const all=await assistOfflineAllQueue();
+  const rows=all.filter(assistOfflineOpOwnerOk);
+  const legacy=all.filter(x=>!String(x?.ownerUid||''));
+  const foreign=all.filter(x=>String(x?.ownerUid||'')&&!assistOfflineOpOwnerOk(x));
   const el=document.getElementById('tech-offline-pendencias');
   if(el){
     const span=el.querySelector('span');
-    const txt=rows.length+' pendência'+(rows.length===1?'':'s')+(foreign.length?` · +${foreign.length}`:'');
+    let txt=rows.length+' pendência'+(rows.length===1?'':'s');
+    if(legacy.length)txt+=` · ${legacy.length} legado`;
+    if(foreign.length)txt+=` · ${foreign.length} protegida${foreign.length===1?'':'s'}`;
     if(span)span.textContent=txt;else el.textContent=txt;
-    el.classList.toggle('has-pending',rows.length>0);
-    el.title=foreign.length?`${foreign.length} pendência(s) pertencem a outro usuário neste aparelho.`:'Abrir central de sincronização offline';
+    el.classList.toggle('has-pending',rows.length>0||legacy.length>0);
+    el.title='Abrir central de sincronização offline';
   }
   const sync=document.getElementById('tech-app-sync');
   if(sync&&rows.length&&navigator.onLine===false)sync.textContent='Salvo no aparelho';
@@ -2307,60 +2379,152 @@ window.abrirCentralOffline=async function(){
 window.fecharCentralOffline=function(){document.getElementById('modal-central-offline')?.classList.add('hidden')};
 window.renderCentralOffline=async function(){
   const list=document.getElementById('offline-center-list');if(!list)return;
-  const all=await assistOfflineAllQueue(),mine=all.filter(assistOfflineOpOwnerOk),foreign=all.filter(x=>!assistOfflineOpOwnerOk(x));
+
+  const all=await assistOfflineAllQueue();
+  const uid=assistOfflineCurrentUid();
+  const mine=all.filter(assistOfflineOpOwnerOk);
+  const legacy=all.filter(x=>!String(x?.ownerUid||''));
+  const foreign=all.filter(x=>String(x?.ownerUid||'')&&!assistOfflineOpOwnerOk(x));
   const errors=mine.filter(x=>Number(x.tentativas||0)>0||x.ultimoErro).length;
+
   const online=navigator.onLine!==false&&!assistOfflineForced();
   const conn=document.getElementById('offline-center-connection');
   if(conn){
     conn.className='offline-center-connection mt-4 '+(online?'online':'offline');
     conn.innerHTML=online
-      ? '<i class="fa-solid fa-wifi mt-[2px]"></i><div><b>Conectado.</b> As pendências podem ser sincronizadas agora.</div>'
-      : '<i class="fa-solid fa-cloud-arrow-down mt-[2px]"></i><div><b>Modo offline.</b> Continue trabalhando normalmente; os registros abaixo permanecem armazenados neste aparelho.</div>';
+      ? '<i class="fa-solid fa-wifi mt-[2px]"></i><div><b>Conectado.</b> Somente as pendências pertencentes ao usuário atual serão sincronizadas.</div>'
+      : '<i class="fa-solid fa-cloud-arrow-down mt-[2px]"></i><div><b>Modo offline.</b> Continue trabalhando; os registros deste usuário permanecem armazenados neste aparelho.</div>';
   }
+
+  const userEl=document.getElementById('offline-center-user');
+  if(userEl){
+    const nome=window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'';
+    userEl.innerHTML=uid
+      ? `<i class="fa-solid fa-user-shield"></i><span><b>Dados offline isolados:</b> ${esc(nome||'Usuário autenticado')} · ${esc(window.currentUser?.email||'')}</span>`
+      : '<i class="fa-solid fa-user-lock"></i><span><b>Sessão não identificada.</b> O sistema não libera cache nem sincronização até reconhecer o usuário autenticado.</span>';
+  }
+
   const storage=await assistOfflineStorageStatus(false);
+  const cacheStats=await assistOfflineCacheStats();
   const storageEl=document.getElementById('offline-center-storage');
   if(storageEl){
     const pct=Number(storage.percentual||0);
     storageEl.className='offline-storage-status mt-3 '+(pct>=90?'danger':pct>=75?'warn':storage.persisted?'good':'');
     const uso=storage.quota?`${assistOfflineBytes(storage.usage)} de ${assistOfflineBytes(storage.quota)} (${pct.toFixed(1).replace('.',',')}%)`:'uso não informado pelo navegador';
-    storageEl.innerHTML=`<i class="fa-solid fa-hard-drive"></i><span><b>Armazenamento local:</b> ${uso} · ${storage.persisted?'proteção persistente ativa':'proteção persistente não confirmada'}</span>`;
+    const legadoTxt=cacheStats.legacy?` · ${cacheStats.legacy} cache(s) antigo(s) sem proprietário`: '';
+    storageEl.innerHTML=`<i class="fa-solid fa-hard-drive"></i><span><b>Armazenamento:</b> ${uso} · ${cacheStats.mine} registro(s) preparados deste usuário${legadoTxt} · ${storage.persisted?'proteção persistente ativa':'proteção persistente não confirmada'}</span>`;
   }
+  const legacyBtn=document.getElementById('offline-clear-legacy-cache-btn');
+  if(legacyBtn)legacyBtn.classList.toggle('hidden',!cacheStats.legacy);
+
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v)};
   set('offline-kpi-pendentes',mine.length);
   set('offline-kpi-erros',errors);
   set('offline-kpi-outros',foreign.length);
-  const sb=document.getElementById('offline-sync-all-btn');if(sb)sb.disabled=!online||!mine.length;
+  set('offline-kpi-legadas',legacy.length);
 
-  if(!mine.length){
-    list.innerHTML=`<div class="offline-queue-empty"><i class="fa-solid fa-circle-check text-emerald-500 text-xl mb-2"></i><div class="font-black text-slate-700">Tudo sincronizado para este usuário</div><div class="mt-1">Não existem operações locais aguardando envio.</div></div>${foreign.length?`<div class="offline-queue-foreign mt-2"><i class="fa-solid fa-user-lock mr-1"></i>${foreign.length} operação(ões) de outro usuário permanecem armazenadas neste aparelho e não serão sincronizadas pela conta atual.</div>`:''}`;
-    return;
-  }
+  const sb=document.getElementById('offline-sync-all-btn');
+  if(sb)sb.disabled=!online||!mine.length||!uid;
 
-  list.innerHTML=mine.map((op,i)=>{
+  const cards=[];
+  mine.forEach(op=>{
     const osid=assistOfflineOpOsId(op),os=(state.os||[]).find(x=>String(x.id||x.internalId)===String(osid));
     const osnum=op.osNumber||os?.osNumber||os?.numero||'OS não identificada';
-    const legacy=!op.ownerUid;
     const err=op.ultimoErro||'';
     const dt=op.createdAtISO?fmtDate(op.createdAtISO):'-';
-    return `<article class="offline-queue-item ${err?'error':''} ${legacy?'legacy':''}">
-      <div class="offline-queue-head">
-        <div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="offline-queue-type"><i class="fa-solid ${assistOfflineKindIcon(op.kind)} mr-1"></i>${esc(assistOfflineKindLabel(op.kind))}</span>
-            ${legacy?'<span class="offline-queue-type" style="background:#f8fafc;color:#64748b">registro legado</span>':''}
-          </div>
-          <div class="offline-queue-title mt-2">${esc(osnum)} · ${esc(assistOfflineOpDescription(op))}</div>
-          <div class="offline-queue-meta">Salvo no aparelho: ${esc(dt)}${op.tentativas?` · Tentativas: ${Number(op.tentativas)}`:''}${op.ultimaTentativaISO?` · Última tentativa: ${esc(fmtDate(op.ultimaTentativaISO))}`:''}</div>
+    cards.push(`<article class="offline-queue-item ${err?'error':''}">
+      <div class="offline-queue-head"><div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="offline-queue-type"><i class="fa-solid ${assistOfflineKindIcon(op.kind)} mr-1"></i>${esc(assistOfflineKindLabel(op.kind))}</span>
+          <span class="offline-owner-pill"><i class="fa-solid fa-user-check"></i> minha conta</span>
         </div>
-      </div>
+        <div class="offline-queue-title mt-2">${esc(osnum)} · ${esc(assistOfflineOpDescription(op))}</div>
+        <div class="offline-queue-meta">Salvo: ${esc(dt)}${op.tentativas?` · Tentativas: ${Number(op.tentativas)}`:''}${op.ultimaTentativaISO?` · Última tentativa: ${esc(fmtDate(op.ultimaTentativaISO))}`:''}</div>
+      </div></div>
       ${err?`<div class="offline-queue-error"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${esc(err)}</div>`:''}
       <div class="offline-queue-actions">
         <button type="button" class="offline-queue-btn primary" ${online?'':'disabled'} onclick="window.sincronizarOperacaoOffline('${esc(op.id)}')"><i class="fa-solid fa-rotate"></i> Tentar agora</button>
         <button type="button" class="offline-queue-btn danger" onclick="window.descartarOperacaoOffline('${esc(op.id)}')"><i class="fa-solid fa-trash-can"></i> Descartar</button>
       </div>
-    </article>`;
-  }).join('')+(foreign.length?`<div class="offline-queue-foreign"><i class="fa-solid fa-user-lock mr-1"></i>${foreign.length} operação(ões) pertencem a outro usuário e estão protegidas contra sincronização pela conta atual.</div>`:'');
+    </article>`);
+  });
+
+  legacy.forEach(op=>{
+    const osid=assistOfflineOpOsId(op),os=(state.os||[]).find(x=>String(x.id||x.internalId)===String(osid));
+    const osnum=op.osNumber||os?.osNumber||os?.numero||'OS não identificada';
+    cards.push(`<article class="offline-legacy-card">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="offline-queue-type"><i class="fa-solid ${assistOfflineKindIcon(op.kind)} mr-1"></i>${esc(assistOfflineKindLabel(op.kind))}</span>
+        <span class="offline-owner-pill"><i class="fa-solid fa-user-question"></i> sem proprietário</span>
+      </div>
+      <div class="offline-queue-title mt-2">${esc(osnum)} · ${esc(assistOfflineOpDescription(op))}</div>
+      <div class="offline-legacy-note mt-2"><b>Registro de versão antiga.</b> Por segurança, ele não será sincronizado automaticamente. Se você reconhece esta pendência como sua, assuma explicitamente a propriedade antes de enviar.</div>
+      <div class="offline-queue-actions">
+        <button type="button" class="offline-queue-btn primary" ${uid?'':'disabled'} onclick="window.assumirOperacaoOffline('${esc(op.id)}')"><i class="fa-solid fa-user-check"></i> Assumir como minha</button>
+      </div>
+    </article>`);
+  });
+
+  if(foreign.length){
+    cards.push(`<div class="offline-protected-box"><i class="fa-solid fa-user-lock mr-1"></i><b>${foreign.length} operação(ões) protegida(s)</b> pertencem a outro usuário neste aparelho. Elas não são exibidas em detalhe nem podem ser sincronizadas pela conta atual.</div>`);
+  }
+
+  if(!cards.length){
+    cards.push(`<div class="offline-queue-empty"><i class="fa-solid fa-circle-check text-emerald-500 text-xl mb-2"></i><div class="font-black text-slate-700">Tudo sincronizado para este usuário</div><div class="mt-1">Não existem operações locais aguardando envio.</div></div>`);
+  }
+
+  list.innerHTML=cards.join('');
 };
+
+window.assumirOperacaoOffline=async function(id){
+  const uid=assistOfflineCurrentUid();
+  if(!uid){alert('Não foi possível identificar o usuário conectado.');return}
+  const op=(await assistOfflineAllQueue()).find(x=>String(x.id)===String(id));
+  if(!op||op.ownerUid){toast('Este registro não está disponível para assumir.');return}
+  if(!confirm('Confirmar que esta pendência antiga pertence a você?\n\nDepois da confirmação ela poderá ser sincronizada usando sua conta.'))return;
+  op.ownerUid=uid;
+  op.ownerNome=window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'';
+  op.ownerEmail=window.currentUser?.email||'';
+  op.assumidoEmISO=new Date().toISOString();
+  op.assumidoManualmente=true;
+  await assistOfflineStorePut('queue',op);
+  await assistOfflineUpdateBadge();
+  await window.renderCentralOffline();
+  toast('Pendência vinculada ao seu usuário.');
+};
+
+
+window.limparCacheOfflineLegado=async function(){
+  const all=await assistOfflineStoreAll('cache').catch(()=>[]);
+  const legacy=all.filter(x=>!assistOfflineCacheIsScopedKey(x?.key));
+  if(!legacy.length){toast('Não existem caches antigos neste aparelho.');await window.renderCentralOffline();return}
+  if(!confirm(`Excluir ${legacy.length} cache(s) antigo(s) sem identificação de usuário?\n\nEsses dados pertencem a versões anteriores e não são mais utilizados pela Fase 1.60. A exclusão ajuda a evitar exposição de dados em aparelhos compartilhados.`))return;
+  for(const row of legacy)await assistOfflineStoreDelete('cache',row.key);
+  await window.renderCentralOffline();
+  toast(legacy.length+' cache(s) antigo(s) removido(s) com segurança.');
+};
+
+window.limparMeusDadosOfflinePreparados=async function(){
+  const uid=assistOfflineCacheOwner();
+  if(!uid){alert('Usuário não identificado.');return}
+  const pend=await assistOfflinePending();
+  const aviso=pend.length
+    ? `Você possui ${pend.length} pendência(s) de sincronização. Elas NÃO serão apagadas, mas os dados preparados para consulta offline serão removidos.`
+    : 'Isso remove somente os dados preparados/cacheados deste usuário neste aparelho. Pendências de sincronização não serão apagadas.';
+  if(!confirm(aviso+'\n\nDeseja continuar?'))return;
+
+  const all=await assistOfflineStoreAll('cache').catch(()=>[]);
+  const prefix=`u:${encodeURIComponent(uid)}:`;
+  const mine=all.filter(x=>String(x?.key||'').startsWith(prefix));
+  for(const row of mine)await assistOfflineStoreDelete('cache',row.key);
+
+  Object.keys(__assistOfflinePreparedMap).forEach(k=>delete __assistOfflinePreparedMap[k]);
+  await assistOfflineRefreshPreparedMap();
+  renderModoTecnico();
+  await window.renderCentralOffline();
+  toast(mine.length+' registro(s) offline preparado(s) removido(s) deste usuário.');
+};
+
 window.sincronizarOperacaoOffline=async function(id){
   if(navigator.onLine===false){toast('Sem conexão. Esta pendência continua salva no aparelho.');return}
   const op=(await assistOfflineAllQueue()).find(x=>String(x.id)===String(id));
@@ -2639,7 +2803,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.59 — OS interna x externa e recolhimento para laboratório
+// FASE 1.60 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -3735,7 +3899,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.59 — leitura de QR Code / número de série do equipamento
+// FASE 1.60 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3891,7 +4055,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.59 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.60 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -4306,7 +4470,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.59 — materiais do técnico no celular
+// FASE 1.60 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -4733,7 +4897,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.59 — SLA configurável por prioridade
+// FASE 1.60 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -4868,7 +5032,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.59 — Tratamento administrativo após atendimento externo
+// FASE 1.60 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -5013,7 +5177,7 @@ window.salvarRetornoExterno=async function(){
 };
 
 
-// FASE 1.59 — verificação automática de integridade operacional
+// FASE 1.60 — verificação automática de integridade operacional
 function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
   return {nivel,codigo,titulo,detalhe,...extra};
 }
@@ -5115,7 +5279,7 @@ async function verificarIntegridadeOSCompleta(o){
   return issues;
 }
 
-// FASE 1.59 — travas preventivas e correções guiadas
+// FASE 1.60 — travas preventivas e correções guiadas
 function integrityErrors(issues){return (issues||[]).filter(x=>x.nivel==='ERROR')}
 function integrityIssueAction(issue,o){
   const eid=issue?.equipamentoId;
@@ -5564,7 +5728,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.59 — exclusão lógica de equipamento e OS
+// FASE 1.60 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -5687,7 +5851,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.59 — reabertura controlada por ciclos
+// FASE 1.60 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5807,7 +5971,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.59 — duplicação controlada de OS
+// FASE 1.60 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5952,7 +6116,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.59 — conciliação de materiais no fechamento da OS
+// FASE 1.60 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
