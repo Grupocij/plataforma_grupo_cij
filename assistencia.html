@@ -821,6 +821,42 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 .flow-gate-note{margin-top:.45rem;border-radius:.7rem;padding:.5rem .6rem;font-size:.56rem;font-weight:800;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
 </style>
 
+
+<style id="fase158-central-offline-ui">
+#tech-offline-pendencias{appearance:none;-webkit-appearance:none;cursor:pointer;gap:.28rem}
+#tech-offline-pendencias:hover{filter:brightness(.97)}
+.offline-center-card{max-height:94dvh;overflow:auto}
+.offline-center-connection{display:flex;align-items:flex-start;gap:.55rem;border-radius:.9rem;padding:.7rem .8rem;font-size:.64rem;font-weight:800;line-height:1.4}
+.offline-center-connection.online{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
+.offline-center-connection.offline{background:#fff7ed;border:1px solid #fed7aa;color:#c2410c}
+.offline-center-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}
+.offline-center-kpi{border:1px solid #e2e8f0;background:#fff;border-radius:.8rem;padding:.65rem}
+.offline-center-kpi span{display:block;font-size:.52rem;font-weight:900;text-transform:uppercase;color:#94a3b8}
+.offline-center-kpi b{display:block;font-size:1.05rem;font-weight:950;color:#0f172a;margin-top:.15rem}
+.offline-center-list{display:flex;flex-direction:column;gap:.55rem}
+.offline-queue-item{border:1px solid #e2e8f0;background:#fff;border-radius:.9rem;padding:.75rem}
+.offline-queue-item.error{border-color:#fecdd3;background:#fff7f8}
+.offline-queue-item.legacy{border-style:dashed}
+.offline-queue-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem}
+.offline-queue-title{font-size:.69rem;font-weight:950;color:#0f172a}
+.offline-queue-meta{font-size:.56rem;color:#64748b;line-height:1.45;margin-top:.2rem}
+.offline-queue-error{margin-top:.5rem;border-radius:.65rem;padding:.5rem .6rem;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;font-size:.57rem;font-weight:750;word-break:break-word}
+.offline-queue-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.offline-queue-btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;border-radius:.6rem;padding:.42rem .58rem;border:1px solid #cbd5e1;background:#fff;color:#334155;font-size:.57rem;font-weight:900}
+.offline-queue-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
+.offline-queue-btn.danger{border-color:#fecdd3;background:#fff1f2;color:#be123c}
+.offline-queue-type{display:inline-flex;align-items:center;border-radius:999px;padding:.22rem .42rem;background:#eff6ff;color:#1d4ed8;font-size:.5rem;font-weight:900;white-space:nowrap}
+.offline-queue-empty{border:1px dashed #cbd5e1;border-radius:.9rem;padding:1.4rem;text-align:center;color:#64748b;font-size:.65rem}
+.offline-queue-foreign{border:1px solid #e2e8f0;border-radius:.8rem;background:#f8fafc;padding:.65rem;font-size:.58rem;color:#64748b}
+@media(max-width:640px){
+  .offline-center-kpis{grid-template-columns:1fr}
+  .offline-center-card{width:100%!important;max-height:100dvh!important;height:100dvh;border-radius:0!important}
+  .offline-queue-head{flex-direction:column}
+  .offline-queue-actions{display:grid;grid-template-columns:1fr 1fr}
+  .offline-queue-btn{min-height:42px}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -828,7 +864,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.57</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.58</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -945,7 +981,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <span id="tech-app-sync">Atualizado agora</span>
     <span class="text-slate-300">•</span>
-    <span id="tech-offline-pendencias" class="offline-pending-count">0 pendências</span>
+    <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
@@ -968,6 +1004,43 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 
 
 <div id="tech-app-nav" class="tech-app-nav"><button type="button" class="active" onclick="window.techAppInicio(event)"><i class="fa-solid fa-house"></i><span>Atendimentos</span></button><button type="button" onclick="window.techAppAtualizar(event)"><i class="fa-solid fa-rotate"></i><span>Atualizar</span></button><button type="button" onclick="window.techAppSair(event)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Portal</span></button></div>
+
+
+<div id="modal-central-offline" class="modal-backdrop hidden" style="z-index:2147483645!important">
+  <div class="modal-card !max-w-none offline-center-card" style="width:min(860px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">APP DO TÉCNICO</span>
+        <h2 class="text-xl font-black mt-2">Central de sincronização offline</h2>
+        <p class="text-xs text-slate-500 mt-1">Acompanhe tudo que foi salvo no aparelho e ainda precisa chegar ao servidor.</p>
+      </div>
+      <button type="button" onclick="window.fecharCentralOffline()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="offline-center-connection" class="offline-center-connection mt-4"></div>
+
+    <div class="offline-center-kpis mt-4">
+      <div class="offline-center-kpi"><span>Pendentes</span><b id="offline-kpi-pendentes">0</b></div>
+      <div class="offline-center-kpi"><span>Com erro</span><b id="offline-kpi-erros">0</b></div>
+      <div class="offline-center-kpi"><span>Outros usuários</span><b id="offline-kpi-outros">0</b></div>
+    </div>
+
+    <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600">
+      <b>Segurança:</b> as novas operações offline ficam vinculadas ao usuário que as criou. A sincronização automática deste aparelho processa somente as pendências do usuário conectado. Registros antigos, criados antes desta fase, continuam compatíveis.
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="offline-sync-all-btn" type="button" class="btn btn-primary" onclick="window.sincronizarPendenciasOffline(true)"><i class="fa-solid fa-rotate"></i> Sincronizar tudo</button>
+      <button type="button" class="btn btn-light" onclick="window.renderCentralOffline()"><i class="fa-solid fa-rotate-right"></i> Atualizar lista</button>
+    </div>
+
+    <div id="offline-center-list" class="offline-center-list mt-4"></div>
+
+    <div class="mt-5 flex justify-end">
+      <button type="button" onclick="window.fecharCentralOffline()" class="btn btn-light">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">APP DO TÉCNICO · USO EM CAMPO</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><section id="tech-client-card" class="tech-client-card"></section><div class="tech-section-head mt-4"><div class="tech-section-title">Equipamentos do atendimento</div><button class="tech-inline-action" type="button" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div><div id="tech-at-equipamentos"></div></div><div class="tech-mobile-note"><i class="fa-solid fa-mobile-screen-button"></i><span>Este app contém somente ações do técnico. Orçamentos comerciais, aprovações, agendamento, liberações, faturamento e gestão de estoque ficam no administrativo.</span></div></div><div class="tech-work-footer tech-signature-footer"><button class="btn btn-primary justify-center w-full" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button></div></div></div>
 
@@ -1385,7 +1458,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.57</span>
+        <span class="tag tag-green">FASE 1.58</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1708,7 +1781,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.57 — Offline essencial para atendimento externo
+// FASE 1.58 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1775,9 +1848,92 @@ async function assistOfflineApplyCache(kind,args){
     }
   }catch(e){console.warn('[Assistência Offline] cache local',e)}
 }
+
+// FASE 1.58 — central de sincronização offline e ownership por usuário
+function assistOfflineCurrentUid(){
+  return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'');
+}
+function assistOfflineQueueContext(kind,args=[],extra={}){
+  let osId='',osNumber='';
+  if(['saveSubDoc','mergeSubDoc','mergeOSDoc'].includes(kind))osId=String(args?.[0]||'');
+  if(kind==='saveDoc'){
+    const data=args?.[2]||{};
+    osId=String(data.osId||data.internalIdOS||'');
+    osNumber=String(data.osNumber||data.os||'');
+  }
+  if(kind==='signature'||kind==='attachment'){
+    osId=String(extra?.meta?.osId||extra?.osId||'');
+    osNumber=String(extra?.meta?.osNumber||extra?.osNumber||'');
+  }
+  if(!osNumber&&osId){
+    const o=(state.os||[]).find(x=>String(x.id||x.internalId)===osId);
+    osNumber=String(o?.osNumber||o?.numero||'');
+  }
+  return {osId,osNumber};
+}
+function assistOfflineOpOwnerOk(op){
+  const uid=assistOfflineCurrentUid();
+  const owner=String(op?.ownerUid||'');
+  return !owner||!uid||owner===uid;
+}
+function assistOfflineOpOsId(op){
+  if(op?.osId)return String(op.osId);
+  const ctx=assistOfflineQueueContext(op?.kind,op?.args||[],op||{});
+  return String(ctx.osId||'');
+}
+function assistOfflineKindLabel(kind){
+  const m={
+    saveDoc:'Registro',
+    saveSubDoc:'Registro da OS',
+    mergeOSDoc:'Atualização da OS',
+    mergeSubDoc:'Atualização do equipamento',
+    signature:'Assinatura do cliente',
+    attachment:'Foto / anexo'
+  };
+  return m[String(kind||'')]||String(kind||'Operação');
+}
+function assistOfflineKindIcon(kind){
+  const m={
+    saveDoc:'fa-floppy-disk',saveSubDoc:'fa-list-check',mergeOSDoc:'fa-pen-to-square',
+    mergeSubDoc:'fa-screwdriver-wrench',signature:'fa-signature',attachment:'fa-camera'
+  };
+  return m[String(kind||'')]||'fa-cloud-arrow-up';
+}
+function assistOfflineOpDescription(op){
+  if(op?.kind==='signature')return op?.meta?.nome?('Responsável: '+op.meta.nome):'Assinatura coletada em campo';
+  if(op?.kind==='attachment')return op?.meta?.nome||'Arquivo salvo em campo';
+  if(op?.kind==='saveSubDoc'||op?.kind==='mergeSubDoc'){
+    const sub=String(op?.args?.[1]||'');
+    const map={historico:'Histórico da OS',equipamentos:'Dados do equipamento',solicitacoes_orcamento:'Solicitação técnica',orcamentos:'Orçamento',materiais_planejamento:'Planejamento de materiais'};
+    return map[sub]||('Subcoleção: '+sub);
+  }
+  return assistOfflineKindLabel(op?.kind);
+}
+async function assistOfflineAllQueue(){
+  try{return (await assistOfflineStoreAll('queue')).sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0))}catch(_){return []}
+}
+
 async function assistOfflineQueue(kind,args,extra={}){
-  const id='off_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),rec={id,kind,args,createdAt:Date.now(),createdAtISO:new Date().toISOString(),tentativas:0,...extra};
-  await assistOfflineStorePut('queue',rec);if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind))await assistOfflineApplyCache(kind,args);window.__assistOfflineLastQueued=true;await assistOfflineUpdateBadge();return {offlineQueued:true,id};
+  const id='off_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const ctx=assistOfflineQueueContext(kind,args,extra);
+  const rec={
+    id,kind,args,
+    createdAt:Date.now(),
+    createdAtISO:new Date().toISOString(),
+    tentativas:0,
+    ownerUid:assistOfflineCurrentUid(),
+    ownerNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',
+    ownerEmail:window.currentUser?.email||'',
+    osId:ctx.osId||'',
+    osNumber:ctx.osNumber||'',
+    schemaOffline:3,
+    ...extra
+  };
+  await assistOfflineStorePut('queue',rec);
+  if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind))await assistOfflineApplyCache(kind,args);
+  window.__assistOfflineLastQueued=true;
+  await assistOfflineUpdateBadge();
+  return {offlineQueued:true,id};
 }
 
 let __assistOfflineForceUntil=0;
@@ -1938,11 +2094,111 @@ window.prepararMinhasOSExternasOffline=async function(){
   toast(ok+' OS externa(s) preparada(s) para offline.');renderModoTecnico();
 };
 
-async function assistOfflinePending(){try{return (await assistOfflineStoreAll('queue')).sort((a,b)=>a.createdAt-b.createdAt)}catch(_){return []}}
-async function assistOfflineUpdateBadge(){
-  const rows=await assistOfflinePending(),el=document.getElementById('tech-offline-pendencias');if(el){el.textContent=rows.length+' pendência'+(rows.length===1?'':'s');el.classList.toggle('has-pending',rows.length>0)}
-  const sync=document.getElementById('tech-app-sync');if(sync&&rows.length&&navigator.onLine===false)sync.textContent='Salvo no aparelho';return rows.length;
+async function assistOfflinePending(){
+  const all=await assistOfflineAllQueue();
+  return all.filter(assistOfflineOpOwnerOk);
 }
+async function assistOfflineUpdateBadge(){
+  const all=await assistOfflineAllQueue(),rows=all.filter(assistOfflineOpOwnerOk),foreign=all.filter(x=>!assistOfflineOpOwnerOk(x));
+  const el=document.getElementById('tech-offline-pendencias');
+  if(el){
+    const span=el.querySelector('span');
+    const txt=rows.length+' pendência'+(rows.length===1?'':'s')+(foreign.length?` · +${foreign.length}`:'');
+    if(span)span.textContent=txt;else el.textContent=txt;
+    el.classList.toggle('has-pending',rows.length>0);
+    el.title=foreign.length?`${foreign.length} pendência(s) pertencem a outro usuário neste aparelho.`:'Abrir central de sincronização offline';
+  }
+  const sync=document.getElementById('tech-app-sync');
+  if(sync&&rows.length&&navigator.onLine===false)sync.textContent='Salvo no aparelho';
+  if(document.getElementById('modal-central-offline')&&!document.getElementById('modal-central-offline').classList.contains('hidden'))window.renderCentralOffline?.();
+  return rows.length;
+}
+
+window.abrirCentralOffline=async function(){
+  const m=document.getElementById('modal-central-offline');if(!m)return;
+  m.classList.remove('hidden');
+  await window.renderCentralOffline();
+};
+window.fecharCentralOffline=function(){document.getElementById('modal-central-offline')?.classList.add('hidden')};
+window.renderCentralOffline=async function(){
+  const list=document.getElementById('offline-center-list');if(!list)return;
+  const all=await assistOfflineAllQueue(),mine=all.filter(assistOfflineOpOwnerOk),foreign=all.filter(x=>!assistOfflineOpOwnerOk(x));
+  const errors=mine.filter(x=>Number(x.tentativas||0)>0||x.ultimoErro).length;
+  const online=navigator.onLine!==false&&!assistOfflineForced();
+  const conn=document.getElementById('offline-center-connection');
+  if(conn){
+    conn.className='offline-center-connection mt-4 '+(online?'online':'offline');
+    conn.innerHTML=online
+      ? '<i class="fa-solid fa-wifi mt-[2px]"></i><div><b>Conectado.</b> As pendências podem ser sincronizadas agora.</div>'
+      : '<i class="fa-solid fa-cloud-arrow-down mt-[2px]"></i><div><b>Modo offline.</b> Continue trabalhando normalmente; os registros abaixo permanecem armazenados neste aparelho.</div>';
+  }
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v)};
+  set('offline-kpi-pendentes',mine.length);
+  set('offline-kpi-erros',errors);
+  set('offline-kpi-outros',foreign.length);
+  const sb=document.getElementById('offline-sync-all-btn');if(sb)sb.disabled=!online||!mine.length;
+
+  if(!mine.length){
+    list.innerHTML=`<div class="offline-queue-empty"><i class="fa-solid fa-circle-check text-emerald-500 text-xl mb-2"></i><div class="font-black text-slate-700">Tudo sincronizado para este usuário</div><div class="mt-1">Não existem operações locais aguardando envio.</div></div>${foreign.length?`<div class="offline-queue-foreign mt-2"><i class="fa-solid fa-user-lock mr-1"></i>${foreign.length} operação(ões) de outro usuário permanecem armazenadas neste aparelho e não serão sincronizadas pela conta atual.</div>`:''}`;
+    return;
+  }
+
+  list.innerHTML=mine.map((op,i)=>{
+    const osid=assistOfflineOpOsId(op),os=(state.os||[]).find(x=>String(x.id||x.internalId)===String(osid));
+    const osnum=op.osNumber||os?.osNumber||os?.numero||'OS não identificada';
+    const legacy=!op.ownerUid;
+    const err=op.ultimoErro||'';
+    const dt=op.createdAtISO?fmtDate(op.createdAtISO):'-';
+    return `<article class="offline-queue-item ${err?'error':''} ${legacy?'legacy':''}">
+      <div class="offline-queue-head">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="offline-queue-type"><i class="fa-solid ${assistOfflineKindIcon(op.kind)} mr-1"></i>${esc(assistOfflineKindLabel(op.kind))}</span>
+            ${legacy?'<span class="offline-queue-type" style="background:#f8fafc;color:#64748b">registro legado</span>':''}
+          </div>
+          <div class="offline-queue-title mt-2">${esc(osnum)} · ${esc(assistOfflineOpDescription(op))}</div>
+          <div class="offline-queue-meta">Salvo no aparelho: ${esc(dt)}${op.tentativas?` · Tentativas: ${Number(op.tentativas)}`:''}${op.ultimaTentativaISO?` · Última tentativa: ${esc(fmtDate(op.ultimaTentativaISO))}`:''}</div>
+        </div>
+      </div>
+      ${err?`<div class="offline-queue-error"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${esc(err)}</div>`:''}
+      <div class="offline-queue-actions">
+        <button type="button" class="offline-queue-btn primary" ${online?'':'disabled'} onclick="window.sincronizarOperacaoOffline('${esc(op.id)}')"><i class="fa-solid fa-rotate"></i> Tentar agora</button>
+        <button type="button" class="offline-queue-btn danger" onclick="window.descartarOperacaoOffline('${esc(op.id)}')"><i class="fa-solid fa-trash-can"></i> Descartar</button>
+      </div>
+    </article>`;
+  }).join('')+(foreign.length?`<div class="offline-queue-foreign"><i class="fa-solid fa-user-lock mr-1"></i>${foreign.length} operação(ões) pertencem a outro usuário e estão protegidas contra sincronização pela conta atual.</div>`:'');
+};
+window.sincronizarOperacaoOffline=async function(id){
+  if(navigator.onLine===false){toast('Sem conexão. Esta pendência continua salva no aparelho.');return}
+  const op=(await assistOfflineAllQueue()).find(x=>String(x.id)===String(id));
+  if(!op||!assistOfflineOpOwnerOk(op)){toast('Operação não disponível para este usuário.');return}
+  try{
+    assistOfflineClearForced();
+    await assistOfflineTimeout(assistOfflineRawExecute(op),12000,'sync-offline-item');
+    await assistOfflineStoreDelete('queue',op.id);
+    await assistOfflineUpdateBadge();
+    await window.renderCentralOffline();
+    toast('Pendência sincronizada com sucesso.');
+  }catch(e){
+    op.tentativas=Number(op.tentativas||0)+1;
+    op.ultimoErro=String(e?.message||e);
+    op.ultimaTentativaISO=new Date().toISOString();
+    await assistOfflineStorePut('queue',op);
+    await window.renderCentralOffline();
+    toast('A pendência continua salva no aparelho.');
+  }
+};
+window.descartarOperacaoOffline=async function(id){
+  const op=(await assistOfflineAllQueue()).find(x=>String(x.id)===String(id));
+  if(!op||!assistOfflineOpOwnerOk(op)){toast('Operação não disponível para este usuário.');return}
+  const label=assistOfflineKindLabel(op.kind),osnum=op.osNumber||'esta OS';
+  if(!confirm(`Descartar "${label}" de ${osnum}?\n\nEsta ação remove somente a pendência local que ainda não foi sincronizada. Use apenas se você tiver certeza de que esse registro não deve mais ser enviado.`))return;
+  await assistOfflineStoreDelete('queue',op.id);
+  await assistOfflineUpdateBadge();
+  await window.renderCentralOffline();
+  toast('Pendência local descartada.');
+};
+
 async function assistOfflineRawHistory(meta,titulo,detalhe,tipo='SINCRONIZACAO'){
   if(!meta?.osId)return;const id='hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),now=new Date().toISOString();
   await window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',meta.osId,'historico',id),{internalId:id,tipo,titulo,detalhe:detalhe||'',osId:meta.osId,osNumber:meta.osNumber||'',createdAtISO:now,usuarioUid:meta.usuarioUid||'',usuarioNome:meta.usuarioNome||'',usuarioEmail:meta.usuarioEmail||'',origemEvento:'APP_TECNICO_OFFLINE',schemaVersion:2});
@@ -1966,13 +2222,73 @@ async function assistOfflineRawExecute(op){
   }
   throw new Error('Tipo offline desconhecido: '+k);
 }
-window.sincronizarPendenciasOffline=async function(){
-  if(__assistOfflineSyncing)return;if(navigator.onLine===false){toast('Sem conexão. As pendências continuam salvas no aparelho.');await assistOfflineUpdateBadge();return}
-  const rows=await assistOfflinePending();if(!rows.length){toast('Nenhuma pendência de sincronização.');return}
-  __assistOfflineSyncing=true;const btn=document.getElementById('tech-sync-offline-btn');btn?.classList.add('syncing');if(btn)btn.disabled=true;let ok=0,fail=0;
-  for(const op of rows){try{await assistOfflineRawExecute(op);await assistOfflineStoreDelete('queue',op.id);ok++}catch(e){fail++;op.tentativas=Number(op.tentativas||0)+1;op.ultimoErro=String(e?.message||e);op.ultimaTentativaISO=new Date().toISOString();await assistOfflineStorePut('queue',op);console.error('[Assistência Offline] sync',e)}}
-  __assistOfflineSyncing=false;btn?.classList.remove('syncing');if(btn)btn.disabled=false;await assistOfflineUpdateBadge();techAppStamp?.();toast(fail?(ok+' sincronizada(s), '+fail+' pendente(s).'):(ok+' operação(ões) sincronizada(s).'));
-  if(ok&&assistOfflineTechRequested()){try{await load()}catch(_){}}
+window.sincronizarPendenciasOffline=async function(abrirCentralAoFinal=false){
+  if(__assistOfflineSyncing)return;
+  if(navigator.onLine===false){
+    toast('Sem conexão. As pendências continuam salvas no aparelho.');
+    await assistOfflineUpdateBadge();
+    if(abrirCentralAoFinal)await window.renderCentralOffline?.();
+    return;
+  }
+  const rows=await assistOfflinePending();
+  if(!rows.length){
+    toast('Nenhuma pendência de sincronização.');
+    if(abrirCentralAoFinal)await window.renderCentralOffline?.();
+    return;
+  }
+
+  __assistOfflineSyncing=true;
+  assistOfflineClearForced();
+  const btn=document.getElementById('tech-sync-offline-btn');
+  const modalBtn=document.getElementById('offline-sync-all-btn');
+  btn?.classList.add('syncing');
+  if(btn)btn.disabled=true;
+  if(modalBtn)modalBtn.disabled=true;
+
+  let ok=0,fail=0,adiadas=0;
+  const blockedOs=new Set();
+
+  try{
+    for(const op of rows){
+      const osid=assistOfflineOpOsId(op);
+      if(osid&&blockedOs.has(osid)){adiadas++;continue}
+      try{
+        await assistOfflineTimeout(assistOfflineRawExecute(op),12000,'sync-offline');
+        await assistOfflineStoreDelete('queue',op.id);
+        ok++;
+      }catch(e){
+        fail++;
+        if(osid)blockedOs.add(osid);
+        op.tentativas=Number(op.tentativas||0)+1;
+        op.ultimoErro=String(e?.message||e);
+        op.ultimaTentativaISO=new Date().toISOString();
+        await assistOfflineStorePut('queue',op);
+        console.error('[Assistência Offline] sync',e);
+      }
+    }
+  }finally{
+    __assistOfflineSyncing=false;
+    btn?.classList.remove('syncing');
+    if(btn)btn.disabled=false;
+    if(modalBtn)modalBtn.disabled=false;
+    await assistOfflineUpdateBadge();
+    techAppStamp?.();
+    await window.renderCentralOffline?.();
+  }
+
+  let msg='';
+  if(fail){
+    msg=`${ok} sincronizada(s), ${fail} com erro`;
+    if(adiadas)msg+=` e ${adiadas} adiada(s) para preservar a ordem da OS`;
+    msg+='.';
+  }else{
+    msg=ok+' operação(ões) sincronizada(s).';
+  }
+  toast(msg);
+
+  if(ok&&assistOfflineTechRequested()){
+    try{await load()}catch(_){}
+  }
 };
 
 async function read(n){
@@ -2126,7 +2442,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.57 — OS interna x externa e recolhimento para laboratório
+// FASE 1.58 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -3222,7 +3538,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.57 — leitura de QR Code / número de série do equipamento
+// FASE 1.58 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3378,7 +3694,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.57 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.58 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -3793,7 +4109,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.57 — materiais do técnico no celular
+// FASE 1.58 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -4220,7 +4536,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.57 — SLA configurável por prioridade
+// FASE 1.58 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -4355,7 +4671,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.57 — Tratamento administrativo após atendimento externo
+// FASE 1.58 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4500,7 +4816,7 @@ window.salvarRetornoExterno=async function(){
 };
 
 
-// FASE 1.57 — verificação automática de integridade operacional
+// FASE 1.58 — verificação automática de integridade operacional
 function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
   return {nivel,codigo,titulo,detalhe,...extra};
 }
@@ -4602,7 +4918,7 @@ async function verificarIntegridadeOSCompleta(o){
   return issues;
 }
 
-// FASE 1.57 — travas preventivas e correções guiadas
+// FASE 1.58 — travas preventivas e correções guiadas
 function integrityErrors(issues){return (issues||[]).filter(x=>x.nivel==='ERROR')}
 function integrityIssueAction(issue,o){
   const eid=issue?.equipamentoId;
@@ -4748,7 +5064,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
@@ -5051,7 +5367,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.57 — exclusão lógica de equipamento e OS
+// FASE 1.58 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -5174,7 +5490,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.57 — reabertura controlada por ciclos
+// FASE 1.58 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5294,7 +5610,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.57 — duplicação controlada de OS
+// FASE 1.58 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5439,7 +5755,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.57 — conciliação de materiais no fechamento da OS
+// FASE 1.58 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
