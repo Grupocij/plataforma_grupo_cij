@@ -857,6 +857,20 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 }
 </style>
 
+
+<style id="fase159-offline-readiness-ui">
+.offline-partial-chip{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.25rem .48rem;font-size:.52rem;font-weight:900;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.tech-offline-prepare.partial{background:#fff7ed!important;border-color:#fed7aa!important;color:#c2410c!important}
+.offline-storage-status{display:flex;align-items:flex-start;gap:.5rem;border-radius:.8rem;border:1px solid #e2e8f0;background:#f8fafc;padding:.6rem .7rem;font-size:.58rem;font-weight:800;line-height:1.4;color:#475569}
+.offline-storage-status.good{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.offline-storage-status.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.offline-storage-status.danger{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+.offline-resource-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem;margin-top:.45rem}
+.offline-resource-item{display:flex;align-items:center;gap:.3rem;font-size:.52rem;font-weight:800;color:#64748b}
+.offline-resource-item.ok{color:#047857}.offline-resource-item.fail{color:#be123c}
+@media(max-width:520px){.offline-resource-list{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center"><h1 class="text-2xl font-black text-[#002d72]">ASSISTÊNCIA TÉCNICA</h1><p id="login-message" class="text-sm font-semibold text-slate-500 mt-2">Validando acesso...</p></div></div>
@@ -864,7 +878,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.58</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.59</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-box-archive"></i> Legado</button></div>
@@ -1018,6 +1032,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     </div>
 
     <div id="offline-center-connection" class="offline-center-connection mt-4"></div>
+    <div id="offline-center-storage" class="offline-storage-status mt-3"><i class="fa-solid fa-hard-drive"></i><span>Verificando armazenamento local...</span></div>
 
     <div class="offline-center-kpis mt-4">
       <div class="offline-center-kpi"><span>Pendentes</span><b id="offline-kpi-pendentes">0</b></div>
@@ -1458,7 +1473,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.58</span>
+        <span class="tag tag-green">FASE 1.59</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -1781,7 +1796,7 @@ const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
 
-// FASE 1.58 — Offline essencial para atendimento externo
+// FASE 1.59 — Offline essencial para atendimento externo
 const ASSIST_OFFLINE_DB='assistencia_cij_offline_v1';
 const ASSIST_OFFLINE_VERSION=1;
 let __assistOfflineDBPromise=null;
@@ -1849,7 +1864,7 @@ async function assistOfflineApplyCache(kind,args){
   }catch(e){console.warn('[Assistência Offline] cache local',e)}
 }
 
-// FASE 1.58 — central de sincronização offline e ownership por usuário
+// FASE 1.59 — central de sincronização offline e ownership por usuário
 function assistOfflineCurrentUid(){
   return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'');
 }
@@ -1982,51 +1997,208 @@ async function assistOfflineWrite(kind,args,onlineFn){
   }
 }
 
+
+// FASE 1.59 — preparo offline validado e armazenamento persistente
+async function assistOfflineStorageStatus(tentarPersistir=false){
+  const out={supported:false,persisted:false,usage:0,quota:0,percentual:0};
+  try{
+    if(!navigator.storage)return out;
+    out.supported=true;
+    if(tentarPersistir&&navigator.storage.persist){
+      try{await navigator.storage.persist()}catch(_){}
+    }
+    if(navigator.storage.persisted){
+      try{out.persisted=await navigator.storage.persisted()}catch(_){}
+    }
+    if(navigator.storage.estimate){
+      const e=await navigator.storage.estimate();
+      out.usage=Number(e?.usage||0);
+      out.quota=Number(e?.quota||0);
+      out.percentual=out.quota>0?(out.usage/out.quota)*100:0;
+    }
+  }catch(e){console.warn('[Assistência Offline] storage status',e)}
+  return out;
+}
+function assistOfflineBytes(v){
+  const n=Number(v||0);
+  if(n<1024)return n+' B';
+  if(n<1024*1024)return (n/1024).toFixed(1).replace('.',',')+' KB';
+  if(n<1024*1024*1024)return (n/1024/1024).toFixed(1).replace('.',',')+' MB';
+  return (n/1024/1024/1024).toFixed(2).replace('.',',')+' GB';
+}
+async function assistOfflineCacheSetStrict(key,data){
+  await assistOfflineStorePut('cache',{key,data,updatedAtISO:new Date().toISOString()});
+  return true;
+}
+async function assistOfflineFetchCollectionDirect(nome,timeout=10000){
+  const snap=await assistOfflineTimeout(window.fsGetDocs(col(nome)),timeout,'prepare:'+nome),a=[];
+  snap.forEach(d=>a.push({id:d.id,...d.data()}));
+  await assistOfflineCacheSetStrict('collection:'+nome,a);
+  return a;
+}
+async function assistOfflineFetchSubDirect(osId,sub,timeout=10000){
+  const snap=await assistOfflineTimeout(window.fsGetDocs(window.fsCollection(window.AppDB,...BASE,'os_ordens',osId,sub)),timeout,'prepare:'+sub),a=[];
+  snap.forEach(d=>a.push({id:d.id,...d.data()}));
+  await assistOfflineCacheSetStrict(`sub:${osId}:${sub}`,a);
+  return a;
+}
+async function assistOfflinePrepareResource(nome,fn,obrigatorio=true){
+  try{
+    const data=await fn();
+    return {nome,ok:true,obrigatorio,data:Array.isArray(data)?data:[],count:Array.isArray(data)?data.length:0,error:''};
+  }catch(e){
+    console.warn('[Assistência Offline] recurso não preparado',nome,e);
+    return {nome,ok:false,obrigatorio,data:[],count:0,error:String(e?.message||e)};
+  }
+}
+function assistOfflineReadyState(o){
+  const info=assistOfflineReadyInfo(o);
+  if(!info)return'NONE';
+  if(Number(info.schemaVersion||1)<2)return'PARTIAL';
+  return String(info.status||'PARTIAL').toUpperCase();
+}
+function assistOfflineReadyClass(o){
+  const st=assistOfflineReadyState(o);
+  return st==='READY'?'ready':st==='PARTIAL'?'partial':'';
+}
+
 const __assistOfflinePreparedMap={};
 
 async function assistOfflineRefreshPreparedMap(){
   try{
     const externas=(state.os||[]).filter(o=>String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO');
+    const uid=assistOfflineCurrentUid();
     await Promise.all(externas.map(async o=>{
       const osid=o.internalId||o.id,info=await assistOfflineCacheGet('offline-ready:'+osid);
-      if(info)__assistOfflinePreparedMap[String(osid)]=info;else delete __assistOfflinePreparedMap[String(osid)];
+      if(info&&(!info.ownerUid||!uid||String(info.ownerUid)===uid))__assistOfflinePreparedMap[String(osid)]=info;
+      else delete __assistOfflinePreparedMap[String(osid)];
     }));
   }catch(e){console.warn('[Assistência Offline] flags de preparo',e)}
 }
 function assistOfflineReadyInfo(o){return __assistOfflinePreparedMap[String(o?.internalId||o?.id||'')]||null}
 function assistOfflineReadyLabel(o){
   const info=assistOfflineReadyInfo(o);if(!info)return'Não preparado';
-  try{const d=new Date(info.preparedAtISO);return'Offline pronto · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch(_){return'Offline pronto'}
+  const status=Number(info.schemaVersion||1)<2?'PARTIAL':String(info.status||'PARTIAL').toUpperCase();
+  let quando='';
+  try{
+    const d=new Date(info.preparedAtISO);
+    quando=' · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(_){}
+  if(status==='PARTIAL')return'Offline parcial'+quando;
+  if(status==='FAILED')return'Preparo incompleto'+quando;
+  return'Offline pronto'+quando;
 }
 window.prepararOSOffline=async function(id,silencioso=false){
   const o=(state.os||[]).find(x=>String(x.id||x.internalId)===String(id));
   if(!o){if(!silencioso)toast('OS não encontrada.');return false}
   if(String(o.tipoAtendimento||'INTERNO').toUpperCase()!=='EXTERNO'){if(!silencioso)toast('A preparação offline é destinada às OS externas.');return false}
   if(navigator.onLine===false){if(!silencioso)toast('Conecte o aparelho à internet para preparar a OS offline.');return false}
+
   const osid=o.internalId||o.id,btn=document.querySelector(`[data-offline-os="${CSS.escape(String(osid))}"]`);
   if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Preparando...'}
+
   try{
-    const safe=async fn=>{try{return await fn()}catch(e){console.warn('[Assistência Offline] preparo parcial',e);return[]}};
-    const [equipamentos,solicitacoes,orcamentos,planejamentos,materiaisLegado,historico,requisicoes,arquivos,pecas,consumiveis,clientes,parque,modelos,osordens]=await Promise.all([
-      safe(()=>readSub(osid,'equipamentos')),safe(()=>readSub(osid,'solicitacoes_orcamento')),safe(()=>readSub(osid,'orcamentos')),
-      safe(()=>readSub(osid,'materiais_planejamento')),safe(()=>readSub(osid,'solicitacoes_materiais')),safe(()=>readSub(osid,'historico')),
-      safe(()=>read('requisicoes_material')),safe(()=>read('os_arquivos')),safe(()=>read('cadastros_pecas')),safe(()=>read('cadastros_consumiveis')),
-      safe(()=>read('cadastros_clientes')),safe(()=>read('parque_maquinas')),safe(()=>read('cadastros_equipamentos')),safe(()=>read('os_ordens'))
+    const storage=await assistOfflineStorageStatus(true);
+    if(storage.quota>0&&storage.percentual>=95){
+      throw new Error('O armazenamento local do aparelho está praticamente cheio. Libere espaço antes de preparar esta OS.');
+    }
+
+    const recursos=await Promise.all([
+      assistOfflinePrepareResource('equipamentos',()=>assistOfflineFetchSubDirect(osid,'equipamentos'),true),
+      assistOfflinePrepareResource('solicitacoes_orcamento',()=>assistOfflineFetchSubDirect(osid,'solicitacoes_orcamento'),true),
+      assistOfflinePrepareResource('orcamentos',()=>assistOfflineFetchSubDirect(osid,'orcamentos'),true),
+      assistOfflinePrepareResource('materiais_planejamento',()=>assistOfflineFetchSubDirect(osid,'materiais_planejamento'),true),
+      assistOfflinePrepareResource('solicitacoes_materiais',()=>assistOfflineFetchSubDirect(osid,'solicitacoes_materiais'),true),
+      assistOfflinePrepareResource('historico',()=>assistOfflineFetchSubDirect(osid,'historico'),true),
+      assistOfflinePrepareResource('requisicoes_material',()=>assistOfflineFetchCollectionDirect('requisicoes_material'),true),
+      assistOfflinePrepareResource('os_arquivos',()=>assistOfflineFetchCollectionDirect('os_arquivos'),true),
+      assistOfflinePrepareResource('cadastros_clientes',()=>assistOfflineFetchCollectionDirect('cadastros_clientes'),true),
+      assistOfflinePrepareResource('parque_maquinas',()=>assistOfflineFetchCollectionDirect('parque_maquinas'),true),
+      assistOfflinePrepareResource('cadastros_equipamentos',()=>assistOfflineFetchCollectionDirect('cadastros_equipamentos'),true),
+      assistOfflinePrepareResource('os_ordens',()=>assistOfflineFetchCollectionDirect('os_ordens'),true),
+      assistOfflinePrepareResource('cadastros_pecas',()=>assistOfflineFetchCollectionDirect('cadastros_pecas'),false),
+      assistOfflinePrepareResource('cadastros_consumiveis',()=>assistOfflineFetchCollectionDirect('cadastros_consumiveis'),false)
     ]);
-    const info={osId:String(osid),osNumber:o.osNumber||o.numero||'',preparedAtISO:new Date().toISOString(),clienteId:o.clienteId||'',equipamentos:equipamentos.length,solicitacoes:solicitacoes.length,orcamentos:orcamentos.length,requisicoes:requisicoes.filter(r=>String(r.osId||'')===String(osid)||String(r.os||'')===String(o.osNumber||o.numero||'')).length,arquivos:arquivos.filter(a=>String(a.osId||'')===String(osid)).length,schemaVersion:1};
-    await assistOfflineCacheSet('offline-ready:'+osid,info);__assistOfflinePreparedMap[String(osid)]=info;
+
+    const byName=Object.fromEntries(recursos.map(r=>[r.nome,r]));
+    const obrigatoriosFalhos=recursos.filter(r=>r.obrigatorio&&!r.ok);
+    const opcionaisFalhos=recursos.filter(r=>!r.obrigatorio&&!r.ok);
+    const status=obrigatoriosFalhos.length?'PARTIAL':'READY';
+    const preparedAtISO=new Date().toISOString();
+
+    const equipamentos=byName.equipamentos?.data||[];
+    const clientes=byName.cadastros_clientes?.data||[];
+    const osordens=byName.os_ordens?.data||[];
+    const requisicoes=byName.requisicoes_material?.data||[];
+    const arquivos=byName.os_arquivos?.data||[];
+
     let osCache=(await assistOfflineCacheGet('collection:os_ordens'))||osordens||[];
     if(!osCache.some(x=>String(x.id||x.internalId)===String(osid)))osCache.push({...o,id:o.id||osid,internalId:o.internalId||osid});
-    await assistOfflineCacheSet('collection:os_ordens',osCache);
+    await assistOfflineCacheSetStrict('collection:os_ordens',osCache);
+
     const cliente=clientes.find(c=>String(c.id||c.internalId)===String(o.clienteId||''))||null;
-    await assistOfflineCacheSet('offline-snapshot:'+osid,{os:{...o},cliente,equipamentos,preparedAtISO:info.preparedAtISO});
-    if(!silencioso)toast('OS preparada para uso offline.');
-    renderModoTecnico();return true;
+    await assistOfflineCacheSetStrict('offline-snapshot:'+osid,{
+      os:{...o},cliente,equipamentos,preparedAtISO,
+      ownerUid:assistOfflineCurrentUid(),schemaVersion:2
+    });
+
+    const info={
+      osId:String(osid),osNumber:o.osNumber||o.numero||'',
+      preparedAtISO,clienteId:o.clienteId||'',
+      ownerUid:assistOfflineCurrentUid(),
+      status,
+      equipamentos:equipamentos.length,
+      solicitacoes:byName.solicitacoes_orcamento?.count||0,
+      orcamentos:byName.orcamentos?.count||0,
+      requisicoes:requisicoes.filter(r=>String(r.osId||'')===String(osid)||String(r.os||'')===String(o.osNumber||o.numero||'')).length,
+      arquivos:arquivos.filter(a=>String(a.osId||'')===String(osid)).length,
+      recursos:recursos.map(r=>({nome:r.nome,ok:r.ok,obrigatorio:r.obrigatorio,count:r.count,error:r.error||''})),
+      falhasObrigatorias:obrigatoriosFalhos.map(r=>r.nome),
+      falhasOpcionais:opcionaisFalhos.map(r=>r.nome),
+      storagePersisted:!!storage.persisted,
+      storageUsage:Number(storage.usage||0),
+      storageQuota:Number(storage.quota||0),
+      schemaVersion:2
+    };
+
+    await assistOfflineCacheSetStrict('offline-ready:'+osid,info);
+    __assistOfflinePreparedMap[String(osid)]=info;
+
+    if(status==='READY'){
+      if(!silencioso)toast('OS preparada e validada para uso offline.');
+    }else{
+      if(!silencioso){
+        alert('A OS foi preparada apenas parcialmente.\n\nNão foi possível armazenar: '+obrigatoriosFalhos.map(x=>x.nome).join(', ')+'.\n\nAtualize a preparação antes de sair para o atendimento.');
+      }
+    }
+    renderModoTecnico();
+    return status==='READY';
   }catch(e){
     console.error('[Assistência Offline] preparar OS',e);
+    const info={
+      osId:String(osid),osNumber:o.osNumber||o.numero||'',
+      preparedAtISO:new Date().toISOString(),
+      ownerUid:assistOfflineCurrentUid(),
+      status:'FAILED',
+      falhasObrigatorias:['preparacao'],
+      erro:String(e?.message||e),
+      schemaVersion:2
+    };
+    try{await assistOfflineCacheSetStrict('offline-ready:'+osid,info);__assistOfflinePreparedMap[String(osid)]=info}catch(_){}
     if(!silencioso)alert('Não foi possível preparar completamente esta OS para uso offline.\n\n'+(e?.message||e));
+    renderModoTecnico();
     return false;
-  }finally{if(btn)btn.disabled=false}
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      const st=assistOfflineReadyState(o);
+      btn.innerHTML=st==='READY'
+        ?'<i class="fa-solid fa-cloud-arrow-down"></i> Atualizar offline'
+        :st==='PARTIAL'
+          ?'<i class="fa-solid fa-triangle-exclamation"></i> Completar preparo'
+          :'<i class="fa-solid fa-download"></i> Preparar offline';
+    }
+  }
 };
 
 function techOfflineFeedback(msg,tipo='ok'){
@@ -2049,11 +2221,20 @@ window.techPrepararOfflineClick=async function(){
       techOfflineFeedback('<i class="fa-solid fa-circle-info mr-1"></i>Nenhuma OS externa ativa está atribuída a você neste momento.','warn');
       return;
     }
-    let ok=0;
-    for(const o of externas)if(await window.prepararOSOffline(o.id||o.internalId,true))ok++;
+
+    for(const o of externas)await window.prepararOSOffline(o.id||o.internalId,true);
     await assistOfflineRefreshPreparedMap?.();
     renderModoTecnico();
-    techOfflineFeedback(`<i class="fa-solid fa-circle-check mr-1"></i>${ok} OS externa(s) preparada(s) para uso sem internet.`,'ok');
+
+    const prontas=externas.filter(o=>assistOfflineReadyState(o)==='READY').length;
+    const parciais=externas.filter(o=>assistOfflineReadyState(o)==='PARTIAL').length;
+    const falhas=externas.length-prontas-parciais;
+
+    if(prontas===externas.length){
+      techOfflineFeedback(`<i class="fa-solid fa-circle-check mr-1"></i>${prontas} OS externa(s) validadas para uso offline.`,'ok');
+    }else{
+      techOfflineFeedback(`<i class="fa-solid fa-triangle-exclamation mr-1"></i>${prontas} pronta(s), ${parciais} parcial(is)${falhas?`, ${falhas} com falha`:''}. Atualize as parciais antes do atendimento.`,'warn');
+    }
   }catch(e){
     console.error('[Assistência] preparar offline botão',e);
     techOfflineFeedback('<i class="fa-solid fa-triangle-exclamation mr-1"></i>Não foi possível preparar as OS. '+esc(e?.message||e),'error');
@@ -2090,8 +2271,12 @@ window.prepararMinhasOSExternasOffline=async function(){
   if(navigator.onLine===false){toast('Conecte o aparelho à internet primeiro.');return}
   const minhas=(state.os||[]).filter(o=>o?.is_deleted!==true).filter(isMinhaOS).filter(o=>String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO').filter(o=>!['FATURAMENTO','ENCERRADOS'].includes(normStage(o.etapaKanban||o.etapa||o.status)));
   if(!minhas.length){toast('Nenhuma OS externa ativa para preparar.');return}
-  let ok=0;for(const o of minhas)if(await window.prepararOSOffline(o.id||o.internalId,true))ok++;
-  toast(ok+' OS externa(s) preparada(s) para offline.');renderModoTecnico();
+  for(const o of minhas)await window.prepararOSOffline(o.id||o.internalId,true);
+  await assistOfflineRefreshPreparedMap();
+  const ok=minhas.filter(o=>assistOfflineReadyState(o)==='READY').length;
+  const parcial=minhas.filter(o=>assistOfflineReadyState(o)==='PARTIAL').length;
+  toast(ok+' pronta(s)'+(parcial?' · '+parcial+' parcial(is)':'')+'.');
+  renderModoTecnico();
 };
 
 async function assistOfflinePending(){
@@ -2131,6 +2316,14 @@ window.renderCentralOffline=async function(){
     conn.innerHTML=online
       ? '<i class="fa-solid fa-wifi mt-[2px]"></i><div><b>Conectado.</b> As pendências podem ser sincronizadas agora.</div>'
       : '<i class="fa-solid fa-cloud-arrow-down mt-[2px]"></i><div><b>Modo offline.</b> Continue trabalhando normalmente; os registros abaixo permanecem armazenados neste aparelho.</div>';
+  }
+  const storage=await assistOfflineStorageStatus(false);
+  const storageEl=document.getElementById('offline-center-storage');
+  if(storageEl){
+    const pct=Number(storage.percentual||0);
+    storageEl.className='offline-storage-status mt-3 '+(pct>=90?'danger':pct>=75?'warn':storage.persisted?'good':'');
+    const uso=storage.quota?`${assistOfflineBytes(storage.usage)} de ${assistOfflineBytes(storage.quota)} (${pct.toFixed(1).replace('.',',')}%)`:'uso não informado pelo navegador';
+    storageEl.innerHTML=`<i class="fa-solid fa-hard-drive"></i><span><b>Armazenamento local:</b> ${uso} · ${storage.persisted?'proteção persistente ativa':'proteção persistente não confirmada'}</span>`;
   }
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v)};
   set('offline-kpi-pendentes',mine.length);
@@ -2427,9 +2620,13 @@ function renderModoTecnico(){
  minhas.sort((a,b)=>String(a.agendadoParaISO||'9999').localeCompare(String(b.agendadoParaISO||'9999')));
  lista.innerHTML=minhas.length?minhas.map(o=>{
    const stage=normStage(o.etapaKanban||o.etapa||o.status),p=pendenciaOS(o),eqs=o._equipamentos||[],eqtxt=eqs.length?eqs.map(e=>e.modelo||e.nome||'Equipamento').join(', '):'Equipamento ainda não vinculado';
-   const externo=String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO',ready=externo?assistOfflineReadyInfo(o):null;
-   const chip=externo?(ready?`<span class="offline-ready-chip"><i class="fa-solid fa-circle-check"></i>${esc(assistOfflineReadyLabel(o))}</span>`:`<span class="offline-notready-chip"><i class="fa-solid fa-cloud-arrow-down"></i>Não preparado offline</span>`):'';
-   const prep=externo?`<button data-offline-os="${esc(o.internalId||o.id)}" class="tech-offline-prepare ${ready?'ready':''}" onclick="event.stopPropagation();window.prepararOSOffline('${esc(o.id||o.internalId)}')"><i class="fa-solid ${ready?'fa-cloud-arrow-down':'fa-download'}"></i>${ready?'Atualizar offline':'Preparar offline'}</button>`:'';
+   const externo=String(o.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO',readyInfo=externo?assistOfflineReadyInfo(o):null,readyState=externo?assistOfflineReadyState(o):'NONE';
+   const chip=externo?(readyState==='READY'
+     ?`<span class="offline-ready-chip"><i class="fa-solid fa-circle-check"></i>${esc(assistOfflineReadyLabel(o))}</span>`
+     :readyState==='PARTIAL'
+       ?`<span class="offline-partial-chip"><i class="fa-solid fa-triangle-exclamation"></i>${esc(assistOfflineReadyLabel(o))}</span>`
+       :`<span class="offline-notready-chip"><i class="fa-solid fa-cloud-arrow-down"></i>${readyState==='FAILED'?'Preparo offline falhou':'Não preparado offline'}</span>`):'';
+   const prep=externo?`<button data-offline-os="${esc(o.internalId||o.id)}" class="tech-offline-prepare ${assistOfflineReadyClass(o)}" onclick="event.stopPropagation();window.prepararOSOffline('${esc(o.id||o.internalId)}')"><i class="fa-solid ${readyState==='READY'?'fa-cloud-arrow-down':readyState==='PARTIAL'?'fa-triangle-exclamation':'fa-download'}"></i>${readyState==='READY'?'Atualizar offline':readyState==='PARTIAL'?'Completar preparo':'Preparar offline'}</button>`:'';
    return `<article class="tech-os-card ${stage==='FATURAMENTO'?'admin':''}"><div class="flex justify-between gap-3"><div><div class="os-number">${esc(o.osNumber||o.numero||'OS')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(o.clienteNome||o.cliente||'Cliente não informado')}</div></div><span class="priority h-fit">${esc(o.prioridade||'NORMAL')}</span></div><div class="mt-2">${chip}</div><div class="tech-meta-grid"><div class="tech-meta"><span>Tipo</span><b>${esc(tipoAtendimentoLabel(o))}</b></div><div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta col-span-2"><span>Equipamento(s)</span><b>${esc(eqtxt)}</b></div></div><div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span>${esc(p.texto)}</span></div><div class="tech-card-actions"><button class="tech-primary-action !mt-0" onclick="window.abrirAtendimentoTecnico('${esc(o.id||o.internalId)}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir atendimento</button>${prep}</div></article>`;
  }).join(''):`<div class="tech-empty"><i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i><div class="font-black text-slate-700">Nenhum atendimento atribuído a você</div><div class="mt-1">As OS aparecerão aqui quando você estiver definido como técnico responsável.</div></div>`;
 }
@@ -2442,7 +2639,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function machineLabel(x){const sn=x.numero_serie||x.numeroSerie||x.serial||x.sn||x.serie||'S/N não informado';const modelo=x.modelo||x.equipamento||x.nomeEquipamento||x.descricao||x.fabricante||'Equipamento';return `${modelo} · SN: ${sn}`}
 function machineBelongsToClient(x,o){const vals=[x.clienteId,x.cliente_id,x.idCliente,x.cliente,x.clienteNome,x.razao_social,x.razaoSocial,x.fantasia].filter(Boolean).map(v=>String(v).trim().toLowerCase());const targets=[o?.clienteId,o?.clienteNome,o?.cliente].filter(Boolean).map(v=>String(v).trim().toLowerCase());return !targets.length||vals.some(v=>targets.includes(v))}
 
-// FASE 1.58 — OS interna x externa e recolhimento para laboratório
+// FASE 1.59 — OS interna x externa e recolhimento para laboratório
 function tipoAtendimentoOS(o){return String(o?.tipoAtendimento||'INTERNO').toUpperCase()==='EXTERNO'?'EXTERNO':'INTERNO'}
 function tipoAtendimentoLabel(o){return tipoAtendimentoOS(o)==='EXTERNO'?'Externo / Campo':'Interno / Laboratório'}
 
@@ -3538,7 +3735,7 @@ window.abrirHistoricoEquipamento=async function(eid){const atual=state.selectedO
 
 window.tipoEquipamento=function(tipo,btn){const tempBtn=document.getElementById('tab-eq-temp');if(tipo==='TEMPORARIO'&&tempBtn?.classList.contains('hidden')){toast('Equipamento temporário só é permitido quando o cliente não possui equipamentos vinculados.');return}state.equipmentType=tipo;document.getElementById('eq-parque-box').classList.toggle('hidden',tipo!=='PARQUE');document.getElementById('eq-temp-box').classList.toggle('hidden',tipo!=='TEMPORARIO');document.querySelectorAll('#modal-equipamento .nav-pill').forEach(x=>x.classList.remove('active'));btn?.classList.add('active')};
 
-// FASE 1.58 — leitura de QR Code / número de série do equipamento
+// FASE 1.59 — leitura de QR Code / número de série do equipamento
 let qrEquipStream=null,qrEquipDetector=null,qrEquipRAF=null,qrEquipScanning=false;
 
 function qrSerialNorm(v){return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'')}
@@ -3694,7 +3891,7 @@ window.abrirAdicionarEquipamento=function(){const o=state.selectedOS;if(!o){toas
 window.fecharAdicionarEquipamento=()=>{document.getElementById('modal-equipamento').classList.add('hidden');window.fecharLeitorQREquipamento?.()};
 window.salvarEquipamentoOS=async function(){const o=state.selectedOS;if(!o)return;const btn=document.getElementById('btn-salvar-equipamento');const now=new Date().toISOString();let data={};const clientMachines=state.parque.filter(x=>machineBelongsToClient(x,o));if(state.equipmentType==='TEMPORARIO'&&clientMachines.length){alert('Este cliente possui equipamento(s) vinculado(s) ao Parque de Máquinas. Selecione um equipamento do cliente; o cadastro temporário não está disponível.');return}if(state.equipmentType==='PARQUE'){const id=document.getElementById('eq-parque-select').value;if(!id){alert('Selecione uma máquina do Parque.');return}const m=state.parque.find(x=>x.id===id);data={tipo:'PARQUE',parqueMaquinaId:id,modelo:m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento',marca:m?.fabricante||m?.marca||'',numeroSerie:m?.numero_serie||m?.numeroSerie||m?.serial||m?.sn||m?.serie||'',identificacaoLocal:m?.tag||m?.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}else{const modelo=document.getElementById('eq-temp-modelo').value.trim();if(!modelo){alert('Informe o modelo do equipamento temporário.');return}data={tipo:'TEMPORARIO',parqueMaquinaId:null,modelo,marca:document.getElementById('eq-temp-marca').value.trim(),numeroSerie:document.getElementById('eq-temp-sn').value.trim(),identificacaoLocal:document.getElementById('eq-temp-tag').value.trim(),observacao:document.getElementById('eq-temp-obs').value.trim(),statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now}}const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));data.internalId=eid;data.osId=o.internalId||o.id;data.osNumber=o.osNumber||o.numero||'';data.clienteId=o.clienteId||'';const qrRaw=document.getElementById('qr-equip-manual')?.value?.trim()||'';if(qrRaw){data.numeroSerieLidoPorQR=true;data.qrConteudoOriginal=qrRaw;}data.criadoPorUid=window.currentUser?.uid||'';data.criadoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveSubDoc(o.internalId||o.id,'equipamentos',eid,data);await addHistory(o,'EQUIPAMENTO','Equipamento vinculado à OS',(data.modelo||'Equipamento')+(data.numeroSerie?' · SN: '+data.numeroSerie:''),{equipamentoId:eid,equipamentoModelo:data.modelo||'Equipamento',equipamentoNumeroSerie:data.numeroSerie||'',tipoEquipamento:data.tipo||''});window.fecharAdicionarEquipamento();await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&document.getElementById('modal-tech-atendimento')&&!document.getElementById('modal-tech-atendimento').classList.contains('hidden')){await window.renderAtendimentoTecnico()}toast(assistOfflineSemRede()?'Equipamento salvo no aparelho. Aguardando sincronização.':'Equipamento vinculado com sucesso.')}catch(e){console.error('[Assistência] equipamento',e);alert('Não foi possível vincular o equipamento. Verifique as Security Rules para a subcoleção equipamentos.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Vincular equipamento'}};
 
-// FASE 1.58 — conciliação entre orçamento aprovado e faturamento
+// FASE 1.59 — conciliação entre orçamento aprovado e faturamento
 window.__fatValorAprovadoAtual=0;
 
 function parseValorBR(v){
@@ -4109,7 +4306,7 @@ window.retomarAtendimentoTecnico=()=>techSalvarControle('EM_ATENDIMENTO','ATENDI
 window.finalizarAtendimentoTecnico=async function(){const o=state.selectedOS;if(!o)return;if(!confirm('Finalizar o apontamento deste atendimento? O tempo será encerrado, mas a OS e os equipamentos não serão concluídos automaticamente.'))return;await techSalvarControle('FINALIZADO','ATENDIMENTO_FINALIZADO','Atendimento finalizado')};
 
 
-// FASE 1.58 — materiais do técnico no celular
+// FASE 1.59 — materiais do técnico no celular
 function techMaterialStatusInfo(st){
  st=String(st||'').toUpperCase();
  const map={
@@ -4536,7 +4733,7 @@ function slaDateValue(v){
  }catch(_){return null}
 }
 
-// FASE 1.58 — SLA configurável por prioridade
+// FASE 1.59 — SLA configurável por prioridade
 const SLA_CONFIG_DOC='config_sla_operacional';
 let assistSLAConfig={
   BAIXA:72,
@@ -4671,7 +4868,7 @@ function pendingCenterInfo(o){
  const sla=stage==='ENCERRADOS'?null:slaEstadoOS(o);return {p,stage,overdue,semTecnico,sla};
 }
 
-// FASE 1.58 — Tratamento administrativo após atendimento externo
+// FASE 1.59 — Tratamento administrativo após atendimento externo
 function equipamentosRetornoExterno(o){
   return (o?._equipamentos||[]).filter(e=>{
     const st=String(e.statusEquipamento||'').toUpperCase();
@@ -4816,7 +5013,7 @@ window.salvarRetornoExterno=async function(){
 };
 
 
-// FASE 1.58 — verificação automática de integridade operacional
+// FASE 1.59 — verificação automática de integridade operacional
 function integrityIssue(nivel,codigo,titulo,detalhe,extra={}){
   return {nivel,codigo,titulo,detalhe,...extra};
 }
@@ -4918,7 +5115,7 @@ async function verificarIntegridadeOSCompleta(o){
   return issues;
 }
 
-// FASE 1.58 — travas preventivas e correções guiadas
+// FASE 1.59 — travas preventivas e correções guiadas
 function integrityErrors(issues){return (issues||[]).filter(x=>x.nivel==='ERROR')}
 function integrityIssueAction(issue,o){
   const eid=issue?.equipamentoId;
@@ -5367,7 +5564,7 @@ if(!window.__assistPermObserver){
 }
 
 
-// FASE 1.58 — exclusão lógica de equipamento e OS
+// FASE 1.59 — exclusão lógica de equipamento e OS
 window.exclusaoAssistenciaAtual=null;
 
 window.fecharExclusaoAssistencia=function(){
@@ -5490,7 +5687,7 @@ window.confirmarExclusaoAssistencia=async function(){
 
 
 
-// FASE 1.58 — reabertura controlada por ciclos
+// FASE 1.59 — reabertura controlada por ciclos
 window.abrirReabrirOS=function(){
   if(!window.exigirPermissaoAssistencia('reabrir_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5610,7 +5807,7 @@ window.confirmarReabrirOS=async function(){
 
 
 
-// FASE 1.58 — duplicação controlada de OS
+// FASE 1.59 — duplicação controlada de OS
 window.abrirDuplicarOS=function(){
   if(!window.exigirPermissaoAssistencia('duplicar_os'))return;
   const o=state.selectedOS;if(!o)return;
@@ -5755,7 +5952,7 @@ window.confirmarDuplicarOS=async function(){
 
 
 
-// FASE 1.58 — conciliação de materiais no fechamento da OS
+// FASE 1.59 — conciliação de materiais no fechamento da OS
 window.__conciliacaoMateriaisResolver=null;
 window.__conciliacaoMateriaisRows=[];
 
