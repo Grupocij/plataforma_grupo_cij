@@ -86,7 +86,7 @@
                 <div class="space-y-4 border-t border-slate-200 pt-4">
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">Controle de Módulos e Visão Global de Dados:</h4>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Marque a caixa para dar acesso à tela e use o botão ao lado para habilitar ou não a Visão Global (ver dados de toda a equipe).</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Marque somente os módulos que este usuário poderá abrir. O Perfil Base não libera módulos automaticamente. Master é a única exceção. O botão Visão Global controla se o usuário vê dados de toda a equipe naquele módulo.</p>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="matriz-modulos-container">
@@ -104,7 +104,7 @@
     </div>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
-    <script type="module" src="core.js?v=20260924-perm-assistencia"></script>
+    <script type="module" src="core.js?v=20260924-1663"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -315,8 +315,7 @@
 
             document.querySelectorAll('.mod-checkbox').forEach(cb => {
                 const modId = cb.value;
-                const legadoAssistencia = ['app_tecnico.html','serviceflow_app.html','gestao_os.html'].some(x => modulosUser.includes(x));
-                cb.checked = modulosUser.includes(modId) || (modId === 'assistencia.html' && legadoAssistencia);
+                cb.checked = modulosUser.includes(modId);
 
                 const card = cb.closest('div.bg-slate-50');
                 const btn = card.querySelector('button');

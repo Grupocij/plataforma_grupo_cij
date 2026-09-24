@@ -380,33 +380,20 @@ window.esqueciMinhaSenha = async () => {
 };
 
 
-// HOMOLOGAÇÃO — compatibilidade de permissões do novo módulo Assistência.
-// assistencia.html substitui o antigo App do Técnico e ServiceFlow.
-const moduleAccessAliases = {
-    'assistencia.html': ['assistencia.html','app_tecnico.html','serviceflow_app.html','gestao_os.html']
-};
-
+// FASE 1.66.3 — controle estrito de módulos.
+// Master é a única exceção global. Demais perfis obedecem aos checkboxes.
 function userHasModuleAccess(dbUser, url) {
     if (!dbUser || !url) return false;
     if (dbUser.perfil === 'Master') return true;
-    if (dbUser.perfil === 'Administrativo') {
-        return url !== 'admin.html' && url !== 'diretoria-custos.html';
-    }
-
     const mods = Array.isArray(dbUser.modulos) ? dbUser.modulos : [];
-    if (mods.includes(url)) return true;
-
-    const aliases = moduleAccessAliases[url] || [];
-    return aliases.some(a => mods.includes(a));
+    return mods.includes(url);
 }
 
 function userHasGlobalView(dbUser, url) {
     if (!dbUser || !url) return false;
-    if (dbUser.perfil === 'Master' || dbUser.perfil === 'Administrativo') return true;
+    if (dbUser.perfil === 'Master') return true;
     const vg = dbUser.visaoGlobalPorTela || {};
-    if (vg[url] === true) return true;
-    const aliases = moduleAccessAliases[url] || [];
-    return aliases.some(a => vg[a] === true);
+    return vg[url] === true;
 }
 
 window.aplicarPermissoesDeModulos = function(dbUser) {
@@ -633,25 +620,15 @@ onAuthStateChanged(auth, async (user) => {
         let currentPath = window.location.pathname.split('/').pop();
         if (!currentPath) currentPath = 'index.html';
 
-        // VISÃO GLOBAL INTELIGENTE (Master e Administrativo veem tudo por padrão)
+        // VISÃO GLOBAL — Master vê tudo; demais obedecem à configuração do módulo
         window.userVisaoGlobal = userHasGlobalView(dbUser, currentPath);
 
-        // Anti-Fraude de Links
-        if (!isMaster && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
-            if (isAdministrativo) {
-                // O Administrativo entra em tudo, EXCETO na diretoria. Se tentar, bloqueia.
-                if (currentPath === 'admin.html' || currentPath === 'diretoria-custos.html') {
-                    alert("Acesso Negado: Área restrita à Diretoria (Master).");
-                    window.location.href = 'index.html';
-                    return;
-                }
-            } else {
-                // Vendedor, técnico etc.: usa a permissão atual e os aliases de migração.
-                if (!userHasModuleAccess(dbUser, currentPath)) {
-                    alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
-                    window.location.href = 'index.html';
-                    return;
-                }
+        // FASE 1.66.3 — acesso explícito por módulo para todo usuário não-Master.
+        if (!isMaster && currentPath !== 'index.html') {
+            if (!userHasModuleAccess(dbUser, currentPath)) {
+                alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
+                window.location.href = 'index.html';
+                return;
             }
         }
 

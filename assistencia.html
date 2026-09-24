@@ -1104,7 +1104,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.66.2</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.66.3</button>
   </div>
   <div class="tech-app-controls">
     <button type="button" id="tech-prepare-all-btn" class="tech-install-btn" onclick="event.preventDefault();event.stopPropagation();window.techPrepararOfflineClick()"><i class="fa-solid fa-cloud-arrow-down"></i><span>Preparar</span></button>
@@ -1136,7 +1136,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.66.2</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.66.3</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -5833,7 +5833,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.66.2';
+const ASSISTENCIA_BUILD='1.66.3';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -6703,11 +6703,15 @@ const ASSIST_PERMISSIONS=[
 window.assistPermissions={};
 
 function assistUserId(){return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'')}
+function assistIsMaster(){
+ return String(window.userProfile?.perfil||'').toUpperCase()==='MASTER';
+}
 window.temPermissaoAssistencia=function(chave){
+ // FASE 1.66.3 — segurança por padrão.
+ // Master mantém acesso total; demais usuários precisam de permissão explícita.
+ if(assistIsMaster())return true;
  const p=window.assistPermissions||{};
- // Compatibilidade inicial: enquanto não houver registro de permissões para o usuário,
- // não bloqueia o sistema legado. Depois que o perfil for salvo, passa a obedecer a matriz.
- if(!p.__configured)return true;
+ if(!p.__configured)return false;
  return p[chave]===true;
 };
 window.exigirPermissaoAssistencia=function(chave){
@@ -6717,12 +6721,22 @@ window.exigirPermissaoAssistencia=function(chave){
  return false;
 };
 window.carregarMinhasPermissoesAssistencia=async function(){
- const uid=assistUserId(); if(!uid)return;
+ const uid=assistUserId();
+ if(!uid){window.assistPermissions={__configured:false,__source:'SEM_USUARIO'};return}
+ if(assistIsMaster()){
+   const all={uid,__configured:true,__source:'MASTER'};
+   ASSIST_PERMISSIONS.forEach(([k])=>all[k]=true);
+   window.assistPermissions=all;
+   return;
+ }
  try{
-  const rows=await read('assistencia_permissoes');
-  const doc=(rows||[]).find(x=>String(x.id||x.uid||x.userId)===uid);
-  window.assistPermissions=doc?{...doc,__configured:true}:{__configured:false};
- }catch(e){console.warn('[Assistência] permissões',e);window.assistPermissions={__configured:false}}
+   const rows=await read('assistencia_permissoes');
+   const doc=(rows||[]).find(x=>String(x.id||x.uid||x.userId)===uid);
+   window.assistPermissions=doc?{...doc,__configured:true,__source:'EXPLICITA'}:{uid,__configured:false,__source:'NAO_CONFIGURADA'};
+ }catch(e){
+   console.warn('[Assistência] permissões',e);
+   window.assistPermissions={uid,__configured:false,__source:'ERRO_LEITURA'};
+ }
 };
 window.aplicarPermissoesAssistencia=function(){
  const map=[
@@ -7595,7 +7609,7 @@ window.initModule=function(p){
 })();
 
 </script>
-<script type="module" src="core.js?v=20260924-1662"></script>
+<script type="module" src="core.js?v=20260924-1663"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){

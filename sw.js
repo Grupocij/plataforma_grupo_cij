@@ -1,5 +1,5 @@
-const SW_VERSION='3.1.0';
-const APP_BUILD='1.66.2';
+const SW_VERSION='3.2.0';
+const APP_BUILD='1.66.3';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,7 +8,7 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
-  './core.js?v=20260924-1662',
+  './core.js?v=20260924-1663',
   './manifest.json'
 ];
 
