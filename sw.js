@@ -1,55 +1,211 @@
-const CACHE_NAME = 'portal-cij-v2'; // Mudamos para v2 para forçar a limpeza do cache antigo
+const SW_VERSION='3.0.0';
+const APP_BUILD='1.66.1';
 
-// 1. Instalação: Salva os arquivos base e força a atualização imediata
-self.addEventListener('install', event => {
-    self.skipWaiting(); // Obriga o navegador a usar o novo Service Worker na hora
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll([
-                './',
-                './index.html',
-                './core.js',
-                './manifest.json'
-            ]);
-        })
-    );
+const CACHE_SHELL='portal-cij-unified-v3-shell';
+const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
+
+const PORTAL_SHELL=[
+  './',
+  './index.html',
+  './core.js',
+  './manifest.json'
+];
+
+const ASSISTENCIA_SHELL=[
+  './assistencia.html',
+  './assistencia-manifest-v4.json',
+  './assistencia-icon-192.png',
+  './assistencia-icon-512.png'
+];
+
+async function cacheOne(cache,url){
+  try{
+    const response=await fetch(url,{cache:'reload'});
+    if(response&&(response.ok||response.type==='opaque')){
+      await cache.put(url,response.clone());
+      return true;
+    }
+  }catch(_){}
+  return false;
+}
+
+async function cacheShell(){
+  const cache=await caches.open(CACHE_SHELL);
+  for(const url of [...PORTAL_SHELL,...ASSISTENCIA_SHELL]){
+    await cacheOne(cache,url);
+  }
+}
+
+self.addEventListener('install',event=>{
+  event.waitUntil(cacheShell());
 });
 
-// 2. Ativação: Limpa qualquer cache velho (v1) que tenha ficado preso no dispositivo
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
-    );
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    const obsolete=keys.filter(k=>{
+      if([CACHE_SHELL,CACHE_RUNTIME].includes(k))return false;
+      return k.startsWith('portal-cij-')||
+             k.startsWith('cij-assistencia-tecnico-');
+    });
+    await Promise.all(obsolete.map(k=>caches.delete(k)));
+    await self.clients.claim();
+
+    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    clients.forEach(client=>{
+      try{client.postMessage({type:'SW_ACTIVATED',version:SW_VERSION,build:APP_BUILD})}catch(_){}
+    });
+  })());
 });
 
-// 3. Estratégia de Busca: NETWORK FIRST (Internet Primeiro, Cache como Backup)
-self.addEventListener('fetch', event => {
-    // Ignora conexões diretas de banco de dados e APIs do Firebase
-    if (event.request.url.includes('firestore.googleapis.com') || 
-        event.request.url.includes('identitytoolkit') || 
-        event.request.url.includes('google.com')) {
-        return;
+self.addEventListener('message',event=>{
+  const data=event.data||{};
+
+  if(data.type==='SKIP_WAITING'){
+    self.skipWaiting();
+    return;
+  }
+
+  if(data.type==='GET_VERSION'){
+    const payload={type:'SW_VERSION',version:SW_VERSION,build:APP_BUILD};
+    try{
+      if(event.ports&&event.ports[0])event.ports[0].postMessage(payload);
+      else event.source?.postMessage(payload);
+    }catch(_){}
+    return;
+  }
+
+  if(data.type==='CACHE_CURRENT_PAGE'&&data.url){
+    event.waitUntil((async()=>{
+      try{
+        const response=await fetch(data.url,{cache:'reload'});
+        if(response&&response.ok){
+          const cache=await caches.open(CACHE_SHELL);
+          await cache.put(data.url,response.clone());
+        }
+      }catch(_){}
+    })());
+  }
+});
+
+function isFirebaseApi(url){
+  return url.hostname==='firestore.googleapis.com'||
+         url.hostname==='identitytoolkit.googleapis.com'||
+         url.hostname==='securetoken.googleapis.com'||
+         url.hostname==='firebaseinstallations.googleapis.com';
+}
+
+function isStaticCrossOrigin(url){
+  return [
+    'cdn.tailwindcss.com',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com',
+    'cdnjs.cloudflare.com',
+    'www.gstatic.com',
+    'cdn.jsdelivr.net',
+    'esm.sh',
+    'unpkg.com'
+  ].includes(url.hostname);
+}
+
+async function staleWhileRevalidate(request,cacheName){
+  const cache=await caches.open(cacheName);
+  const cached=await cache.match(request);
+
+  const network=fetch(request).then(response=>{
+    if(response&&(response.ok||response.type==='opaque')){
+      cache.put(request,response.clone()).catch(()=>{});
+    }
+    return response;
+  }).catch(()=>null);
+
+  return cached||await network||Response.error();
+}
+
+async function networkFirst(request,cacheName){
+  const cache=await caches.open(cacheName);
+  try{
+    const response=await fetch(request,{cache:'no-store'});
+    if(response&&response.ok){
+      cache.put(request,response.clone()).catch(()=>{});
+    }
+    return response;
+  }catch(_){
+    return (await cache.match(request))||null;
+  }
+}
+
+async function navigationFallback(request){
+  const url=new URL(request.url);
+  const isAssistencia=url.pathname.endsWith('/assistencia.html')||
+                      url.searchParams.get('modo')==='tecnico'||
+                      url.searchParams.get('app')==='tecnico';
+
+  const cache=await caches.open(CACHE_SHELL);
+
+  try{
+    const response=await fetch(request,{cache:'no-store'});
+    if(response&&response.ok){
+      await cache.put(request,response.clone()).catch(()=>{});
+      return response;
+    }
+  }catch(_){}
+
+  const exact=await caches.match(request);
+  if(exact)return exact;
+
+  if(isAssistencia){
+    const app=await caches.match('./assistencia.html');
+    if(app)return app;
+  }
+
+  const index=await caches.match('./index.html')||await caches.match('./');
+  if(index)return index;
+
+  return new Response(
+    '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal CIJ</title><body style="font-family:system-ui;padding:24px"><h2>Portal CIJ</h2><p>Este dispositivo ainda não possui a página necessária armazenada para uso offline. Conecte-se à internet e abra o módulo uma vez.</p></body>',
+    {headers:{'Content-Type':'text/html; charset=utf-8'}}
+  );
+}
+
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+
+  const url=new URL(request.url);
+
+  // APIs do Firebase continuam sob responsabilidade do SDK.
+  if(isFirebaseApi(url))return;
+
+  if(request.mode==='navigate'){
+    event.respondWith(navigationFallback(request));
+    return;
+  }
+
+  if(url.origin===self.location.origin){
+    const critical=
+      url.pathname.endsWith('/core.js')||
+      url.pathname.endsWith('/assistencia.html')||
+      url.pathname.endsWith('/assistencia-manifest-v4.json')||
+      url.pathname.endsWith('/manifest.json');
+
+    if(critical){
+      event.respondWith((async()=>{
+        const response=await networkFirst(request,CACHE_RUNTIME);
+        if(response)return response;
+
+        // core.js e manifests também podem estar no shell.
+        const shell=await caches.match(request);
+        return shell||Response.error();
+      })());
+      return;
     }
 
-    event.respondWith(
-        // Tenta buscar a versão mais recente direto da internet
-        fetch(event.request).then(networkResponse => {
-            // Se deu certo, salva uma cópia nova no cache e mostra na tela
-            return caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
-            });
-        }).catch(() => {
-            // Se falhar (ex: usuário está sem 4G/Wi-Fi), aí sim puxa do Cache Offline
-            return caches.match(event.request);
-        })
-    );
+    event.respondWith(staleWhileRevalidate(request,CACHE_RUNTIME));
+    return;
+  }
+
+  if(isStaticCrossOrigin(url)){
+    event.respondWith(staleWhileRevalidate(request,CACHE_RUNTIME));
+  }
 });
