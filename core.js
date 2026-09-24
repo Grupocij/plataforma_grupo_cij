@@ -267,10 +267,11 @@ window.fsGetDocs = getDocs;
 
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
+    { name: 'Assistência Técnica', url: 'assistencia.html', icon: 'fa-screwdriver-wrench text-blue-500' },
     { name: 'Gestão de O.S. (Homologação)', url: 'gestao_os.html', icon: 'fa-file-invoice text-sky-500' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
-    { name: 'ServiceFlow Kanban', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
-    { name: 'App do Técnico', url: 'app_tecnico.html', icon: 'fa-mobile-screen-button text-sky-500' },
+    { name: 'ServiceFlow Kanban (Legado)', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
+    { name: 'App do Técnico (Legado)', url: 'app_tecnico.html', icon: 'fa-mobile-screen-button text-sky-500' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -378,33 +379,47 @@ window.esqueciMinhaSenha = async () => {
     }
 };
 
-window.aplicarPermissoesDeModulos = function(dbUser) {
-    const modulosPermitidos = dbUser.modulos || []; 
-    const isMaster = dbUser.perfil === 'Master';
-    const isAdministrativo = dbUser.perfil === 'Administrativo';
 
+// HOMOLOGAÇÃO — compatibilidade de permissões do novo módulo Assistência.
+// assistencia.html substitui o antigo App do Técnico e ServiceFlow.
+const moduleAccessAliases = {
+    'assistencia.html': ['assistencia.html','app_tecnico.html','serviceflow_app.html','gestao_os.html']
+};
+
+function userHasModuleAccess(dbUser, url) {
+    if (!dbUser || !url) return false;
+    if (dbUser.perfil === 'Master') return true;
+    if (dbUser.perfil === 'Administrativo') {
+        return url !== 'admin.html' && url !== 'diretoria-custos.html';
+    }
+
+    const mods = Array.isArray(dbUser.modulos) ? dbUser.modulos : [];
+    if (mods.includes(url)) return true;
+
+    const aliases = moduleAccessAliases[url] || [];
+    return aliases.some(a => mods.includes(a));
+}
+
+function userHasGlobalView(dbUser, url) {
+    if (!dbUser || !url) return false;
+    if (dbUser.perfil === 'Master' || dbUser.perfil === 'Administrativo') return true;
+    const vg = dbUser.visaoGlobalPorTela || {};
+    if (vg[url] === true) return true;
+    const aliases = moduleAccessAliases[url] || [];
+    return aliases.some(a => vg[a] === true);
+}
+
+window.aplicarPermissoesDeModulos = function(dbUser) {
     const allLinks = document.querySelectorAll('a.nav-item');
     allLinks.forEach(link => {
         const url = link.getAttribute('data-module');
-        let temAcesso = false;
-        
-        if (isMaster) {
-            temAcesso = true;
-        } else if (isAdministrativo) {
-            if (url !== 'admin.html' && url !== 'diretoria-custos.html') temAcesso = true;
-        } else {
-            if (modulosPermitidos.includes(url)) temAcesso = true;
-        }
-
-        if (temAcesso) link.style.display = 'flex';
-        else link.style.display = 'none';
+        link.style.display = userHasModuleAccess(dbUser, url) ? 'flex' : 'none';
     });
 
     const categories = document.querySelectorAll('.nav-category');
     categories.forEach(cat => {
         const linksInside = Array.from(cat.querySelectorAll('a.nav-item'));
         const hasVisibleLink = linksInside.some(l => l.style.display !== 'none');
-        
         if (hasVisibleLink && cat.id !== 'cat-diretoria') cat.style.display = 'flex';
         else if (cat.id !== 'cat-diretoria') cat.style.display = 'none';
     });
@@ -412,18 +427,9 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
     const mobContainer = document.getElementById('mobile-menu-container');
     if(mobContainer) {
         mobContainer.innerHTML = '<a href="index.html" class="flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid fa-house text-blue-400"></i> Home</a>';
-        
-        globalModulesMap.forEach(m => {
-            let addNoMobile = false;
-            if (isMaster) {
-                addNoMobile = true;
-            } else if (isAdministrativo) {
-                if (m.url !== 'admin.html' && m.url !== 'diretoria-custos.html') addNoMobile = true;
-            } else {
-                if (modulosPermitidos.includes(m.url)) addNoMobile = true;
-            }
 
-            if (addNoMobile) {
+        globalModulesMap.forEach(m => {
+            if (userHasModuleAccess(dbUser, m.url)) {
                 const isSecret = m.url === 'diretoria-custos.html' ? 'mobile-secret' : '';
                 mobContainer.innerHTML += `<a href="${m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
             }
@@ -628,7 +634,7 @@ onAuthStateChanged(auth, async (user) => {
         if (!currentPath) currentPath = 'index.html';
 
         // VISÃO GLOBAL INTELIGENTE (Master e Administrativo veem tudo por padrão)
-        window.userVisaoGlobal = isMaster || isAdministrativo || (vg[currentPath] === true);
+        window.userVisaoGlobal = userHasGlobalView(dbUser, currentPath);
 
         // Anti-Fraude de Links
         if (!isMaster && currentPath !== 'index.html' && currentPath !== 'suporte-mobile.html') {
@@ -640,8 +646,8 @@ onAuthStateChanged(auth, async (user) => {
                     return;
                 }
             } else {
-                // Se for vendedor, técnico, etc., checa a lista.
-                if (!dbUser.modulos || !dbUser.modulos.includes(currentPath)) {
+                // Vendedor, técnico etc.: usa a permissão atual e os aliases de migração.
+                if (!userHasModuleAccess(dbUser, currentPath)) {
                     alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
                     window.location.href = 'index.html';
                     return;
