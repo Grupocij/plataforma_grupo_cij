@@ -194,7 +194,7 @@
     </div>
 
     <!-- MOTOR CENTRAL -->
-    <script type="module" src="core.js"></script>
+    <script type="module" src="core.js?v=20260924-1670"></script>
     <script type="module">
         import { runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         window.FirebaseRunTransaction = runTransaction;
@@ -234,7 +234,7 @@
                     if (c.contatos && c.contatos.length > 0) contatoFmt = `${c.contatos[0].nome} - ${c.contatos[0].telefone}`;
                     else if (c.contato) contatoFmt = `${c.contato} - ${c.telefone || ''}`;
 
-                    window.clientesOficiais.push({ nome: nomeFantasia, razao: c.razao_social, contatoPrincipal: contatoFmt });
+                    window.clientesOficiais.push({ id:d.id, nome: nomeFantasia, razao: c.razao_social, contatoPrincipal: contatoFmt });
                     if(dl) {
                         dl.innerHTML += `<option value="${nomeFantasia}">`;
                         if(c.razao_social && c.razao_social !== nomeFantasia) dl.innerHTML += `<option value="${c.razao_social}">`;
@@ -254,7 +254,7 @@
             const pmCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas');
             window.fsOnSnapshot(pmCol, snap => {
                 window.parqueMaquinas = [];
-                snap.forEach(d => window.parqueMaquinas.push(d.data()));
+                snap.forEach(d => window.parqueMaquinas.push({id:d.id,...d.data()}));
             });
         };
 
@@ -265,7 +265,12 @@
 
             let maquinasDoCliente = [];
             if(clienteNome) {
-                maquinasDoCliente = window.parqueMaquinas.filter(m => m.cliente_atual && m.cliente_atual.toLowerCase() === clienteNome.toLowerCase());
+                const norm = v => String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+                const alvo = norm(clienteNome);
+                maquinasDoCliente = window.parqueMaquinas.filter(m => {
+                    const vals=[m.cliente_atual,m.clienteAtual,m.clienteNome,m.cliente,m.razao_social,m.razaoSocial,m.fantasia].map(norm).filter(Boolean);
+                    return vals.includes(alvo);
+                });
             }
             
             if (maquinasDoCliente.length > 0) {
@@ -443,9 +448,7 @@
 
             const conclusaoSelecionada = document.getElementById('osr_conclusao').value;
             let nivelUrgencia = 'NORMAL';
-            if (conclusaoSelecionada === 'Marcar atendimento') {
-                nivelUrgencia = document.querySelector('input[name="osr_urgencia"]:checked').value;
-            }
+            if (conclusaoSelecionada === 'Marcar atendimento') nivelUrgencia = document.querySelector('input[name="osr_urgencia"]:checked').value;
 
             const dados = {
                 tecnico: document.getElementById('osr_tecnico').value,
@@ -471,13 +474,104 @@
                     if (counterDoc.exists()) currentNum = counterDoc.data().current || 1000;
                     const nextNum = currentNum + 1;
                     transaction.set(counterRef, { current: nextNum }, { merge: true });
+
                     const anoAtual = new Date().getFullYear();
                     const numeroGerado = `OSR-${anoAtual}-${nextNum}`;
                     dados.osr = numeroGerado;
                     dados.timestamp = new Date().getTime();
-                    
+                    dados.integradoAssistencia = true;
+                    dados.assistenciaOsId = numeroGerado;
+                    dados.assistenciaOsNumber = numeroGerado;
+
+                    const cliente = window.clientesOficiais.find(c => [c.nome,c.razao].some(v => String(v||'').trim().toLowerCase() === dados.cliente.toLowerCase())) || null;
+                    const park = window.parqueMaquinas.find(m => dados.serial && [m.serial,m.numeroSerie,m.numero_serie,m.sn,m.serie].some(v => String(v||'').trim().toLowerCase() === dados.serial.toLowerCase())) || null;
+                    const resolvido = conclusaoSelecionada === 'Resolvido';
+                    const nowISO = new Date(dados.timestamp).toISOString();
+                    const uid = window.currentUser?.uid || '';
+
+                    const osData = {
+                        internalId: numeroGerado,
+                        osNumber: numeroGerado,
+                        numero: numeroGerado,
+                        clienteId: cliente?.id || '',
+                        clienteNome: dados.cliente,
+                        prioridade: nivelUrgencia === 'CRITICA' ? 'URGENTE' : 'NORMAL',
+                        origem: 'OSR',
+                        origemOSR: true,
+                        origemOSRId: numeroGerado,
+                        origemOSRNumero: numeroGerado,
+                        tecnicoId: uid,
+                        tecnicoUid: uid,
+                        tecnicoNome: dados.tecnico,
+                        tecnico: dados.tecnico,
+                        tecnicoIds: uid ? [uid] : [],
+                        tecnicoNomes: dados.tecnico ? [dados.tecnico] : [],
+                        descricaoInicial: dados.defeito,
+                        contatoOSR: dados.contato,
+                        parecerOSR: dados.solucao,
+                        pecasOSR: dados.pecas,
+                        tipoAtendimento: resolvido ? 'REMOTO' : 'EXTERNO',
+                        cicloAtendimento: 1,
+                        etapaKanban: resolvido ? 'ENCERRADOS' : 'ENTRADA',
+                        status: resolvido ? 'ENCERRADOS' : 'ENTRADA',
+                        finalizadoTecnico: resolvido,
+                        finalizadoTecnicoEmISO: resolvido ? nowISO : null,
+                        encerradoAdministrativamente: resolvido,
+                        encerradoEmISO: resolvido ? nowISO : null,
+                        situacaoFaturamento: resolvido ? 'NAO_FATURAVEL' : '',
+                        observacaoFaturamento: resolvido ? 'SUPORTE REMOTO OSR RESOLVIDO' : '',
+                        criadoPorUid: uid,
+                        criadoPorEmail: dados.autor_email,
+                        criadoPorNome: dados.tecnico,
+                        createdAtISO: nowISO,
+                        updatedAtISO: nowISO,
+                        schemaVersion: 1
+                    };
+
+                    const eqData = {
+                        internalId: 'EQ_OSR',
+                        osId: numeroGerado,
+                        osNumber: numeroGerado,
+                        clienteId: cliente?.id || '',
+                        tipo: park ? 'PARQUE' : 'TEMPORARIO',
+                        parqueMaquinaId: park?.id || null,
+                        modelo: dados.maquina || park?.modelo || 'Equipamento',
+                        marca: park?.fabricante || park?.marca || '',
+                        numeroSerie: dados.serial,
+                        identificacaoLocal: park?.tag || park?.identificacao || '',
+                        defeitoRelatado: dados.defeito,
+                        diagnosticoTecnico: dados.solucao,
+                        solucaoRecomendada: dados.solucao,
+                        observacao: dados.pecas ? `PEÇAS INFORMADAS NO SUPORTE: ${dados.pecas}` : '',
+                        statusEquipamento: resolvido ? 'CONCLUIDO' : 'PENDENTE',
+                        statusDetalhado: resolvido ? 'RESOLVIDO_SUPORTE_REMOTO' : 'ORIGINADO_OSR_MARCAR_ATENDIMENTO',
+                        checkoutServicoExecutado: resolvido ? (dados.solucao || 'Atendimento remoto concluído') : '',
+                        checkoutTesteFinal: resolvido ? 'APROVADO' : '',
+                        checkoutCondicaoSaida: resolvido ? 'OPERACIONAL' : '',
+                        checkoutConcluidoEmISO: resolvido ? nowISO : null,
+                        checkoutConcluidoPorUid: resolvido ? uid : '',
+                        checkoutConcluidoPorNome: resolvido ? dados.tecnico : '',
+                        ativo: true,
+                        createdAtISO: nowISO,
+                        updatedAtISO: nowISO
+                    };
+
                     const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr', numeroGerado);
+                    const osRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'os_ordens', numeroGerado);
+                    const eqRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'os_ordens', numeroGerado, 'equipamentos', 'EQ_OSR');
+                    const histRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'os_ordens', numeroGerado, 'historico', 'OSR_ORIGEM');
+
                     transaction.set(docRef, dados);
+                    transaction.set(osRef, osData, { merge: true });
+                    transaction.set(eqRef, eqData, { merge: true });
+                    transaction.set(histRef, {
+                        internalId:'OSR_ORIGEM',osId:numeroGerado,tipo:'OSR',
+                        titulo:resolvido?'Suporte remoto resolvido':'Suporte remoto convertido em atendimento',
+                        detalhe:`${dados.defeito}${dados.solucao?' · '+dados.solucao:''}`,
+                        createdAtISO:nowISO,registradoPorUid:uid,registradoPorNome:dados.tecnico,
+                        origemOSR:numeroGerado
+                    }, { merge: true });
+
                     return numeroGerado;
                 });
 
@@ -486,7 +580,6 @@
                     if (dados.pecas) msgWhatsApp += `*Peças:* ${dados.pecas} %0A`;
                     msgWhatsApp += `*Status:* ${dados.conclusao}`;
                     if (nivelUrgencia === 'CRITICA') msgWhatsApp += ` %0A🚨 *PRIORIDADE URGENTE*`;
-                    
                     window.open(`https://api.whatsapp.com/send?text=${msgWhatsApp}`, '_blank');
                 } else {
                     alert(`Atendimento ${dados.osr} salvo com sucesso no sistema!`);
@@ -500,12 +593,13 @@
                 document.getElementById('osr_numero').value = '';
 
             } catch (error) {
-                alert("Erro ao salvar o atendimento no banco de dados. Verifique a conexão.");
+                console.error('[OSR] erro ao salvar/integrar',error);
+                alert("Erro ao salvar o atendimento no banco de dados. Verifique a conexão e as Security Rules de suportes_osr e os_ordens.");
             } finally {
                 btnApenas.disabled = false; btnEnviar.disabled = false;
                 btnApenas.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Apenas Salvar';
             }
-        };
+        }
     </script>
 </body>
 </html>
