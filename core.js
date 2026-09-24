@@ -519,6 +519,40 @@ window.iniciarRadarNotificacoes = function(dbUser) {
     });
 };
 
+
+// FASE 1.66.2 — perfil autenticado local para inicialização offline
+const CORE_OFFLINE_PROFILE_KEY='cij_core_offline_profile_v2';
+
+function saveCoreOfflineProfile(user,profile){
+    try{
+        if(!user||!profile)return;
+        localStorage.setItem(CORE_OFFLINE_PROFILE_KEY,JSON.stringify({
+            uid:user.uid||'',
+            email:String(user.email||profile.email||'').toLowerCase().trim(),
+            profile:{...profile},
+            savedAtISO:new Date().toISOString(),
+            schemaVersion:2
+        }));
+    }catch(e){
+        console.warn('[Core] não foi possível salvar perfil offline',e);
+    }
+}
+
+function readCoreOfflineProfile(user){
+    try{
+        const raw=localStorage.getItem(CORE_OFFLINE_PROFILE_KEY);
+        if(!raw)return null;
+        const row=JSON.parse(raw);
+        const email=String(user?.email||'').toLowerCase().trim();
+        if(!row?.profile)return null;
+        if(row.uid&&user?.uid&&String(row.uid)!==String(user.uid))return null;
+        if(row.email&&email&&String(row.email)!==email)return null;
+        return {...row.profile};
+    }catch(_){
+        return null;
+    }
+}
+
 onAuthStateChanged(auth, async (user) => {
     const loginScreen = document.getElementById('login-screen');
     if (user) {
@@ -534,7 +568,19 @@ onAuthStateChanged(auth, async (user) => {
                     dbUser = d.data();
                 }
             });
-        } catch (e) { console.error("Erro ao ler permissões", e); }
+        } catch (e) {
+            console.error("Erro ao ler permissões", e);
+            if (navigator.onLine === false) {
+                dbUser = readCoreOfflineProfile(user);
+                if (dbUser) console.info("[Core] Perfil de acesso restaurado do armazenamento local.");
+            }
+        }
+
+        // Se a consulta retornou vazia durante cold-start offline, tenta o último perfil
+        // autenticado deste mesmo UID/e-mail antes de aplicar qualquer bloqueio.
+        if (!dbUser && navigator.onLine === false) {
+            dbUser = readCoreOfflineProfile(user);
+        }
 
         // LISTA VIP MASTER (Cobre as variações do seu e-mail corporativo)
         const emailsMaster = ['marcos@grupocij.com', 'marcos@grupocij.com.br', 'marcos.bazacas@grupocij.com', 'marcos.bazacas@grupocij.com.br', 'adm@grupocij.com', 'adm@grupocij.com.br'];
@@ -548,6 +594,13 @@ onAuthStateChanged(auth, async (user) => {
                     visaoGlobalPorTela: {}, modulos: globalModulesMap.map(m => m.url) 
                 };
             } else {
+                if (navigator.onLine === false) {
+                    console.warn("[Core] Usuário autenticado, mas perfil de permissões ainda não está disponível offline.");
+                    const msg=document.getElementById('login-message');
+                    if(msg)msg.textContent='Sem conexão. Abra este módulo online uma vez para armazenar suas permissões neste aparelho.';
+                    if(loginScreen)loginScreen.classList.remove('hidden');
+                    return;
+                }
                 alert("⚠️ ACESSO BLOQUEADO!\nSeu e-mail (" + cleanEmail + ") não possui permissão de acesso ao Portal. Procure a administração.");
                 signOut(auth);
                 return;
@@ -560,6 +613,8 @@ onAuthStateChanged(auth, async (user) => {
             dbUser.nome = 'Marcos Bazacas'; // Garante o seu nome oficial
             if (!dbUser.modulos) dbUser.modulos = globalModulesMap.map(m => m.url); // Força acesso a tudo
         }
+
+        saveCoreOfflineProfile(user, dbUser);
 
         window.currentUser = user;
         window.nomeUsuarioLogado = dbUser.nome || cleanEmail.split('@')[0].toUpperCase();

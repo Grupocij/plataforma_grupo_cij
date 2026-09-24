@@ -1,5 +1,5 @@
-const SW_VERSION='3.0.0';
-const APP_BUILD='1.66.1';
+const SW_VERSION='3.1.0';
+const APP_BUILD='1.66.2';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,6 +8,7 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
+  './core.js?v=20260924-1662',
   './manifest.json'
 ];
 
@@ -131,7 +132,12 @@ async function networkFirst(request,cacheName){
     }
     return response;
   }catch(_){
-    return (await cache.match(request))||null;
+    // core.js é publicado com query string de versão. Em offline, uma versão
+    // armazenada sem a query precisa continuar atendendo o módulo ES.
+    return (await cache.match(request))||
+           (await cache.match(request,{ignoreSearch:true}))||
+           (await caches.match(request,{ignoreSearch:true}))||
+           null;
   }
 }
 
@@ -151,7 +157,7 @@ async function navigationFallback(request){
     }
   }catch(_){}
 
-  const exact=await caches.match(request);
+  const exact=(await caches.match(request))||(await caches.match(request,{ignoreSearch:true}));
   if(exact)return exact;
 
   if(isAssistencia){
