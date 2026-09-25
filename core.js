@@ -3,6 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 if (!document.querySelector('link[rel="manifest"]')) {
     const manifestLink = document.createElement('link');
@@ -160,6 +161,7 @@ const injectLayout = () => {
                                 <a href="admin.html" data-module="admin.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Painel Diretoria</h4></div></a>
                                 <a href="usuarios.html" data-module="usuarios.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid fa-users-gear"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gerenciar Usuários</h4></div></a>
                                 <a href="central_cadastros.html" data-module="central_cadastros.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-database"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central Cadastros</h4></div></a>
+                                <a href="parque_maquinas.html" data-module="parque_maquinas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-industry"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Parque de Máquinas</h4><p class="text-[10px] text-slate-500">Ativos, garantia e QR Code</p></div></a>
                                 <a href="formcraft_sandbox.html" data-module="formcraft_sandbox.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-flask-vial"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">FormCraft (Beta)</h4></div></a>
                             </div>
                         </div>
@@ -249,6 +251,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 let db;
 try {
@@ -261,12 +264,27 @@ try {
 
 window.AppAuth = auth;
 window.AppDB = db;
+window.AppStorage = storage;
+window.fbStorageRef = storageRef;
+window.fbUploadBytes = uploadBytes;
+window.fbGetDownloadURL = getDownloadURL;
+window.fbDeleteObject = deleteObject;
 window.fsCollection = collection;
 window.fsDoc = doc;
 window.fsSetDoc = setDoc;
 window.fsDeleteDoc = deleteDoc;
 window.fsOnSnapshot = onSnapshot;
 window.fsGetDocs = getDocs;
+
+
+const moduleAccessAliases = {
+    'cadastros_clientes.html': 'central_cadastros.html',
+    'cliente_ficha.html': 'central_cadastros.html',
+    'cadastros_modelos.html': 'central_cadastros.html',
+    'cadastros_pecas.html': 'central_cadastros.html',
+    'cadastros_consumiveis.html': 'central_cadastros.html',
+    'parque_ficha.html': 'parque_maquinas.html'
+};
 
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
@@ -287,6 +305,7 @@ const globalModulesMap = [
     { name: 'Painel Diretoria', url: 'admin.html', icon: 'fa-shield-halved text-purple-600' },
     { name: 'Gerenciar Usuários', url: 'usuarios.html', icon: 'fa-users-gear text-slate-800' },
     { name: 'Central de Cadastros', url: 'central_cadastros.html', icon: 'fa-database text-blue-600' },
+    { name: 'Parque de Máquinas', url: 'parque_maquinas.html', icon: 'fa-industry text-indigo-700' },
     { name: 'FormCraft (Beta)', url: 'formcraft_sandbox.html', icon: 'fa-flask-vial text-orange-500' },
     { name: 'Controle de Despesas', url: 'despesas.html', icon: 'fa-receipt text-sky-600' },
     { name: 'Dashboard Gerencial', url: 'dashboard_despesas.html', icon: 'fa-chart-pie text-emerald-700' },
@@ -626,7 +645,7 @@ onAuthStateChanged(auth, async (user) => {
         const paramsAcesso = new URLSearchParams(window.location.search);
         const modoTecnicoAssistencia = currentPath === 'assistencia.html' &&
             (paramsAcesso.get('modo') === 'tecnico' || paramsAcesso.get('app') === 'tecnico');
-        const currentAccessModule = modoTecnicoAssistencia ? 'app_tecnico.html' : currentPath;
+        const currentAccessModule = modoTecnicoAssistencia ? 'app_tecnico.html' : (moduleAccessAliases[currentPath] || currentPath);
 
         // VISÃO GLOBAL — Master vê tudo; demais obedecem à configuração do módulo
         window.userVisaoGlobal = userHasGlobalView(dbUser, currentAccessModule);
