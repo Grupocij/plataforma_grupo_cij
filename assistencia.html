@@ -1140,7 +1140,19 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
 
     <section id="view-kanban" class="view-panel space-y-4">
       <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3"><div class="kpi-card"><span class="kpi-label">OS novas</span><strong id="kpi-os" class="kpi-value text-blue-700">0</strong></div><div class="kpi-card"><span class="kpi-label">Entrada</span><strong id="kpi-entrada" class="kpi-value">0</strong></div><div class="kpi-card"><span class="kpi-label">Triagem</span><strong id="kpi-triagem" class="kpi-value text-amber-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Orçamentos</span><strong id="kpi-orcamentos" class="kpi-value text-violet-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Agendamento</span><strong id="kpi-agendamento" class="kpi-value text-cyan-600">0</strong></div><div class="kpi-card"><span class="kpi-label">Finalizados</span><strong id="kpi-finalizados" class="kpi-value text-emerald-600">0</strong></div></div>
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col lg:flex-row gap-3"><div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="filtro-busca" oninput="window.filtrarKanban()" class="input pl-9" placeholder="Buscar por OS, cliente, técnico ou equipamento..."></div><select id="filtro-prioridade" onchange="window.filtrarKanban()" class="input lg:w-48"><option value="">Todas prioridades</option><option>BAIXA</option><option>NORMAL</option><option>ALTA</option><option>URGENTE</option></select></div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col xl:flex-row gap-3">
+  <div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i><input id="filtro-busca" oninput="window.filtrarKanban()" class="input pl-9" placeholder="Buscar por OS, cliente, técnico ou equipamento..."></div>
+  <select id="filtro-prioridade" onchange="window.filtrarKanban()" class="input xl:w-44"><option value="">Todas prioridades</option><option>BAIXA</option><option>NORMAL</option><option>ALTA</option><option>URGENTE</option></select>
+  <select id="filtro-periodo-kanban" onchange="window.filtrarKanban()" class="input xl:w-52">
+    <option value="TODOS">Todo o período</option>
+    <option value="ESTA_SEMANA">Esta semana</option>
+    <option value="SEMANA_PASSADA">Semana passada</option>
+    <option value="ESTE_MES">Este mês</option>
+    <option value="MES_PASSADO">Mês passado</option>
+  </select>
+  <button id="btn-limpeza-homologacao" data-assist-perm="excluir_registros" class="btn btn-light os-danger-btn xl:whitespace-nowrap" onclick="window.abrirLimpezaHomologacao()"><i class="fa-solid fa-broom"></i> Limpar testes</button>
+</div>
+<div id="filtro-periodo-resumo" class="text-[10px] font-bold text-slate-500 px-1"></div>
       <div id="empty-os" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-900"><b>A coleção nova está vazia.</b> Isso é esperado no primeiro acesso. Use “Nova OS” para criar o primeiro registro. Se o Firestore negar a gravação, configure as Security Rules antes do teste.</div>
       <div id="kanban-board" class="kanban-board"></div>
     </section>
@@ -1251,7 +1263,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.68.1</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.69</button>
   </div>
   <div class="tech-app-controls">
     <div class="tech-tools-wrap">
@@ -1350,7 +1362,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.68.1</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.69</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -1425,6 +1437,43 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
 </div>
 
 <div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">APP DO TÉCNICO · USO EM CAMPO</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><section id="tech-client-card" class="tech-client-card"></section><div class="tech-section-head mt-4"><div class="tech-section-title">Equipamentos do atendimento</div><button class="tech-inline-action" type="button" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div><div id="tech-at-equipamentos"></div></div><div class="tech-mobile-note"><i class="fa-solid fa-mobile-screen-button"></i><span>Este app contém somente ações do técnico. Orçamentos comerciais, aprovações, agendamento, liberações, faturamento e gestão de estoque ficam no administrativo.</span></div></div><div class="tech-work-footer tech-signature-footer"><button class="btn btn-primary justify-center w-full" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button></div></div></div>
+
+
+<div id="modal-limpeza-homologacao" class="modal-backdrop hidden" style="z-index:2147483647!important">
+  <div class="modal-card !max-w-none" style="width:min(720px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div><span class="tag tag-red">LIMPEZA DE HOMOLOGAÇÃO</span><h2 class="text-xl font-black mt-2">Limpar dados de teste da Assistência</h2><p class="text-xs text-slate-500 mt-1">Uso exclusivo do Master antes da homologação final.</p></div>
+      <button class="icon-btn" onclick="window.fecharLimpezaHomologacao()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-950">
+      <b>Importante:</b> a limpeza é lógica, não destrói o histórico do banco. As OS atuais deixarão de aparecer no Kanban, App do Técnico, Pendências e Indicadores, mas os documentos permanecem preservados para auditoria.
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-3 mt-4">
+      <div class="detail-box"><span class="field-label">OS ativas</span><div id="cleanup-count-os" class="detail-value">0</div></div>
+      <div class="detail-box"><span class="field-label">Agendamentos vinculados</span><div id="cleanup-count-agenda" class="detail-value">0</div></div>
+      <div class="detail-box"><span class="field-label">Registros auxiliares</span><div id="cleanup-count-aux" class="detail-value">0</div></div>
+    </div>
+
+    <div class="mt-4 space-y-2">
+      <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"><input id="cleanup-agenda" type="checkbox" checked class="mt-1"><span class="text-xs"><b>Ocultar agendamentos vinculados às OS de teste</b><br><span class="text-slate-500">Os registros da Agenda são preservados e marcados como removidos da homologação.</span></span></label>
+      <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"><input id="cleanup-aux" type="checkbox" checked class="mt-1"><span class="text-xs"><b>Ocultar registros auxiliares vinculados</b><br><span class="text-slate-500">Inclui requisições de material e respostas FormCraft vinculadas às OS removidas.</span></span></label>
+    </div>
+
+    <div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
+      A coleção <b>suportes_osr</b>, clientes, Parque de Máquinas, usuários, permissões, estoque e modelos FormCraft <b>não serão apagados</b>.
+    </div>
+
+    <label class="block mt-4"><span class="field-label">Confirmação</span><input id="cleanup-confirm-text" class="input" placeholder="Digite LIMPAR TESTES"></label>
+    <div id="cleanup-status" class="text-xs text-slate-500 mt-3"></div>
+
+    <div class="mt-5 flex flex-wrap justify-end gap-2">
+      <button class="btn btn-light" onclick="window.fecharLimpezaHomologacao()">Cancelar</button>
+      <button id="btn-confirm-cleanup" class="btn btn-light os-danger-btn" onclick="window.confirmarLimpezaHomologacao()"><i class="fa-solid fa-broom"></i> Limpar dados de teste</button>
+    </div>
+  </div>
+</div>
 
 <div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Tipo de atendimento *</span><select id="nova-tipo-atendimento" class="input"><option value="INTERNO">Interno / Laboratório</option><option value="EXTERNO">Externo / Campo</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o histórico de <b>Suporte Técnico (suportes_osr)</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
 
@@ -3528,7 +3577,174 @@ function renderLegacy(){
   document.getElementById('legacy-prev').disabled=legacyCurrentPage<=1;
   document.getElementById('legacy-next').disabled=legacyCurrentPage>=pages;
 }
-function filtered(){const q=(document.getElementById('filtro-busca')?.value||'').toLowerCase(),p=document.getElementById('filtro-prioridade')?.value||'';return state.os.filter(assistOSAtiva).filter(o=>{const hay=JSON.stringify([o.osNumber,o.numero,o.clienteNome,o.cliente,o.tecnicoNome,o.tecnico,o.equipamento]).toLowerCase();return(!q||hay.includes(q))&&(!p||String(o.prioridade||'NORMAL').toUpperCase()===p)})}
+
+// FASE 1.69 — filtro temporal do Kanban + limpeza controlada de homologação
+function assistOSDate(o){
+  const candidates=[o?.createdAtISO,o?.createdAt,o?.criadaEmISO,o?.dataCriacao,o?.timestamp,o?.updatedAtISO];
+  for(const v of candidates){
+    if(v===null||v===undefined||v==='')continue;
+    const d=typeof v==='number'?new Date(v):new Date(String(v));
+    if(!isNaN(d.getTime()))return d;
+  }
+  return null;
+}
+function assistStartOfDay(d){const x=new Date(d);x.setHours(0,0,0,0);return x}
+function assistStartOfWeek(d){
+  const x=assistStartOfDay(d),day=x.getDay(),diff=(day===0?-6:1-day);
+  x.setDate(x.getDate()+diff);return x;
+}
+function assistPeriodoKanbanRange(tipo){
+  const now=new Date();
+  if(tipo==='ESTA_SEMANA'){
+    const ini=assistStartOfWeek(now),fim=new Date(ini);fim.setDate(fim.getDate()+7);return {ini,fim,label:'Esta semana'};
+  }
+  if(tipo==='SEMANA_PASSADA'){
+    const fim=assistStartOfWeek(now),ini=new Date(fim);ini.setDate(ini.getDate()-7);return {ini,fim,label:'Semana passada'};
+  }
+  if(tipo==='ESTE_MES'){
+    const ini=new Date(now.getFullYear(),now.getMonth(),1),fim=new Date(now.getFullYear(),now.getMonth()+1,1);return {ini,fim,label:'Este mês'};
+  }
+  if(tipo==='MES_PASSADO'){
+    const ini=new Date(now.getFullYear(),now.getMonth()-1,1),fim=new Date(now.getFullYear(),now.getMonth(),1);return {ini,fim,label:'Mês passado'};
+  }
+  return null;
+}
+function assistOSInPeriodo(o,tipo){
+  if(!tipo||tipo==='TODOS')return true;
+  const range=assistPeriodoKanbanRange(tipo),d=assistOSDate(o);
+  if(!range||!d)return false;
+  return d>=range.ini&&d<range.fim;
+}
+function assistPeriodoResumo(tipo){
+  const el=document.getElementById('filtro-periodo-resumo');
+  if(!el)return;
+  const r=assistPeriodoKanbanRange(tipo);
+  if(!r){el.textContent='Exibindo todas as OS ativas.';return}
+  const f=d=>d.toLocaleDateString('pt-BR');
+  const end=new Date(r.fim);end.setDate(end.getDate()-1);
+  el.textContent=`Filtro: ${r.label} · ${f(r.ini)} a ${f(end)} · baseado na data de criação da OS.`;
+}
+
+window.abrirLimpezaHomologacao=async function(){
+  if(String(window.userProfile?.perfil||'').toUpperCase()!=='MASTER'){
+    alert('A limpeza geral de homologação é exclusiva do perfil Master.');
+    return;
+  }
+  if(!window.temPermissaoAssistencia?.('excluir_registros')){
+    alert('Seu usuário não possui a permissão de exclusão de registros.');
+    return;
+  }
+  if(navigator.onLine===false){
+    alert('Conecte-se à internet antes de realizar a limpeza de homologação.');
+    return;
+  }
+  try{
+    const pend=await assistOfflinePending?.();
+    if((pend||[]).length){
+      alert(`Existem ${(pend||[]).length} operação(ões) offline aguardando sincronização. Sincronize ou descarte essas pendências antes da limpeza.`);
+      return;
+    }
+  }catch(_){}
+
+  const ativos=(state.os||[]).filter(assistOSAtiva);
+  const ids=new Set(ativos.map(o=>String(o.internalId||o.id||'')));
+  const nums=new Set(ativos.map(o=>String(o.osNumber||o.numero||'')));
+  const agenda=(state.agenda||[]).filter(a=>ids.has(String(a.osId||''))||nums.has(String(a.osNumber||'')));
+  let aux=0;
+  try{
+    const [reqs,subs]=await Promise.all([read('requisicoes_material').catch(()=>[]),read('sandbox_submissions').catch(()=>[])]);
+    aux=(reqs||[]).filter(r=>ids.has(String(r.osId||''))||nums.has(String(r.os||r.osNumber||''))).length+
+        (subs||[]).filter(r=>ids.has(String(r.osId||''))||nums.has(String(r.osNumber||''))).length;
+  }catch(_){}
+
+  document.getElementById('cleanup-count-os').textContent=ativos.length;
+  document.getElementById('cleanup-count-agenda').textContent=agenda.length;
+  document.getElementById('cleanup-count-aux').textContent=aux;
+  document.getElementById('cleanup-confirm-text').value='';
+  document.getElementById('cleanup-status').textContent=ativos.length?'Pronto para limpeza controlada.':'Não há OS ativas para limpar.';
+  document.getElementById('modal-limpeza-homologacao').classList.remove('hidden');
+};
+window.fecharLimpezaHomologacao=function(){document.getElementById('modal-limpeza-homologacao')?.classList.add('hidden')};
+
+window.confirmarLimpezaHomologacao=async function(){
+  if(String(window.userProfile?.perfil||'').toUpperCase()!=='MASTER')return;
+  if(!window.temPermissaoAssistencia?.('excluir_registros'))return;
+  const confirmText=document.getElementById('cleanup-confirm-text').value.trim().toUpperCase();
+  if(confirmText!=='LIMPAR TESTES'){alert('Digite exatamente LIMPAR TESTES para confirmar.');return}
+  const ativos=(state.os||[]).filter(assistOSAtiva);
+  if(!ativos.length){toast('Não há OS ativas para limpar.');window.fecharLimpezaHomologacao();return}
+
+  const limparAgenda=!!document.getElementById('cleanup-agenda')?.checked;
+  const limparAux=!!document.getElementById('cleanup-aux')?.checked;
+  const ids=new Set(ativos.map(o=>String(o.internalId||o.id||'')));
+  const nums=new Set(ativos.map(o=>String(o.osNumber||o.numero||'')));
+  const now=new Date().toISOString(),uid=window.currentUser?.uid||'',nome=window.nomeUsuarioLogado||window.userProfile?.nome||'';
+  const btn=document.getElementById('btn-confirm-cleanup'),status=document.getElementById('cleanup-status');
+
+  try{
+    btn.disabled=true;
+    let done=0;
+    for(const o of ativos){
+      status.textContent=`Limpando OS ${done+1} de ${ativos.length}...`;
+      const osid=o.internalId||o.id;
+      const patch={
+        is_deleted:true,ativo:false,statusAntesExclusao:o.status||'',etapaAntesExclusao:o.etapaKanban||'',
+        status:'EXCLUIDA',etapaKanban:'EXCLUIDA',
+        excluidaEmISO:now,excluidaMotivo:'LIMPEZA GERAL DE HOMOLOGAÇÃO',
+        excluidaPorUid:uid,excluidaPorNome:nome,
+        limpezaHomologacao:true,limpezaHomologacaoEmISO:now,updatedAtISO:now
+      };
+      await mergeOSDoc(osid,patch);
+      Object.assign(o,patch);
+      done++;
+    }
+
+    if(limparAgenda){
+      const rows=(state.agenda||[]).filter(a=>ids.has(String(a.osId||''))||nums.has(String(a.osNumber||'')));
+      for(const a of rows){
+        const id=a.id||a.internalId||a.idOrigem;if(!id)continue;
+        await saveDoc('agenda_tasks_v2',id,{...a,is_deleted:true,ativo:false,statusAgendamento:'CANCELADO',limpezaHomologacao:true,limpezaHomologacaoEmISO:now,updatedAtISO:now});
+        Object.assign(a,{is_deleted:true,ativo:false,statusAgendamento:'CANCELADO',limpezaHomologacao:true});
+      }
+    }
+
+    if(limparAux){
+      const [reqs,subs]=await Promise.all([read('requisicoes_material').catch(()=>[]),read('sandbox_submissions').catch(()=>[])]);
+      const reqRows=(reqs||[]).filter(r=>ids.has(String(r.osId||''))||nums.has(String(r.os||r.osNumber||'')));
+      for(const r of reqRows){
+        const id=r.id||r.internalId;if(!id)continue;
+        await saveDoc('requisicoes_material',id,{...r,is_deleted:true,ativo:false,limpezaHomologacao:true,limpezaHomologacaoEmISO:now,updatedAtISO:now});
+      }
+      const subRows=(subs||[]).filter(r=>ids.has(String(r.osId||''))||nums.has(String(r.osNumber||'')));
+      for(const r of subRows){
+        const id=r.id||r.internalId;if(!id)continue;
+        await saveDoc('sandbox_submissions',id,{...r,is_deleted:true,ativo:false,limpezaHomologacao:true,limpezaHomologacaoEmISO:now,updatedAtISO:now});
+      }
+    }
+
+    status.textContent=`Limpeza concluída: ${ativos.length} OS removida(s) do ambiente operacional.`;
+    renderKanban();renderModoTecnico();renderCentralPendencias?.();renderSLAOperacional?.();renderProdutividadeTecnica?.();
+    toast('Limpeza de homologação concluída.');
+    setTimeout(()=>window.fecharLimpezaHomologacao(),1200);
+  }catch(e){
+    console.error('[Assistência] limpeza homologação',e);
+    status.textContent='Falha na limpeza: '+(e?.message||e);
+    alert('A limpeza foi interrompida. Alguns registros podem já ter sido ocultados.\n\n'+(e?.message||e));
+  }finally{
+    btn.disabled=false;
+  }
+};
+
+function filtered(){
+ const q=(document.getElementById('filtro-busca')?.value||'').toLowerCase();
+ const p=document.getElementById('filtro-prioridade')?.value||'';
+ const periodo=document.getElementById('filtro-periodo-kanban')?.value||'TODOS';
+ assistPeriodoResumo(periodo);
+ return state.os.filter(assistOSAtiva).filter(o=>{
+   const hay=JSON.stringify([o.osNumber,o.numero,o.clienteNome,o.cliente,o.tecnicoNome,o.tecnico,o.equipamento]).toLowerCase();
+   return(!q||hay.includes(q))&&(!p||String(o.prioridade||'NORMAL').toUpperCase()===p)&&assistOSInPeriodo(o,periodo);
+ });
+}
 function materialPendente(e){const st=String(e?.ultimaSolicitacaoMaterialStatus||'').toUpperCase();return st&& !['ENTREGUE','CANCELADO','CANCELADA'].includes(st)}
 function pendenciaEquipamento(e){
  const st=String(e?.statusEquipamento||'PENDENTE').toUpperCase();
@@ -3589,14 +3805,15 @@ function renderKanban(){
  const data=filtered(),b=document.getElementById('kanban-board');
  const ativos=(state.os||[]).filter(assistOSAtiva);
  document.getElementById('empty-os').classList.toggle('hidden',ativos.length!==0);
- const counts={};stages.forEach(s=>counts[s[0]]=0);ativos.forEach(o=>counts[normStage(o.etapaKanban||o.etapa||o.status)]++);
- document.getElementById('kpi-os').textContent=ativos.length;
+ const counts={};stages.forEach(s=>counts[s[0]]=0);data.forEach(o=>counts[normStage(o.etapaKanban||o.etapa||o.status)]++);
+ document.getElementById('kpi-os').textContent=data.length;
  document.getElementById('kpi-entrada').textContent=counts.ENTRADA;document.getElementById('kpi-triagem').textContent=counts.TRIAGEM;document.getElementById('kpi-orcamentos').textContent=counts.ORCAMENTOS;document.getElementById('kpi-agendamento').textContent=counts.AGENDAMENTO;document.getElementById('kpi-finalizados').textContent=counts.ENCERRADOS;
  b.innerHTML=stages.map(sg=>{const rows=data.filter(o=>normStage(o.etapaKanban||o.etapa||o.status)===sg[0]);return `<div class="kanban-column"><div class="kanban-head"><span>${sg[1]}</span><span class="kanban-count">${rows.length}</span></div><div class="kanban-cards">${rows.map(o=>{
    const sla=normStage(o.etapaKanban||o.etapa||o.status)==='ENCERRADOS'?null:slaEstadoOS(o);
    const slaCls=sla?.classe==='danger'?'sla-danger':sla?.classe==='warn'?'sla-warn':'';
-   return `<div class="os-card ${slaCls}" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${sla?`<div class="mt-2"><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)} · ${esc(slaMetaLabel(sla.meta))}</span></div>`:''}${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mr-1"></i>${esc(p.texto)}</div>`})()}</div>`;
- }).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS</div>'}</div></div>`}).join('');
+   const d=assistOSDate(o);
+   return `<div class="os-card ${slaCls}" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${d?`<div class="os-meta"><i class="fa-regular fa-calendar mr-1"></i>${d.toLocaleDateString('pt-BR')}</div>`:''}${sla?`<div class="mt-2"><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)} · ${esc(slaMetaLabel(sla.meta))}</span></div>`:''}${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mr-1"></i>${esc(p.texto)}</div>`})()}</div>`;
+ }).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS neste período</div>'}</div></div>`}).join('');
 }
 function isMinhaOS(o){
  const uid=String(window.currentUser?.uid||'').trim();
@@ -6962,7 +7179,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.68.1';
+const ASSISTENCIA_BUILD='1.69';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
