@@ -1050,6 +1050,27 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 }
 </style>
 
+
+<style id="fase168-diario-formcraft">
+.os-bottom-actions{background:#fff}
+.diario-row{border:1px solid #e2e8f0;border-radius:.9rem;padding:.75rem;background:#fff}
+.diario-row.system{border-left:4px solid #60a5fa}
+.diario-row.manual{border-left:4px solid #10b981}
+.diario-date{font-size:.5rem;font-weight:900;text-transform:uppercase;color:#94a3b8}
+.diario-title{font-size:.67rem;font-weight:950;color:#0f172a}
+.diario-detail{font-size:.58rem;line-height:1.5;color:#475569;margin-top:.2rem;white-space:pre-wrap}
+.diario-user{font-size:.5rem;color:#64748b;margin-top:.3rem;font-weight:700}
+.fc-template-row{display:flex;align-items:flex-start;gap:.55rem;padding:.65rem;border-radius:.8rem;border:1px solid #e2e8f0;background:#fff}
+.fc-required-card{border:1px solid #dbeafe;border-radius:.9rem;padding:.75rem;background:#f8fbff;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.fc-field{border:1px solid #e2e8f0;border-radius:.9rem;background:#f8fafc;padding:.8rem}
+.fc-field.hidden-by-rule{display:none}
+.fc-field label.title{display:block;font-size:.65rem;font-weight:900;color:#0f172a;margin-bottom:.25rem}
+.fc-field .instruction{font-size:.55rem;color:#64748b;margin-bottom:.4rem}
+@media(max-width:700px){
+  .os-bottom-actions{position:sticky;bottom:0;z-index:6;background:#fff;padding-bottom:.35rem}
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
@@ -1199,7 +1220,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.67</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.68</button>
   </div>
   <div class="tech-app-controls">
     <div class="tech-tools-wrap">
@@ -1298,7 +1319,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.67</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.68</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -1399,7 +1420,24 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions flex flex-wrap justify-between gap-3"><div><div class="os-general-actions-label">Navegação</div><button onclick="window.fecharDetalheOS()" class="btn btn-light">Fechar</button></div><div><div class="os-general-actions-label">Ações gerais da OS</div><div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button><button class="btn btn-light" onclick="window.abrirVerificacaoIntegridadeOS()"><i class="fa-solid fa-stethoscope"></i> Verificar OS</button><button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button><button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button><button class="btn btn-light" onclick="window.abrirAlterarTipoAtendimento()"><i class="fa-solid fa-right-left"></i> Alterar tipo</button><span id="slot-retorno-externo"></span><button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button><span id="slot-reabrir-os"></span><button class="btn btn-light duplicate-os-btn" data-assist-perm="duplicar_os" onclick="window.abrirDuplicarOS()"><i class="fa-solid fa-copy"></i> Duplicar OS</button><button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button></div></div></div></div></div>
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions">
+  <div class="os-general-actions-label">Ações gerais da OS</div>
+  <div class="flex flex-wrap gap-2">
+    <button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button>
+    <button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button>
+    <button class="btn btn-light" onclick="window.abrirAlterarTipoAtendimento()"><i class="fa-solid fa-right-left"></i> Alterar tipo</button>
+    <button class="btn btn-light duplicate-os-btn" data-assist-perm="duplicar_os" onclick="window.abrirDuplicarOS()"><i class="fa-solid fa-copy"></i> Duplicar OS</button>
+    <button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button>
+    <button class="btn btn-light" onclick="window.abrirVerificacaoIntegridadeOS()"><i class="fa-solid fa-stethoscope"></i> Verificar OS</button>
+    <button class="btn btn-light" onclick="window.abrirAuditoriaOS()"><i class="fa-solid fa-shield-halved"></i> Auditoria</button>
+    <span id="slot-retorno-externo"></span>
+    <span id="slot-reabrir-os"></span>
+  </div>
+</div>
+<div class="os-bottom-actions mt-5 pt-4 border-t border-slate-200 flex flex-wrap justify-end gap-2">
+  <button onclick="window.fecharDetalheOS()" class="btn btn-light"><i class="fa-solid fa-xmark"></i> Fechar</button>
+  <button class="btn btn-light os-danger-btn" data-assist-perm="excluir_registros" onclick="window.abrirExcluirOS()"><i class="fa-solid fa-trash-can"></i> Excluir / Cancelar OS</button>
+</div></div></div>
 
 
 
@@ -1917,6 +1955,57 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 
 <div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharCheckoutEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-checkout" onclick="window.salvarCheckoutEquipamento()" class="btn btn-primary"><i class="fa-solid fa-circle-check"></i> Concluir equipamento</button></div></div></div>
 
+
+<div id="modal-diario-equipamento" class="modal-backdrop hidden" style="z-index:2147483646!important">
+  <div class="modal-card !max-w-none" style="width:min(880px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div><span class="tag tag-blue">DIÁRIO DE EVENTOS</span><h2 class="text-xl font-black mt-2">Histórico diário do equipamento</h2><p id="diario-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div>
+      <button class="icon-btn" onclick="window.fecharDiarioEquipamento()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>Rastreabilidade:</b> o diário consolida automaticamente ações do sistema que possuem vínculo com este equipamento e também permite registrar observações manuais do técnico. Cada registro mostra data, hora e responsável.</div>
+    <div id="diario-equip-lista" class="mt-4 space-y-2 max-h-[48vh] overflow-y-auto"></div>
+    <div id="diario-equip-form" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div class="grid md:grid-cols-[180px_1fr] gap-3">
+        <label><span class="field-label">Tipo do evento</span><select id="diario-equip-tipo" class="input"><option value="ATIVIDADE">Atividade realizada</option><option value="AJUSTE">Ajuste / regulagem</option><option value="TESTE">Teste / medição</option><option value="OBSERVACAO">Observação</option><option value="PENDENCIA">Pendência / próximo passo</option></select></label>
+        <label><span class="field-label">Descrição *</span><textarea id="diario-equip-texto" class="input min-h-20" placeholder="Descreva objetivamente o que foi realizado, encontrado ou deixado pendente..."></textarea></label>
+      </div>
+      <div class="mt-3 flex justify-end"><button id="btn-diario-equip-salvar" class="btn btn-primary" onclick="window.salvarEventoDiarioEquipamento()"><i class="fa-solid fa-plus"></i> Registrar evento</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-formularios-equipamento" class="modal-backdrop hidden" style="z-index:2147483646!important">
+  <div class="modal-card !max-w-none" style="width:min(900px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div><span class="tag tag-blue">FORMCRAFT</span><h2 class="text-xl font-black mt-2">Formulários e laudos do equipamento</h2><p id="fc-equip-titulo" class="text-xs text-slate-500 mt-1">-</p></div>
+      <button class="icon-btn" onclick="window.fecharFormulariosEquipamento()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-4 grid lg:grid-cols-[300px_1fr] gap-4">
+      <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h3 class="text-xs font-black text-slate-800">Vincular formulários</h3>
+        <p class="text-[10px] text-slate-500 mt-1">Selecione os laudos/check-lists exigidos para este equipamento.</p>
+        <div id="fc-equip-templates" class="mt-3 space-y-2 max-h-[48vh] overflow-y-auto"></div>
+        <button id="btn-fc-salvar-vinculos" class="btn btn-light w-full mt-3" onclick="window.salvarVinculosFormCraftEquipamento()"><i class="fa-solid fa-link"></i> Salvar vínculos</button>
+      </section>
+      <section>
+        <div class="flex items-center justify-between gap-3"><div><h3 class="text-xs font-black text-slate-800">Formulários exigidos</h3><p class="text-[10px] text-slate-500 mt-1">Preencha ou consulte os formulários vinculados.</p></div><span id="fc-equip-count" class="status-badge status-pending">0</span></div>
+        <div id="fc-equip-lista" class="mt-3 space-y-2"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="modal-formcraft-preencher" class="modal-backdrop hidden" style="z-index:2147483647!important">
+  <div class="modal-card !max-w-none" style="width:min(760px,96vw);max-height:94vh;overflow:auto">
+    <div class="flex justify-between items-start gap-4">
+      <div><span class="tag tag-green">FORMCRAFT</span><h2 id="fc-form-titulo" class="text-xl font-black mt-2">Formulário</h2><p id="fc-form-equip" class="text-xs text-slate-500 mt-1">-</p></div>
+      <button class="icon-btn" onclick="window.fecharFormCraftPreencher()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="fc-form-body" class="mt-5 space-y-3" onsubmit="event.preventDefault();"></form>
+    <div class="mt-5 flex flex-wrap justify-end gap-2"><button class="btn btn-light" onclick="window.fecharFormCraftPreencher()">Cancelar</button><button id="btn-fc-form-salvar" class="btn btn-primary" onclick="window.salvarFormCraftResposta()"><i class="fa-solid fa-floppy-disk"></i> Salvar formulário</button></div>
+  </div>
+</div>
+
 <div id="modal-historico-equipamento" class="modal-backdrop hidden" style="z-index:100033!important"><div class="modal-card !max-w-none" style="width:min(860px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Histórico do equipamento</h2><p id="eq-hist-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharHistoricoEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-hist-conteudo" class="mt-5"><div class="text-xs text-slate-400">Carregando histórico...</div></div></div></div>
 
 <div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p id="eq-modal-regra" class="text-xs text-slate-500 mt-1">Primeiro são verificados somente os equipamentos vinculados ao cliente desta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-tabs" class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Equipamento do cliente</button><button id="tab-eq-temp" class="nav-pill hidden" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Equipamento do cliente *</span><select id="eq-parque-select" class="input"><option value="">Selecione um equipamento</option></select></label><button type="button" class="btn btn-light w-full justify-center" onclick="window.abrirLeitorQREquipamento()"><i class="fa-solid fa-qrcode"></i> Ler QR Code / Número de série</button><div id="eq-qr-feedback" class="hidden rounded-xl border p-3 text-xs"></div><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">São exibidos <b>somente</b> equipamentos do Parque de Máquinas vinculados ao cliente desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><div class="flex gap-2"><input id="eq-temp-sn" class="input" placeholder="Se houver"><button type="button" class="btn btn-light shrink-0" onclick="window.abrirLeitorQREquipamento()" title="Ler QR Code"><i class="fa-solid fa-qrcode"></i></button></div></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><label class="md:col-span-2 flex items-start gap-3 rounded-xl bg-blue-50 border border-blue-200 p-3 cursor-pointer">
@@ -2110,7 +2199,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 const BASE=['artifacts','plataforma-cij','public','data'];
 const state={clientes:[],parque:[],modelos:[],usuarios:[],osr:[],os:[],agenda:[],selectedOS:null,equipmentType:'PARQUE'};
 let legacyCurrentPage=1; const LEGACY_PAGE_SIZE=10;
-const fontes=[['clientes','cadastros_clientes','Clientes','Fonte oficial de clientes'],['parque','parque_maquinas','Parque de Máquinas','Máquinas físicas / números de série'],['modelos','cadastros_equipamentos','Cadastro de Equipamentos','Catálogo de modelos e fabricantes'],['usuarios','usuarios_permissoes','Usuários e acessos','Usuários atuais do Portal CIJ'],['osr','suportes_osr','Suporte Técnico / OSR','Histórico oficial de suportes remotos'],['os','os_ordens','Nova coleção de OS','Domínio exclusivo da nova Assistência'],['agenda','agenda_tasks_v2','Agenda','Integração oficial de agendamentos']];
+const fontes=[['clientes','cadastros_clientes','Clientes','Fonte oficial de clientes'],['parque','parque_maquinas','Parque de Máquinas','Máquinas físicas / números de série'],['modelos','cadastros_equipamentos','Cadastro de Equipamentos','Catálogo de modelos e fabricantes'],['usuarios','usuarios_permissoes','Usuários e acessos','Usuários atuais do Portal CIJ'],['osr','suportes_osr','Suporte Técnico / OSR','Histórico oficial de suportes remotos'],['os','os_ordens','Nova coleção de OS','Domínio exclusivo da nova Assistência'],['agenda','agenda_tasks_v2','Agenda','Integração oficial de agendamentos'],['formcraftForms','sandbox_forms','FormCraft - Modelos','Formulários, laudos e check-lists'],['formcraftSubs','sandbox_submissions','FormCraft - Respostas','Respostas salvas dos formulários']];
 const stages=[['ENTRADA','Entrada / Suporte'],['TRIAGEM','Triagem / Diagnóstico'],['ORCAMENTOS','Orçamentos'],['AGENDAMENTO','Agendamento / Execução'],['FATURAMENTO','Aguardando faturamento'],['ENCERRADOS','Encerrados']];
 function toast(m){const e=document.getElementById('assistencia-toast');if(!e)return;e.textContent=m;e.classList.remove('hidden');clearTimeout(window.__assistToastTimer);window.__assistToastTimer=setTimeout(()=>e.classList.add('hidden'),2600)}
 function col(n){return window.fsCollection(window.AppDB,...BASE,n)}
@@ -3486,6 +3575,217 @@ function isMinhaOS(o){
  return (!!uid&&ids.includes(uid))||(!!nome&&nomes.includes(nome));
 }
 
+
+// FASE 1.68 — Diário de eventos + integração FormCraft por equipamento
+window.__diarioEquipment=null;
+window.__formcraftEquipment=null;
+window.__formcraftTemplate=null;
+
+function assistFormTemplates(){
+  return (state.formcraftForms||[]).filter(x=>x&&x.title).sort((a,b)=>String(a.title).localeCompare(String(b.title),'pt-BR'));
+}
+function assistFormSubId(o,eq,form){
+  const osid=String(o?.internalId||o?.id||'OS');
+  const eid=String(eq?.id||eq?.internalId||'EQ');
+  const fid=String(form?.id||form?.internalId||form?.title||'FORM').replace(/[^A-Za-z0-9_-]/g,'_');
+  return `FC_${osid}_${eid}_${fid}`;
+}
+function assistFormSubmission(o,eq,form){
+  const id=assistFormSubId(o,eq,form);
+  return (state.formcraftSubs||[]).find(x=>String(x.id||x.internalId||'')===id)||
+    (state.formcraftSubs||[]).find(x=>
+      String(x.osId||'')===String(o?.internalId||o?.id||'') &&
+      String(x.equipamentoId||'')===String(eq?.id||eq?.internalId||'') &&
+      (String(x.formId||'')===String(form?.id||form?.internalId||'')||String(x.formTitle||'')===String(form?.title||''))
+    )||null;
+}
+function assistEscAttr(v){return esc(v).replaceAll('"','&quot;')}
+
+window.abrirDiarioEquipamento=async function(eid){
+  const o=state.selectedOS;if(!o)return;
+  const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+  if(!eq){toast('Equipamento não encontrado.');return}
+  window.__diarioEquipment=eq;
+  document.getElementById('diario-equip-titulo').textContent=`${eq.modelo||'Equipamento'} · SN: ${eq.numeroSerie||'não informado'} · ${o.osNumber||o.numero||'OS'}`;
+  document.getElementById('diario-equip-texto').value='';
+  if(typeof techAbrirModalAcima==='function'&&document.body.classList.contains('tech-app-mode'))techAbrirModalAcima('modal-diario-equipamento');
+  else document.getElementById('modal-diario-equipamento').classList.remove('hidden');
+  await window.renderDiarioEquipamento();
+};
+window.fecharDiarioEquipamento=function(){document.getElementById('modal-diario-equipamento')?.classList.add('hidden');window.__diarioEquipment=null};
+
+window.renderDiarioEquipamento=async function(){
+  const o=state.selectedOS,eq=window.__diarioEquipment,box=document.getElementById('diario-equip-lista');if(!o||!eq||!box)return;
+  box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando diário...</div>';
+  try{
+    const osid=o.internalId||o.id,eid=String(eq.id||eq.internalId),ciclo=Number(o.cicloAtendimento||1);
+    const [hist,manual]=await Promise.all([readSub(osid,'historico').catch(()=>[]),readSub(osid,'diario_equipamentos').catch(()=>[])]);
+    const system=(hist||[]).filter(x=>String(x.equipamentoId||'')===eid&&Number(x.cicloAtendimento||ciclo)===ciclo).map(x=>({
+      origem:'system',createdAtISO:x.createdAtISO||x.updatedAtISO||'',titulo:x.titulo||x.tipo||'Evento do sistema',detalhe:x.detalhe||'',usuarioNome:x.usuarioNome||x.criadoPorNome||x.revisadoPorNome||'',tipo:x.tipo||'SISTEMA'
+    }));
+    const notes=(manual||[]).filter(x=>String(x.equipamentoId||'')===eid&&Number(x.cicloAtendimento||1)===ciclo&&x?.is_deleted!==true).map(x=>({
+      origem:'manual',createdAtISO:x.createdAtISO||'',titulo:String(x.tipoEvento||'ATIVIDADE').replaceAll('_',' '),detalhe:x.descricao||'',usuarioNome:x.usuarioNome||'',tipo:x.tipoEvento||'ATIVIDADE'
+    }));
+    const rows=[...system,...notes].sort((a,b)=>String(b.createdAtISO).localeCompare(String(a.createdAtISO)));
+    box.innerHTML=rows.length?rows.map(x=>`<div class="diario-row ${x.origem}">
+      <div class="flex flex-wrap justify-between gap-2"><div class="diario-title">${esc(x.titulo)}</div><div class="diario-date">${esc(fmtDate(x.createdAtISO))}</div></div>
+      ${x.detalhe?`<div class="diario-detail">${esc(x.detalhe)}</div>`:''}
+      <div class="diario-user"><i class="fa-solid fa-user-gear mr-1"></i>${esc(x.usuarioNome||'Usuário não informado')} · ${x.origem==='manual'?'REGISTRO DO DIÁRIO':'EVENTO AUTOMÁTICO'}</div>
+    </div>`).join(''):'<div class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400">Nenhum evento registrado para este equipamento.</div>';
+  }catch(e){
+    console.error('[Assistência] diário equipamento',e);
+    box.innerHTML='<div class="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">Não foi possível carregar o diário.</div>';
+  }
+};
+window.salvarEventoDiarioEquipamento=async function(){
+  const o=state.selectedOS,eq=window.__diarioEquipment;if(!o||!eq)return;
+  const descricao=document.getElementById('diario-equip-texto').value.trim();
+  if(!descricao){alert('Descreva o evento antes de registrar.');return}
+  const tipo=document.getElementById('diario-equip-tipo').value||'ATIVIDADE',now=new Date().toISOString();
+  const id=window.crypto?.randomUUID?.()||('diario_'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+  const row={internalId:id,osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),tipoEvento:tipo,descricao,createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',usuarioEmail:window.currentUser?.email||'',origem:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:1};
+  const btn=document.getElementById('btn-diario-equip-salvar');
+  try{
+    btn.disabled=true;
+    await saveSubDoc(o.internalId||o.id,'diario_equipamentos',id,row);
+    await addHistory(o,'DIARIO_EQUIPAMENTO','Evento registrado no diário',descricao,{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),diarioEventoId:id,tipoEvento:tipo});
+    document.getElementById('diario-equip-texto').value='';
+    toast(assistOfflineSemRede()?'Evento salvo no aparelho. Aguardando sincronização.':'Evento registrado no diário.');
+    await window.renderDiarioEquipamento();
+  }catch(e){console.error(e);alert('Não foi possível registrar o evento.\n\n'+(e?.message||e))}
+  finally{btn.disabled=false}
+};
+
+window.abrirFormulariosEquipamento=async function(eid){
+  const o=state.selectedOS;if(!o)return;
+  const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
+  if(!eq){toast('Equipamento não encontrado.');return}
+  window.__formcraftEquipment=eq;
+  document.getElementById('fc-equip-titulo').textContent=`${eq.modelo||'Equipamento'} · SN: ${eq.numeroSerie||'não informado'} · ${o.osNumber||o.numero||'OS'}`;
+  if(typeof techAbrirModalAcima==='function'&&document.body.classList.contains('tech-app-mode'))techAbrirModalAcima('modal-formularios-equipamento');
+  else document.getElementById('modal-formularios-equipamento').classList.remove('hidden');
+  window.renderFormulariosEquipamento();
+};
+window.fecharFormulariosEquipamento=function(){document.getElementById('modal-formularios-equipamento')?.classList.add('hidden');window.__formcraftEquipment=null};
+
+window.renderFormulariosEquipamento=function(){
+  const o=state.selectedOS,eq=window.__formcraftEquipment;if(!o||!eq)return;
+  const forms=assistFormTemplates(),linked=Array.isArray(eq.formulariosExigidos)?eq.formulariosExigidos:[];
+  const left=document.getElementById('fc-equip-templates'),right=document.getElementById('fc-equip-lista'),count=document.getElementById('fc-equip-count');
+  left.innerHTML=forms.length?forms.map(f=>{
+    const key=String(f.id||f.internalId||f.title),checked=linked.some(x=>String(x.id||x.formId||x.title||x)===key||String(x.title||x)===String(f.title));
+    return `<label class="fc-template-row"><input type="checkbox" class="fc-template-check mt-1" data-id="${assistEscAttr(key)}" data-title="${assistEscAttr(f.title)}" ${checked?'checked':''}><span><b class="text-xs">${esc(f.title)}</b><small class="block text-[10px] text-slate-500 mt-1">${(f.fields||[]).length} campo(s)</small></span></label>`;
+  }).join(''):'<div class="text-xs text-slate-400">Nenhum modelo encontrado em sandbox_forms.</div>';
+  count.textContent=linked.length;
+  if(!linked.length){right.innerHTML='<div class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400">Nenhum formulário vinculado a este equipamento.</div>';return}
+  right.innerHTML=linked.map((l,idx)=>{
+    const form=forms.find(f=>String(f.id||f.internalId||f.title)===String(l.id||l.formId||l.title||l)||String(f.title)===String(l.title||l))||{id:l.id||l.formId||'',title:l.title||String(l)};
+    const sub=assistFormSubmission(o,eq,form);
+    return `<div class="fc-required-card"><div><span class="status-badge ${sub?'status-ok':'status-pending'}">${sub?'PREENCHIDO':'PENDENTE'}</span><div class="text-xs font-black mt-2">${esc(form.title||'Formulário')}</div>${sub?`<div class="text-[10px] text-slate-500 mt-1">${esc(fmtDate(sub.updatedAtISO||sub.submittedAt))} · ${esc(sub.tecnico||sub.tecnicoNome||'')}</div>`:''}</div><button class="btn ${sub?'btn-light':'btn-primary'}" onclick="window.abrirFormCraftPreencher('${assistEscAttr(String(form.id||form.internalId||form.title))}')"><i class="fa-solid fa-file-pen"></i> ${sub?'Ver / editar':'Preencher'}</button></div>`;
+  }).join('');
+};
+window.salvarVinculosFormCraftEquipamento=async function(){
+  const o=state.selectedOS,eq=window.__formcraftEquipment;if(!o||!eq)return;
+  const selected=[...document.querySelectorAll('.fc-template-check:checked')].map(x=>({id:x.dataset.id,title:x.dataset.title}));
+  const now=new Date().toISOString(),btn=document.getElementById('btn-fc-salvar-vinculos');
+  try{
+    btn.disabled=true;
+    await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,{formulariosExigidos:selected,formulariosAtualizadosEmISO:now,updatedAtISO:now});
+    eq.formulariosExigidos=selected;
+    await addHistory(o,'FORMCRAFT_VINCULO','Formulários do equipamento atualizados',selected.map(x=>x.title).join(', ')||'Nenhum formulário obrigatório',{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',cicloAtendimento:Number(o.cicloAtendimento||1)});
+    toast('Vínculos de formulários atualizados.');
+    window.renderFormulariosEquipamento();
+  }catch(e){console.error(e);alert('Não foi possível salvar os vínculos.\n\n'+(e?.message||e))}
+  finally{btn.disabled=false}
+};
+
+function fcInputValue(form,field,sub){
+  const v=sub?.answers?.[field.label];
+  if(Array.isArray(v))return v;
+  return v==null?'':String(v);
+}
+window.abrirFormCraftPreencher=function(formKey){
+  const o=state.selectedOS,eq=window.__formcraftEquipment||state.selectedEquipment;if(!o||!eq)return;
+  const form=assistFormTemplates().find(f=>String(f.id||f.internalId||f.title)===String(formKey)||String(f.title)===String(formKey));
+  if(!form){alert('Formulário não encontrado em sandbox_forms.');return}
+  window.__formcraftEquipment=eq;window.__formcraftTemplate=JSON.parse(JSON.stringify(form));
+  const sub=assistFormSubmission(o,eq,form);
+  document.getElementById('fc-form-titulo').textContent=form.title||'Formulário';
+  document.getElementById('fc-form-equip').textContent=`${eq.modelo||'Equipamento'} · SN: ${eq.numeroSerie||'não informado'} · ${o.osNumber||o.numero||'OS'}`;
+  const box=document.getElementById('fc-form-body');
+  box.innerHTML=(form.fields||[]).map(f=>{
+    const val=fcInputValue(form,f,sub),req=f.required?'required':'',events='onchange="window.avaliarRegrasFormCraft()" oninput="window.avaliarRegrasFormCraft()"';
+    let input='';
+    if(f.type==='long_text')input=`<textarea name="${assistEscAttr(f.id)}" rows="3" ${req} ${events} class="input">${esc(val)}</textarea>`;
+    else if(f.type==='number')input=`<input type="number" name="${assistEscAttr(f.id)}" value="${assistEscAttr(val)}" ${req} ${events} class="input">`;
+    else if(f.type==='date')input=`<input type="date" name="${assistEscAttr(f.id)}" value="${assistEscAttr(val)}" ${req} ${events} class="input">`;
+    else if(f.type==='single_select')input=`<div class="space-y-2">${(f.options||[]).map(op=>`<label class="flex items-center gap-2 text-xs rounded-lg border bg-white p-2"><input type="radio" name="${assistEscAttr(f.id)}" value="${assistEscAttr(op)}" ${String(val)===String(op)?'checked':''} ${req} ${events}> ${esc(op)}</label>`).join('')}</div>`;
+    else if(f.type==='multi_select'){
+      const arr=Array.isArray(val)?val:String(val||'').split(',').map(x=>x.trim()).filter(Boolean);
+      input=`<div class="space-y-2">${(f.options||[]).map(op=>`<label class="flex items-center gap-2 text-xs rounded-lg border bg-white p-2"><input type="checkbox" name="${assistEscAttr(f.id)}" value="${assistEscAttr(op)}" ${arr.includes(String(op))?'checked':''} ${events}> ${esc(op)}</label>`).join('')}</div>`;
+    }else input=`<input type="text" name="${assistEscAttr(f.id)}" value="${assistEscAttr(val)}" ${req} ${events} class="input">`;
+    return `<div id="fcw-${assistEscAttr(f.id)}" class="fc-field"><label class="title">${esc(f.label||'Campo')} ${f.required?'<span class="text-rose-500">*</span>':''}</label>${f.instruction?`<div class="instruction">${esc(f.instruction)}</div>`:''}${input}</div>`;
+  }).join('');
+  if(typeof techAbrirModalAcima==='function'&&document.body.classList.contains('tech-app-mode'))techAbrirModalAcima('modal-formcraft-preencher');
+  else document.getElementById('modal-formcraft-preencher').classList.remove('hidden');
+  window.avaliarRegrasFormCraft();
+};
+window.fecharFormCraftPreencher=function(){document.getElementById('modal-formcraft-preencher')?.classList.add('hidden');window.__formcraftTemplate=null};
+
+window.avaliarRegrasFormCraft=function(){
+  const form=window.__formcraftTemplate,root=document.getElementById('fc-form-body');if(!form||!root)return;
+  const values={};
+  (form.fields||[]).forEach(f=>{
+    if(f.type==='single_select')values[f.id]=root.querySelector(`input[name="${CSS.escape(String(f.id))}"]:checked`)?.value||'';
+    else if(f.type==='multi_select')values[f.id]=[...root.querySelectorAll(`input[name="${CSS.escape(String(f.id))}"]:checked`)].map(x=>x.value);
+    else values[f.id]=root.querySelector(`[name="${CSS.escape(String(f.id))}"]`)?.value||'';
+  });
+  const rules=form.rules||[],targets=new Set(rules.map(r=>String(r.targetId))),shown=new Set();
+  rules.forEach(r=>{
+    const tv=values[r.triggerId],rv=r.value;let ok=false;
+    if(Array.isArray(tv)){
+      if(['contains','equals'].includes(r.operator))ok=tv.includes(rv);
+      if(['not_contains','not_equals'].includes(r.operator))ok=!tv.includes(rv);
+    }else{
+      const a=String(tv||'').toLowerCase(),b=String(rv||'').toLowerCase(),an=parseFloat(tv),bn=parseFloat(rv);
+      if(r.operator==='equals')ok=a===b;else if(r.operator==='not_equals')ok=a!==b;else if(r.operator==='contains')ok=a.includes(b);else if(r.operator==='not_contains')ok=!a.includes(b);
+      else if(r.operator==='greater_than')ok=!isNaN(an)&&an>bn;else if(r.operator==='less_than')ok=!isNaN(an)&&an<bn;else if(r.operator==='greater_or_equal')ok=!isNaN(an)&&an>=bn;else if(r.operator==='less_or_equal')ok=!isNaN(an)&&an<=bn;
+    }
+    if(ok)shown.add(String(r.targetId));
+  });
+  (form.fields||[]).forEach(f=>{
+    const wrap=document.getElementById('fcw-'+f.id);if(!wrap)return;
+    const hidden=targets.has(String(f.id))&&!shown.has(String(f.id));
+    wrap.classList.toggle('hidden-by-rule',hidden);
+    wrap.querySelectorAll('input,textarea,select').forEach(el=>{if(f.required)el.required=!hidden});
+  });
+};
+window.salvarFormCraftResposta=async function(){
+  const o=state.selectedOS,eq=window.__formcraftEquipment,form=window.__formcraftTemplate,root=document.getElementById('fc-form-body');if(!o||!eq||!form||!root)return;
+  if(!root.reportValidity())return;
+  const answers={};
+  (form.fields||[]).forEach(f=>{
+    const wrap=document.getElementById('fcw-'+f.id);if(wrap?.classList.contains('hidden-by-rule'))return;
+    if(f.type==='single_select')answers[f.label]=root.querySelector(`input[name="${CSS.escape(String(f.id))}"]:checked`)?.value||'';
+    else if(f.type==='multi_select')answers[f.label]=[...root.querySelectorAll(`input[name="${CSS.escape(String(f.id))}"]:checked`)].map(x=>x.value);
+    else answers[f.label]=root.querySelector(`[name="${CSS.escape(String(f.id))}"]`)?.value||'';
+  });
+  const id=assistFormSubId(o,eq,form),now=new Date().toISOString(),old=assistFormSubmission(o,eq,form);
+  const row={id,internalId:id,formId:form.id||form.internalId||'',formTitle:form.title||'',osId:o.internalId||o.id,osNumber:o.osNumber||o.numero||'',equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),answers,submittedAt:old?.submittedAt||now,updatedAtISO:now,tecnico:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',tecnicoUid:window.currentUser?.uid||'',tecnicoEmail:window.currentUser?.email||'',origem:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:2};
+  const btn=document.getElementById('btn-fc-form-salvar');
+  try{
+    btn.disabled=true;
+    await saveDoc('sandbox_submissions',id,row);
+    const idx=(state.formcraftSubs||[]).findIndex(x=>String(x.id||x.internalId)===id);
+    if(idx>=0)state.formcraftSubs[idx]=row;else(state.formcraftSubs||(state.formcraftSubs=[])).push(row);
+    await addHistory(o,'FORMCRAFT_PREENCHIDO','Formulário preenchido: '+(form.title||'Formulário'),Object.entries(answers).map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):v}`).join(' · ').slice(0,1200),{equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'',equipamentoNumeroSerie:eq.numeroSerie||'',cicloAtendimento:Number(o.cicloAtendimento||1),formcraftSubmissionId:id,formcraftFormId:form.id||'',formcraftFormTitle:form.title||''});
+    toast(assistOfflineSemRede()?'Formulário salvo no aparelho. Aguardando sincronização.':'Formulário salvo com sucesso.');
+    window.fecharFormCraftPreencher();
+    window.renderFormulariosEquipamento();
+  }catch(e){console.error(e);alert('Não foi possível salvar o formulário.\n\n'+(e?.message||e))}
+  finally{btn.disabled=false}
+};
+
 // FASE 1.67 — ajustes consolidados de homologação
 function assistNormText(v){
   return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
@@ -3975,6 +4275,8 @@ async function renderEquipamentosOS(o){const box=document.getElementById('detalh
 <button class="orc-btn ${clsApr}" data-assist-perm="registrar_aprovacao" onclick="event.stopPropagation();window.abrirAprovacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-circle-check"></i> Aprovação / proposta</button>
 ${String(e.ultimoOrcamentoStatus||'').toUpperCase()==='APROVADO'&&!['CONCLUIDO','RECUSADO','CANCELADO'].includes(st)?`<button class="schedule-flow-btn ${clsAge}" onclick="event.stopPropagation();window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> ${o.agendadoParaISO?'Reagendar OS':'Agendar OS'}</button>`:''}
 ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button class="release-btn ${clsAge}" data-assist-perm="liberar_execucao" onclick="event.stopPropagation();window.liberarExecucaoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-play"></i> Liberar execução</button>`:''}
+<button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirDiarioEquipamento('${esc(e.id)}')"><i class="fa-solid fa-book-open"></i> Diário</button>
+<button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirFormulariosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-list-check"></i> Formulários</button>
 <button class="peca-btn flow-neutral" onclick="event.stopPropagation();window.abrirPecasEquipamento('${esc(e.id)}')"><i class="fa-solid fa-box-open"></i> Peças</button>
 <button class="anexo-btn flow-neutral" onclick="event.stopPropagation();window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos / Anexos</button>
 <button class="diag-btn ${clsChk}" onclick="event.stopPropagation();window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout</button>
@@ -4416,15 +4718,37 @@ async function gerarBlobOrcamentoPDF(o,pacotes){
   await ensureHtml2Pdf();
   const html=orcamentoDocumentoHTML(o,pacotes);
   const doc=new DOMParser().parseFromString(html,'text/html');
+
+  // O elemento precisa permanecer dentro da área renderizável do navegador.
+  // A versão anterior usava left:-12000px; alguns Chromes Android produziam PDF em branco.
   const host=document.createElement('div');
-  host.style.cssText='position:fixed;left:-12000px;top:0;width:794px;background:#fff;z-index:-1';
-  [...doc.head.querySelectorAll('style')].forEach(st=>host.appendChild(st.cloneNode(true)));
-  const body=document.createElement('div');body.innerHTML=doc.body.innerHTML.replace(/<button[\s\S]*?<\/button>/i,'');host.appendChild(body);
+  host.id='assist-pdf-render-host';
+  host.style.cssText='position:fixed;left:0;top:0;width:794px;min-height:1123px;background:#fff;z-index:-1000;pointer-events:none;color:#172033;';
+  const styles=[...doc.head.querySelectorAll('style')].map(x=>x.textContent||'').join('\n');
+  host.innerHTML=`<style>${styles}</style><div class="assist-pdf-root">${doc.body.innerHTML.replace(/<button[\s\S]*?<\/button>/i,'')}</div>`;
   document.body.appendChild(host);
+
   try{
-    const worker=window.html2pdf().set({margin:[10,10,10,10],filename:'orcamento.pdf',image:{type:'jpeg',quality:.96},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(host);
-    return await worker.outputPdf('blob');
-  }finally{host.remove()}
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const target=host.querySelector('.assist-pdf-root')||host;
+    const worker=window.html2pdf().set({
+      margin:[10,10,10,10],
+      filename:'orcamento.pdf',
+      image:{type:'jpeg',quality:.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,scrollX:0,scrollY:0},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+    }).from(target).toPdf();
+
+    const pdf=await worker.get('pdf');
+    const blob=pdf.output('blob');
+    if(!blob||blob.size<1200)throw new Error('O PDF gerado ficou vazio ou incompleto.');
+    const head=new Uint8Array(await blob.slice(0,5).arrayBuffer());
+    const sig=String.fromCharCode(...head);
+    if(!sig.startsWith('%PDF'))throw new Error('O arquivo gerado não é um PDF válido.');
+    return blob;
+  }finally{
+    host.remove();
+  }
 }
 
 function __orcamentoDocumentoHTMLAntigoRemovido(){return''}
@@ -4448,6 +4772,7 @@ window.compartilharOrcamentoWhatsApp=async function(){
     const pacotes=await orcamentoPacotesOS(o);
     if(!pacotes.length)throw new Error('Nenhum orçamento foi encontrado.');
     const blob=await gerarBlobOrcamentoPDF(o,pacotes);
+    if(!blob||blob.size<1200)throw new Error('O PDF não foi gerado corretamente; o envio foi interrompido para evitar link em branco.');
     const api=await storageApi(),osid=o.internalId||o.id,cycle=Number(o.cicloAtendimento||1);
     const fileName=`ORCAMENTO_${String(o.osNumber||o.numero||'OS').replace(/[^A-Za-z0-9_-]/g,'_')}_C${cycle}.pdf`;
     const path=`assistencia_os/${osid}/orcamentos/${fileName}`;
@@ -6147,6 +6472,10 @@ window.renderAtendimentoTecnico=async function(){
       ${e.recolhidoEmISO?`<div class="tech-execution-note wait"><i class="fa-solid fa-box mr-1"></i>Recolhido em ${esc(fmtDate(e.recolhidoEmISO))}${e.recolhidoMotivo?' · '+esc(e.recolhidoMotivo):''}</div>`:''}
       ${execNote}
       ${techMateriaisHTML(e,oficiais,planejamentos,solicitacoes,ciclo)}
+      <div class="tech-eq-actions">
+        <button class="tech-action" onclick="window.abrirDiarioEquipamento('${esc(e.id)}')"><i class="fa-solid fa-book-open"></i> Diário</button>
+        <button class="tech-action" onclick="window.abrirFormulariosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-list-check"></i> Formulários</button>
+      </div>
       ${done?'<div class="tech-execution-note ok"><i class="fa-solid fa-check-double mr-1"></i>Equipamento concluído.</div>':`<div class="tech-eq-actions">
         <button class="tech-action primary" onclick="window.techAcaoStatus('${esc(e.id)}','EM_DIAGNOSTICO')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button>
         <button class="tech-action sky" onclick="window.abrirAnexosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-camera"></i> Fotos</button>
@@ -6166,7 +6495,7 @@ window.techAcaoStatus=async function(eid,status){
  }
  try{const now=new Date().toISOString();await mergeSubDoc(o.internalId||o.id,'equipamentos',eid,{statusEquipamento:status,updatedAtISO:now,atualizadoPorUid:window.currentUser?.uid||'',atualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''});eq.statusEquipamento=status;await recalcOSStage(o,o._equipamentos);await window.renderAtendimentoTecnico();toast('Atendimento atualizado.')}catch(e){console.error(e);alert('Não foi possível atualizar o atendimento.\n\n'+(e?.message||e))}
 };
-['fecharDiagnosticoEquipamento','fecharPecasEquipamento','fecharCheckoutEquipamento','fecharAnexosEquipamento'].forEach(n=>{const old=window[n];if(typeof old==='function')window[n]=function(){const r=old.apply(this,arguments);if(!document.getElementById('modal-tech-atendimento')?.classList.contains('hidden'))setTimeout(()=>window.renderAtendimentoTecnico?.(),50);return r}});
+['fecharDiagnosticoEquipamento','fecharPecasEquipamento','fecharCheckoutEquipamento','fecharAnexosEquipamento','fecharDiarioEquipamento','fecharFormulariosEquipamento','fecharFormCraftPreencher'].forEach(n=>{const old=window[n];if(typeof old==='function')window[n]=function(){const r=old.apply(this,arguments);if(!document.getElementById('modal-tech-atendimento')?.classList.contains('hidden'))setTimeout(()=>window.renderAtendimentoTecnico?.(),50);return r}});
 
 
 // FASE 1.25.4 — correção dos modais Fotos e Checkout no Atendimento do Técnico
@@ -6602,7 +6931,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.67';
+const ASSISTENCIA_BUILD='1.68';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -7452,7 +7781,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.();window.fecharDiarioEquipamento?.();window.fecharFormulariosEquipamento?.();window.fecharFormCraftPreencher?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
