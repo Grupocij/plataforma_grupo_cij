@@ -111,11 +111,14 @@ const injectLayout = () => {
                         <button class="px-3 py-2 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 rounded-lg hover:bg-slate-800 cursor-pointer"><i class="fa-solid fa-truck-fast text-emerald-400"></i> Serviços <i class="fa-solid fa-chevron-down text-[9px] opacity-60 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
-                                <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo Chamado Mobile</p></div></a>
-                                <a href="gestao_os.html" data-module="gestao_os.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-file-invoice"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de O.S.</h4><p class="text-[10px] text-slate-500">Homologação</p></div></a>
-                                <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de Atendimentos</p></div></a>
-                                <a href="serviceflow_app.html" data-module="serviceflow_app.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-columns"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">ServiceFlow Kanban</h4><p class="text-[10px] text-slate-500">Fluxo Integrado</p></div></a>
-                                <a href="app_tecnico.html" data-module="app_tecnico.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">App do Técnico</h4><p class="text-[10px] text-slate-500">Execução de OS</p></div></a>
+                                <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo chamado mobile</p></div></a>
+
+                                <a href="assistencia.html" data-module="assistencia.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Assistência Técnica</h4><p class="text-[10px] text-slate-500">Kanban, OS, orçamento e gestão</p></div></a>
+
+                                <a href="assistencia.html?modo=tecnico" data-module="app_tecnico.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">App do Técnico</h4><p class="text-[10px] text-slate-500">Execução mobile e offline</p></div></a>
+
+                                <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de atendimentos</p></div></a>
+
                                 <a href="veiculos_mobile.html" data-module="veiculos_mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-car"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Mobile</h4><p class="text-[10px] text-slate-500">Retirada da frota</p></div></a>
                             </div>
                         </div>
@@ -268,10 +271,8 @@ window.fsGetDocs = getDocs;
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Assistência Técnica', url: 'assistencia.html', icon: 'fa-screwdriver-wrench text-blue-500' },
-    { name: 'Gestão de O.S. (Homologação)', url: 'gestao_os.html', icon: 'fa-file-invoice text-sky-500' },
+    { name: 'App do Técnico', url: 'app_tecnico.html', href: 'assistencia.html?modo=tecnico', icon: 'fa-mobile-screen-button text-sky-500' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
-    { name: 'ServiceFlow Kanban (Legado)', url: 'serviceflow_app.html', icon: 'fa-table-columns text-violet-500' },
-    { name: 'App do Técnico (Legado)', url: 'app_tecnico.html', icon: 'fa-mobile-screen-button text-sky-500' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },
     { name: 'Solicitação CIJ', url: 'solicitacao.html', icon: 'fa-file-signature text-blue-600' },
@@ -301,20 +302,20 @@ window.filterGlobalModules = function() {
     
     if (input.length < 1) { resultBox.classList.add('hidden'); return; }
 
-    const allowedUrls = Array.from(document.querySelectorAll('#desktop-nav-menu a.nav-item'))
+    const allowedModules = Array.from(document.querySelectorAll('#desktop-nav-menu a.nav-item'))
                              .filter(a => a.style.display !== 'none')
-                             .map(a => a.getAttribute('href'));
+                             .map(a => a.getAttribute('data-module'));
 
     if (document.body.classList.contains('diretoria-unlocked')) {
-        allowedUrls.push('diretoria-custos.html');
+        allowedModules.push('diretoria-custos.html');
     }
 
-    const filtered = globalModulesMap.filter(m => m.name.toLowerCase().includes(input) && allowedUrls.includes(m.url));
+    const filtered = globalModulesMap.filter(m => m.name.toLowerCase().includes(input) && allowedModules.includes(m.url));
 
     if (filtered.length > 0) {
         resultBox.innerHTML = filtered.map(m => `
             <li class="border-b border-slate-100 last:border-0">
-                <a href="${m.url}" class="flex items-center gap-3 p-3 hover:bg-slate-50 transition text-xs font-bold text-slate-700">
+                <a href="${m.href || m.url}" class="flex items-center gap-3 p-3 hover:bg-slate-50 transition text-xs font-bold text-slate-700">
                     <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><i class="fa-solid ${m.icon}"></i></div>
                     ${m.name}
                 </a>
@@ -418,7 +419,7 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
         globalModulesMap.forEach(m => {
             if (userHasModuleAccess(dbUser, m.url)) {
                 const isSecret = m.url === 'diretoria-custos.html' ? 'mobile-secret' : '';
-                mobContainer.innerHTML += `<a href="${m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
+                mobContainer.innerHTML += `<a href="${m.href || m.url}" class="${isSecret} flex items-center gap-3 p-3 bg-slate-800 rounded-xl text-slate-200 text-sm font-bold border border-slate-700 hover:bg-slate-700"><i class="fa-solid ${m.icon} w-5 text-center"></i> ${m.name}</a>`;
             }
         });
     }
@@ -620,12 +621,19 @@ onAuthStateChanged(auth, async (user) => {
         let currentPath = window.location.pathname.split('/').pop();
         if (!currentPath) currentPath = 'index.html';
 
-        // VISÃO GLOBAL — Master vê tudo; demais obedecem à configuração do módulo
-        window.userVisaoGlobal = userHasGlobalView(dbUser, currentPath);
+        // A nova experiência do App do Técnico vive dentro de assistencia.html?modo=tecnico,
+        // mas continua usando a permissão independente app_tecnico.html no Gerenciar Usuários.
+        const paramsAcesso = new URLSearchParams(window.location.search);
+        const modoTecnicoAssistencia = currentPath === 'assistencia.html' &&
+            (paramsAcesso.get('modo') === 'tecnico' || paramsAcesso.get('app') === 'tecnico');
+        const currentAccessModule = modoTecnicoAssistencia ? 'app_tecnico.html' : currentPath;
 
-        // FASE 1.66.3 — acesso explícito por módulo para todo usuário não-Master.
-        if (!isMaster && currentPath !== 'index.html') {
-            if (!userHasModuleAccess(dbUser, currentPath)) {
+        // VISÃO GLOBAL — Master vê tudo; demais obedecem à configuração do módulo
+        window.userVisaoGlobal = userHasGlobalView(dbUser, currentAccessModule);
+
+        // Acesso explícito por módulo para todo usuário não-Master.
+        if (!isMaster && currentAccessModule !== 'index.html') {
+            if (!userHasModuleAccess(dbUser, currentAccessModule)) {
                 alert("Acesso Negado: Você não tem permissão para acessar este módulo.");
                 window.location.href = 'index.html';
                 return;

@@ -1071,6 +1071,37 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 }
 </style>
 
+
+<style id="fase1681-tech-tools-layer-fix">
+/* O menu de Ferramentas não pode ser recortado pelo strip nem ficar atrás do buscador/cards. */
+.tech-shell{position:relative;isolation:isolate}
+.tech-app-strip{
+  position:relative!important;
+  overflow:visible!important;
+  z-index:120000!important;
+}
+.tech-app-controls{position:relative!important;z-index:120010!important}
+.tech-tools-wrap{position:relative!important;z-index:120020!important}
+.tech-tools-menu{
+  z-index:120030!important;
+  right:0!important;
+  top:calc(100% + .45rem)!important;
+}
+body.tech-app-mode #view-tecnico{overflow:visible!important}
+body.tech-app-mode #main-content{overflow-x:hidden!important}
+@media(max-width:640px){
+  .tech-app-strip{overflow:visible!important}
+  .tech-tools-menu{
+    position:absolute!important;
+    right:0!important;
+    left:auto!important;
+    width:min(270px,88vw)!important;
+    max-height:60vh;
+    overflow-y:auto;
+  }
+}
+</style>
+
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
 
@@ -1220,7 +1251,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
     <span class="text-slate-300">•</span>
     <button type="button" id="tech-offline-pendencias" class="offline-pending-count" onclick="event.preventDefault();event.stopPropagation();window.abrirCentralOffline()"><i class="fa-solid fa-list-check"></i><span>0 pendências</span></button>
     <span class="text-slate-300">•</span>
-    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.68</button>
+    <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.68.1</button>
   </div>
   <div class="tech-app-controls">
     <div class="tech-tools-wrap">
@@ -1319,7 +1350,7 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
   <div class="modal-card !max-w-none tech-diag-card" style="width:min(920px,96vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-blue">APP DO TÉCNICO · v1.68</span>
+        <span class="tag tag-blue">APP DO TÉCNICO · v1.68.1</span>
         <h2 class="text-xl font-black mt-2">Autodiagnóstico do aplicativo</h2>
         <p class="text-xs text-slate-500 mt-1">Verificação de prontidão para uso em campo, offline, sincronização e atualização.</p>
       </div>
@@ -6931,7 +6962,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.68';
+const ASSISTENCIA_BUILD='1.68.1';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -8707,7 +8738,7 @@ window.initModule=function(p){
 })();
 
 </script>
-<script type="module" src="core.js?v=20260924-1670"></script>
+<script type="module" src="core.js?v=20260925-1681"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){
