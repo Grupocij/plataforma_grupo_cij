@@ -1,845 +1,103 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full bg-slate-50">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque de Máquinas - Portal CIJ</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Biblioteca Geradora de QR Code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <style>
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Parque de Máquinas - Portal CIJ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}body{font-family:Inter,sans-serif;background:#f8fafc;color:#0f172a}.scroll::-webkit-scrollbar{width:6px;height:6px}.scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:38px;padding:.55rem .8rem;border-radius:.75rem;font-size:.72rem;font-weight:800;transition:.15s}.btn-primary{background:#4f46e5;color:#fff}.btn-light{background:#fff;border:1px solid #cbd5e1;color:#334155}.btn-danger{background:#fff;border:1px solid #fecaca;color:#b91c1c}
+.input{width:100%;border:1px solid #cbd5e1;background:#fff;border-radius:.75rem;padding:.62rem .75rem;font-size:.76rem;outline:none}.input:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+.label{display:block;font-size:.58rem;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.045em;margin-bottom:.3rem}.pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.25rem .55rem;font-size:.58rem;font-weight:900}
+.modal{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem}.modal.hidden{display:none}.modal-card{width:min(920px,97vw);max-height:94vh;overflow:auto;background:#fff;border-radius:1.35rem;border:1px solid #e2e8f0;box-shadow:0 25px 60px rgba(15,23,42,.25)}
+.table th{background:#f8fafc;color:#64748b;text-transform:uppercase;font-size:.56rem;letter-spacing:.035em;padding:.7rem;text-align:left;position:sticky;top:0}.table td{padding:.72rem;border-top:1px solid #f1f5f9;font-size:.72rem;vertical-align:top}
+.kpi{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:1rem}.kpi span{font-size:.56rem;font-weight:900;color:#94a3b8;text-transform:uppercase}.kpi b{display:block;font-size:1.45rem;margin-top:.2rem}
+.timeline{position:relative;padding-left:1.1rem}.timeline:before{content:"";position:absolute;left:.28rem;top:.3rem;bottom:.3rem;width:2px;background:#e2e8f0}.timeline-item{position:relative;padding:.1rem 0 .85rem 1rem}.timeline-item:before{content:"";position:absolute;left:-.93rem;top:.32rem;width:.55rem;height:.55rem;border-radius:999px;background:#6366f1;box-shadow:0 0 0 3px #eef2ff}
+.qr-box canvas,.qr-box img{margin:auto}.warranty-ok{background:#ecfdf5;color:#047857}.warranty-warn{background:#fff7ed;color:#c2410c}.warranty-off{background:#f1f5f9;color:#64748b}
+@media(max-width:720px){.modal{padding:.4rem}.modal-card{border-radius:1rem}}
+</style>
 </head>
-<body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
-
-    <!-- DATALISTS PARA AUTOCOMPLETE (Puxados da Central) -->
-    <datalist id="list-clientes"></datalist>
-    <datalist id="list-equipamentos"></datalist>
-
-    <!-- TELA DE LOGIN (Padrão do Sistema) -->
-    <div id="login-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-200 text-center space-y-6">
-            <h1 class="text-2xl font-black text-[#002d72] tracking-tight mt-1">ACESSO AO PORTAL</h1>
-            <p id="login-message" class="text-sm font-semibold text-slate-500">Carregando a Base Instalada...</p>
-        </div>
-    </div>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-4 md:p-6 relative gap-6 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
-        
-        <!-- CABEÇALHO DO MÓDULO CORRIGIDO -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-3xl shrink-0 shadow-inner">
-                    <i class="fa-solid fa-server"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-800 bg-indigo-100 px-2.5 py-0.5 rounded border border-indigo-300">Gestão de Ativos</span>
-                    </div>
-                    <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Parque de Máquinas</h1>
-                    <p class="text-slate-500 text-sm mt-1">Controle de equipamentos instalados, QR Codes, transferências e histórico.</p>
-                </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
-                <button onclick="window.abrirModalCadastro()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md transition text-xs flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center">
-                    <i class="fa-solid fa-plus"></i> Registrar Nova Máquina
-                </button>
-            </div>
-        </div>
-
-        <!-- KPIS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 shrink-0">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-slate-500 uppercase">Base Instalada</p><p id="kpi-total" class="text-xl font-black text-slate-800">0</p></div>
-                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600"><i class="fa-solid fa-cubes"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-emerald-600 uppercase">Em Campo (Clientes)</p><p id="kpi-campo" class="text-xl font-black text-emerald-700">0</p></div>
-                <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"><i class="fa-solid fa-industry"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-blue-600 uppercase">Estoque Disponível</p><p id="kpi-disp" class="text-xl font-black text-blue-700">0</p></div>
-                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i class="fa-solid fa-box-open"></i></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-bold text-amber-600 uppercase">Em Manutenção</p><p id="kpi-manut" class="text-xl font-black text-amber-700">0</p></div>
-                <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><i class="fa-solid fa-wrench"></i></div>
-            </div>
-        </div>
-
-        <!-- FILTROS E PESQUISA -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-end gap-4 shrink-0">
-            <div class="flex-1 w-full">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Máquina (SN, Modelo, Cliente)</label>
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="filtro-busca" onkeyup="window.renderizarTabela()" placeholder="Digite para pesquisar..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-indigo-600 shadow-sm font-medium">
-                </div>
-            </div>
-            <div class="w-full md:w-64">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Filtrar por Status</label>
-                <select id="filtro-status" onchange="window.renderizarTabela()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 shadow-sm cursor-pointer text-slate-700">
-                    <option value="ALL">Todos os Status</option>
-                    <option value="Ativo do Cliente">Ativo do Cliente</option>
-                    <option value="Ativo CIJ - Disponível">Ativo CIJ - Disponível</option>
-                    <option value="Ativo CIJ - Manutenção">Ativo CIJ - Manutenção</option>
-                    <option value="Ativo CIJ - Alugada">Ativo CIJ - Alugada</option>
-                    <option value="Ativo CIJ - Emprestada">Ativo CIJ - Emprestada</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- TABELA DE MÁQUINAS -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col min-h-[400px]">
-            <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs min-w-[900px]">
-                    <thead class="bg-slate-900 text-white uppercase font-bold sticky top-0 z-10">
-                        <tr>
-                            <th class="p-4">Nº Série (SN)</th>
-                            <th class="p-4">Equipamento / Modelo</th>
-                            <th class="p-4">Cliente Atual (Alocado)</th>
-                            <th class="p-4">Data Instalação</th>
-                            <th class="p-4 text-center">Status</th>
-                            <th class="p-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-maquinas" class="divide-y divide-slate-200 font-medium text-slate-700">
-                        <!-- Renderizado via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- MODAL: CADASTRAR / EDITAR MÁQUINA -->
-    <div id="modalCadastro" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-slate-200 my-auto transform transition-all">
-            <div class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-server text-indigo-300"></i> <span id="tituloModalCadastro">Registrar Máquina</span></h3>
-                <button onclick="window.fecharModalCadastro()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="window.salvarMaquina(event)" class="p-6 space-y-4">
-                <input type="hidden" id="cad_id">
-                
-                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-4">
-                    <p class="text-[10px] font-bold text-indigo-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-barcode"></i> Identificação Única</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Número de Série (SN) *</label>
-                            <input type="text" id="cad_serial" required placeholder="Ex: 88776655" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-black outline-none focus:border-indigo-600 shadow-sm uppercase">
-                            <p class="text-[9px] text-slate-500 mt-1">Este número é a chave do QR Code.</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Modelo do Equipamento *</label>
-                            <input type="text" id="cad_modelo" list="list-equipamentos" required placeholder="Ex: Datador Ledjet V150" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 shadow-sm">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Cliente Vinculado (Onde está instalada?) *</label>
-                        <input type="text" id="cad_cliente" list="list-clientes" required placeholder="Nome do Cliente..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-indigo-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Data de Instalação</label>
-                        <input type="date" id="cad_data_inst" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 cursor-pointer">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Operacional *</label>
-                    <select id="cad_status" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-indigo-600 cursor-pointer">
-                        <option value="Ativo do Cliente">Ativo do Cliente</option>
-                        <option value="Ativo CIJ - Disponível">Ativo CIJ - Disponível</option>
-                        <option value="Ativo CIJ - Manutenção">Ativo CIJ - Manutenção</option>
-                        <option value="Ativo CIJ - Alugada">Ativo CIJ - Alugada</option>
-                        <option value="Ativo CIJ - Emprestada">Ativo CIJ - Emprestada</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Observações / Local Exato na Fábrica</label>
-                    <textarea id="cad_obs" rows="2" placeholder="Ex: Instalada na Linha 2 do setor de envase..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-indigo-600 resize-none"></textarea>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 mt-2">
-                    <button type="button" onclick="window.fecharModalCadastro()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer"><i class="fa-solid fa-save mr-1"></i> Salvar Máquina</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: TRANSFERÊNCIA DE CLIENTE -->
-    <div id="modalTransferencia" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-200 my-auto transform transition-all">
-            <div class="bg-amber-500 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-right-left"></i> Transferir Equipamento</h3>
-                <button onclick="window.fecharModalTransferencia()" class="text-amber-100 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="window.salvarTransferencia(event)" class="p-6 space-y-4">
-                <input type="hidden" id="transf_id">
-                
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
-                    <p class="text-slate-500 font-bold uppercase text-[9px] mb-1">Máquina Selecionada:</p>
-                    <p id="transf_resumo" class="font-black text-slate-800"></p>
-                    <p class="text-slate-500 font-bold uppercase text-[9px] mt-2 mb-1">Cliente Atual:</p>
-                    <p id="transf_cliente_antigo" class="font-black text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block"></p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Transferir PARA QUAL CLIENTE? *</label>
-                    <input type="text" id="transf_cliente_novo" list="list-clientes" required placeholder="Digite o novo cliente..." class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-amber-500 shadow-sm">
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Data da Transferência *</label>
-                    <input type="date" id="transf_data" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-amber-500 shadow-sm cursor-pointer">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Autorização</label>
-                    <input type="text" id="transf_motivo" required placeholder="Ex: Fim do contrato, Troca de filial..." class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-amber-500 shadow-sm">
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 mt-2">
-                    <button type="button" onclick="window.fecharModalTransferencia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Efetivar Mudança</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: CLIENTE (EDIÇÃO RAPIDA) -->
-    <div id="modalCliente" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden my-auto">
-            <div class="bg-blue-800 text-white p-5 flex items-center justify-between shrink-0">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-building text-blue-300"></i> Ficha do Cliente</h3>
-                <button onclick="window.fecharModalCliente()" class="text-blue-300 hover:text-white p-1 transition cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar">
-                <form id="formCliente" onsubmit="window.salvarCliente(event)" class="space-y-4 mb-6">
-                    <input type="hidden" id="cli_id">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Razão Social *</label>
-                            <input type="text" id="cli_razao" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nome Fantasia</label>
-                            <input type="text" id="cli_fantasia" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">CNPJ</label>
-                            <input type="text" id="cli_cnpj" onkeyup="this.value = window.mascaraCNPJ(this.value)" maxlength="18" placeholder="00.000.000/0000-00" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">E-mail Corporativo</label>
-                            <input type="email" id="cli_email" placeholder="contato@empresa.com.br" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
-                        </div>
-                    </div>
-                    
-                    <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-xs font-bold text-slate-700">Contatos e WhatsApp</label>
-                            <button type="button" onclick="window.adicionarContato()" class="text-[10px] font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded-lg transition cursor-pointer shadow-sm">
-                                <i class="fa-solid fa-plus mr-1"></i> Adicionar
-                            </button>
-                        </div>
-                        <div id="contatos_container" class="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-1"></div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Endereço (Rua, Número, Complemento)</label>
-                        <input type="text" id="cli_endereco" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Bairro</label>
-                            <input type="text" id="cli_bairro" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Cidade *</label>
-                            <input type="text" id="cli_cidade" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Estado (UF) *</label>
-                            <input type="text" id="cli_estado" required placeholder="Ex: SC" maxlength="2" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold outline-none focus:border-blue-600 uppercase text-center">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Observações Internas</label>
-                        <textarea id="cli_observacoes" rows="2" placeholder="Detalhes ou anotações sobre o cliente..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium outline-none focus:border-blue-600 resize-none"></textarea>
-                    </div>
-                </form>
-
-                <!-- SEÇÃO: MÁQUINAS INSTALADAS -->
-                <div class="border-t border-slate-200 pt-5 mt-2">
-                    <h4 class="text-xs font-black text-slate-800 uppercase mb-3 flex items-center gap-2"><i class="fa-solid fa-server text-blue-600"></i> Equipamentos no Cliente</h4>
-                    <div id="cli_maquinas_container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Injetado via JS -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-5 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
-                <button type="button" onclick="window.fecharModalCliente()" class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">Cancelar</button>
-                <button type="submit" form="formCliente" class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer">Salvar Alterações do Cliente</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: FICHA COMPLETA (QR CODE E HISTÓRICO DE OS) -->
-    <div id="modalFicha" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto custom-scrollbar">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-200 my-auto transform transition-all flex flex-col max-h-[90vh]">
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between rounded-t-3xl shrink-0">
-                <h3 class="font-black text-sm flex items-center gap-2"><i class="fa-solid fa-id-card text-blue-400"></i> Ficha do Equipamento</h3>
-                <button onclick="window.fecharModalFicha()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                
-                <!-- IDENTIFICAÇÃO E QR CODE -->
-                <div class="flex flex-col md:flex-row gap-6 items-center md:items-start bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center shrink-0">
-                        <div id="qrcode_container" class="w-32 h-32 flex items-center justify-center"></div>
-                        <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase">Scan to Identify</p>
-                    </div>
-                    
-                    <div class="flex-1 space-y-3 w-full">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Modelo do Equipamento</p>
-                            <h2 id="ficha_modelo" class="text-xl font-black text-blue-800 leading-tight"></h2>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Número de Série (SN)</p><p id="ficha_serial" class="text-sm font-black text-slate-800 font-mono"></p></div>
-                            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Status</p><p id="ficha_status" class="mt-0.5"></p></div>
-                            <div class="col-span-2"><p class="text-[10px] font-bold text-slate-400 uppercase">Cliente Atual / Local</p>
-                                <!-- NOME DO CLIENTE CLICÁVEL TAMBÉM DENTRO DA FICHA -->
-                                <button id="ficha_cliente_btn" onclick="window.abrirModalClientePorNome(this.innerText)" class="text-sm font-black text-blue-700 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm inline-block mt-0.5 hover:bg-blue-50 transition cursor-pointer"></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LINHA DO TEMPO: HISTÓRICO DE MANUTENÇÕES E TRANSFERÊNCIAS -->
-                <div>
-                    <div class="flex items-center gap-3 border-b border-slate-200 pb-2 mb-4">
-                        <button onclick="window.mudarAbaFicha('manutencao')" id="btnAbaManut" class="text-xs font-black pb-2 border-b-2 border-blue-600 text-blue-700 transition cursor-pointer">Histórico de OS (Manutenções)</button>
-                        <button onclick="window.mudarAbaFicha('transferencia')" id="btnAbaTransf" class="text-xs font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition cursor-pointer">Log de Transferências</button>
-                    </div>
-
-                    <div id="aba_manutencao" class="space-y-3">
-                        <div id="container_os_historico" class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar pr-2"></div>
-                    </div>
-
-                    <div id="aba_transferencia" class="space-y-3 hidden">
-                        <div id="container_transf_historico" class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar pr-2"></div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 text-right shrink-0">
-                <button onclick="window.fecharModalFicha()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer">Fechar Ficha</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-5 right-5 hidden z-[9999] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 transition-opacity">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
-    </div>
-
-    <!-- MOTOR CENTRAL DO SISTEMA E FIREBASE -->
-    <script type="module" src="core.js"></script>
-
-    <!-- LÓGICA DO PARQUE DE MÁQUINAS -->
-    <script>
-        window.parqueMaquinas = [];
-        window.historicoOSR = []; 
-        window.dadosClientes = [];
-        window.currentUserEmail = '';
-        window.currentUserName = '';
-        
-        let qrCodeObj = null;
-
-        window.initModule = function(perfil) {
-            document.getElementById('login-screen')?.classList.add('hidden');
-            document.getElementById('main-content')?.classList.remove('hidden');
-            window.currentUserEmail = window.currentUser ? window.currentUser.email : '';
-            window.currentUserName = window.nomeUsuarioLogado || '';
-
-            const db = window.AppDB;
-
-            // 1. CARREGAR PARQUE DE MÁQUINAS E KPIS
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas'), snap => {
-                window.parqueMaquinas = [];
-                let emCampo = 0, disp = 0, manut = 0;
-
-                snap.forEach(d => {
-                    const m = d.data();
-                    window.parqueMaquinas.push(m);
-                    
-                    if(m.status === 'Ativo do Cliente' || m.status === 'Ativo CIJ - Alugada' || m.status === 'Ativo CIJ - Emprestada') {
-                        emCampo++;
-                    } else if(m.status === 'Ativo CIJ - Disponível') {
-                        disp++;
-                    } else if(m.status === 'Ativo CIJ - Manutenção') {
-                        manut++;
-                    }
-                });
-
-                window.parqueMaquinas.sort((a,b) => (a.serial || '').localeCompare(b.serial || ''));
-                
-                document.getElementById('kpi-total').innerText = window.parqueMaquinas.length;
-                document.getElementById('kpi-campo').innerText = emCampo;
-                document.getElementById('kpi-disp').innerText = disp;
-                document.getElementById('kpi-manut').innerText = manut;
-
-                window.renderizarTabela();
-            });
-
-            // 2. CARREGAR HISTÓRICO DE OSR PARA A FICHA
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'suportes_osr'), snap => {
-                window.historicoOSR = [];
-                snap.forEach(d => window.historicoOSR.push(d.data()));
-            });
-
-            // 3. CARREGAR CLIENTES PARA AUTOCOMPLETE E ABERTURA DA FICHA
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
-                window.dadosClientes = [];
-                const dl = document.getElementById('list-clientes');
-                let clientesStr = '';
-                snap.forEach(d => {
-                    const c = d.data();
-                    window.dadosClientes.push(c);
-                    if(c.fantasia) clientesStr += `<option value="${c.fantasia}">`;
-                    if(c.razao_social && c.razao_social !== c.fantasia) clientesStr += `<option value="${c.razao_social}">`;
-                });
-                if(dl) dl.innerHTML = clientesStr;
-            });
-
-            window.fsOnSnapshot(window.fsCollection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_equipamentos'), snap => {
-                const dl = document.getElementById('list-equipamentos');
-                if(dl) {
-                    dl.innerHTML = '';
-                    snap.forEach(d => dl.innerHTML += `<option value="${d.data().modelo}">`);
-                }
-            });
-        };
-
-        window.mostrarNotificacao = function(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            document.getElementById('toast-icon').className = isError ? 'fa-solid fa-circle-xmark text-red-400' : 'fa-solid fa-circle-check text-emerald-400';
-            toast.classList.remove('hidden'); 
-            setTimeout(() => toast.classList.add('hidden'), 4000);
-        };
-
-        window.formatarDataBR = function(isoStr) {
-            if(!isoStr) return '-';
-            try {
-                const data = new Date(isoStr);
-                return data.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-            } catch(e) { return isoStr; }
-        };
-
-        // --- SISTEMA DE CORES PARA OS STATUS ---
-        window.obterCorBadgeStatus = function(status) {
-            let badgeClass = 'bg-slate-100 text-slate-800 border-slate-300';
-            if(status === 'Ativo do Cliente') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-            else if(status === 'Ativo CIJ - Disponível') badgeClass = 'bg-blue-100 text-blue-800 border-blue-300';
-            else if(status === 'Ativo CIJ - Manutenção') badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
-            else if(status === 'Ativo CIJ - Alugada') badgeClass = 'bg-purple-100 text-purple-800 border-purple-300';
-            else if(status === 'Ativo CIJ - Emprestada') badgeClass = 'bg-teal-100 text-teal-800 border-teal-300';
-            return badgeClass;
-        }
-
-        window.renderizarTabela = function() {
-            const tbody = document.getElementById('tabela-maquinas');
-            const busca = document.getElementById('filtro-busca').value.toLowerCase();
-            const statusFiltro = document.getElementById('filtro-status').value;
-
-            const filtrados = window.parqueMaquinas.filter(m => {
-                if(statusFiltro !== 'ALL' && m.status !== statusFiltro) return false;
-                if(busca) {
-                    const str = `${m.serial} ${m.modelo} ${m.cliente_atual}`.toLowerCase();
-                    if(!str.includes(busca)) return false;
-                }
-                return true;
-            });
-
-            if(filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium">Nenhuma máquina encontrada.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtrados.map(m => {
-                const badgeClass = window.obterCorBadgeStatus(m.status);
-
-                return `
-                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                    <td class="p-4">
-                        <button onclick="window.abrirFicha('${m.id}')" class="text-left font-mono font-black text-blue-700 text-sm hover:underline flex items-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-qrcode text-slate-400 text-xs"></i> ${m.serial}
-                        </button>
-                    </td>
-                    <td class="p-4 font-bold text-slate-800">${m.modelo}</td>
-                    <td class="p-4 font-bold text-slate-600">
-                        <button onclick="window.abrirModalClientePorNome('${m.cliente_atual}')" class="text-left font-bold text-slate-700 hover:text-blue-700 hover:underline transition cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-solid fa-building text-slate-400"></i> ${m.cliente_atual}
-                        </button>
-                    </td>
-                    <td class="p-4 text-slate-500 font-medium">${window.formatarDataBR(m.data_instalacao)}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2.5 py-1 text-[9px] font-black uppercase rounded-lg border ${badgeClass}">${m.status}</span>
-                    </td>
-                    <td class="p-4 text-center space-x-1 whitespace-nowrap">
-                        <button onclick="window.abrirModalTransferencia('${m.id}')" title="Transferir Cliente" class="p-2 text-amber-600 bg-amber-50 hover:bg-amber-500 hover:text-white rounded-lg transition shadow-sm font-bold text-[10px] cursor-pointer"><i class="fa-solid fa-right-left"></i> Transferir</button>
-                        <button onclick="window.abrirModalCadastro('${m.id}')" title="Editar Máquina" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="window.excluirMaquina('${m.id}')" title="Excluir do Parque" class="p-2 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-                `;
-            }).join('');
-        };
-
-        // =====================================
-        // CLIENTES (MÁGICA DA TEIA RELACIONAL)
-        // =====================================
-        window.abrirModalClientePorNome = function(nome) {
-            if(!nome) return;
-            const c = window.dadosClientes.find(x => x.razao_social === nome || x.fantasia === nome);
-            if (c) {
-                window.fecharModalFicha(); // Fecha a ficha da máquina se estiver aberta
-                window.abrirModalCliente(c.id);
-            } else {
-                if(confirm(`Cliente "${nome}" não encontrado no cadastro oficial. Deseja cadastrá-lo agora?`)) {
-                    window.fecharModalFicha();
-                    window.abrirModalCliente(null, nome);
-                }
-            }
-        };
-
-        window.fecharModalCliente = () => document.getElementById('modalCliente').classList.add('hidden');
-        
-        window.abrirModalCliente = function(id = null, nomePreenchido = '') {
-            document.getElementById('contatos_container').innerHTML = '';
-            const maquinasContainer = document.getElementById('cli_maquinas_container');
-            maquinasContainer.innerHTML = '';
-
-            if (id) {
-                const c = window.dadosClientes.find(x => x.id === id);
-                document.getElementById('cli_id').value = c.id;
-                document.getElementById('cli_razao').value = c.razao_social || '';
-                document.getElementById('cli_fantasia').value = c.fantasia || '';
-                document.getElementById('cli_cnpj').value = c.cnpj || '';
-                document.getElementById('cli_email').value = c.email || '';
-                document.getElementById('cli_endereco').value = c.endereco || '';
-                document.getElementById('cli_bairro').value = c.bairro || '';
-                document.getElementById('cli_cidade').value = c.cidade || '';
-                document.getElementById('cli_estado').value = c.estado || c.uf || '';
-                document.getElementById('cli_observacoes').value = c.observacoes || '';
-
-                if (c.contatos && c.contatos.length > 0) c.contatos.forEach(ct => window.adicionarContato(ct.nome, ct.telefone));
-                else if (c.contato || c.telefone) window.adicionarContato(c.contato || '', c.telefone || '');
-                else window.adicionarContato();
-
-                // BUSCA MÁQUINAS VINCULADAS
-                const maquinasVinculadas = window.parqueMaquinas.filter(m => m.cliente_atual === c.razao_social || m.cliente_atual === c.fantasia);
-                if (maquinasVinculadas.length > 0) {
-                    maquinasContainer.innerHTML = maquinasVinculadas.map(m => {
-                        let dataFormatadaUltima = 'Sem manutenções';
-                        let hist = window.historicoOSR.filter(o => o.serial === m.serial);
-                        hist.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                        if (hist.length > 0) {
-                            const ultData = hist[0].timestamp ? new Date(hist[0].timestamp).toISOString() : (hist[0].dataComparacao || hist[0].data_formatada);
-                            dataFormatadaUltima = window.formatarDataBR(ultData);
-                        }
-                        
-                        const badgeClass = window.obterCorBadgeStatus(m.status);
-                        
-                        return `
-                        <div onclick="window.fecharModalCliente(); window.abrirFicha('${m.id}')" class="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:border-blue-400 hover:shadow-sm transition">
-                            <div>
-                                <h5 class="text-xs font-black text-blue-700"><i class="fa-solid fa-print mr-1"></i> ${m.modelo}</h5>
-                                <p class="text-[10px] text-slate-500 font-mono mt-0.5">SN: ${m.serial}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded ${badgeClass}">${m.status}</span>
-                                <p class="text-[9px] text-slate-400 mt-1">Última OS: <strong class="text-slate-600">${dataFormatadaUltima}</strong></p>
-                            </div>
-                        </div>
-                        `;
-                    }).join('');
-                } else {
-                    maquinasContainer.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-slate-50 p-3 rounded-lg border border-slate-200">Nenhum equipamento vinculado a este cliente no Parque.</p>';
-                }
-            } else {
-                document.getElementById('cli_id').value = '';
-                document.getElementById('cli_razao').value = nomePreenchido;
-                document.getElementById('cli_fantasia').value = '';
-                document.getElementById('cli_cnpj').value = '';
-                document.getElementById('cli_email').value = '';
-                document.getElementById('cli_endereco').value = '';
-                document.getElementById('cli_bairro').value = '';
-                document.getElementById('cli_cidade').value = '';
-                document.getElementById('cli_estado').value = '';
-                document.getElementById('cli_observacoes').value = '';
-                window.adicionarContato();
-                maquinasContainer.innerHTML = '<p class="text-[10px] text-slate-500 italic bg-slate-50 p-3 rounded-lg border border-slate-200">Cadastre e salve o cliente primeiro.</p>';
-            }
-            document.getElementById('modalCliente').classList.remove('hidden');
-        };
-
-        window.mascaraTelefone = function(v) {
-            v = v.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); v = v.replace(/(\d)(\d{4})$/, "$1-$2"); return v;
-        };
-        window.mascaraCNPJ = function(v) {
-            v = v.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/, "$1.$2"); v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3"); v = v.replace(/\.(\d{3})(\d)/, ".$1/$2"); v = v.replace(/(\d{4})(\d)/, "$1-$2"); return v;
-        };
-
-        window.adicionarContato = function(nome = '', tel = '') {
-            const container = document.getElementById('contatos_container');
-            const div = document.createElement('div');
-            div.className = 'flex gap-2 items-center contato-row';
-            div.innerHTML = `<div class="flex-1"><input type="text" placeholder="Nome do Contato" value="${nome}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium outline-none focus:border-blue-600 c-nome"></div><div class="flex-1"><input type="text" placeholder="(00) 00000-0000" onkeyup="this.value = window.mascaraTelefone(this.value)" maxlength="15" value="${tel}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium outline-none focus:border-blue-600 c-tel"></div><button type="button" onclick="this.parentElement.remove()" class="w-7 h-7 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition shadow-sm cursor-pointer"><i class="fa-solid fa-xmark"></i></button>`;
-            container.appendChild(div);
-        };
-
-        window.salvarCliente = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('cli_id').value || 'cli_' + Date.now();
-            const razaoObj = document.getElementById('cli_razao').value.trim().toUpperCase();
-            const cnpjObj = document.getElementById('cli_cnpj').value.trim();
-
-            const duplicado = window.dadosClientes.find(c => ((c.razao_social === razaoObj) || (cnpjObj && c.cnpj === cnpjObj)) && c.id !== id);
-            if (duplicado) { alert('Atenção: Já existe um cliente cadastrado com esta Razão Social ou CNPJ!'); return; }
-
-            const contatosNodes = document.querySelectorAll('.contato-row');
-            let arrContatos = [];
-            contatosNodes.forEach(node => {
-                const n = node.querySelector('.c-nome').value.trim().toUpperCase();
-                const t = node.querySelector('.c-tel').value.trim();
-                if(n || t) arrContatos.push({ nome: n, telefone: t });
-            });
-
-            const data = {
-                id: id, razao_social: razaoObj, fantasia: document.getElementById('cli_fantasia').value.trim().toUpperCase(), cnpj: cnpjObj, contatos: arrContatos, email: document.getElementById('cli_email').value.trim().toLowerCase(), endereco: document.getElementById('cli_endereco').value.trim().toUpperCase(), bairro: document.getElementById('cli_bairro').value.trim().toUpperCase(), cidade: document.getElementById('cli_cidade').value.trim().toUpperCase(), estado: document.getElementById('cli_estado').value.trim().toUpperCase(), observacoes: document.getElementById('cli_observacoes').value.trim(), atualizado_por: window.currentUserName || window.currentUserEmail, atualizado_em: new Date().toISOString()
-            };
-            
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', id), data);
-                window.mostrarNotificacao('Cliente salvo com sucesso!');
-                window.fecharModalCliente();
-            } catch(err) { alert('Erro ao salvar cliente.'); }
-        };
-
-        // =====================================
-        // CRUD: CADASTRAR / EDITAR MÁQUINA
-        // =====================================
-        window.fecharModalCadastro = () => document.getElementById('modalCadastro').classList.add('hidden');
-        window.abrirModalCadastro = function(id = null) {
-            if (id) {
-                const m = window.parqueMaquinas.find(x => x.id === id);
-                document.getElementById('cad_id').value = m.id;
-                document.getElementById('cad_serial').value = m.serial;
-                document.getElementById('cad_serial').readOnly = true; 
-                document.getElementById('cad_serial').classList.add('bg-slate-100', 'text-slate-500');
-                document.getElementById('cad_modelo').value = m.modelo;
-                document.getElementById('cad_cliente').value = m.cliente_atual;
-                document.getElementById('cad_data_inst').value = m.data_instalacao ? m.data_instalacao.split('T')[0] : '';
-                document.getElementById('cad_status').value = m.status;
-                document.getElementById('cad_obs').value = m.observacoes || '';
-                document.getElementById('tituloModalCadastro').innerText = 'Editar Equipamento';
-            } else {
-                document.getElementById('cad_id').value = '';
-                document.getElementById('cad_serial').value = '';
-                document.getElementById('cad_serial').readOnly = false;
-                document.getElementById('cad_serial').classList.remove('bg-slate-100', 'text-slate-500');
-                document.getElementById('cad_modelo').value = '';
-                document.getElementById('cad_cliente').value = '';
-                document.getElementById('cad_data_inst').value = new Date().toISOString().split('T')[0];
-                document.getElementById('cad_status').value = 'Ativo do Cliente';
-                document.getElementById('cad_obs').value = '';
-                document.getElementById('tituloModalCadastro').innerText = 'Registrar Nova Máquina';
-            }
-            document.getElementById('modalCadastro').classList.remove('hidden');
-        };
-
-        window.salvarMaquina = async function(e) {
-            e.preventDefault();
-            const isEdit = document.getElementById('cad_id').value !== '';
-            const serialVal = document.getElementById('cad_serial').value.trim().toUpperCase();
-            const id = isEdit ? document.getElementById('cad_id').value : 'pm_' + Date.now();
-
-            if (!isEdit) {
-                const duplicada = window.parqueMaquinas.find(m => m.serial === serialVal);
-                if (duplicada) { alert('ERRO: Já existe uma máquina cadastrada com este Número de Série!'); return; }
-            }
-
-            const maquinaAntiga = isEdit ? window.parqueMaquinas.find(x => x.id === id) : null;
-            let histTransf = isEdit ? (maquinaAntiga.historico_transferencias || []) : [];
-
-            const data = {
-                id: id, serial: serialVal, modelo: document.getElementById('cad_modelo').value.trim().toUpperCase(), cliente_atual: document.getElementById('cad_cliente').value.trim().toUpperCase(), data_instalacao: document.getElementById('cad_data_inst').value, status: document.getElementById('cad_status').value, observacoes: document.getElementById('cad_obs').value.trim(), historico_transferencias: histTransf, cadastrado_por: window.currentUserName || window.currentUserEmail, timestamp: Date.now()
-            };
-
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', id), data);
-                window.mostrarNotificacao('Equipamento salvo no Parque!');
-                window.fecharModalCadastro();
-            } catch(err) { alert('Erro ao salvar no banco.'); }
-        };
-
-        window.excluirMaquina = async function(id) {
-            if(confirm('ATENÇÃO: Deseja realmente excluir esta máquina de forma definitiva do parque? O Histórico de OS dela não será apagado, mas ela perderá a identificação por QR Code e vínculo atual.')) {
-                try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', id)); window.mostrarNotificacao('Máquina excluída.'); } catch(e) {}
-            }
-        };
-
-        // =====================================
-        // TRANSFERÊNCIA DE CLIENTE (LOG)
-        // =====================================
-        window.fecharModalTransferencia = () => document.getElementById('modalTransferencia').classList.add('hidden');
-        window.abrirModalTransferencia = function(id) {
-            const m = window.parqueMaquinas.find(x => x.id === id);
-            if(!m) return;
-
-            document.getElementById('transf_id').value = m.id;
-            document.getElementById('transf_resumo').innerText = `${m.modelo} (SN: ${m.serial})`;
-            document.getElementById('transf_cliente_antigo').innerText = m.cliente_atual;
-            
-            document.getElementById('transf_cliente_novo').value = '';
-            document.getElementById('transf_data').value = new Date().toISOString().split('T')[0];
-            document.getElementById('transf_motivo').value = '';
-
-            document.getElementById('modalTransferencia').classList.remove('hidden');
-        };
-
-        window.salvarTransferencia = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('transf_id').value;
-            const m = window.parqueMaquinas.find(x => x.id === id);
-            const novoCliente = document.getElementById('transf_cliente_novo').value.trim().toUpperCase();
-            
-            if (m.cliente_atual === novoCliente) { alert('A máquina já está vinculada a este cliente!'); return; }
-
-            const novoLog = {
-                id_log: 'tr_' + Date.now(), data: document.getElementById('transf_data').value, cliente_antigo: m.cliente_atual, cliente_novo: novoCliente, motivo: document.getElementById('transf_motivo').value.trim(), responsavel: window.currentUserName || window.currentUserEmail, timestamp: Date.now()
-            };
-
-            m.cliente_atual = novoCliente;
-            m.data_instalacao = novoLog.data; 
-            if(!m.historico_transferencias) m.historico_transferencias = [];
-            m.historico_transferencias.push(novoLog);
-
-            try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'parque_maquinas', id), m);
-                window.mostrarNotificacao('Transferência registrada com sucesso!');
-                window.fecharModalTransferencia();
-            } catch(err) { alert('Erro na transferência.'); }
-        };
-
-        // =====================================
-        // FICHA COMPLETA E QR CODE
-        // =====================================
-        window.fecharModalFicha = () => document.getElementById('modalFicha').classList.add('hidden');
-        window.abrirFicha = function(id) {
-            const m = window.parqueMaquinas.find(x => x.id === id);
-            if(!m) return;
-
-            document.getElementById('ficha_modelo').innerText = m.modelo;
-            document.getElementById('ficha_serial').innerText = m.serial;
-            
-            // Botão Clicável para retornar ao Cliente
-            document.getElementById('ficha_cliente_btn').innerText = m.cliente_atual;
-            
-            const badgeClass = window.obterCorBadgeStatus(m.status);
-            document.getElementById('ficha_status').innerHTML = `<span class="px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badgeClass}">${m.status}</span>`;
-
-            const qrContainer = document.getElementById('qrcode_container');
-            qrContainer.innerHTML = ''; 
-            qrCodeObj = new QRCode(qrContainer, { text: m.serial, width: 128, height: 128, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
-
-            // Histórico OSR
-            const containerOS = document.getElementById('container_os_historico');
-            const chamadosDessaMaquina = window.historicoOSR.filter(os => os.serial === m.serial);
-            chamadosDessaMaquina.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-            if(chamadosDessaMaquina.length === 0) {
-                containerOS.innerHTML = `<div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center"><i class="fa-solid fa-check-double text-emerald-500 text-2xl mb-2"></i><p class="text-xs font-bold text-emerald-800">Nenhum defeito ou manutenção registrada no histórico.</p></div>`;
-            } else {
-                containerOS.innerHTML = chamadosDessaMaquina.map(h => {
-                    const dataOs = h.timestamp ? window.formatarDataBR(new Date(h.timestamp).toISOString()) : window.formatarDataBR(h.data_formatada || h.dataComparacao);
-                    const badgeOS = h.conclusao && h.conclusao.includes('Resolvido') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
-                    return `
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-                            <div><span class="font-bold text-blue-700 block">${h.osr || 'S/N'}</span><span class="text-[10px] text-slate-400 font-bold">${dataOs}</span></div>
-                            <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${badgeOS}">${h.conclusao || 'Pendente'}</span>
-                        </div>
-                        <div class="space-y-1 text-xs">
-                            <p class="text-slate-700"><strong class="text-slate-400 uppercase text-[9px]">Técnico:</strong> ${h.tecnico}</p>
-                            <p class="text-slate-700 bg-rose-50 p-1.5 rounded"><strong class="text-rose-400 uppercase text-[9px]">Defeito:</strong> ${h.defeito}</p>
-                            <p class="text-slate-700 bg-emerald-50 p-1.5 rounded"><strong class="text-emerald-500 uppercase text-[9px]">Solução:</strong> ${h.solucao}</p>
-                            ${h.pecas ? `<p class="text-slate-700 bg-purple-50 p-1.5 rounded"><strong class="text-purple-400 uppercase text-[9px]">Peças:</strong> ${h.pecas}</p>` : ''}
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-
-            // Transferências
-            const containerTransf = document.getElementById('container_transf_historico');
-            if(!m.historico_transferencias || m.historico_transferencias.length === 0) {
-                containerTransf.innerHTML = `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center"><i class="fa-solid fa-anchor text-slate-400 text-2xl mb-2"></i><p class="text-xs font-bold text-slate-600">A máquina nunca foi transferida de cliente.</p></div>`;
-            } else {
-                let transfs = [...m.historico_transferencias].sort((a,b) => b.timestamp - a.timestamp);
-                containerTransf.innerHTML = transfs.map(t => `
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-xs relative pl-6">
-                        <div class="absolute left-2.5 top-4 bottom-4 w-px bg-slate-300"></div><div class="absolute left-1.5 top-3.5 w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-white"></div>
-                        <div class="flex items-center justify-between mb-1"><span class="font-bold text-slate-800">${window.formatarDataBR(t.data)}</span><span class="text-[9px] text-slate-400 font-bold">Por: ${t.responsavel}</span></div>
-                        <div class="bg-slate-50 p-2 rounded border border-slate-100 mt-1"><p class="text-slate-500 font-semibold mb-1 line-through">${t.cliente_antigo}</p><p class="text-blue-700 font-black"><i class="fa-solid fa-arrow-turn-down fa-rotate-270 mr-1 text-slate-400"></i> ${t.cliente_novo}</p></div>
-                        <p class="mt-2 text-[10px] text-slate-500"><strong class="uppercase text-[9px]">Motivo:</strong> ${t.motivo}</p>
-                    </div>
-                `).join('');
-            }
-
-            window.mudarAbaFicha('manutencao'); 
-            document.getElementById('modalFicha').classList.remove('hidden');
-        };
-
-        window.mudarAbaFicha = function(aba) {
-            const btnM = document.getElementById('btnAbaManut'); const btnT = document.getElementById('btnAbaTransf');
-            const divM = document.getElementById('aba_manutencao'); const divT = document.getElementById('aba_transferencia');
-            if (aba === 'manutencao') {
-                btnM.className = 'text-xs font-black pb-2 border-b-2 border-blue-600 text-blue-700 transition cursor-pointer';
-                btnT.className = 'text-xs font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition cursor-pointer';
-                divM.classList.remove('hidden'); divT.classList.add('hidden');
-            } else {
-                btnT.className = 'text-xs font-black pb-2 border-b-2 border-amber-500 text-amber-600 transition cursor-pointer';
-                btnM.className = 'text-xs font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition cursor-pointer';
-                divT.classList.remove('hidden'); divM.classList.add('hidden');
-            }
-        };
-    </script>
-</body>
-</html>
+<body class="h-full overflow-hidden">
+<div id="login-screen" class="fixed inset-0 z-[99999] bg-slate-950 flex items-center justify-center p-4 hidden"><div class="card p-8 max-w-md w-full text-center"><div class="text-2xl font-black text-indigo-800">PORTAL CIJ</div><p id="login-message" class="text-sm text-slate-500 mt-2">Carregando parque de máquinas...</p></div></div>
+<main id="main-content" class="hidden h-[calc(100vh-64px)] overflow-y-auto scroll">
+<div class="max-w-[1500px] mx-auto p-3 md:p-5 space-y-4">
+<header class="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+  <div class="flex gap-3 items-center"><div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl"><i class="fa-solid fa-industry"></i></div><div><div class="pill bg-indigo-50 text-indigo-700 border border-indigo-200">ATIVOS FÍSICOS</div><h1 class="text-xl md:text-2xl font-black mt-1">Parque de Máquinas</h1><p class="text-xs text-slate-500 mt-1">Máquinas vinculadas aos clientes, garantia, QR Code e histórico técnico.</p></div></div>
+  <button class="btn btn-primary" onclick="window.abrirMaquina()"><i class="fa-solid fa-plus"></i> Nova máquina</button>
+</header>
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3"><div class="kpi"><span>Máquinas ativas</span><b id="kpi-total">0</b></div><div class="kpi"><span>Em garantia</span><b id="kpi-garantia">0</b></div><div class="kpi"><span>Vencendo em 30 dias</span><b id="kpi-vencendo">0</b></div><div class="kpi"><span>Em manutenção</span><b id="kpi-manut">0</b></div></section>
+<section class="card p-3 md:p-4"><div class="grid lg:grid-cols-[1fr_210px_230px_210px] gap-3"><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i><input id="busca" class="input pl-9" oninput="window.render()" placeholder="Buscar série, modelo, marca, cliente ou local..."></div><select id="f-status" class="input" onchange="window.render()"><option value="">Todos os status</option><option value="OPERACIONAL">Operacional</option><option value="MANUTENCAO">Em manutenção</option><option value="INATIVO">Inativo</option></select><select id="f-cliente" class="input" onchange="window.render()"><option value="">Todos os clientes</option></select><select id="f-garantia" class="input" onchange="window.render()"><option value="">Toda garantia</option><option value="ATIVA">Em garantia</option><option value="VENCENDO">Vencendo em 30 dias</option><option value="EXPIRADA">Garantia expirada</option><option value="SEM_DATA">Sem data de venda</option></select></div></section>
+<section class="card overflow-hidden"><div class="overflow-auto scroll max-h-[62vh]"><table class="table w-full min-w-[1180px]"><thead><tr><th>Série / QR</th><th>Equipamento</th><th>Cliente</th><th>Venda</th><th>Garantia</th><th>Instalação / Local</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tb"></tbody></table></div></section>
+</div></main>
+
+<div id="modal-maquina" class="modal hidden"><div class="modal-card"><form onsubmit="window.salvarMaquina(event)"><div class="p-5 border-b flex justify-between"><div><div class="pill bg-indigo-50 text-indigo-700">MÁQUINA FÍSICA</div><h2 id="maq-titulo" class="text-xl font-black mt-2">Nova máquina</h2></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-maquina')"><i class="fa-solid fa-xmark"></i></button></div><div class="p-5 space-y-4"><input id="maq-id" type="hidden">
+  <div class="grid md:grid-cols-2 gap-4"><label><span class="label">Número de série *</span><input id="maq-serie" class="input font-mono font-bold" required></label><label><span class="label">Modelo padrão *</span><select id="maq-modelo-id" class="input" required onchange="window.atualizarResumoModelo()"><option value="">Selecione...</option></select></label></div>
+  <div id="maq-modelo-resumo" class="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-xs text-indigo-900">Selecione um modelo cadastrado na base mestre.</div>
+  <div class="grid md:grid-cols-2 gap-4"><label><span class="label">Cliente *</span><select id="maq-cliente-id" class="input" required><option value="">Selecione...</option></select></label><label><span class="label">Vínculo</span><select id="maq-vinculo" class="input"><option value="VENDIDO">VENDIDO</option><option value="ALUGADO">ALUGADO</option><option value="EMPRESTADO">EMPRESTADO</option><option value="INTERNO_CIJ">INTERNO CIJ</option></select></label></div>
+  <div class="grid md:grid-cols-4 gap-4"><label><span class="label">Data da venda</span><input id="maq-venda" type="date" class="input" onchange="window.atualizarGarantiaPreview()"></label><label><span class="label">Garantia (meses)</span><input id="maq-garantia-meses" type="number" min="0" value="12" class="input" onchange="window.atualizarGarantiaPreview()"></label><label><span class="label">Fim da garantia</span><input id="maq-garantia-fim" class="input bg-slate-50" readonly></label><label><span class="label">Status</span><select id="maq-status" class="input"><option value="OPERACIONAL">OPERACIONAL</option><option value="MANUTENCAO">EM MANUTENÇÃO</option><option value="INATIVO">INATIVO</option></select></label></div>
+  <div class="grid md:grid-cols-2 gap-4"><label><span class="label">Data da instalação atual</span><input id="maq-instalacao" type="date" class="input"></label><label><span class="label">Local / Linha / Setor</span><input id="maq-local" class="input" placeholder="Ex.: Linha 02 · Envase"></label></div>
+  <label><span class="label">Observações da máquina</span><textarea id="maq-obs" class="input min-h-24"></textarea></label>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>QR Code:</b> o código contém somente o número de série. O App do Técnico já consegue localizar a máquina no Parque a partir dessa leitura.</div>
+</div><div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-maquina')">Cancelar</button><button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar máquina</button></div></form></div></div>
+
+<div id="modal-ficha" class="modal hidden"><div class="modal-card"><div class="p-5 border-b flex justify-between"><div><div class="pill bg-indigo-50 text-indigo-700">FICHA DA MÁQUINA</div><h2 id="ficha-titulo" class="text-xl font-black mt-2">Equipamento</h2><p id="ficha-sub" class="text-xs text-slate-500 mt-1">-</p></div><button class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-ficha')"><i class="fa-solid fa-xmark"></i></button></div>
+<div class="p-5 space-y-5"><div class="grid lg:grid-cols-[220px_1fr] gap-4"><section class="card p-4 text-center"><div id="qr-ficha" class="qr-box"></div><div id="qr-serie" class="font-mono font-black mt-3"></div><button class="btn btn-light w-full mt-3" onclick="window.imprimirEtiqueta()"><i class="fa-solid fa-print"></i> Imprimir etiqueta QR</button></section><section><div id="ficha-resumo" class="grid sm:grid-cols-2 gap-3"></div><div class="mt-4 flex flex-wrap gap-2"><button class="btn btn-primary" onclick="window.editarSelecionada()"><i class="fa-solid fa-pen"></i> Editar</button><button class="btn btn-light" onclick="window.abrirTransferencia()"><i class="fa-solid fa-right-left"></i> Transferir cliente</button><button class="btn btn-light" onclick="window.abrirClienteDaMaquina()"><i class="fa-solid fa-building"></i> Abrir cliente</button></div></section></div>
+<section class="card p-4"><h3 class="font-black text-sm">Histórico técnico</h3><p class="text-xs text-slate-500 mt-1">OS, OSR e transferências vinculadas a esta máquina</p><div id="ficha-historico" class="timeline mt-4"></div></section></div></div></div>
+
+<div id="modal-transferencia" class="modal hidden"><div class="modal-card max-w-xl"><form onsubmit="window.salvarTransferencia(event)"><div class="p-5 border-b flex justify-between"><div><div class="pill bg-amber-50 text-amber-700">TRANSFERÊNCIA</div><h2 class="text-xl font-black mt-2">Transferir máquina</h2><p id="tr-resumo" class="text-xs text-slate-500 mt-1">-</p></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-transferencia')"><i class="fa-solid fa-xmark"></i></button></div><div class="p-5 space-y-4"><label><span class="label">Novo cliente *</span><select id="tr-cliente" class="input" required></select></label><div class="grid grid-cols-2 gap-4"><label><span class="label">Data *</span><input id="tr-data" type="date" class="input" required></label><label><span class="label">Novo local</span><input id="tr-local" class="input"></label></div><label><span class="label">Motivo</span><textarea id="tr-motivo" class="input min-h-20"></textarea></label></div><div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-transferencia')">Cancelar</button><button class="btn btn-primary">Confirmar transferência</button></div></form></div></div>
+
+<script type="module" src="core.js?v=20260925-parque-v3"></script>
+<script>
+window.DB={clientes:[],modelos:[],parque:[],os:[],osr:[]};window.UI={maquina:null};
+const path=(c,id)=>window.fsDoc(window.AppDB,'artifacts','plataforma-cij','public','data',c,id),col=c=>window.fsCollection(window.AppDB,'artifacts','plataforma-cij','public','data',c);
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase(),esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=d=>{if(!d)return'-';const x=new Date(typeof d==='number'?d:String(d));return isNaN(x)?String(d):x.toLocaleDateString('pt-BR')},ativo=x=>x&&x.is_deleted!==true&&x.ativo!==false,cliLabel=c=>c?.fantasia||c?.razao_social||'SEM NOME';
+const serial=m=>String(m?.numeroSerie||m?.numero_serie||m?.serial||'').trim(),model=m=>m?.modelo||'Equipamento',clientName=m=>m?.clienteNome||m?.cliente_atual||m?.clienteAtual||'-';
+const machineClient=(m,c)=>String(m?.clienteId||'')===String(c?.id||'')||(!m?.clienteId&&[c?.razao_social,c?.fantasia].some(v=>norm(v)&&norm(v)===norm(clientName(m))));
+const osMachine=(o,m)=>String(o?.parqueMaquinaId||'')===String(m?.id||'')||String(o?.equipamentoNumeroSerie||'')===serial(m);
+function addMonths(date,months){if(!date)return'';const d=new Date(date+'T12:00:00');if(isNaN(d))return'';d.setMonth(d.getMonth()+Number(months||0));return d.toISOString().slice(0,10)}
+function warranty(m){const fim=m.garantiaFimISO||addMonths(m.dataVenda,m.garantiaMeses||12);if(!m.dataVenda||!fim)return{key:'SEM_DATA',label:'SEM DATA',cls:'warranty-off'};const hoje=new Date();hoje.setHours(0,0,0,0);const d=new Date(fim+'T12:00:00'),days=Math.ceil((d-hoje)/86400000);if(days<0)return{key:'EXPIRADA',label:'EXPIRADA',cls:'warranty-off',fim};if(days<=30)return{key:'VENCENDO',label:`VENCE EM ${days}D`,cls:'warranty-warn',fim};return{key:'ATIVA',label:'EM GARANTIA',cls:'warranty-ok',fim}}
+function legacyStatus(status,vinculo){if(status==='MANUTENCAO')return'Ativo CIJ - Manutenção';if(status==='INATIVO')return'Inativo';if(vinculo==='ALUGADO')return'Ativo CIJ - Alugada';if(vinculo==='EMPRESTADO')return'Ativo CIJ - Emprestada';if(vinculo==='INTERNO_CIJ')return'Ativo CIJ - Disponível';return'Ativo do Cliente'}
+
+window.initModule=function(){
+ document.getElementById('login-screen')?.classList.add('hidden');document.getElementById('main-content')?.classList.remove('hidden');
+ const watch=(c,k)=>window.fsOnSnapshot(col(c),snap=>{DB[k]=[];snap.forEach(d=>DB[k].push({id:d.id,...d.data()}));window.populate();window.render()},e=>console.error('[Parque]',c,e));
+ watch('cadastros_clientes','clientes');watch('cadastros_equipamentos','modelos');watch('parque_maquinas','parque');watch('os_ordens','os');watch('suportes_osr','osr');
+ const q=new URLSearchParams(location.search);setTimeout(()=>{if(q.get('cliente'))document.getElementById('f-cliente').value=q.get('cliente');if(q.get('novo')==='1')window.abrirMaquina(null,q.get('cliente'));if(q.get('maquina'))window.abrirFicha(q.get('maquina'));window.render()},800);
+};
+window.fechar=id=>document.getElementById(id)?.classList.add('hidden');
+window.populate=function(){
+ const clientes=DB.clientes.filter(ativo).sort((a,b)=>cliLabel(a).localeCompare(cliLabel(b),'pt-BR')),mods=DB.modelos.filter(ativo).sort((a,b)=>String(a.modelo||'').localeCompare(String(b.modelo||''),'pt-BR'));
+ const opts='<option value="">Todos os clientes</option>'+clientes.map(c=>`<option value="${esc(c.id)}">${esc(cliLabel(c))}</option>`).join('');const f=document.getElementById('f-cliente');if(f){const v=f.value;f.innerHTML=opts;f.value=v}
+ const cli=document.getElementById('maq-cliente-id'),tr=document.getElementById('tr-cliente');const cliOpts='<option value="">Selecione...</option>'+clientes.map(c=>`<option value="${esc(c.id)}">${esc(cliLabel(c))}${c.razao_social&&c.fantasia&&c.razao_social!==c.fantasia?' · '+esc(c.razao_social):''}</option>`).join('');if(cli){const v=cli.value;cli.innerHTML=cliOpts;cli.value=v}if(tr){const v=tr.value;tr.innerHTML=cliOpts;tr.value=v}
+ const ms=document.getElementById('maq-modelo-id');if(ms){const v=ms.value;ms.innerHTML='<option value="">Selecione...</option>'+mods.map(m=>`<option value="${esc(m.id)}">${esc((m.fabricante||m.marca||'')+(m.fabricante||m.marca?' · ':'')+(m.modelo||'-')+(m.tipo?' · '+m.tipo:''))}</option>`).join('');ms.value=v}
+};
+window.render=function(){
+ const busca=document.getElementById('busca')?.value.toLowerCase()||'',st=document.getElementById('f-status')?.value||'',cid=document.getElementById('f-cliente')?.value||'',wg=document.getElementById('f-garantia')?.value||'';
+ const all=DB.parque.filter(ativo),rows=all.filter(m=>(!st||String(m.statusOperacional||'OPERACIONAL')===st)&&(!cid||String(m.clienteId||'')===cid)&&(!wg||warranty(m).key===wg)&&(!busca||JSON.stringify([serial(m),m.modelo,m.fabricante,m.marca,clientName(m),m.localInstalacao]).toLowerCase().includes(busca))).sort((a,b)=>clientName(a).localeCompare(clientName(b),'pt-BR'));
+ document.getElementById('kpi-total').textContent=all.length;document.getElementById('kpi-garantia').textContent=all.filter(m=>warranty(m).key==='ATIVA').length;document.getElementById('kpi-vencendo').textContent=all.filter(m=>warranty(m).key==='VENCENDO').length;document.getElementById('kpi-manut').textContent=all.filter(m=>String(m.statusOperacional||'')==='MANUTENCAO').length;
+ document.getElementById('tb').innerHTML=rows.length?rows.map(m=>{const w=warranty(m),c=DB.clientes.find(x=>String(x.id)===String(m.clienteId));return `<tr><td><button class="font-mono font-black text-indigo-700 hover:underline" onclick="window.abrirFicha('${esc(m.id)}')"><i class="fa-solid fa-qrcode mr-1 text-slate-400"></i>${esc(serial(m)||'-')}</button></td><td><b>${esc(m.fabricante||m.marca||'')}</b><div class="text-blue-700 font-black">${esc(model(m))}</div><div class="text-[10px] text-slate-500">${esc(m.tipoEquipamento||'')}</div></td><td><button class="text-left font-bold hover:underline" onclick="window.abrirCliente('${esc(m.clienteId||'')}')">${esc(c?cliLabel(c):clientName(m))}</button></td><td>${esc(fmt(m.dataVenda))}</td><td><span class="pill ${w.cls}">${esc(w.label)}</span><div class="text-[10px] text-slate-500 mt-1">${esc(w.fim?fmt(w.fim):'-')}</div></td><td>${esc(fmt(m.dataInstalacaoAtual||m.data_instalacao))}<div class="text-[10px] text-slate-500 mt-1">${esc(m.localInstalacao||m.identificacaoLocal||'-')}</div></td><td><span class="pill ${String(m.statusOperacional)==='MANUTENCAO'?'bg-amber-50 text-amber-700':String(m.statusOperacional)==='INATIVO'?'bg-slate-100 text-slate-500':'bg-emerald-50 text-emerald-700'}">${esc(m.statusOperacional||'OPERACIONAL')}</span></td><td class="whitespace-nowrap"><button class="btn btn-light" onclick="window.abrirFicha('${esc(m.id)}')">Abrir</button> <button class="btn btn-light" onclick="window.abrirMaquina('${esc(m.id)}')"><i class="fa-solid fa-pen"></i></button></td></tr>`}).join(''):'<tr><td colspan="8" class="text-center text-slate-400 py-10">Nenhuma máquina encontrada.</td></tr>';
+};
+window.abrirCliente=id=>id&&(location.href='central_cadastros.html?cliente='+encodeURIComponent(id));
+window.atualizarResumoModelo=function(){const m=DB.modelos.find(x=>String(x.id)===String(document.getElementById('maq-modelo-id').value));document.getElementById('maq-modelo-resumo').innerHTML=m?`<b>${esc(m.fabricante||m.marca||'-')} · ${esc(m.modelo||'-')}</b><br>Tipo: ${esc(m.tipo||'-')} · Categoria: ${esc(m.categoria||'-')}`:'Selecione um modelo cadastrado na base mestre.'};
+window.atualizarGarantiaPreview=function(){document.getElementById('maq-garantia-fim').value=addMonths(document.getElementById('maq-venda').value,document.getElementById('maq-garantia-meses').value)||''};
+window.abrirMaquina=function(id=null,clienteId=''){
+ const m=id?DB.parque.find(x=>String(x.id)===String(id)):null;document.getElementById('maq-titulo').textContent=m?'Editar máquina':'Nova máquina';[['maq-id',m?.id||''],['maq-serie',serial(m)],['maq-modelo-id',m?.equipamentoCatalogoId||''],['maq-cliente-id',m?.clienteId||clienteId||''],['maq-vinculo',m?.tipoVinculo||m?.modalidade||'VENDIDO'],['maq-venda',m?.dataVenda||''],['maq-garantia-meses',m?.garantiaMeses??12],['maq-status',m?.statusOperacional||'OPERACIONAL'],['maq-instalacao',m?.dataInstalacaoAtual||m?.data_instalacao||''],['maq-local',m?.localInstalacao||m?.identificacaoLocal||''],['maq-obs',m?.observacoes||'']].forEach(([i,v])=>document.getElementById(i).value=v);document.getElementById('maq-serie').readOnly=!!m;window.atualizarResumoModelo();window.atualizarGarantiaPreview();document.getElementById('modal-maquina').classList.remove('hidden')
+};
+window.salvarMaquina=async function(e){
+ e.preventDefault();const id=document.getElementById('maq-id').value||('pm_'+Date.now()),old=DB.parque.find(x=>x.id===id)||{},sn=document.getElementById('maq-serie').value.trim().toUpperCase(),mid=document.getElementById('maq-modelo-id').value,cid=document.getElementById('maq-cliente-id').value,m=DB.modelos.find(x=>String(x.id)===String(mid)),c=DB.clientes.find(x=>String(x.id)===String(cid));if(!m||!c){alert('Selecione cliente e modelo válidos.');return}const dup=DB.parque.find(x=>x.id!==id&&ativo(x)&&norm(serial(x))===norm(sn));if(dup){alert('Já existe uma máquina ativa com este número de série.');return}const venda=document.getElementById('maq-venda').value,gm=Number(document.getElementById('maq-garantia-meses').value||0),inst=document.getElementById('maq-instalacao').value,status=document.getElementById('maq-status').value,vinc=document.getElementById('maq-vinculo').value,now=new Date().toISOString(),cn=cliLabel(c),data={...old,id,numeroSerie:sn,numero_serie:sn,serial:sn,equipamentoCatalogoId:mid,modelo:m.modelo||'',fabricante:m.fabricante||m.marca||'',marca:m.fabricante||m.marca||'',tipoEquipamento:m.tipo||'',categoriaEquipamento:m.categoria||'',codigoEquipamento:m.codigo||'',clienteId:cid,clienteNome:cn,cliente_atual:cn,clienteAtual:cn,tipoVinculo:vinc,modalidade:vinc,statusOperacional:status,status:legacyStatus(status,vinc),dataVenda:venda,garantiaMeses:gm,garantiaFimISO:addMonths(venda,gm),dataPrimeiraInstalacao:old.dataPrimeiraInstalacao||old.data_instalacao||inst,dataInstalacaoAtual:inst,data_instalacao:inst,localInstalacao:document.getElementById('maq-local').value.trim().toUpperCase(),identificacaoLocal:document.getElementById('maq-local').value.trim().toUpperCase(),observacoes:document.getElementById('maq-obs').value.trim(),historico_transferencias:old.historico_transferencias||[],ativo:true,is_deleted:false,createdAtISO:old.createdAtISO||now,updatedAtISO:now,atualizadoPor:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaParque:3};await window.fsSetDoc(path('parque_maquinas',id),data);window.fechar('modal-maquina')
+};
+window.abrirFicha=function(id){const m=DB.parque.find(x=>String(x.id)===String(id));if(!m)return;UI.maquina=m;window.renderFicha();document.getElementById('modal-ficha').classList.remove('hidden')};
+window.renderFicha=function(){const m=UI.maquina;if(!m)return;const c=DB.clientes.find(x=>String(x.id)===String(m.clienteId)),w=warranty(m);document.getElementById('ficha-titulo').textContent=`${m.fabricante||m.marca||''} ${model(m)}`.trim();document.getElementById('ficha-sub').textContent=`SN ${serial(m)} · ${c?cliLabel(c):clientName(m)}`;document.getElementById('qr-ficha').innerHTML='';if(window.QRCode)new QRCode(document.getElementById('qr-ficha'),{text:serial(m),width:160,height:160});document.getElementById('qr-serie').textContent=serial(m);document.getElementById('ficha-resumo').innerHTML=[['Cliente',c?cliLabel(c):clientName(m)],['Local',m.localInstalacao||m.identificacaoLocal||'-'],['Data da venda',fmt(m.dataVenda)],['Garantia',w.label+(w.fim?' · '+fmt(w.fim):'')],['Instalação atual',fmt(m.dataInstalacaoAtual||m.data_instalacao)],['Status',m.statusOperacional||'OPERACIONAL'],['Vínculo',m.tipoVinculo||m.modalidade||'-'],['Observações',m.observacoes||'-']].map(([a,b])=>`<div class="card p-3"><div class="label">${esc(a)}</div><div class="text-xs font-bold">${esc(b)}</div></div>`).join('');
+ const os=DB.os.filter(o=>ativo(o)&&(String(o.parqueMaquinaId||'')===String(m.id)||String(o.equipamentoNumeroSerie||'')===serial(m))),osr=DB.osr.filter(o=>o.is_deleted!==true&&norm(o.serial)===norm(serial(m))),tr=(m.historico_transferencias||[]).map(t=>({tipo:'TRANSFERÊNCIA',num:t.cliente_novo||t.clienteNovo||'',data:t.createdAtISO||t.data,desc:t.motivo||''})),hist=[...os.map(o=>({tipo:'OS',num:o.osNumber||o.numero||o.id,data:o.createdAtISO||o.updatedAtISO,desc:o.descricaoInicial||o.status||''})),...osr.map(o=>({tipo:'OSR',num:o.osr||o.numero||o.id,data:o.timestamp||o.data_formatada,desc:o.defeito||o.solucao||''})),...tr].sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));document.getElementById('ficha-historico').innerHTML=hist.length?hist.map(h=>`<div class="timeline-item"><div class="flex justify-between gap-2"><b class="text-xs">${esc(h.tipo)} · ${esc(h.num||'-')}</b><span class="text-[10px] text-slate-400">${esc(fmt(h.data))}</span></div><div class="text-[10px] text-slate-600 mt-1">${esc(h.desc||'-')}</div></div>`).join(''):'<div class="text-xs text-slate-400">Nenhum histórico encontrado.</div>'};
+window.editarSelecionada=()=>UI.maquina&&window.abrirMaquina(UI.maquina.id);
+window.abrirClienteDaMaquina=()=>UI.maquina&&window.abrirCliente(UI.maquina.clienteId);
+window.abrirTransferencia=function(){const m=UI.maquina;if(!m)return;document.getElementById('tr-resumo').textContent=`${model(m)} · SN ${serial(m)} · Cliente atual: ${clientName(m)}`;document.getElementById('tr-cliente').value='';document.getElementById('tr-data').value=new Date().toISOString().slice(0,10);document.getElementById('tr-local').value='';document.getElementById('tr-motivo').value='';document.getElementById('modal-transferencia').classList.remove('hidden')};
+window.salvarTransferencia=async function(e){e.preventDefault();const m=UI.maquina,cid=document.getElementById('tr-cliente').value,c=DB.clientes.find(x=>String(x.id)===String(cid));if(!m||!c)return;if(String(m.clienteId||'')===String(cid)){alert('A máquina já está vinculada a este cliente.');return}const now=new Date().toISOString(),nome=cliLabel(c),tr={id:'tr_'+Date.now(),clienteAntigoId:m.clienteId||'',cliente_antigo:clientName(m),clienteNovoId:cid,cliente_novo:nome,data:document.getElementById('tr-data').value,motivo:document.getElementById('tr-motivo').value.trim().toUpperCase(),localAnterior:m.localInstalacao||'',localNovo:document.getElementById('tr-local').value.trim().toUpperCase(),responsavel:window.nomeUsuarioLogado||window.currentUser?.email||'',createdAtISO:now};const data={...m,clienteId:cid,clienteNome:nome,cliente_atual:nome,clienteAtual:nome,dataInstalacaoAtual:tr.data,data_instalacao:tr.data,localInstalacao:tr.localNovo||m.localInstalacao||'',identificacaoLocal:tr.localNovo||m.identificacaoLocal||'',historico_transferencias:[...(m.historico_transferencias||[]),tr],updatedAtISO:now};await window.fsSetDoc(path('parque_maquinas',m.id),data);UI.maquina=data;window.fechar('modal-transferencia');window.renderFicha()};
+window.imprimirEtiqueta=function(){const m=UI.maquina;if(!m)return;const temp=document.createElement('div');temp.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(temp);new QRCode(temp,{text:serial(m),width:220,height:220});setTimeout(()=>{const qr=temp.querySelector('canvas')?.toDataURL()||temp.querySelector('img')?.src||'',w=window.open('','_blank');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>QR ${esc(serial(m))}</title><style>@page{size:70mm 50mm;margin:3mm}body{font-family:Arial;text-align:center;margin:0}.sn{font-size:14px;font-weight:900}.mod{font-size:10px;margin-top:2px}img{width:30mm;height:30mm}</style></head><body><img src="${qr}"><div class="sn">${esc(serial(m))}</div><div class="mod">${esc((m.fabricante||m.marca||'')+' '+model(m))}</div><script>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();temp.remove()},150)};
+</script>
+</body></html>

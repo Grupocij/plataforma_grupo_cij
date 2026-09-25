@@ -1,367 +1,304 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full bg-slate-50">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Central de Cadastros - Grupo CIJ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cadastros Mestre - Portal CIJ</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--cij:#002d72;--blue:#2563eb;--slate:#0f172a}
+*{box-sizing:border-box}body{font-family:Inter,sans-serif;background:#f8fafc;color:#0f172a}
+.scroll::-webkit-scrollbar{width:6px;height:6px}.scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:38px;padding:.55rem .8rem;border-radius:.75rem;font-size:.72rem;font-weight:800;transition:.15s}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-light{background:#fff;border:1px solid #cbd5e1;color:#334155}.btn-light:hover{background:#f8fafc}
+.btn-danger{background:#fff;border:1px solid #fecaca;color:#b91c1c}.btn-danger:hover{background:#fff1f2}
+.input{width:100%;border:1px solid #cbd5e1;background:#fff;border-radius:.75rem;padding:.62rem .75rem;font-size:.76rem;outline:none}
+.input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.label{display:block;font-size:.58rem;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.045em;margin-bottom:.3rem}
+.pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.25rem .55rem;font-size:.58rem;font-weight:900}
+.tab{display:flex;align-items:center;gap:.45rem;border-radius:.75rem;padding:.62rem .85rem;font-size:.68rem;font-weight:900;color:#64748b}
+.tab.active{background:#eff6ff;color:#1d4ed8}
+.modal{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal.hidden{display:none}.modal-card{width:min(900px,97vw);max-height:94vh;overflow:auto;background:#fff;border-radius:1.35rem;border:1px solid #e2e8f0;box-shadow:0 25px 60px rgba(15,23,42,.25)}
+.table th{background:#f8fafc;color:#64748b;text-transform:uppercase;font-size:.56rem;letter-spacing:.035em;padding:.7rem;text-align:left;position:sticky;top:0}
+.table td{padding:.72rem;border-top:1px solid #f1f5f9;font-size:.72rem;vertical-align:top}
+.kpi{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:1rem}.kpi span{font-size:.56rem;font-weight:900;color:#94a3b8;text-transform:uppercase}.kpi b{display:block;font-size:1.45rem;margin-top:.2rem}
+.section-title{font-size:.78rem;font-weight:900;color:#0f172a}.muted{font-size:.66rem;color:#64748b}
+.timeline{position:relative;padding-left:1.2rem}.timeline:before{content:"";position:absolute;left:.31rem;top:.35rem;bottom:.35rem;width:2px;background:#e2e8f0}.timeline-item{position:relative;padding:.15rem 0 .95rem 1rem}.timeline-item:before{content:"";position:absolute;left:-.96rem;top:.35rem;width:.55rem;height:.55rem;border-radius:999px;background:#3b82f6;box-shadow:0 0 0 3px #eff6ff}
+.stock-low{background:#fff7ed}.stock-zero{background:#fff1f2}
+@media(max-width:720px){.desktop-only{display:none!important}.modal{padding:.4rem}.modal-card{border-radius:1rem}}
+</style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-slate-800">
+<body class="h-full overflow-hidden">
+<div id="login-screen" class="fixed inset-0 z-[99999] bg-slate-950 flex items-center justify-center p-4 hidden">
+  <div class="card p-8 max-w-md w-full text-center"><div class="text-2xl font-black text-blue-800">PORTAL CIJ</div><p id="login-message" class="text-sm text-slate-500 mt-2">Carregando cadastros...</p></div>
+</div>
 
-    <!-- CABEÇALHO -->
-    <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center font-extrabold text-xl text-white shadow-md">S</div>
-            <div>
-                <h1 class="text-lg font-black tracking-tight leading-tight text-slate-900">Central de Clientes</h1>
-                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Gestão Oficial da Base de Dados</p>
-            </div>
-        </div>
-        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold border border-blue-200 flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-users"></i> <span id="contador-total">Carregando...</span>
-        </div>
-    </header>
+<main id="main-content" class="hidden h-[calc(100vh-64px)] overflow-y-auto scroll">
+<div class="max-w-[1500px] mx-auto p-3 md:p-5 space-y-4">
+  <header class="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div class="flex gap-3 items-center">
+      <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl"><i class="fa-solid fa-layer-group"></i></div>
+      <div><div class="pill bg-blue-50 text-blue-700 border border-blue-200">BASE MESTRE DO ERP</div><h1 class="text-xl md:text-2xl font-black mt-1">Cadastros Mestre</h1><p class="text-xs text-slate-500 mt-1">Clientes, modelos de equipamentos, peças/estoque e consumíveis.</p></div>
+    </div>
+    <div class="flex flex-wrap gap-2"><button class="btn btn-light" onclick="window.atualizarTudo()"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-new-context" class="btn btn-primary" onclick="window.novoContexto()"><i class="fa-solid fa-plus"></i> Novo cliente</button></div>
+  </header>
 
-    <!-- ÁREA PRINCIPAL -->
-    <main class="flex-1 overflow-y-auto custom-scrollbar p-6">
-        <div class="max-w-6xl mx-auto space-y-6">
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="kpi"><span>Clientes ativos</span><b id="kpi-clientes">0</b></div>
+    <div class="kpi"><span>Máquinas no parque</span><b id="kpi-parque">0</b></div>
+    <div class="kpi"><span>Peças abaixo do mínimo</span><b id="kpi-estoque-baixo">0</b></div>
+    <div class="kpi"><span>OS abertas</span><b id="kpi-os-abertas">0</b></div>
+  </section>
 
-            <!-- GRID DE FERRAMENTAS (LADO A LADO EM TELAS GRANDES) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- BLOCO 1: LIMPEZA DE DUPLICADOS -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden h-full">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-rose-50 rounded-full blur-3xl"></div>
-                    <div class="relative z-10 mb-6">
-                        <h2 class="text-base font-black text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-broom text-rose-500"></i> Limpeza de Duplicados Automática</h2>
-                        <p class="text-xs text-slate-500 font-medium">O sistema varre o Firebase, agrupa clientes com o mesmo Nome/Razão Social, mantém o cadastro mais antigo (original) e pulveriza as cópias excedentes do banco.</p>
-                    </div>
-                    <button onclick="window.executarLimpezaDuplicados()" id="btn-limpar" class="relative z-10 w-full bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-xl text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-play"></i> Iniciar Varredura de Limpeza
-                    </button>
-                </div>
+  <nav class="card p-1.5 flex flex-wrap gap-1">
+    <button class="tab active" data-tab="clientes" onclick="window.mudarAba('clientes',this)"><i class="fa-solid fa-building"></i> Clientes</button>
+    <button class="tab" data-tab="modelos" onclick="window.mudarAba('modelos',this)"><i class="fa-solid fa-microchip"></i> Modelos</button>
+    <button class="tab" data-tab="pecas" onclick="window.mudarAba('pecas',this)"><i class="fa-solid fa-gears"></i> Peças / Estoque</button>
+    <button class="tab" data-tab="consumiveis" onclick="window.mudarAba('consumiveis',this)"><i class="fa-solid fa-droplet"></i> Consumíveis</button>
+  </nav>
 
-                <!-- BLOCO 2: IMPORTAÇÃO INTELIGENTE -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden h-full">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-50 rounded-full blur-3xl"></div>
-                    <div class="relative z-10 mb-6">
-                        <h2 class="text-base font-black text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Importação Anti-Clone (.JSON)</h2>
-                        <p class="text-xs text-slate-500 font-medium">Faça upload de clientes novos. A inteligência do sistema cruzará os nomes com a base atual; se o cliente já existir, ele será barrado para evitar clones.</p>
-                        
-                        <div class="mt-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                            <label class="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-200 transition shadow-sm w-full sm:w-auto text-center">
-                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Escolher Arquivo
-                                <input type="file" id="input-arquivo-importacao" accept=".json" class="hidden" onchange="window.prepararImportacao(event)">
-                            </label>
-                            <span id="nome-arquivo-importacao" class="text-[11px] font-mono text-emerald-600 font-bold truncate max-w-[200px]">Nenhum arquivo</span>
-                        </div>
-                    </div>
-                    <button onclick="window.executarImportacao()" id="btn-importar" disabled class="relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Executar Importação
-                    </button>
-                </div>
-            </div>
+  <section class="card p-3 md:p-4">
+    <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i><input id="busca" class="input pl-9" oninput="window.renderAtual()" placeholder="Pesquisar..."></div>
+      <select id="filtro-situacao" class="input lg:w-48" onchange="window.renderAtual()"><option value="">Todos</option><option value="ATIVO">Ativos</option><option value="INATIVO">Inativos</option></select>
+      <button class="btn btn-primary lg:min-w-40" onclick="window.novoContexto()"><i class="fa-solid fa-plus"></i><span id="label-novo">Novo cliente</span></button>
+    </div>
+  </section>
 
-            <!-- BLOCO 3: VISUALIZAÇÃO E GESTÃO DA BASE DE CLIENTES -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col min-h-[400px]">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-4">
-                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-table-list text-blue-600"></i> Base Oficial de Clientes</h3>
-                    <div class="relative w-full sm:w-72">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="busca-cliente" oninput="window.filtrarClientes()" placeholder="Buscar por nome, razão ou CNPJ..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:border-blue-500 shadow-inner transition">
-                    </div>
-                </div>
-                
-                <div class="flex-1 overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-slate-50 max-h-[500px]">
-                    <table class="w-full text-left text-xs whitespace-nowrap">
-                        <thead class="bg-slate-200/60 text-slate-600 font-black uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-sm backdrop-blur-sm">
-                            <tr>
-                                <th class="p-3 px-4">Nome / Razão Social</th>
-                                <th class="p-3">CNPJ</th>
-                                <th class="p-3">Cidade / UF</th>
-                                <th class="p-3">Contato Principal</th>
-                                <th class="p-3 text-center w-20">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-clientes" class="divide-y divide-slate-200 bg-white">
-                            <tr><td colspan="5" class="p-10 text-center text-slate-400 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando clientes do Firebase...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <section id="tab-clientes" class="tab-panel card overflow-hidden">
+    <div class="overflow-auto scroll max-h-[58vh]"><table class="table w-full min-w-[1050px]"><thead><tr><th>Cliente</th><th>CNPJ</th><th>Localização</th><th>Contato principal</th><th>Máquinas</th><th>OS abertas</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tb-clientes"></tbody></table></div>
+  </section>
 
-            <!-- BLOCO 4: LOG DE OPERAÇÕES -->
-            <div class="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-terminal mr-2"></i> Console de Servidor</h3>
-                <div id="console-log" class="font-mono text-[11px] text-emerald-400 space-y-1.5 h-48 overflow-y-auto custom-scrollbar pr-2 leading-relaxed">
-                    <p class="text-slate-500">Aguardando instruções do sistema...</p>
-                </div>
-            </div>
+  <section id="tab-modelos" class="tab-panel card overflow-hidden hidden">
+    <div class="overflow-auto scroll max-h-[58vh]"><table class="table w-full min-w-[900px]"><thead><tr><th>Código</th><th>Marca</th><th>Modelo</th><th>Tipo</th><th>Categoria</th><th>Máquinas vinculadas</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tb-modelos"></tbody></table></div>
+  </section>
 
-        </div>
-    </main>
+  <section id="tab-pecas" class="tab-panel card overflow-hidden hidden">
+    <div class="overflow-auto scroll max-h-[58vh]"><table class="table w-full min-w-[950px]"><thead><tr><th>Código</th><th>Peça</th><th>Unidade</th><th>Estoque atual</th><th>Mínimo</th><th>Localização</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tb-pecas"></tbody></table></div>
+  </section>
 
-    <!-- CORE NATIVO DO SEU SISTEMA (Para injetar window.AppDB) -->
-    <script type="module" src="core.js"></script>
+  <section id="tab-consumiveis" class="tab-panel card overflow-hidden hidden">
+    <div class="overflow-auto scroll max-h-[58vh]"><table class="table w-full min-w-[950px]"><thead><tr><th>Código</th><th>Consumível</th><th>Tipo</th><th>Unidade</th><th>Estoque atual</th><th>Mínimo</th><th>Localização</th><th>Ações</th></tr></thead><tbody id="tb-consumiveis"></tbody></table></div>
+  </section>
+</div>
+</main>
 
-    <script>
-        window.dbClientes = [];
-        window.clientesParaImportar = [];
+<!-- FICHA CLIENTE -->
+<div id="modal-ficha-cliente" class="modal hidden">
+  <div class="modal-card">
+    <div class="p-5 border-b flex justify-between gap-4">
+      <div><div class="pill bg-blue-50 text-blue-700">FICHA 360º DO CLIENTE</div><h2 id="ficha-cli-nome" class="text-xl font-black mt-2">Cliente</h2><p id="ficha-cli-meta" class="text-xs text-slate-500 mt-1">-</p></div>
+      <button class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-ficha-cliente')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-5 space-y-5">
+      <div class="grid md:grid-cols-4 gap-3" id="ficha-cli-resumo"></div>
+      <div class="grid xl:grid-cols-2 gap-4">
+        <section class="card p-4"><div class="flex justify-between"><div><h3 class="section-title">Dados cadastrais</h3><p class="muted">Informações oficiais do cliente</p></div><button class="btn btn-light" onclick="window.editarClienteSelecionado()"><i class="fa-solid fa-pen"></i> Editar</button></div><div id="ficha-cli-dados" class="mt-3 grid sm:grid-cols-2 gap-3 text-xs"></div></section>
+        <section class="card p-4"><h3 class="section-title">Observações gerais</h3><p class="muted">Anotações internas permanentes do relacionamento</p><div id="ficha-cli-obs" class="mt-3 text-xs whitespace-pre-wrap min-h-24 rounded-xl bg-slate-50 border p-3"></div></section>
+      </div>
+      <section class="card p-4"><div class="flex justify-between items-center gap-3"><div><h3 class="section-title">Equipamentos associados</h3><p class="muted">Parque de máquinas deste cliente</p></div><button class="btn btn-primary" onclick="window.novaMaquinaCliente()"><i class="fa-solid fa-plus"></i> Vincular máquina</button></div><div id="ficha-cli-maquinas" class="mt-3 grid md:grid-cols-2 xl:grid-cols-3 gap-3"></div></section>
+      <section class="card p-4"><h3 class="section-title">OS e OSR do cliente</h3><p class="muted">Histórico unificado de atendimentos</p><div id="ficha-cli-historico" class="mt-4 timeline"></div></section>
+    </div>
+  </div>
+</div>
 
-        // Inicialização acionada pelo seu core.js
-        window.initModule = function(perfil) {
-            window.logConsole("Sessão validada. Efetuando download da tabela de clientes...", "info");
-            
-            // Listener em tempo real da base de clientes
-            window.fsOnSnapshot(window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes'), snap => {
-                window.dbClientes = [];
-                snap.forEach(d => { window.dbClientes.push({ docId: d.id, ...d.data() }); });
-                
-                document.getElementById('contador-total').innerText = `${window.dbClientes.length} Clientes Ativos`;
-                window.renderListaClientes();
-                window.logConsole(`Sincronização concluída. ${window.dbClientes.length} registros em memória RAM.`, "success");
-            });
-        };
+<!-- CLIENTE -->
+<div id="modal-cliente" class="modal hidden">
+  <div class="modal-card max-w-4xl">
+    <form onsubmit="window.salvarCliente(event)">
+      <div class="p-5 border-b flex justify-between gap-3"><div><div class="pill bg-blue-50 text-blue-700">CLIENTE</div><h2 id="titulo-cliente" class="text-xl font-black mt-2">Novo cliente</h2></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-cliente')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="p-5 space-y-4">
+        <input type="hidden" id="cli-id">
+        <div class="grid md:grid-cols-2 gap-4"><label><span class="label">Razão social *</span><input id="cli-razao" class="input" required></label><label><span class="label">Nome fantasia</span><input id="cli-fantasia" class="input"></label></div>
+        <div class="grid md:grid-cols-4 gap-4"><label><span class="label">CNPJ</span><input id="cli-cnpj" class="input"></label><label class="md:col-span-2"><span class="label">E-mail</span><input id="cli-email" type="email" class="input"></label><label><span class="label">Situação</span><select id="cli-ativo" class="input"><option value="true">ATIVO</option><option value="false">INATIVO</option></select></label></div>
+        <div class="grid md:grid-cols-4 gap-4"><label><span class="label">CEP</span><input id="cli-cep" class="input"></label><label class="md:col-span-2"><span class="label">Logradouro</span><input id="cli-logradouro" class="input"></label><label><span class="label">Número</span><input id="cli-numero" class="input"></label></div>
+        <div class="grid md:grid-cols-4 gap-4"><label><span class="label">Complemento</span><input id="cli-complemento" class="input"></label><label><span class="label">Bairro</span><input id="cli-bairro" class="input"></label><label><span class="label">Cidade *</span><input id="cli-cidade" class="input" required></label><label><span class="label">UF *</span><input id="cli-uf" maxlength="2" class="input uppercase" required></label></div>
+        <div class="card p-4 bg-slate-50"><div class="flex justify-between items-center"><div><h3 class="section-title">Contatos</h3><p class="muted">Defina um contato principal para WhatsApp e comunicação</p></div><button type="button" class="btn btn-light" onclick="window.adicionarContato()"><i class="fa-solid fa-plus"></i> Contato</button></div><div id="contatos" class="mt-3 space-y-2"></div></div>
+        <label><span class="label">Observações gerais</span><textarea id="cli-obs" class="input min-h-28" placeholder="Informações comerciais, técnicas ou administrativas relevantes sobre o cliente..."></textarea></label>
+      </div>
+      <div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-cliente')">Cancelar</button><button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar cliente</button></div>
+    </form>
+  </div>
+</div>
 
-        // --- RENDERIZAÇÃO DA TABELA VISUAL ---
-        window.renderListaClientes = function(filtroBusca = '') {
-            const tbody = document.getElementById('tabela-clientes');
-            if(!tbody) return;
-            
-            const termo = filtroBusca.toLowerCase().trim();
-            const filtrados = window.dbClientes.filter(c => {
-                const nomeFantasia = (c.fantasia || '').toLowerCase();
-                const razaoSocial = (c.razao_social || '').toLowerCase();
-                const documento = (c.cnpj || c.cpf || '').toLowerCase();
-                return nomeFantasia.includes(termo) || razaoSocial.includes(termo) || documento.includes(termo);
-            });
+<!-- MODELO -->
+<div id="modal-modelo" class="modal hidden">
+  <div class="modal-card max-w-2xl">
+    <form onsubmit="window.salvarModelo(event)">
+      <div class="p-5 border-b flex justify-between"><div><div class="pill bg-indigo-50 text-indigo-700">MODELO PADRÃO</div><h2 id="titulo-modelo" class="text-xl font-black mt-2">Novo modelo</h2></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-modelo')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="p-5 space-y-4"><input type="hidden" id="mod-id"><div class="grid md:grid-cols-2 gap-4"><label><span class="label">Código</span><input id="mod-codigo" class="input"></label><label><span class="label">Marca / Fabricante *</span><input id="mod-marca" class="input" required></label></div><div class="grid md:grid-cols-2 gap-4"><label><span class="label">Modelo *</span><input id="mod-modelo" class="input" required></label><label><span class="label">Tipo *</span><input id="mod-tipo" class="input" placeholder="Ex.: Inkjet, detector de metais, laser..." required></label></div><div class="grid md:grid-cols-2 gap-4"><label><span class="label">Categoria</span><input id="mod-categoria" class="input"></label><label><span class="label">Situação</span><select id="mod-ativo" class="input"><option value="true">ATIVO</option><option value="false">INATIVO</option></select></label></div><label><span class="label">Observações técnicas</span><textarea id="mod-obs" class="input min-h-24"></textarea></label></div>
+      <div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-modelo')">Cancelar</button><button class="btn btn-primary">Salvar modelo</button></div>
+    </form>
+  </div>
+</div>
 
-            if (filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium"><i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-300 block"></i>Nenhum cliente localizado na base de dados.</td></tr>`;
-                return;
-            }
+<!-- MATERIAL -->
+<div id="modal-material" class="modal hidden">
+  <div class="modal-card max-w-2xl">
+    <form onsubmit="window.salvarMaterial(event)">
+      <div class="p-5 border-b flex justify-between"><div><div id="material-tag" class="pill bg-emerald-50 text-emerald-700">PEÇA</div><h2 id="titulo-material" class="text-xl font-black mt-2">Novo material</h2></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-material')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="p-5 space-y-4"><input type="hidden" id="mat-id"><input type="hidden" id="mat-tipo-registro"><div class="grid md:grid-cols-2 gap-4"><label><span class="label">Código / SKU</span><input id="mat-codigo" class="input"></label><label><span class="label">Descrição *</span><input id="mat-nome" class="input" required></label></div><div id="row-cons-tipo" class="hidden"><label><span class="label">Tipo do consumível</span><input id="mat-subtipo" class="input" placeholder="Ex.: Tinta, solvente, ribbon, solução de limpeza..."></label></div><div class="grid md:grid-cols-4 gap-4"><label><span class="label">Unidade</span><select id="mat-unidade" class="input"><option>UN</option><option>PC</option><option>CX</option><option>L</option><option>ML</option><option>KG</option><option>M</option></select></label><label><span class="label">Estoque inicial</span><input id="mat-estoque" type="number" step="0.01" class="input"></label><label><span class="label">Estoque mínimo</span><input id="mat-minimo" type="number" step="0.01" class="input"></label><label><span class="label">Situação</span><select id="mat-ativo" class="input"><option value="true">ATIVO</option><option value="false">INATIVO</option></select></label></div><label><span class="label">Localização no estoque</span><input id="mat-local" class="input" placeholder="Ex.: Estante A · Gaveta 03"></label><label><span class="label">Observações</span><textarea id="mat-obs" class="input min-h-20"></textarea></label><div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>Sem preço:</b> este cadastro é operacional. Não há valor de compra ou venda declarado.</div></div>
+      <div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-material')">Cancelar</button><button class="btn btn-primary">Salvar cadastro</button></div>
+    </form>
+  </div>
+</div>
 
-            // Ordena alfabeticamente pela Razão Social ou Fantasia
-            filtrados.sort((a, b) => {
-                const nomeA = a.fantasia || a.razao_social || '';
-                const nomeB = b.fantasia || b.razao_social || '';
-                return nomeA.localeCompare(nomeB);
-            });
+<!-- MOVIMENTO ESTOQUE -->
+<div id="modal-movimento" class="modal hidden">
+  <div class="modal-card max-w-xl">
+    <form onsubmit="window.salvarMovimento(event)">
+      <div class="p-5 border-b flex justify-between"><div><div class="pill bg-amber-50 text-amber-700">ESTOQUE</div><h2 id="mov-titulo" class="text-xl font-black mt-2">Movimentar estoque</h2><p id="mov-material" class="text-xs text-slate-500 mt-1">-</p></div><button type="button" class="btn btn-light !w-10 !px-0" onclick="window.fechar('modal-movimento')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="p-5 space-y-4"><div class="grid grid-cols-2 gap-4"><label><span class="label">Operação</span><select id="mov-tipo" class="input"><option value="ENTRADA">ENTRADA</option><option value="SAIDA">SAÍDA</option><option value="AJUSTE">AJUSTE PARA SALDO</option></select></label><label><span class="label">Quantidade / saldo *</span><input id="mov-qtd" type="number" step="0.01" min="0" class="input" required></label></div><label><span class="label">Motivo *</span><input id="mov-motivo" class="input" placeholder="Ex.: Compra, inventário, entrega ao técnico..." required></label><label><span class="label">Referência</span><input id="mov-ref" class="input" placeholder="Ex.: NF, OS, requisição..."></label></div>
+      <div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="btn btn-light" onclick="window.fechar('modal-movimento')">Cancelar</button><button class="btn btn-primary"><i class="fa-solid fa-right-left"></i> Registrar movimento</button></div>
+    </form>
+  </div>
+</div>
 
-            tbody.innerHTML = filtrados.map(c => {
-                const nomePrincipal = c.fantasia || c.razao_social || '<span class="text-rose-500 italic text-[10px]">Sem Nome Registrado</span>';
-                const documento = c.cnpj || c.cpf || '<span class="text-slate-300">-</span>';
-                const localidade = c.cidade ? `${c.cidade} ${c.estado ? '- ' + c.estado : ''}` : '<span class="text-slate-300">Não informado</span>';
-                
-                let contato = '<span class="text-slate-300">-</span>';
-                if (c.telefone) contato = c.telefone;
-                else if (c.contatos && c.contatos.length > 0 && c.contatos[0].telefone) contato = c.contatos[0].telefone;
+<script type="module" src="core.js?v=20260925-cadastros-v3"></script>
+<script>
+window.DB={clientes:[],modelos:[],pecas:[],consumiveis:[],parque:[],os:[],osr:[],movimentos:[]};
+window.UI={tab:'clientes',cliente:null,material:null};
 
-                return `
-                <tr class="hover:bg-blue-50/50 transition-colors group">
-                    <td class="p-3 px-4 font-bold text-slate-800">
-                        <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${nomePrincipal}
-                        </div>
-                        <div class="text-[9px] font-mono text-slate-400 ml-3.5 mt-0.5" title="ID do Documento no Banco">ID: ${c.docId}</div>
-                    </td>
-                    <td class="p-3 text-slate-600 font-mono font-bold">${documento}</td>
-                    <td class="p-3 text-slate-600 font-medium">${localidade}</td>
-                    <td class="p-3 text-slate-600 font-mono text-[11px]">${contato}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="window.excluirClienteManual('${c.docId}', '${(c.fantasia || c.razao_social || 'Sem Nome').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white transition flex items-center justify-center mx-auto opacity-50 group-hover:opacity-100 shadow-sm" title="Excluir Definitivamente">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </button>
-                    </td>
-                </tr>
-                `;
-            }).join('');
-        };
+const path=(col,id)=>window.fsDoc(window.AppDB,'artifacts','plataforma-cij','public','data',col,id);
+const col=(name)=>window.fsCollection(window.AppDB,'artifacts','plataforma-cij','public','data',name);
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=d=>{if(!d)return'-';const x=new Date(typeof d==='number'?d:String(d));return isNaN(x)?String(d):x.toLocaleDateString('pt-BR')};
+const ativo=x=>x&&x.is_deleted!==true&&x.ativo!==false;
+const cliLabel=c=>c?.fantasia||c?.razao_social||c?.razaoSocial||'SEM NOME';
+const statusOS=o=>String(o?.etapaKanban||o?.status||'').toUpperCase();
+const isOSAbert=o=>ativo(o)&&!['ENCERRADOS','ENCERRADO','EXCLUIDA','CANCELADA'].includes(statusOS(o));
+const machineClient=(m,c)=>String(m?.clienteId||'')===String(c?.id||'')||(!m?.clienteId&&[c?.razao_social,c?.fantasia].some(v=>norm(v)&&norm(v)===norm(m?.clienteNome||m?.cliente_atual||m?.clienteAtual)));
+const osClient=(o,c)=>String(o?.clienteId||'')===String(c?.id||'')||(!o?.clienteId&&[c?.razao_social,c?.fantasia].some(v=>norm(v)&&norm(v)===norm(o?.clienteNome||o?.cliente)));
+const osrClient=(o,c)=>String(o?.clienteId||'')===String(c?.id||'')||[c?.razao_social,c?.fantasia].some(v=>norm(v)&&norm(v)===norm(o?.cliente));
+const materialCollection=t=>t==='PECA'?'cadastros_pecas':'cadastros_consumiveis';
 
-        window.filtrarClientes = function() {
-            const termo = document.getElementById('busca-cliente').value;
-            window.renderListaClientes(termo);
-        };
+window.initModule=function(){
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('main-content')?.classList.remove('hidden');
+  const watch=(collection,key)=>{
+    window.fsOnSnapshot(col(collection),snap=>{
+      DB[key]=[];
+      snap.forEach(d=>DB[key].push({id:d.id,...d.data()}));
+      window.renderTudo();
+    },e=>console.error('[Cadastros]',collection,e));
+  };
+  watch('cadastros_clientes','clientes');watch('cadastros_equipamentos','modelos');watch('cadastros_pecas','pecas');watch('cadastros_consumiveis','consumiveis');
+  watch('parque_maquinas','parque');watch('os_ordens','os');watch('suportes_osr','osr');watch('estoque_movimentacoes','movimentos');
 
-        // --- EXCLUSÃO MANUAL INDIVIDUAL ---
-        window.excluirClienteManual = async function(docId, nomeCliente) {
-            const confirmacao = confirm(`⚠️ ATENÇÃO: Risco de Perda de Dados.\n\nVocê está prestes a excluir DEFINITIVAMENTE o cliente:\n[ ${nomeCliente} ]\n\nIsso apagará o registro oficial do Firebase. Confirma a exclusão física?`);
-            
-            if (confirmacao) {
-                try {
-                    window.logConsole(`Solicitando exclusão física do cliente [${nomeCliente}] (ID: ${docId})...`, "warning");
-                    const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', docId);
-                    await window.fsDeleteDoc(docRef);
-                    window.logConsole(`SUCESSO: Cliente [${nomeCliente}] pulverizado da base de dados.`, "success");
-                    // O onSnapshot cuidará de recarregar a tabela automaticamente
-                } catch (error) {
-                    window.logConsole(`FALHA CRÍTICA: Erro ao excluir cliente. Verifique permissões. Detalhe: ${error.message}`, "error");
-                }
-            }
-        };
+  const q=new URLSearchParams(location.search),cid=q.get('cliente');
+  if(cid)setTimeout(()=>window.abrirFichaCliente(cid),700);
+};
 
-        // --- 1. LÓGICA DE LIMPEZA DE DUPLICADOS AUTOMÁTICA ---
-        window.executarLimpezaDuplicados = async function() {
-            const btn = document.getElementById('btn-limpar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Varrendo Banco...';
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            
-            window.logConsole("Iniciando varredura sistêmica de duplicidades...", "info");
+window.renderTudo=function(){window.renderKPIs();window.renderAtual();if(UI.cliente)window.renderFichaCliente(UI.cliente.id)};
+window.renderKPIs=function(){
+  document.getElementById('kpi-clientes').textContent=DB.clientes.filter(ativo).length;
+  document.getElementById('kpi-parque').textContent=DB.parque.filter(ativo).length;
+  document.getElementById('kpi-estoque-baixo').textContent=[...DB.pecas,...DB.consumiveis].filter(x=>ativo(x)&&Number(x.estoqueAtual||0)<=Number(x.estoqueMinimo||0)).length;
+  document.getElementById('kpi-os-abertas').textContent=DB.os.filter(isOSAbert).length;
+};
+window.mudarAba=function(tab,btn){
+  UI.tab=tab;document.querySelectorAll('.tab-panel').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+tab)?.classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
+  const labels={clientes:'Novo cliente',modelos:'Novo modelo',pecas:'Nova peça',consumiveis:'Novo consumível'};
+  document.getElementById('label-novo').textContent=labels[tab]||'Novo';
+  document.getElementById('filtro-situacao').value='';document.getElementById('busca').value='';
+  window.renderAtual();
+};
+window.renderAtual=function(){if(UI.tab==='clientes')return window.renderClientes();if(UI.tab==='modelos')return window.renderModelos();if(UI.tab==='pecas')return window.renderMateriais('PECA');return window.renderMateriais('CONSUMIVEL')};
+window.novoContexto=function(){if(UI.tab==='clientes')return window.abrirCliente();if(UI.tab==='modelos')return window.abrirModelo();return window.abrirMaterial(null,UI.tab==='pecas'?'PECA':'CONSUMIVEL')};
+window.atualizarTudo=()=>window.renderTudo();
+window.fechar=id=>document.getElementById(id)?.classList.add('hidden');
 
-            // Agrupa pelo Nome Fantasia ou Razão Social
-            const agrupados = {};
-            window.dbClientes.forEach(c => {
-                const nomeBase = (c.fantasia || c.razao_social || "SEM_NOME_REGISTRADO").trim().toUpperCase();
-                if (!agrupados[nomeBase]) agrupados[nomeBase] = [];
-                agrupados[nomeBase].push(c);
-            });
+function filtroBase(x,txt,sit){
+  if(x?.is_deleted===true)return false;
+  if(sit==='ATIVO'&&x.ativo===false)return false;if(sit==='INATIVO'&&x.ativo!==false)return false;
+  return !txt||JSON.stringify(x).toLowerCase().includes(txt);
+}
+window.renderClientes=function(){
+  const txt=document.getElementById('busca').value.toLowerCase(),sit=document.getElementById('filtro-situacao').value;
+  const rows=DB.clientes.filter(x=>filtroBase(x,txt,sit)).sort((a,b)=>cliLabel(a).localeCompare(cliLabel(b),'pt-BR'));
+  document.getElementById('tb-clientes').innerHTML=rows.length?rows.map(c=>{
+    const maq=DB.parque.filter(m=>ativo(m)&&machineClient(m,c)).length,ab=DB.os.filter(o=>isOSAbert(o)&&osClient(o,c)).length;
+    const cp=(c.contatos||[]).find(x=>x.principal)||(c.contatos||[])[0]||{};
+    return `<tr><td><button class="font-black text-blue-700 hover:underline text-left" onclick="window.abrirFichaCliente('${esc(c.id)}')">${esc(cliLabel(c))}</button><div class="text-[10px] text-slate-400 mt-1">${esc(c.razao_social||'')}</div></td><td>${esc(c.cnpj||'-')}</td><td>${esc([c.cidade,c.estado||c.uf].filter(Boolean).join(' / ')||'-')}</td><td><b>${esc(cp.nome||c.contato||'-')}</b><div class="text-[10px] text-slate-500">${esc(cp.telefone||c.telefone||'-')}</div></td><td><b>${maq}</b></td><td><b>${ab}</b></td><td><span class="pill ${c.ativo===false?'bg-slate-100 text-slate-500':'bg-emerald-50 text-emerald-700'}">${c.ativo===false?'INATIVO':'ATIVO'}</span></td><td class="whitespace-nowrap"><button class="btn btn-light" onclick="window.abrirFichaCliente('${esc(c.id)}')">Abrir</button> <button class="btn btn-light" onclick="window.abrirCliente('${esc(c.id)}')"><i class="fa-solid fa-pen"></i></button></td></tr>`;
+  }).join(''):'<tr><td colspan="8" class="text-center text-slate-400 py-10">Nenhum cliente encontrado.</td></tr>';
+};
 
-            let excluidosCount = 0;
-            let gruposAnalisados = 0;
+window.abrirFichaCliente=function(id){const c=DB.clientes.find(x=>String(x.id)===String(id));if(!c)return;UI.cliente=c;window.renderFichaCliente(id);document.getElementById('modal-ficha-cliente').classList.remove('hidden')};
+window.renderFichaCliente=function(id){
+  const c=DB.clientes.find(x=>String(x.id)===String(id));if(!c)return;UI.cliente=c;
+  const maquinas=DB.parque.filter(m=>ativo(m)&&machineClient(m,c));
+  const oss=DB.os.filter(o=>ativo(o)&&osClient(o,c));
+  const osrs=DB.osr.filter(o=>o?.is_deleted!==true&&osrClient(o,c));
+  const ab=oss.filter(isOSAbert).length;
+  document.getElementById('ficha-cli-nome').textContent=cliLabel(c);
+  document.getElementById('ficha-cli-meta').textContent=[c.razao_social,c.cnpj].filter(Boolean).join(' · ')||'Cadastro oficial';
+  document.getElementById('ficha-cli-resumo').innerHTML=[
+    ['Máquinas',maquinas.length,'fa-industry'],['OS abertas',ab,'fa-screwdriver-wrench'],['OS/OSR históricas',oss.length+osrs.length,'fa-clock-rotate-left'],['Situação',c.ativo===false?'INATIVO':'ATIVO','fa-circle-check']
+  ].map(x=>`<div class="kpi"><span><i class="fa-solid ${x[2]} mr-1"></i>${x[0]}</span><b class="!text-lg">${esc(x[1])}</b></div>`).join('');
+  const cp=(c.contatos||[]).find(x=>x.principal)||(c.contatos||[])[0]||{};
+  document.getElementById('ficha-cli-dados').innerHTML=[
+    ['CNPJ',c.cnpj],['E-mail',c.email],['Contato principal',(cp.nome||c.contato||'-')+' · '+(cp.telefone||c.telefone||'-')],['Endereço',[c.logradouro||c.endereco,c.numero,c.complemento,c.bairro,c.cidade,c.estado||c.uf].filter(Boolean).join(', ')]
+  ].map(([a,b])=>`<div><div class="label">${a}</div><div class="font-semibold">${esc(b||'-')}</div></div>`).join('');
+  document.getElementById('ficha-cli-obs').textContent=c.observacoes||'Nenhuma observação geral registrada.';
+  document.getElementById('ficha-cli-maquinas').innerHTML=maquinas.length?maquinas.map(m=>`<a href="parque_maquinas.html?maquina=${encodeURIComponent(m.id)}" class="rounded-xl border border-slate-200 p-3 hover:border-blue-300 bg-white"><div class="flex justify-between gap-2"><b class="text-xs text-blue-700">${esc(m.modelo||'Equipamento')}</b><span class="pill bg-slate-100 text-slate-600">${esc(m.statusOperacional||'OPERACIONAL')}</span></div><div class="text-[10px] text-slate-500 mt-2">SN: <b>${esc(m.numeroSerie||m.serial||'-')}</b></div><div class="text-[10px] text-slate-500 mt-1">${esc(m.localInstalacao||m.identificacaoLocal||'Local não informado')}</div></a>`).join(''):'<div class="text-xs text-slate-400">Nenhum equipamento associado.</div>';
+  const hist=[
+    ...oss.map(o=>({tipo:'OS',num:o.osNumber||o.numero||o.id,data:o.createdAtISO||o.updatedAtISO,desc:o.descricaoInicial||o.status||o.etapaKanban||'',status:o.etapaKanban||o.status||''})),
+    ...osrs.map(o=>({tipo:'OSR',num:o.osr||o.numero||o.id,data:o.timestamp||o.data_formatada,desc:o.defeito||o.solucao||'',status:o.conclusao||''}))
+  ].sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
+  document.getElementById('ficha-cli-historico').innerHTML=hist.length?hist.slice(0,100).map(h=>`<div class="timeline-item"><div class="flex flex-wrap justify-between gap-2"><b class="text-xs">${esc(h.tipo)} · ${esc(h.num||'-')}</b><span class="text-[10px] text-slate-400">${esc(fmt(h.data))}</span></div><div class="text-[10px] text-slate-600 mt-1">${esc(h.desc||'-')}</div><span class="pill bg-slate-100 text-slate-600 mt-2">${esc(h.status||'-')}</span></div>`).join(''):'<div class="text-xs text-slate-400">Nenhuma OS ou OSR encontrada.</div>';
+};
+window.editarClienteSelecionado=()=>UI.cliente&&window.abrirCliente(UI.cliente.id);
+window.novaMaquinaCliente=function(){if(!UI.cliente)return;location.href='parque_maquinas.html?cliente='+encodeURIComponent(UI.cliente.id)+'&novo=1'};
 
-            for (const nome in agrupados) {
-                const lista = agrupados[nome];
-                
-                // Achou duplicado!
-                if (lista.length > 1 && nome !== "SEM_NOME_REGISTRADO") {
-                    gruposAnalisados++;
-                    
-                    // Ordena pela data: O cadastro original (mais antigo) fica na posição 0
-                    lista.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    
-                    const cadastroOficial = lista[0];
-                    const clones = lista.slice(1); // Todos do índice 1 pra frente são clones
-                    
-                    window.logConsole(`Encontrado ${clones.length} clones para [${nome}]. Mantendo original imune (ID: ${cadastroOficial.docId}).`, "warning");
+window.adicionarContato=function(ct={}){
+  const box=document.getElementById('contatos'),row=document.createElement('div');row.className='grid md:grid-cols-[1fr_.7fr_1fr_auto_auto] gap-2 contato-row';
+  row.innerHTML=`<input class="input c-nome" placeholder="Nome" value="${esc(ct.nome||'')}"><input class="input c-cargo" placeholder="Cargo/Setor" value="${esc(ct.cargo||ct.setor||'')}"><input class="input c-tel" placeholder="WhatsApp / telefone" value="${esc(ct.telefone||'')}"><label class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><input type="radio" name="ct-principal" class="c-principal" ${ct.principal?'checked':''}> Principal</label><button type="button" class="btn btn-danger !w-10 !px-0" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i></button>`;
+  box.appendChild(row);if(box.children.length===1&&!ct.principal)row.querySelector('.c-principal').checked=true;
+};
+window.abrirCliente=function(id=null){
+  const c=id?DB.clientes.find(x=>String(x.id)===String(id)):null;
+  document.getElementById('titulo-cliente').textContent=c?'Editar cliente':'Novo cliente';
+  for(const [fid,val] of [['cli-id',c?.id||''],['cli-razao',c?.razao_social||''],['cli-fantasia',c?.fantasia||''],['cli-cnpj',c?.cnpj||''],['cli-email',c?.email||''],['cli-cep',c?.cep||''],['cli-logradouro',c?.logradouro||c?.endereco||''],['cli-numero',c?.numero||''],['cli-complemento',c?.complemento||''],['cli-bairro',c?.bairro||''],['cli-cidade',c?.cidade||''],['cli-uf',c?.estado||c?.uf||''],['cli-obs',c?.observacoes||'']])document.getElementById(fid).value=val;
+  document.getElementById('cli-ativo').value=String(c?.ativo!==false);
+  document.getElementById('contatos').innerHTML='';(c?.contatos?.length?c.contatos:[{}]).forEach(window.adicionarContato);
+  document.getElementById('modal-cliente').classList.remove('hidden');
+};
+window.salvarCliente=async function(e){
+  e.preventDefault();const id=document.getElementById('cli-id').value||('cli_'+Date.now()),old=DB.clientes.find(x=>x.id===id)||{},now=new Date().toISOString();
+  const razao=document.getElementById('cli-razao').value.trim().toUpperCase(),cnpj=document.getElementById('cli-cnpj').value.trim();
+  const dup=DB.clientes.find(x=>x.id!==id&&x.is_deleted!==true&&((cnpj&&x.cnpj===cnpj)||norm(x.razao_social)===norm(razao)));if(dup){alert('Já existe cliente com esta Razão Social ou CNPJ.');return}
+  const contatos=[...document.querySelectorAll('.contato-row')].map((r,i)=>({id:old?.contatos?.[i]?.id||('ct_'+Date.now()+'_'+i),nome:r.querySelector('.c-nome').value.trim().toUpperCase(),cargo:r.querySelector('.c-cargo').value.trim().toUpperCase(),telefone:r.querySelector('.c-tel').value.trim(),principal:r.querySelector('.c-principal').checked})).filter(x=>x.nome||x.telefone);if(contatos.length&&!contatos.some(x=>x.principal))contatos[0].principal=true;const cp=contatos.find(x=>x.principal)||contatos[0]||{};
+  const log=document.getElementById('cli-logradouro').value.trim().toUpperCase(),num=document.getElementById('cli-numero').value.trim().toUpperCase(),comp=document.getElementById('cli-complemento').value.trim().toUpperCase();
+  const data={...old,id,razao_social:razao,fantasia:document.getElementById('cli-fantasia').value.trim().toUpperCase(),cnpj,contatos,contato:cp.nome||'',telefone:cp.telefone||'',contatoPrincipalNome:cp.nome||'',contatoPrincipalTelefone:cp.telefone||'',email:document.getElementById('cli-email').value.trim().toLowerCase(),cep:document.getElementById('cli-cep').value.trim(),logradouro:log,numero:num,complemento:comp,endereco:[log,num,comp].filter(Boolean).join(', '),bairro:document.getElementById('cli-bairro').value.trim().toUpperCase(),cidade:document.getElementById('cli-cidade').value.trim().toUpperCase(),estado:document.getElementById('cli-uf').value.trim().toUpperCase(),uf:document.getElementById('cli-uf').value.trim().toUpperCase(),observacoes:document.getElementById('cli-obs').value.trim(),ativo:document.getElementById('cli-ativo').value==='true',is_deleted:false,createdAtISO:old.createdAtISO||now,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaCadastro:3};
+  await window.fsSetDoc(path('cadastros_clientes',id),data);window.fechar('modal-cliente');
+};
 
-                    for (const clone of clones) {
-                        try {
-                            const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', clone.docId);
-                            await window.fsDeleteDoc(docRef);
-                            excluidosCount++;
-                            window.logConsole(`   -> Clone apagado via varredura: ${clone.docId}`, "error");
-                        } catch (e) {
-                            window.logConsole(`   -> Erro ao apagar clone: ${e.message}`, "error");
-                        }
-                    }
-                }
-            }
+window.renderModelos=function(){
+  const txt=document.getElementById('busca').value.toLowerCase(),sit=document.getElementById('filtro-situacao').value;
+  const rows=DB.modelos.filter(x=>filtroBase(x,txt,sit)).sort((a,b)=>String(a.modelo||'').localeCompare(String(b.modelo||''),'pt-BR'));
+  document.getElementById('tb-modelos').innerHTML=rows.length?rows.map(m=>{const q=DB.parque.filter(p=>ativo(p)&&(String(p.equipamentoCatalogoId||'')===String(m.id)||(!p.equipamentoCatalogoId&&norm(p.modelo)===norm(m.modelo)))).length;return `<tr><td class="font-mono">${esc(m.codigo||'-')}</td><td><b>${esc(m.fabricante||m.marca||'-')}</b></td><td><b class="text-blue-700">${esc(m.modelo||'-')}</b></td><td>${esc(m.tipo||'-')}</td><td>${esc(m.categoria||'-')}</td><td><b>${q}</b></td><td><span class="pill ${m.ativo===false?'bg-slate-100 text-slate-500':'bg-emerald-50 text-emerald-700'}">${m.ativo===false?'INATIVO':'ATIVO'}</span></td><td><button class="btn btn-light" onclick="window.abrirModelo('${esc(m.id)}')"><i class="fa-solid fa-pen"></i></button></td></tr>`}).join(''):'<tr><td colspan="8" class="text-center text-slate-400 py-10">Nenhum modelo cadastrado.</td></tr>';
+};
+window.abrirModelo=function(id=null){const m=id?DB.modelos.find(x=>x.id===id):null;document.getElementById('titulo-modelo').textContent=m?'Editar modelo':'Novo modelo';[['mod-id',m?.id||''],['mod-codigo',m?.codigo||''],['mod-marca',m?.fabricante||m?.marca||''],['mod-modelo',m?.modelo||''],['mod-tipo',m?.tipo||''],['mod-categoria',m?.categoria||''],['mod-obs',m?.observacoes||'']].forEach(([i,v])=>document.getElementById(i).value=v);document.getElementById('mod-ativo').value=String(m?.ativo!==false);document.getElementById('modal-modelo').classList.remove('hidden')};
+window.salvarModelo=async function(e){e.preventDefault();const id=document.getElementById('mod-id').value||('eq_'+Date.now()),old=DB.modelos.find(x=>x.id===id)||{},now=new Date().toISOString(),marca=document.getElementById('mod-marca').value.trim().toUpperCase(),modelo=document.getElementById('mod-modelo').value.trim().toUpperCase(),codigo=document.getElementById('mod-codigo').value.trim().toUpperCase();const dup=DB.modelos.find(x=>x.id!==id&&x.is_deleted!==true&&((codigo&&String(x.codigo||'').toUpperCase()===codigo)||(norm(x.modelo)===norm(modelo)&&norm(x.fabricante||x.marca)===norm(marca))));if(dup){alert('Já existe um modelo com este código ou marca/modelo.');return}const data={...old,id,codigo,fabricante:marca,marca,modelo,tipo:document.getElementById('mod-tipo').value.trim().toUpperCase(),categoria:document.getElementById('mod-categoria').value.trim().toUpperCase(),observacoes:document.getElementById('mod-obs').value.trim(),ativo:document.getElementById('mod-ativo').value==='true',is_deleted:false,createdAtISO:old.createdAtISO||now,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaCadastro:3};await window.fsSetDoc(path('cadastros_equipamentos',id),data);window.fechar('modal-modelo')};
 
-            if (excluidosCount === 0) {
-                window.logConsole("Varredura concluída. A base de clientes está 100% íntegra. Nenhuma duplicidade localizada.", "success");
-            } else {
-                window.logConsole(`LIMPEZA CONCLUÍDA! ${excluidosCount} clientes duplicados foram pulverizados do ecossistema.`, "success");
-            }
+window.renderMateriais=function(tipo){
+  const data=tipo==='PECA'?DB.pecas:DB.consumiveis,tbody=document.getElementById(tipo==='PECA'?'tb-pecas':'tb-consumiveis'),txt=document.getElementById('busca').value.toLowerCase(),sit=document.getElementById('filtro-situacao').value;
+  const rows=data.filter(x=>filtroBase(x,txt,sit)).sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'));
+  const cols=tipo==='PECA'?8:8;
+  tbody.innerHTML=rows.length?rows.map(x=>{const est=Number(x.estoqueAtual||0),min=Number(x.estoqueMinimo||0),low=est<=min;return `<tr class="${est<=0?'stock-zero':low?'stock-low':''}"><td class="font-mono">${esc(x.sku||x.codigo||'-')}</td><td><b class="text-blue-700">${esc(x.nome||x.descricao||'-')}</b>${tipo==='CONSUMIVEL'?`<div class="text-[10px] text-slate-500">${esc(x.tipo||'-')}</div>`:''}</td>${tipo==='CONSUMIVEL'?`<td>${esc(x.tipo||'-')}</td>`:''}<td>${esc(x.unidade||'UN')}</td><td><b>${est.toLocaleString('pt-BR')}</b>${low?'<span class="pill bg-amber-50 text-amber-700 ml-2">BAIXO</span>':''}</td><td>${min.toLocaleString('pt-BR')}</td><td>${esc(x.localizacaoEstoque||x.localizacao||'-')}</td><td class="whitespace-nowrap"><button class="btn btn-light" onclick="window.abrirMovimento('${tipo}','${esc(x.id)}')"><i class="fa-solid fa-right-left"></i></button> <button class="btn btn-light" onclick="window.abrirMaterial('${esc(x.id)}','${tipo}')"><i class="fa-solid fa-pen"></i></button></td></tr>`}).join(''):`<tr><td colspan="${cols}" class="text-center text-slate-400 py-10">Nenhum cadastro encontrado.</td></tr>`;
+};
+window.abrirMaterial=function(id=null,tipo='PECA'){const arr=tipo==='PECA'?DB.pecas:DB.consumiveis,x=id?arr.find(v=>v.id===id):null;document.getElementById('material-tag').textContent=tipo==='PECA'?'PEÇA / ESTOQUE':'CONSUMÍVEL';document.getElementById('titulo-material').textContent=x?'Editar cadastro':tipo==='PECA'?'Nova peça':'Novo consumível';document.getElementById('mat-tipo-registro').value=tipo;[['mat-id',x?.id||''],['mat-codigo',x?.sku||x?.codigo||''],['mat-nome',x?.nome||x?.descricao||''],['mat-subtipo',x?.tipo||''],['mat-unidade',x?.unidade||'UN'],['mat-estoque',x?.estoqueAtual??0],['mat-minimo',x?.estoqueMinimo??0],['mat-local',x?.localizacaoEstoque||x?.localizacao||''],['mat-obs',x?.observacoes||'']].forEach(([i,v])=>document.getElementById(i).value=v);document.getElementById('mat-ativo').value=String(x?.ativo!==false);document.getElementById('row-cons-tipo').classList.toggle('hidden',tipo!=='CONSUMIVEL');document.getElementById('modal-material').classList.remove('hidden')};
+window.salvarMaterial=async function(e){e.preventDefault();const tipo=document.getElementById('mat-tipo-registro').value,arr=tipo==='PECA'?DB.pecas:DB.consumiveis,id=document.getElementById('mat-id').value||((tipo==='PECA'?'peca_':'cons_')+Date.now()),old=arr.find(x=>x.id===id)||{},now=new Date().toISOString(),codigo=document.getElementById('mat-codigo').value.trim().toUpperCase(),nome=document.getElementById('mat-nome').value.trim().toUpperCase();const dup=arr.find(x=>x.id!==id&&x.is_deleted!==true&&((codigo&&String(x.sku||x.codigo||'').toUpperCase()===codigo)||norm(x.nome||x.descricao)===norm(nome)));if(dup){alert('Já existe um cadastro com este código ou descrição.');return}const estoque=Number(document.getElementById('mat-estoque').value||0),data={...old,id,codigo,sku:codigo,nome,descricao:nome,tipo:tipo==='CONSUMIVEL'?document.getElementById('mat-subtipo').value.trim().toUpperCase():'PECA',unidade:document.getElementById('mat-unidade').value,estoqueAtual:estoque,estoqueMinimo:Number(document.getElementById('mat-minimo').value||0),localizacaoEstoque:document.getElementById('mat-local').value.trim().toUpperCase(),observacoes:document.getElementById('mat-obs').value.trim(),ativo:document.getElementById('mat-ativo').value==='true',is_deleted:false,createdAtISO:old.createdAtISO||now,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaCadastro:3};await window.fsSetDoc(path(materialCollection(tipo),id),data);if(!old.id&&estoque!==0){await window.fsSetDoc(path('estoque_movimentacoes','mov_'+Date.now()),{id:'mov_'+Date.now(),materialTipo:tipo,materialId:id,materialNome:nome,tipoMovimento:'SALDO_INICIAL',quantidade:estoque,saldoAnterior:0,saldoPosterior:estoque,motivo:'SALDO INICIAL DO CADASTRO',createdAtISO:now,usuario:window.nomeUsuarioLogado||window.currentUser?.email||''})}window.fechar('modal-material')};
 
-            btn.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar Varredura de Limpeza';
-            btn.classList.remove('opacity-50', 'pointer-events-none');
-        };
-
-        // --- 2. LÓGICA DE IMPORTAÇÃO ANTI-CLONE ---
-        window.prepararImportacao = function(event) {
-            const file = event.target.files[0];
-            const labelNome = document.getElementById('nome-arquivo-importacao');
-            const btnImportar = document.getElementById('btn-importar');
-
-            if (!file) {
-                labelNome.innerText = "Nenhum arquivo selecionado";
-                window.clientesParaImportar = [];
-                btnImportar.disabled = true; btnImportar.className = "relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2";
-                return;
-            }
-
-            labelNome.innerText = file.name;
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const jsonData = JSON.parse(e.target.result);
-                    window.clientesParaImportar = Array.isArray(jsonData) ? jsonData : [jsonData];
-                    window.logConsole(`Arquivo carregado em memória: ${window.clientesParaImportar.length} clientes prontos para análise anti-clone.`, "info");
-                    
-                    btnImportar.disabled = false;
-                    btnImportar.className = "relative z-10 w-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-2";
-                } catch(err) {
-                    window.logConsole("Falha no Parse do JSON. Verifique a codificação e estrutura do arquivo fornecido.", "error");
-                }
-            };
-            reader.readAsText(file);
-        };
-
-        window.executarImportacao = async function() {
-            if (window.clientesParaImportar.length === 0) return;
-
-            const btn = document.getElementById('btn-importar');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cruzando Dados e Injetando...';
-            btn.classList.add('opacity-50', 'pointer-events-none');
-
-            let importadosCount = 0;
-            let barradosCount = 0;
-
-            for (const cliNovo of window.clientesParaImportar) {
-                const nomeNovo = (cliNovo.fantasia || cliNovo.razao_social || "").trim().toUpperCase();
-                const docIdParaSalvar = cliNovo.id || 'cli_' + Date.now() + Math.floor(Math.random() * 1000);
-                
-                // Validação Inteligente: Cruza com a memória RAM preenchida pelo onSnapshot
-                const jaExiste = window.dbClientes.some(cliDb => {
-                    const nomeBase = (cliDb.fantasia || cliDb.razao_social || "").trim().toUpperCase();
-                    return nomeBase === nomeNovo;
-                });
-
-                if (jaExiste) {
-                    barradosCount++;
-                    window.logConsole(`Shield Ativado: [${nomeNovo}] foi ignorado (Match exato já existente no banco).`, "warning");
-                } else {
-                    // Prepara o objeto injetando Timestamp
-                    cliNovo.id = docIdParaSalvar;
-                    cliNovo.timestamp = cliNovo.timestamp || Date.now();
-                    
-                    try {
-                        const docRef = window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_clientes', docIdParaSalvar);
-                        await window.fsSetDoc(docRef, cliNovo);
-                        importadosCount++;
-                        window.logConsole(`Injetado: [${nomeNovo}] gravado no Firebase com sucesso.`, "success");
-                    } catch(e) {
-                        window.logConsole(`Erro de permissão ou rede ao salvar [${nomeNovo}]: ${e.message}`, "error");
-                    }
-                }
-            }
-
-            window.logConsole(`RESUMO DA OPERAÇÃO: ${importadosCount} Cadastrados com Sucesso | ${barradosCount} Clones Barrados na Porta.`, "success");
-            
-            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Executar Importação';
-            btn.classList.remove('opacity-50', 'pointer-events-none');
-            document.getElementById('input-arquivo-importacao').value = "";
-            window.clientesParaImportar = [];
-            btn.disabled = true;
-            btn.className = "relative z-10 w-full bg-slate-300 text-slate-500 px-6 py-3 rounded-xl text-xs font-black transition cursor-not-allowed flex items-center justify-center gap-2";
-        };
-
-        // --- SISTEMA DE LOGS VISUAIS ---
-        window.logConsole = function(mensagem, tipo = 'info') {
-            const consoleDiv = document.getElementById('console-log');
-            const dataHora = new Date().toLocaleTimeString('pt-BR');
-            let corClass = 'text-slate-300';
-            let icone = 'fa-angle-right';
-
-            if(tipo === 'error') { corClass = 'text-rose-400'; icone = 'fa-xmark'; }
-            if(tipo === 'success') { corClass = 'text-emerald-400'; icone = 'fa-check'; }
-            if(tipo === 'warning') { corClass = 'text-amber-400'; icone = 'fa-triangle-exclamation'; }
-
-            const p = document.createElement('p');
-            p.className = `border-l-2 ${tipo === 'error' ? 'border-rose-500' : tipo === 'warning' ? 'border-amber-500' : 'border-slate-700'} pl-2 py-0.5 break-words`;
-            p.innerHTML = `<span class="text-slate-600 mr-2 shrink-0">[${dataHora}]</span> <i class="fa-solid ${icone} ${corClass} mr-1 shrink-0"></i> <span class="${corClass}">${mensagem}</span>`;
-            
-            consoleDiv.appendChild(p);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight; // Auto-scroll para a última mensagem
-        };
-
-    </script>
-</body>
-</html>
+window.abrirMovimento=function(tipo,id){const arr=tipo==='PECA'?DB.pecas:DB.consumiveis,x=arr.find(v=>v.id===id);if(!x)return;UI.material={...x,__tipo:tipo};document.getElementById('mov-material').textContent=`${x.sku||x.codigo||''} · ${x.nome||x.descricao||''} · Saldo atual: ${Number(x.estoqueAtual||0).toLocaleString('pt-BR')} ${x.unidade||'UN'}`;document.getElementById('mov-tipo').value='ENTRADA';document.getElementById('mov-qtd').value='';document.getElementById('mov-motivo').value='';document.getElementById('mov-ref').value='';document.getElementById('modal-movimento').classList.remove('hidden')};
+window.salvarMovimento=async function(e){e.preventDefault();const x=UI.material;if(!x)return;const tipo=document.getElementById('mov-tipo').value,q=Number(document.getElementById('mov-qtd').value||0),anterior=Number(x.estoqueAtual||0);let posterior=anterior;if(tipo==='ENTRADA')posterior=anterior+q;else if(tipo==='SAIDA')posterior=anterior-q;else posterior=q;if(posterior<0){alert('O movimento resultaria em estoque negativo.');return}const now=new Date().toISOString(),id='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),collection=materialCollection(x.__tipo);await window.fsSetDoc(path(collection,x.id),{...x,estoqueAtual:posterior,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||''});await window.fsSetDoc(path('estoque_movimentacoes',id),{id,materialTipo:x.__tipo,materialId:x.id,materialNome:x.nome||x.descricao||'',codigo:x.sku||x.codigo||'',tipoMovimento:tipo,quantidade:q,saldoAnterior:anterior,saldoPosterior:posterior,motivo:document.getElementById('mov-motivo').value.trim().toUpperCase(),referencia:document.getElementById('mov-ref').value.trim().toUpperCase(),createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuario:window.nomeUsuarioLogado||window.currentUser?.email||''});window.fechar('modal-movimento')};
+</script>
+</body></html>
