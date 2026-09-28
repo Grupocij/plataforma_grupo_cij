@@ -365,7 +365,7 @@
         <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
     </div>
 
-    <script type="module" src="core.js"></script>
+    <script type="module" src="core.js?v=20260928-1720"></script>
 
     <script>
         window.reqData = [];
@@ -373,6 +373,9 @@
         
         window.clientesOficiais = [];
         window.materiaisOficiais = [];
+        window.catalogoPecas = [];
+        window.catalogoConsumiveis = [];
+        window.catalogoMateriais = [];
 
         window.userEmailLogado = '';
         window.userNameLogado = '';
@@ -392,6 +395,269 @@
             const p = isoStr.split('T')[0].split('-');
             if(p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`;
             return isoStr;
+        };
+
+        function reqNorm(v) {
+            return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+        }
+
+        function reqMaterialBaseLabel(x) {
+            const cod = String(x.codigo || '').trim();
+            const nome = String(x.nome || '').trim();
+            return `${cod}${cod && nome ? ' - ' : ''}${nome}`.trim();
+        }
+
+        function reqMaterialLabel(x) {
+            const base = reqMaterialBaseLabel(x);
+            if (x.tipo === 'PECA') {
+                const cond = String(x.condicao || 'Novos').toUpperCase();
+                return `${base} · ${cond} · QTD ${Number(x.saldo || 0)}`;
+            }
+            return `${base} · CONSUMÍVEL`;
+        }
+
+        window.recomporCatalogoMateriais = function() {
+            window.catalogoMateriais = [...window.catalogoPecas, ...window.catalogoConsumiveis];
+            window.catalogoMateriais.forEach(x => x.label = reqMaterialLabel(x));
+            window.materiaisOficiais = window.catalogoMateriais.map(x => x.label);
+            window.atualizarDatalistMateriais();
+        };
+
+        window.resolverMaterialCatalogo = function(valor) {
+            const n = reqNorm(valor);
+            if (!n) return null;
+            const exact = window.catalogoMateriais.find(x => reqNorm(x.label) === n);
+            if (exact) return exact;
+
+            const nBase = reqNorm(String(valor||'').split(' · ')[0]);
+            const legacy = window.catalogoMateriais.filter(x =>
+                reqNorm(reqMaterialBaseLabel(x)) === n ||
+                reqNorm(reqMaterialBaseLabel(x)) === nBase ||
+                (x.codigo && (reqNorm(x.codigo) === n || reqNorm(x.codigo) === nBase))
+            );
+            return legacy.length === 1 ? legacy[0] : null;
+        };
+
+        window.atualizarInfoMaterialReq = function(input) {
+            const info = input.closest('.item-req-row')?.querySelector('.req-material-info');
+            if (!info) return;
+            const x = window.resolverMaterialCatalogo(input.value);
+            if (!input.value.trim()) { info.textContent = ''; return; }
+            if (!x) {
+                info.className = 'req-material-info text-[9px] text-red-600 mt-1 font-bold';
+                info.textContent = 'Selecione um item válido da lista oficial.';
+                return;
+            }
+            if (x.tipo === 'PECA') {
+                info.className = 'req-material-info text-[9px] text-sky-700 mt-1 font-bold';
+                info.textContent = `PEÇA · ${x.condicao || 'Novos'} · saldo atual ${Number(x.saldo || 0)} · ${x.endereco || 'sem endereço'}`;
+            } else {
+                info.className = 'req-material-info text-[9px] text-cyan-700 mt-1 font-bold';
+                info.textContent = 'CONSUMÍVEL · sem baixa automática no Estoque de Peças';
+            }
+        };
+
+        function reqCatalogFields(x) {
+            return {
+                materialId: x?.id || '',
+                materialCodigo: x?.codigo || '',
+                materialNome: x?.nome || '',
+                materialTipo: x?.tipo || 'OUTRO',
+                materialCondicao: x?.condicao || '',
+                materialEndereco: x?.endereco || '',
+                materialLabel: x?.label || '',
+                estoqueSaldoSolicitacao: x?.tipo === 'PECA' ? Number(x?.saldo || 0) : null,
+                integracaoEstoqueVersao: 2
+            };
+        }
+
+        function reqDocRef(id) {
+            return window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id);
+        }
+        function reqPieceRef(id) {
+            return window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_pecas', id);
+        }
+        function reqMovementRef(id) {
+            return window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'estoque_movimentacoes', id);
+        }
+
+        function reqResolveLegacyCatalog(req) {
+            if (req.materialId && req.materialTipo) {
+                const current = window.catalogoMateriais.find(x => String(x.id) === String(req.materialId));
+                return current || {
+                    id:req.materialId,codigo:req.materialCodigo||'',nome:req.materialNome||req.material||'',
+                    tipo:req.materialTipo,condicao:req.materialCondicao||'',endereco:req.materialEndereco||'',saldo:0,
+                    label:req.materialLabel||req.material||''
+                };
+            }
+            return window.resolverMaterialCatalogo(req.material || req.materialLabel || '');
+        }
+
+        async function reqAtualizarStatusSimples(req, novoStatus, extra={}) {
+            const atual = {...req, ...extra, status:novoStatus, data_atualizacao:new Date().toISOString()};
+            await window.fsSetDoc(reqDocRef(req.id), atual);
+            Object.assign(req, atual);
+            return atual;
+        }
+
+        window.entregarMaterialAoTecnico = async function(req) {
+            const cat = reqResolveLegacyCatalog(req);
+            if (!cat) throw new Error('Material não identificado no cadastro oficial. Edite/refaça a requisição selecionando o item correto.');
+            const campos = reqCatalogFields(cat);
+
+            // Consumíveis continuam fora do saldo do módulo Estoque de Peças.
+            if (cat.tipo !== 'PECA') {
+                return reqAtualizarStatusSimples(req,'COM_TECNICO',{
+                    ...campos,
+                    estoqueMovimentado:false,
+                    estoqueIntegracao:'NAO_APLICAVEL_CONSUMIVEL'
+                });
+            }
+
+            // "Já está com técnico" criado pela Assistência não provoca uma segunda baixa.
+            if (req.estoqueBaixaDispensada === true) {
+                return reqAtualizarStatusSimples(req,'COM_TECNICO',{
+                    ...campos,
+                    estoqueMovimentado:false,
+                    estoqueIntegracao:'BAIXA_DISPENSADA_JA_COM_TECNICO'
+                });
+            }
+
+            if (typeof window.fsRunTransaction !== 'function') {
+                throw new Error('core.js desatualizado. Publique a versão 1.72 para habilitar movimentação transacional do estoque.');
+            }
+
+            const reqRef=reqDocRef(req.id), pecaRef=reqPieceRef(cat.id);
+            const movId=`mov_req_${req.id}_saida`, movRef=reqMovementRef(movId);
+            let retorno=null;
+
+            await window.fsRunTransaction(window.AppDB, async tx => {
+                const [reqSnap, pecaSnap] = await Promise.all([tx.get(reqRef), tx.get(pecaRef)]);
+                const atualReq = reqSnap.exists() ? reqSnap.data() : req;
+                if (atualReq.estoqueMovimentado === true) {
+                    if (String(atualReq.status||'') !== 'COM_TECNICO') {
+                        tx.set(reqRef,{status:'COM_TECNICO',data_atualizacao:new Date().toISOString()},{merge:true});
+                    }
+                    retorno={...atualReq,status:'COM_TECNICO'};
+                    return;
+                }
+                if (!pecaSnap.exists()) throw new Error('A peça selecionada não existe mais no Estoque de Peças.');
+                const p = pecaSnap.data();
+                if (p.is_deleted===true || p.ativo===false) throw new Error('A peça selecionada está inativa/excluída no Estoque de Peças.');
+                const saldo = Number(p.estoqueAtual ?? p.quantity ?? 0);
+                const qtd = Number(atualReq.qtd || req.qtd || 0);
+                if (!(qtd > 0)) throw new Error('Quantidade inválida na requisição.');
+                if (saldo < qtd) throw new Error(`Estoque insuficiente. Disponível: ${saldo}; solicitado: ${qtd}.`);
+                const novoSaldo = saldo - qtd;
+                const now = new Date().toISOString();
+                const endereco = [p.armario||p.cabinet,p.prateleira||p.shelf,p.caixa||p.box||p.gaveta].filter(Boolean).join('-');
+
+                tx.set(pecaRef,{
+                    estoqueAtual:novoSaldo, quantity:novoSaldo,
+                    updatedAtISO:now, atualizado_em:now,
+                    atualizado_por:window.userNameLogado||window.userEmailLogado||'REQUISICAO_MATERIAL'
+                },{merge:true});
+
+                tx.set(movRef,{
+                    id:movId,date:now,createdAtISO:now,type:'Saída',tipoMovimento:'Saída',
+                    materialTipo:'PECA',materialId:cat.id,materialNome:cat.nome,codigo:cat.codigo,
+                    itemId:cat.id,itemName:cat.nome,itemCode:cat.codigo,
+                    condition:cat.condicao||'',condicao:cat.condicao||'',
+                    quantity:qtd,quantidade:qtd,address:endereco||cat.endereco||'',endereco:endereco||cat.endereco||'',
+                    reason:'Entrega de peça ao técnico',motivo:'Entrega de peça ao técnico',
+                    reference:[atualReq.os,atualReq.id].filter(Boolean).join(' · '),
+                    referencia:[atualReq.os,atualReq.id].filter(Boolean).join(' · '),
+                    requisicaoId:atualReq.id||req.id,os:atualReq.os||'',osId:atualReq.osId||'',
+                    tecnico:atualReq.tecnico||'',user:window.userNameLogado||window.userEmailLogado||'',
+                    usuario:window.userNameLogado||window.userEmailLogado||'',
+                    origemModulo:'REQUISICAO_MATERIAL',saldoAnterior:saldo,saldoPosterior:novoSaldo,
+                    is_deleted:false
+                });
+
+                const novoReq={...campos,status:'COM_TECNICO',data_atualizacao:now,
+                    estoqueMovimentado:true,estoqueMovimentacaoSaidaId:movId,
+                    estoqueSaldoAntes:saldo,estoqueSaldoDepois:novoSaldo,estoqueMovimentadoEm:now,
+                    estoqueMovimentadoPor:window.userNameLogado||window.userEmailLogado||'',
+                    estoqueIntegracao:'SAIDA_CONFIRMADA'
+                };
+                tx.set(reqRef,novoReq,{merge:true});
+                retorno={...atualReq,...novoReq};
+            });
+
+            Object.assign(req,retorno||{});
+            return retorno;
+        };
+
+        window.confirmarRetornoAoEstoque = async function(req) {
+            const cat = reqResolveLegacyCatalog(req);
+            if (!cat) throw new Error('Material não identificado no cadastro oficial.');
+
+            // Consumível ou item cuja baixa foi dispensada: confirma devolução sem alterar Estoque de Peças.
+            if (cat.tipo !== 'PECA' || req.estoqueBaixaDispensada === true || req.estoqueMovimentado !== true) {
+                return reqAtualizarStatusSimples(req,'DEVOLVIDO',{
+                    ...reqCatalogFields(cat),
+                    estoqueDevolucaoMovimentada:false,
+                    estoqueIntegracao:cat.tipo!=='PECA'?'NAO_APLICAVEL_CONSUMIVEL':'DEVOLUCAO_SEM_BAIXA_ORIGINAL'
+                });
+            }
+
+            if (typeof window.fsRunTransaction !== 'function') {
+                throw new Error('core.js desatualizado. Publique a versão 1.72 para habilitar movimentação transacional do estoque.');
+            }
+
+            const reqRef=reqDocRef(req.id), pecaRef=reqPieceRef(cat.id);
+            const movId=`mov_req_${req.id}_devolucao`, movRef=reqMovementRef(movId);
+            let retorno=null;
+
+            await window.fsRunTransaction(window.AppDB, async tx => {
+                const [reqSnap, pecaSnap] = await Promise.all([tx.get(reqRef), tx.get(pecaRef)]);
+                const atualReq = reqSnap.exists() ? reqSnap.data() : req;
+                if (atualReq.estoqueDevolucaoMovimentada === true) {
+                    if (String(atualReq.status||'') !== 'DEVOLVIDO') tx.set(reqRef,{status:'DEVOLVIDO',data_atualizacao:new Date().toISOString()},{merge:true});
+                    retorno={...atualReq,status:'DEVOLVIDO'};
+                    return;
+                }
+                if (!pecaSnap.exists()) throw new Error('A peça selecionada não existe mais no Estoque de Peças.');
+                const p=pecaSnap.data();
+                const qtd=Number(atualReq.qtd_pendente_devolucao ?? atualReq.qtd ?? 0);
+                if (!(qtd > 0)) throw new Error('Quantidade de devolução inválida.');
+                const saldo=Number(p.estoqueAtual ?? p.quantity ?? 0), novoSaldo=saldo+qtd, now=new Date().toISOString();
+                const endereco=[p.armario||p.cabinet,p.prateleira||p.shelf,p.caixa||p.box||p.gaveta].filter(Boolean).join('-');
+
+                tx.set(pecaRef,{
+                    estoqueAtual:novoSaldo,quantity:novoSaldo,
+                    updatedAtISO:now,atualizado_em:now,
+                    atualizado_por:window.userNameLogado||window.userEmailLogado||'REQUISICAO_MATERIAL'
+                },{merge:true});
+
+                tx.set(movRef,{
+                    id:movId,date:now,createdAtISO:now,type:'Entrada',tipoMovimento:'Entrada',
+                    materialTipo:'PECA',materialId:cat.id,materialNome:cat.nome,codigo:cat.codigo,
+                    itemId:cat.id,itemName:cat.nome,itemCode:cat.codigo,
+                    condition:cat.condicao||'',condicao:cat.condicao||'',
+                    quantity:qtd,quantidade:qtd,address:endereco||cat.endereco||'',endereco:endereco||cat.endereco||'',
+                    reason:'Devolução de peça pelo técnico',motivo:'Devolução de peça pelo técnico',
+                    reference:[atualReq.os,atualReq.id].filter(Boolean).join(' · '),
+                    referencia:[atualReq.os,atualReq.id].filter(Boolean).join(' · '),
+                    requisicaoId:atualReq.id||req.id,os:atualReq.os||'',osId:atualReq.osId||'',
+                    tecnico:atualReq.tecnico||'',user:window.userNameLogado||window.userEmailLogado||'',
+                    usuario:window.userNameLogado||window.userEmailLogado||'',
+                    origemModulo:'REQUISICAO_MATERIAL',saldoAnterior:saldo,saldoPosterior:novoSaldo,
+                    is_deleted:false
+                });
+
+                const novoReq={...reqCatalogFields(cat),status:'DEVOLVIDO',data_atualizacao:now,
+                    estoqueDevolucaoMovimentada:true,estoqueMovimentacaoDevolucaoId:movId,
+                    estoqueSaldoAntesDevolucao:saldo,estoqueSaldoDepoisDevolucao:novoSaldo,
+                    estoqueDevolvidoEm:now,estoqueDevolvidoPor:window.userNameLogado||window.userEmailLogado||'',
+                    estoqueIntegracao:'DEVOLUCAO_CONFIRMADA'
+                };
+                tx.set(reqRef,novoReq,{merge:true});
+                retorno={...atualReq,...novoReq};
+            });
+
+            Object.assign(req,retorno||{});
+            return retorno;
         };
 
         // INICIALIZAÇÃO
@@ -431,24 +697,37 @@
                 window.atualizarDatalistClientes();
             });
 
-            // Puxar Peças para Datalist de Materiais
+            // Catálogo oficial de peças — mesma base física do Estoque de Peças
             const pecasCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_pecas');
             window.fsOnSnapshot(pecasCol, snap => {
+                window.catalogoPecas = [];
                 snap.forEach(d => {
                     const p = d.data();
-                    window.materiaisOficiais.push(`${p.sku || ''} - ${p.nome || ''}`);
+                    if (p.is_deleted === true || p.ativo === false) return;
+                    const codigo = String(p.sku || p.codigo || p.code || '').trim().toUpperCase();
+                    const nome = String(p.nome || p.descricao || p.name || '').trim();
+                    if (!codigo && !nome) return;
+                    const condicao = p.condicao || p.condition || 'Novos';
+                    const saldo = Number(p.estoqueAtual ?? p.quantity ?? 0);
+                    const endereco = [p.armario||p.cabinet,p.prateleira||p.shelf,p.caixa||p.box||p.gaveta].filter(Boolean).join('-');
+                    window.catalogoPecas.push({id:d.id,codigo,nome,tipo:'PECA',condicao,saldo,endereco});
                 });
-                window.atualizarDatalistMateriais();
+                window.recomporCatalogoMateriais();
             });
 
-            // Puxar Consumíveis para Datalist de Materiais
+            // Consumíveis continuam identificados separadamente; não movimentam o Estoque de Peças.
             const consCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'cadastros_consumiveis');
             window.fsOnSnapshot(consCol, snap => {
+                window.catalogoConsumiveis = [];
                 snap.forEach(d => {
                     const c = d.data();
-                    window.materiaisOficiais.push(`${c.codigo || ''} - ${c.nome || ''}`);
+                    if (c.is_deleted === true || c.ativo === false) return;
+                    const codigo = String(c.codigo || c.sku || '').trim().toUpperCase();
+                    const nome = String(c.nome || c.descricao || '').trim();
+                    if (!codigo && !nome) return;
+                    window.catalogoConsumiveis.push({id:d.id,codigo,nome,tipo:'CONSUMIVEL',condicao:'',saldo:null,endereco:''});
                 });
-                window.atualizarDatalistMateriais();
+                window.recomporCatalogoMateriais();
             });
 
             // Banco de Requisições
@@ -489,7 +768,8 @@
         window.atualizarDatalistMateriais = function() {
             const dl = document.getElementById('materiais-catalogo');
             if(!dl) return;
-            dl.innerHTML = [...new Set(window.materiaisOficiais)].sort().map(m => `<option value="${m}">`).join('');
+            const escAttr = v => String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            dl.innerHTML = [...new Set(window.materiaisOficiais)].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(m => `<option value="${escAttr(m)}"></option>`).join('');
         };
 
         window.mudarAba = function(aba) {
@@ -770,7 +1050,8 @@
             row.className = "flex gap-2 item-req-row items-center bg-slate-50 p-2 rounded-xl border border-slate-200";
             row.innerHTML = `
                 <div class="flex-1">
-                    <input type="text" list="materiais-catalogo" required placeholder="Material / Peça" class="req-material w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 shadow-sm">
+                    <input type="text" list="materiais-catalogo" required placeholder="Selecione o material oficial" onchange="window.atualizarInfoMaterialReq(this)" oninput="window.atualizarInfoMaterialReq(this)" class="req-material w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 shadow-sm">
+                    <div class="req-material-info text-[9px] text-slate-400 mt-1"></div>
                 </div>
                 <div class="w-20">
                     <input type="number" required min="1" value="1" class="req-qtd w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 text-center shadow-sm">
@@ -782,56 +1063,68 @@
 
         window.enviarRequisicaoMultipla = async function(e) {
             e.preventDefault();
-            const rows = document.querySelectorAll('.item-req-row');
+            const rows = [...document.querySelectorAll('.item-req-row')];
             const destino = document.getElementById('req_destino').value.trim();
-            
+
             if(rows.length === 0) {
                 alert('Adicione pelo menos um item à lista!');
                 return;
             }
 
             const btn = e.submitter;
-            const original = btn.innerText;
+            const original = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
             btn.disabled = true;
 
-            const promises = [];
-            
-            rows.forEach((row, index) => {
-                const mat = row.querySelector('.req-material').value.trim();
-                const qtd = parseInt(row.querySelector('.req-qtd').value);
-                
-                if(!mat || !qtd) return;
+            try {
+                const docs = [];
+                for (let index=0; index<rows.length; index++) {
+                    const row=rows[index];
+                    const valor=row.querySelector('.req-material').value.trim();
+                    const qtd=Number(row.querySelector('.req-qtd').value||0);
+                    if(!valor || !(qtd>0)) continue;
 
-                const docId = 'req_' + Date.now() + '_' + index;
-                const data = {
-                    id: docId,
-                    tecnico: window.userNameLogado,
-                    autor_email: window.userEmailLogado,
-                    filial: 'Matriz',
-                    material: mat,
-                    qtd: qtd,
-                    destino: destino, // O destino é global para todos os itens daquele pedido
-                    status: 'PENDENTE',
-                    data_solicitacao: new Date().toISOString(),
-                    timestamp: Date.now() + index 
-                };
-                
-                promises.push(window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', docId), data));
-            });
+                    const cat=window.resolverMaterialCatalogo(valor);
+                    if(!cat) {
+                        row.querySelector('.req-material')?.focus();
+                        throw new Error(`Item ${index+1}: selecione uma peça/consumível existente no cadastro oficial.`);
+                    }
 
-            if (promises.length > 0) {
-                try {
-                    await Promise.all(promises);
-                    window.mostrarNotificacao('Solicitação de itens enviada para aprovação do Gestor!');
-                    window.fecharModais();
-                } catch (err) { 
-                    alert('Erro de conexão ao enviar solicitação.'); 
+                    const docId='req_'+Date.now()+'_'+index+'_'+Math.random().toString(36).slice(2,5);
+                    const now=new Date().toISOString();
+                    const data={
+                        id:docId,
+                        tecnico:window.userNameLogado,
+                        autor_email:window.userEmailLogado,
+                        filial:'Matriz',
+                        material:reqMaterialBaseLabel(cat),
+                        ...reqCatalogFields(cat),
+                        qtd,
+                        destino,
+                        status:'PENDENTE',
+                        data_solicitacao:now,
+                        timestamp:Date.now()+index,
+                        origem:'REQUISICAO_MANUAL',
+                        origemModulo:'REQUISICAO_MATERIAL',
+                        estoqueMovimentado:false,
+                        estoqueDevolucaoMovimentada:false,
+                        estoqueBaixaDispensada:false,
+                        estoqueIntegracao:cat.tipo==='PECA'?'AGUARDANDO_APROVACAO':'NAO_APLICAVEL_CONSUMIVEL'
+                    };
+                    docs.push({docId,data});
                 }
+
+                if(!docs.length) throw new Error('Nenhum item válido foi informado.');
+                await Promise.all(docs.map(x=>window.fsSetDoc(reqDocRef(x.docId),x.data)));
+                window.mostrarNotificacao('Solicitação enviada para aprovação. A baixa física ocorrerá somente na entrega ao técnico.');
+                window.fecharModais();
+            } catch(err) {
+                console.error('[Requisição] envio',err);
+                alert(err?.message || 'Erro de conexão ao enviar solicitação.');
+            } finally {
+                btn.innerHTML = original;
+                btn.disabled = false;
             }
-            
-            btn.innerText = original;
-            btn.disabled = false;
         };
 
         // Gestor Actions
@@ -839,18 +1132,35 @@
             const req = window.reqData.find(i => i.id === id);
             if(!req) return;
 
-            const txtAlert = novoStatus === 'COM_TECNICO' ? 'Aprovar envio deste material ao técnico?' : 
-                             novoStatus === 'DEVOLVIDO' ? 'Confirmar que este material retornou fisicamente ao estoque matriz?' : 'Rejeitar solicitação deste material?';
+            const txtAlert = novoStatus === 'COM_TECNICO'
+                ? 'Aprovar e confirmar a entrega deste material ao técnico? Para peças, o saldo será baixado agora.'
+                : novoStatus === 'DEVOLVIDO'
+                    ? 'Confirmar o recebimento físico deste material no estoque? Para peças, o saldo será devolvido agora.'
+                    : 'Rejeitar solicitação deste material?';
 
-            if(confirm(txtAlert)) {
-                req.status = novoStatus;
-                req.data_atualizacao = new Date().toISOString();
-                try {
-                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id), req);
-                    window.mostrarNotificacao('Status da peça atualizado com sucesso!');
-                } catch(e) {
-                    alert('Erro ao atualizar. Verifique sua conexão.');
+            if(!confirm(txtAlert)) return;
+
+            try {
+                if (novoStatus === 'COM_TECNICO') {
+                    await window.entregarMaterialAoTecnico(req);
+                    window.mostrarNotificacao(req.materialTipo==='PECA' && req.estoqueMovimentado
+                        ? 'Material entregue ao técnico e saldo do estoque atualizado.'
+                        : 'Material entregue ao técnico.');
+                    return;
                 }
+                if (novoStatus === 'DEVOLVIDO') {
+                    await window.confirmarRetornoAoEstoque(req);
+                    window.mostrarNotificacao(req.materialTipo==='PECA' && req.estoqueDevolucaoMovimentada
+                        ? 'Devolução confirmada e peça reintegrada ao estoque.'
+                        : 'Devolução confirmada.');
+                    return;
+                }
+
+                await reqAtualizarStatusSimples(req,novoStatus);
+                window.mostrarNotificacao('Status da requisição atualizado.');
+            } catch(e) {
+                console.error('[Requisição] alterar status / estoque',e);
+                alert('Não foi possível concluir a operação.\n\n'+(e?.message||e));
             }
         };
 
@@ -894,7 +1204,7 @@
 
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'requisicoes_material', id), req);
-                window.mostrarNotificacao('Baixa efetuada com sucesso!');
+                window.mostrarNotificacao('Uso confirmado. O saldo físico já foi baixado na entrega ao técnico.');
                 window.fecharModais();
             } catch(err) { alert('Erro ao salvar.'); }
         };

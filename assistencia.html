@@ -1982,8 +1982,8 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
 
     <div class="mt-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900">
       Antes de concluir a OS, informe quanto foi realmente utilizado.
-      A quantidade utilizada será baixada automaticamente na OS.
-      O saldo não utilizado ficará como <b>Aguardando devolução</b> na lista do técnico.
+      A quantidade utilizada será conciliada na OS; <b>não haverá nova baixa no Estoque de Peças</b>, pois a saída física já ocorre na entrega ao técnico.
+      O saldo não utilizado ficará como <b>Aguardando devolução</b> até o recebimento físico pelo gestor.
     </div>
 
     <div id="conc-mat-lista" class="mt-5 space-y-3"></div>
@@ -4565,11 +4565,20 @@ function matResumoStatus(itemKey){
  if(!rows.length)return '<span class="mat-link-status none">Não requisitado</span>';
  return rows.map(r=>`<span class="mat-link-status ${matStatusClass(r.status)}">${esc(matStatusLabel(r.status))} · ${esc(r.qtd||0)}</span>`).join(' ');
 }
+function matCatalogResolve(valor,catalogo){
+ const n=matNorm(valor);if(!n)return null;
+ const rows=catalogo||[];
+ const exact=rows.find(x=>matNorm(x.label)===n);
+ if(exact)return exact;
+ const nBase=matNorm(String(valor||'').split(' · ')[0]);
+ const base=rows.filter(x=>matNorm(x.baseLabel)===n || matNorm(x.baseLabel)===nBase || (x.codigo&&(matNorm(x.codigo)===n||matNorm(x.codigo)===nBase)));
+ return base.length===1?base[0]:null;
+}
 function matCatalogSuggestion(desc,catalogo){
  const n=matNorm(desc);if(!n)return desc||'';
- const exact=(catalogo||[]).find(x=>matNorm(x.label)===n);
+ const exact=(catalogo||[]).find(x=>matNorm(x.label)===n || matNorm(x.baseLabel)===n);
  if(exact)return exact.label;
- const contains=(catalogo||[]).find(x=>matNorm(x.nome)===n || matNorm(x.label).includes(n) || n.includes(matNorm(x.nome)));
+ const contains=(catalogo||[]).find(x=>matNorm(x.nome)===n || matNorm(x.nome).includes(n) || n.includes(matNorm(x.nome)));
  return contains?.label||desc||'';
 }
 function renderPlanejamentoMateriais(){
@@ -4593,7 +4602,8 @@ function renderPlanejamentoMateriais(){
    const salvo=plano.find(x=>String(x.itemKey||'')===key)||{};
    const desc=p.descricao||p.nome||p.material||('Item '+(i+1));
    const qtd=Number(p.quantidade||p.qtd||1);
-   const oficial=salvo.materialOficial||matCatalogSuggestion(desc,window.materialCentralState.catalogo);
+   const atualCatalogo=salvo.materialId?(window.materialCentralState.catalogo||[]).find(x=>String(x.id)===String(salvo.materialId)):null;
+   const oficial=atualCatalogo?.label||salvo.materialLabel||salvo.materialOficial||matCatalogSuggestion(desc,window.materialCentralState.catalogo);
    const destino=salvo.destinoMaterial||'REQUISITAR';
    const qtdReq=Number(salvo.quantidadeDesejada||qtd);
    return `<tr class="mat-plan-row" data-index="${i}" data-item-key="${esc(key)}">
@@ -4627,6 +4637,7 @@ function renderRequisicoesOficiais(){
  box.innerHTML=rows.map(r=>`<div class="mat-req-official">
    <div class="flex flex-wrap items-center justify-between gap-2"><b>${esc(r.material||'Material')}</b><span class="mat-link-status ${matStatusClass(r.status)}">${esc(matStatusLabel(r.status))}</span></div>
    <div class="text-[10px] text-slate-500 mt-1">Qtd. ${esc(r.qtd||0)} · ${esc(r.os||'-')} · ${esc(r.tecnico||'-')}</div>
+   <div class="text-[9px] text-slate-400 mt-1">${esc(r.materialTipo||'')}${r.materialCondicao?' · '+esc(r.materialCondicao):''}${r.estoqueMovimentado?' · estoque baixado':''}${r.estoqueDevolucaoMovimentada?' · devolução reintegrada':''}</div>
    <div class="text-[9px] text-slate-400 mt-1">${esc(fmtDate(r.data_atualizacao||r.data_solicitacao))}${r.grupo_requisicao_numero?' · '+esc(r.grupo_requisicao_numero):''}</div>
  </div>`).join('');
 }
@@ -4656,9 +4667,19 @@ window.atualizarCentralMateriais=async function(){
      .sort((a,b)=>Number(b.versao||0)-Number(a.versao||0))[0]||null;
    const vinculadas=reqs.filter(r=>String(r.osId||'')===String(osid)&&String(r.equipamentoId||'')===eid&&Number(r.cicloAtendimento||1)===ciclo);
    const catalogo=[
-     ...pecas.map(p=>({codigo:p.sku||p.codigo||'',nome:p.nome||p.descricao||'',label:`${p.sku||p.codigo||''} - ${p.nome||p.descricao||''}`.replace(/^\s*-\s*/,'').trim()})),
-     ...cons.map(c=>({codigo:c.codigo||c.sku||'',nome:c.nome||c.descricao||'',label:`${c.codigo||c.sku||''} - ${c.nome||c.descricao||''}`.replace(/^\s*-\s*/,'').trim()}))
-   ].filter(x=>x.label);
+     ...pecas.filter(p=>p.is_deleted!==true&&p.ativo!==false).map(p=>{
+       const codigo=String(p.sku||p.codigo||p.code||'').trim().toUpperCase(),nome=String(p.nome||p.descricao||p.name||'').trim();
+       const condicao=p.condicao||p.condition||'Novos',saldo=Number(p.estoqueAtual??p.quantity??0);
+       const endereco=[p.armario||p.cabinet,p.prateleira||p.shelf,p.caixa||p.box||p.gaveta].filter(Boolean).join('-');
+       const baseLabel=`${codigo}${codigo&&nome?' - ':''}${nome}`.trim();
+       return {id:p.id||p.internalId||'',codigo,nome,tipo:'PECA',condicao,saldo,endereco,baseLabel,label:`${baseLabel} · ${String(condicao).toUpperCase()} · QTD ${saldo}`};
+     }),
+     ...cons.filter(c=>c.is_deleted!==true&&c.ativo!==false).map(c=>{
+       const codigo=String(c.codigo||c.sku||'').trim().toUpperCase(),nome=String(c.nome||c.descricao||'').trim();
+       const baseLabel=`${codigo}${codigo&&nome?' - ':''}${nome}`.trim();
+       return {id:c.id||c.internalId||'',codigo,nome,tipo:'CONSUMIVEL',condicao:'',saldo:null,endereco:'',baseLabel,label:`${baseLabel} · CONSUMÍVEL`};
+     })
+   ].filter(x=>x.id&&x.baseLabel);
    const pid=matPlanId(o,eq),planejamento=planos.find(x=>String(x.id||x.internalId)===pid)||null;
    window.materialCentralState={orcamento:aprovado,requisicoes:vinculadas,planejamento,catalogo,legacy:legacy.filter(x=>String(x.equipamentoId||'')===eid)};
    const dl=document.getElementById('materiais-catalogo-assistencia');
@@ -4710,14 +4731,38 @@ window.gerarRequisicoesMateriais=async function(){
 
  rows.forEach((row,index)=>{
    const itemKey=row.dataset.itemKey||String(orc.internalId||orc.id)+':'+index;
-   const material=row.querySelector('.mat-material-oficial')?.value.trim()||'';
+   const materialDigitado=row.querySelector('.mat-material-oficial')?.value.trim()||'';
    const destinoMaterial=row.querySelector('.mat-destino')?.value||'REQUISITAR';
    const quantidadeDesejada=Number(row.querySelector('.mat-qtd-desejada')?.value||0);
    const orcado=Number(orc.baseTecnicaSnapshot?.pecas?.[index]?.quantidade||orc.baseTecnicaSnapshot?.pecas?.[index]?.qtd||1);
-   planoItens.push({itemKey,descricaoTecnica:orc.baseTecnicaSnapshot?.pecas?.[index]?.descricao||'',materialOficial:material,destinoMaterial,quantidadeDesejada,quantidadeOrcada:orcado});
+   const catalogItem=matCatalogResolve(materialDigitado,window.materialCentralState.catalogo);
+   const necessitaOficial=!['CLIENTE','NAO_UTILIZAR'].includes(destinoMaterial);
+
+   if(necessitaOficial&&!catalogItem){
+     throw new Error('Item '+(index+1)+': selecione uma peça/consumível oficial da lista. Para peças, condição e saldo precisam estar identificados.');
+   }
+
+   const material=catalogItem?.baseLabel||materialDigitado;
+   const materialMeta={
+     materialOficial:material,
+     materialLabel:catalogItem?.label||materialDigitado,
+     materialId:catalogItem?.id||'',
+     materialCodigo:catalogItem?.codigo||'',
+     materialNome:catalogItem?.nome||'',
+     materialTipo:catalogItem?.tipo||'',
+     materialCondicao:catalogItem?.condicao||'',
+     materialEndereco:catalogItem?.endereco||'',
+     estoqueSaldoSolicitacao:catalogItem?.tipo==='PECA'?Number(catalogItem?.saldo||0):null
+   };
+
+   planoItens.push({
+     itemKey,descricaoTecnica:orc.baseTecnicaSnapshot?.pecas?.[index]?.descricao||'',
+     ...materialMeta,destinoMaterial,quantidadeDesejada,quantidadeOrcada:orcado
+   });
+
    if(['CLIENTE','NAO_UTILIZAR'].includes(destinoMaterial))return;
-   if(!material){throw new Error('Informe o material oficial/descrição do item '+(index+1)+'.')}
    if(quantidadeDesejada<=0)return;
+
    const jaAtivo=matQtdAtiva(itemKey);
    const delta=Math.max(0,quantidadeDesejada-jaAtivo);
    if(delta<=0)return;
@@ -4730,6 +4775,7 @@ window.gerarRequisicoesMateriais=async function(){
      autor_email:tech.email||String(window.currentUser?.email||'').toLowerCase(),
      filial:'Matriz',
      material,
+     ...materialMeta,
      qtd:delta,
      destino:destinoBase,
      os:o.osNumber||o.numero||'',
@@ -4757,13 +4803,22 @@ window.gerarRequisicoesMateriais=async function(){
      gerado_por_uid:window.currentUser?.uid||'',
      gerado_por_nome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
      gerado_por_email:window.currentUser?.email||'',
+
+     integracaoEstoqueVersao:2,
+     estoqueMovimentado:false,
+     estoqueDevolucaoMovimentada:false,
+     estoqueBaixaDispensada:destinoMaterial==='COM_TECNICO',
+     estoqueIntegracao:catalogItem?.tipo==='PECA'
+       ? (destinoMaterial==='COM_TECNICO'?'BAIXA_DISPENSADA_JA_COM_TECNICO':'AGUARDANDO_APROVACAO')
+       : 'NAO_APLICAVEL_CONSUMIVEL',
      aprovacao_dispensada:destinoMaterial==='COM_TECNICO',
-     observacao_origem:destinoMaterial==='COM_TECNICO'?'Material informado como já em posse do técnico':''
+     observacao_origem:destinoMaterial==='COM_TECNICO'
+       ? 'Material informado como já em posse do técnico; não efetuar nova baixa automática no estoque.'
+       : ''
    };
    promises.push(saveDoc('requisicoes_material',rid,data));
    criadas.push(data);
  });
-
  const pid=matPlanId(o,eq);
  const plano={
    internalId:pid,osId:osid,osNumber:o.osNumber||o.numero||'',equipamentoId:eid,
@@ -8955,7 +9010,7 @@ window.initModule=function(p){
 })();
 
 </script>
-<script type="module" src="core.js?v=20260925-1681"></script>
+<script type="module" src="core.js?v=20260928-1720"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){
