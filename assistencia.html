@@ -1132,7 +1132,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">FASE 1.62</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">V1.72.1</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-headset"></i> Suporte Técnico</button></div>
@@ -1906,7 +1906,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">FASE 1.62</span>
+        <span class="tag tag-green">V1.72.1</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -4530,6 +4530,26 @@ ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button
 <button class="diag-btn ${clsChk}" onclick="event.stopPropagation();window.abrirCheckoutEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-check"></i> Checkout</button>
 <button class="eq-history-btn flow-neutral" onclick="event.stopPropagation();window.abrirHistoricoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico / Garantia</button><button class="eq-remove-btn flow-neutral" data-assist-perm="excluir_registros" onclick="event.stopPropagation();window.abrirExcluirEquipamento('${esc(e.id)}')"><i class="fa-solid fa-trash-can"></i> Remover da OS</button>
 </div></div>${e.diagnosticoTecnico?`<div class="diag-summary"><b>Diagnóstico:</b> ${esc(e.diagnosticoTecnico)}${e.solucaoRecomendada?`<br><b>Solução:</b> ${esc(e.solucaoRecomendada)}`:''}${e.ultimoOrcamentoVersao?`<div class="orc-summary"><i class="fa-solid fa-file-invoice-dollar"></i> Último orçamento: V${esc(e.ultimoOrcamentoVersao)} · ${esc(e.ultimoOrcamentoTotalFormatado||'')} ${e.ultimoOrcamentoStatus?`· ${esc(e.ultimoOrcamentoStatus)}`:''}</div>`:''}</div>`:''}${e.ultimaSolicitacaoMaterialNumero?`<div class="mt-2 text-[10px] font-bold text-amber-700"><i class="fa-solid fa-box-open mr-1"></i>Material: ${esc(e.ultimaSolicitacaoMaterialNumero)} · ${esc(String(e.ultimaSolicitacaoMaterialStatus||'PENDENTE_SOLICITACAO').replaceAll('_',' '))}</div>`:''}${e.checkoutConcluidoEmISO?`<div class="mt-2 text-[10px] font-bold text-emerald-700"><i class="fa-solid fa-clipboard-check mr-1"></i>Checkout: ${esc(e.checkoutTesteFinal||'CONCLUÍDO')} · ${esc(fmtDate(e.checkoutConcluidoEmISO))}</div>`:''}</div>`}).join('');const macro=deriveMacroStage(items);box.insertAdjacentHTML('beforeend',`<div class="macro-note"><i class="fa-solid fa-circle-info mr-1"></i> Etapa geral calculada: <b>${esc(stages.find(x=>x[0]===macro)?.[1]||macro)}</b>. A OS acompanha o equipamento ativo mais atrasado.</div>`)}catch(e){console.error(e);box.className='mt-4 rounded-xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700';box.textContent='Não foi possível ler a subcoleção de equipamentos. Verifique as Security Rules.'}}
+
+// V1.72.1 — correção da Central de Materiais
+window.materialCentralState = window.materialCentralState || {
+  orcamento: null,
+  requisicoes: [],
+  planejamento: null,
+  catalogo: [],
+  legacy: []
+};
+
+function matNorm(v){
+  return String(v ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g,' ')
+    .trim()
+    .replace(/\s+/g,' ');
+}
+
 function matPlanId(o,eq){
  return ('PLANO_'+Number(o?.cicloAtendimento||1)+'_'+String(eq?.id||eq?.internalId||'EQ')).replace(/[^A-Za-z0-9_-]/g,'_');
 }
@@ -4684,6 +4704,9 @@ window.atualizarCentralMateriais=async function(){
    window.materialCentralState={orcamento:aprovado,requisicoes:vinculadas,planejamento,catalogo,legacy:legacy.filter(x=>String(x.equipamentoId||'')===eid)};
    const dl=document.getElementById('materiais-catalogo-assistencia');
    if(dl)dl.innerHTML=[...new Set(catalogo.map(x=>x.label))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+   if(!catalogo.length){
+     console.warn('[Assistência] Central de Materiais carregada sem itens oficiais em cadastros_pecas/cadastros_consumiveis.');
+   }
    if(resumo){
      resumo.innerHTML=aprovado
        ? `<div class="flex flex-wrap items-center justify-between gap-2"><div><b>Orçamento aprovado V${esc(aprovado.versao||1)}</b><div class="text-[10px] text-slate-500 mt-1">Base técnica congelada · Ciclo ${ciclo}</div></div><span class="mat-link-status used">APROVADO</span></div>`
@@ -4692,7 +4715,16 @@ window.atualizarCentralMateriais=async function(){
    renderPlanejamentoMateriais();renderRequisicoesOficiais();renderMateriaisLegado();
  }catch(e){
    console.error('[Assistência] central de materiais',e);
-   if(resumo)resumo.textContent='Não foi possível carregar a integração de materiais.';
+   window.materialCentralState = window.materialCentralState || {orcamento:null,requisicoes:[],planejamento:null,catalogo:[],legacy:[]};
+   if(resumo){
+     resumo.innerHTML='<div class="text-rose-700"><i class="fa-solid fa-circle-exclamation mr-1"></i>Não foi possível carregar a integração de materiais. Feche esta janela e tente novamente. <span class="font-mono text-[9px]">MAT-CENTRAL-01</span></div>';
+   }
+   const body=document.getElementById('pecas-planejamento-body');
+   if(body)body.innerHTML='<tr><td colspan="6" class="text-center text-rose-600 py-8">Falha ao preparar a Central de Materiais. Nenhum dado foi alterado.</td></tr>';
+   const oficiais=document.getElementById('pecas-requisicoes-oficiais');
+   if(oficiais)oficiais.innerHTML='<div class="text-slate-400">Não carregado.</div>';
+   const legado=document.getElementById('pecas-historico-legado');
+   if(legado)legado.innerHTML='<div class="text-slate-400">Não carregado.</div>';
  }
 };
 
@@ -4706,10 +4738,15 @@ window.abrirPecasEquipamento=async function(eid){
  await window.atualizarCentralMateriais();
 };
 
-window.fecharPecasEquipamento=async function(){
- document.getElementById('modal-pecas-equipamento')?.classList.add('hidden');
- const o=state.selectedOS;state.selectedEquipment=null;
- if(o){try{await renderEquipamentosOS(o)}catch(e){console.error('[Assistência] atualização após fechar materiais',e)}}
+window.fecharPecasEquipamento=function(){
+ const modal=document.getElementById('modal-pecas-equipamento');
+ if(modal)modal.classList.add('hidden');
+ const o=state.selectedOS;
+ state.selectedEquipment=null;
+ // A janela fecha imediatamente. A atualização da OS ocorre sem bloquear o usuário.
+ if(o){
+   Promise.resolve(renderEquipamentosOS(o)).catch(e=>console.error('[Assistência] atualização após fechar materiais',e));
+ }
 };
 
 window.gerarRequisicoesMateriais=async function(){
