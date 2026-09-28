@@ -26,12 +26,12 @@
 <label><span class="erp-label">Observações gerais</span><textarea id="cli-obs" class="erp-input min-h-28" placeholder="Informações relevantes sobre o cliente..."></textarea></label></div>
 <div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="erp-btn erp-btn-light" onclick="window.erpClose('modal-cliente')">Cancelar</button><button class="erp-btn erp-btn-primary">Salvar cliente</button></div></form></div></div></div></main>
 <script type="module" src="core.js?v=20260925-1700"></script>
-<script src="erp-cadastros-v4-3.js?v=20260928-1730"></script>
+<script src="erp-cadastros-v4-3-1.js?v=20260928-1731"></script>
 
 <div id="modal-import-clientes" class="erp-modal hidden"><div class="erp-modal-card max-w-4xl">
   <div class="p-5 border-b flex justify-between gap-3"><div><span class="erp-pill bg-emerald-50 text-emerald-700">IMPORTAÇÃO EM MASSA</span><h2 class="text-xl font-black mt-2">Importar clientes</h2><p class="erp-muted mt-1">Analisa duplicidades e valida contato/endereço antes de gravar.</p></div><button type="button" class="erp-btn erp-btn-light !w-10 !px-0" onclick="window.erpClose('modal-import-clientes')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="p-5 space-y-4">
-    <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>Importante:</b> clientes existentes com o mesmo CNPJ são <b>atualizados</b> em vez de duplicados. Cadastros removidos podem ser reativados com o mesmo ID, preservando vínculos históricos.</div>
+    <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>Importante:</b> a importação é destinada a empresas. Linhas cujo documento tenha <b>11 dígitos (CPF)</b> são identificadas e <b>ignoradas automaticamente</b>, sem bloquear o restante da importação. Clientes com CNPJ já existente são atualizados em vez de duplicados.</div>
     <div class="flex flex-wrap gap-2"><button type="button" class="erp-btn erp-btn-light" onclick="window.baixarModeloImportacaoClientes()"><i class="fa-solid fa-file-excel text-emerald-700"></i> Baixar modelo da planilha</button></div>
     <label><span class="erp-label">Planilha preenchida</span><input id="import-client-file" type="file" accept=".xlsx,.xls" class="erp-input !h-auto" onchange="window.processarImportacaoClientes(this.files[0])"></label>
     <div id="import-client-summary" class="rounded-xl bg-slate-50 border p-3 text-xs text-slate-600">Selecione a planilha modelo preenchida.</div>
