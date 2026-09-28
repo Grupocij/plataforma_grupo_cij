@@ -144,6 +144,7 @@ const injectLayout = () => {
                         <div class="absolute top-14 left-1/2 -translate-x-1/2 mt-1 w-[28rem] bg-white rounded-2xl shadow-2xl border border-slate-200 opacity-0 invisible scale-95 z-[9999] transition-all transform origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 overflow-hidden">
                             <div class="p-2 grid grid-cols-2 gap-1 text-slate-800">
                                 <a href="requisicao_material.html" data-module="requisicao_material.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-toolbox"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Req. de Material</h4><p class="text-[10px] text-slate-500">Aprovação/Baixas</p></div></a>
+                                <a href="estoque_pecas.html" data-module="estoque_pecas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque de Peças</h4><p class="text-[10px] text-slate-500">Endereçamento, fotos e movimentações</p></div></a>
                                 <a href="estoque-novos.html" data-module="estoque-novos.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Novos</h4><p class="text-[10px] text-slate-500">Máquinas Faturamento</p></div></a>
                                 <a href="estoque.html" data-module="estoque.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Estoque Geral</h4><p class="text-[10px] text-slate-500">Usados e Demonstração</p></div></a>
                             </div>
@@ -281,7 +282,7 @@ const moduleAccessAliases = {
     'cadastros_clientes.html': 'central_cadastros.html',
     'cliente_ficha.html': 'central_cadastros.html',
     'cadastros_modelos.html': 'central_cadastros.html',
-    'cadastros_pecas.html': 'central_cadastros.html',
+    'cadastros_pecas.html': 'estoque_pecas.html',
     'cadastros_consumiveis.html': 'central_cadastros.html',
     'parque_ficha.html': 'parque_maquinas.html'
 };
@@ -297,6 +298,7 @@ const globalModulesMap = [
     { name: 'Documentos Oficiais', url: 'tabelas.html', icon: 'fa-file-pdf text-amber-600' },
     { name: 'Ranking de Vendas', url: 'ranking.html', icon: 'fa-trophy text-orange-500' },
     { name: 'Req. de Material', url: 'requisicao_material.html', icon: 'fa-toolbox text-amber-600' },
+    { name: 'Estoque de Peças', url: 'estoque_pecas.html', icon: 'fa-boxes-stacked text-sky-700' },
     { name: 'Estoque Novos', url: 'estoque-novos.html', icon: 'fa-boxes-stacked text-cyan-600' },
     { name: 'Estoque Usados/Geral', url: 'estoque.html', icon: 'fa-box-open text-slate-600' },
     { name: 'Lista de Solicitações', url: 'solicitacoes-lista.html', icon: 'fa-list-check text-orange-600' },

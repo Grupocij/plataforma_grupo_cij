@@ -77,6 +77,7 @@
                         <select id="u_perfil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-blue-600 transition cursor-pointer">
                             <option value="Vendedor">Vendedor</option>
                             <option value="Técnico">Técnico</option>
+                            <option value="Logística">Logística</option>
                             <option value="Financeiro">Financeiro</option>
                             <option value="Administrativo">Administrativo</option>
                         </select>
@@ -104,7 +105,7 @@
     </div>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
-    <script type="module" src="core.js?v=20260924-1663"></script>
+    <script type="module" src="core.js?v=20260928-1710"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -136,33 +137,38 @@
 
         const TODOS_MODULOS = [
             { id: 'index.html', nome: 'Agenda (Página Inicial)', cat: 'Geral' },
+
             { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
-            { id: 'assistencia.html', nome: 'Assistência Técnica (Novo)', cat: 'Serviços' },
-            { id: 'gestao_os.html', nome: 'Gestão de O.S. (Homologação)', cat: 'Serviços' },
-            { id: 'servicos_osr.html', nome: 'Gestão de OSR (Painel)', cat: 'Serviços' },
-            { id: 'serviceflow_app.html', nome: 'ServiceFlow Kanban (Legado)', cat: 'Serviços' },
-            { id: 'app_tecnico.html', nome: 'App do Técnico (Legado)', cat: 'Serviços' },
+            { id: 'assistencia.html', nome: 'Assistência Técnica', cat: 'Serviços' },
+            { id: 'app_tecnico.html', nome: 'App do Técnico', cat: 'Serviços' },
+            { id: 'servicos_osr.html', nome: 'Gestão de OSR', cat: 'Serviços' },
             { id: 'veiculos_mobile.html', nome: 'Veículos Mobile', cat: 'Serviços' },
-            { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
+
             { id: 'simulador.html', nome: 'Simulador Financeiro', cat: 'Comercial' },
             { id: 'solicitacao.html', nome: 'Solicitação CIJ', cat: 'Comercial' },
-            { id: 'solicitacoes-lista.html', nome: 'Lista de Solicitações', cat: 'Administrativo' },
             { id: 'tabelas.html', nome: 'Documentos Oficiais', cat: 'Comercial' },
             { id: 'ranking.html', nome: 'Ranking de Vendas', cat: 'Comercial' },
-            { id: 'requisicao_material.html', nome: 'Req. de Material (Logística)', cat: 'Estoque' },
-            { id: 'estoque.html', nome: 'Estoque Usados/Geral', cat: 'Estoque' },
-            { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Estoque' },
+
+            { id: 'requisicao_material.html', nome: 'Req. de Material', cat: 'Logística' },
+            { id: 'estoque_pecas.html', nome: 'Estoque de Peças', cat: 'Logística' },
+            { id: 'estoque-novos.html', nome: 'Estoque Novos', cat: 'Logística' },
+            { id: 'estoque.html', nome: 'Estoque Usados/Geral', cat: 'Logística' },
+
+            { id: 'solicitacoes-lista.html', nome: 'Lista de Solicitações', cat: 'Administrativo' },
+            { id: 'veiculos.html', nome: 'Veículos Gerencial', cat: 'Administrativo' },
             { id: 'vendas.html', nome: 'Vendas (Saídas)', cat: 'Administrativo' },
             { id: 'usuarios.html', nome: 'Gerenciar Usuários', cat: 'Administrativo' },
             { id: 'central_cadastros.html', nome: 'Central de Cadastros', cat: 'Administrativo' },
             { id: 'parque_maquinas.html', nome: 'Parque de Máquinas', cat: 'Administrativo' },
             { id: 'formcraft_sandbox.html', nome: 'FormCraft Sandbox (Beta)', cat: 'Administrativo' },
             { id: 'admin.html', nome: 'Painel Diretoria', cat: 'Administrativo' },
+
             { id: 'despesas.html', nome: 'Controle de Despesas', cat: 'Financeiro' },
             { id: 'dashboard_despesas.html', nome: 'Dashboard Gerencial', cat: 'Financeiro' },
             { id: 'comissoes-azul.html', nome: 'Comissões Azul', cat: 'Financeiro' },
             { id: 'comissoes-consumiveis.html', nome: 'Com. Consumíveis', cat: 'Financeiro' },
             { id: 'comissoes-representantes.html', nome: 'Com. Representantes', cat: 'Financeiro' },
+
             { id: 'diretoria-custos.html', nome: 'Custos & Margens', cat: 'Diretoria' }
         ];
 

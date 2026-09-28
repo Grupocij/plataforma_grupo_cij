@@ -2,14 +2,13 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="erp-cadastros-v4-1.css?v=20260925-1710"></head>
+<link rel="stylesheet" href="erp-cadastros-v4-2.css?v=20260928-1710"></head>
 <body data-erp-page="parque">
 <main id="main-content" class="hidden h-[calc(100vh-64px)] overflow-y-auto erp-scroll">
 <div class="max-w-[1500px] mx-auto p-2 md:p-3 space-y-2.5"><nav class="erp-card p-1.5 erp-nav">
 <a href="central_cadastros.html" data-page="dashboard"><i class="fa-solid fa-grid-2"></i> Visão geral</a>
 <a href="cadastros_clientes.html" data-page="clientes"><i class="fa-solid fa-building"></i> Clientes</a>
 <a href="cadastros_modelos.html" data-page="modelos"><i class="fa-solid fa-microchip"></i> Modelos</a>
-<a href="cadastros_pecas.html" data-page="pecas"><i class="fa-solid fa-gears"></i> Peças / Estoque</a>
 <a href="cadastros_consumiveis.html" data-page="consumiveis"><i class="fa-solid fa-droplet"></i> Consumíveis</a>
 <a href="parque_maquinas.html" data-page="parque"><i class="fa-solid fa-industry"></i> Parque de Máquinas</a>
 </nav>
@@ -22,5 +21,5 @@
 <div class="grid md:grid-cols-4 gap-4"><label><span class="erp-label">Data da venda</span><input id="maq-venda" type="date" class="erp-input" onchange="window.atualizarGarantia()"></label><label><span class="erp-label">Garantia (meses)</span><input id="maq-garantia-meses" type="number" min="0" value="12" class="erp-input" onchange="window.atualizarGarantia()"></label><label><span class="erp-label">Fim da garantia</span><input id="maq-garantia-fim" class="erp-input bg-slate-50" readonly></label><label><span class="erp-label">Status</span><select id="maq-status" class="erp-input"><option value="OPERACIONAL">OPERACIONAL</option><option value="MANUTENCAO">EM MANUTENÇÃO</option><option value="INATIVO">INATIVO</option></select></label></div>
 <div class="grid md:grid-cols-2 gap-4"><label><span class="erp-label">Data da instalação atual</span><input id="maq-instalacao" type="date" class="erp-input"></label><label><span class="erp-label">Local / Linha / Setor</span><input id="maq-local" class="erp-input"></label></div><label><span class="erp-label">Observações</span><textarea id="maq-obs" class="erp-input min-h-24"></textarea></label><div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"><b>QR Code:</b> contém somente o número de série para leitura pelo App do Técnico.</div></div><div class="p-5 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="erp-btn erp-btn-light" onclick="window.erpClose('modal-maquina')">Cancelar</button><button class="erp-btn erp-btn-indigo">Salvar máquina</button></div></form></div></div></div></main>
 <script type="module" src="core.js?v=20260925-1700"></script>
-<script src="erp-cadastros-v4-1.js?v=20260925-1710"></script>
+<script src="erp-cadastros-v4-2.js?v=20260928-1710"></script>
 </body></html>
