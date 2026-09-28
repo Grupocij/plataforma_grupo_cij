@@ -1,5 +1,5 @@
-const SW_VERSION='3.8.0';
-const APP_BUILD='1.72';
+const SW_VERSION='3.9.0';
+const APP_BUILD='1.73';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -12,14 +12,15 @@ const PORTAL_SHELL=[
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
+  './suporte-mobile.html',
   './requisicao_material.html',
   './cadastros_clientes.html',
   './cadastros_modelos.html',
   './cadastros_pecas.html',
   './cadastros_consumiveis.html',
   './parque_maquinas.html',
-  './erp-cadastros-v4-1.css',
-  './erp-cadastros-v4-1.js'
+  './erp-cadastros-v4-3.css',
+  './erp-cadastros-v4-3.js'
 ];
 
 const ASSISTENCIA_SHELL=[
