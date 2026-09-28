@@ -1132,7 +1132,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="space-y-5">
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">V1.72.1</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
+        <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><div class="flex flex-wrap gap-2 mb-1"><span class="tag tag-blue">NOVO MÓDULO</span><span class="tag tag-green">V1.72.2</span></div><h1 class="text-2xl font-black text-slate-900">Assistência Técnica</h1><p class="text-sm text-slate-500">Fluxo completo de OS com rastreabilidade e linha do tempo de eventos.</p></div></div>
         <div class="flex flex-wrap gap-2"><button onclick="window.assistenciaAtualizar()" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Atualizar</button><button id="btn-admin-permissoes-top" onclick="window.abrirPermissoesAssistencia()" class="btn btn-light"><i class="fa-solid fa-user-shield"></i> Permissões</button><button onclick="window.abrirNovaOS()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nova OS</button></div>
       </div>
       <div class="mt-5 flex flex-wrap gap-2"><button class="nav-pill active" data-view="kanban" onclick="window.mudarView('kanban',this)"><i class="fa-solid fa-table-columns"></i> Kanban</button><button class="nav-pill" data-view="pendencias" onclick="window.mudarView('pendencias',this)"><i class="fa-solid fa-list-check"></i> Pendências</button><button class="nav-pill" data-view="sla" onclick="window.mudarView('sla',this)"><i class="fa-solid fa-chart-line"></i> Indicadores</button><button class="nav-pill" data-view="tecnico" onclick="window.mudarView('tecnico',this)"><i class="fa-solid fa-mobile-screen-button"></i> Modo técnico</button><button class="nav-pill" data-view="diagnostico" onclick="window.mudarView('diagnostico',this)"><i class="fa-solid fa-stethoscope"></i> Integrações</button><button class="nav-pill" data-view="legado" onclick="window.mudarView('legado',this)"><i class="fa-solid fa-headset"></i> Suporte Técnico</button></div>
@@ -1906,7 +1906,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="modal-card !max-w-none" style="width:min(1040px,98vw)">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <span class="tag tag-green">V1.72.1</span>
+        <span class="tag tag-green">V1.72.2</span>
         <h2 class="text-xl font-black mt-2">Central de Materiais do Equipamento</h2>
         <p id="pecas-equip-titulo" class="text-xs text-slate-500 mt-1">-</p>
       </div>
@@ -8140,12 +8140,80 @@ const ASSIST_PERMISSIONS=[
 ];
 window.assistPermissions={};
 
-function assistUserId(){return String(window.currentUser?.uid||window.userProfile?.uid||window.currentUser?.email||'')}
+function assistNormEmail(v){
+ return String(v||'').trim().toLowerCase();
+}
+function assistIdentityToken(v){
+ const s=String(v||'').trim();
+ if(!s)return'';
+ return s.includes('@')?assistNormEmail(s):s;
+}
+function assistIdentitySet(values){
+ const set=new Set();
+ (values||[]).forEach(v=>{const t=assistIdentityToken(v);if(t)set.add(t)});
+ return set;
+}
+function assistCurrentIdentity(){
+ const email=assistNormEmail(window.currentUser?.email||window.userProfile?.email||'');
+ const uid=String(window.currentUser?.uid||window.userProfile?.authUid||window.userProfile?.uid||'').trim();
+ return {
+   uid,
+   authUid:uid,
+   email,
+   userEmail:email,
+   userId:String(window.userProfile?.userId||window.userProfile?.id||'').trim(),
+   id:String(window.userProfile?.id||'').trim()
+ };
+}
+function assistUserId(){
+ const i=assistCurrentIdentity();
+ return String(i.uid||i.email||i.userId||i.id||'');
+}
+function assistIdentityForUserRecord(u){
+ const email=assistNormEmail(u?.email||u?.userEmail||((String(u?.id||'').includes('@'))?u.id:'')||'');
+ const authUid=String(u?.authUid||u?.uid||'').trim();
+ return {
+   id:String(u?.id||'').trim(),
+   userId:String(u?.userId||u?.id||'').trim(),
+   uid:authUid,
+   authUid,
+   email,
+   userEmail:email,
+   nome:String(u?.nome||u?.displayName||u?.name||email||u?.id||'').trim()
+ };
+}
+function assistIdentityTokensFromObject(o){
+ return assistIdentitySet([o?.id,o?.userId,o?.uid,o?.authUid,o?.email,o?.userEmail]);
+}
+function assistPermissionMatches(doc,target){
+ if(!doc||!target)return false;
+ const a=assistIdentityTokensFromObject(doc),b=assistIdentityTokensFromObject(target);
+ for(const t of b)if(a.has(t))return true;
+ return false;
+}
+function assistPermissionScore(doc,target){
+ if(!assistPermissionMatches(doc,target))return -1;
+ let score=0;
+ const email=assistNormEmail(target?.email||target?.userEmail||'');
+ const uid=String(target?.authUid||target?.uid||'').trim();
+ const did=assistIdentityToken(doc?.id);
+ if(email&&did===email)score+=1000; // documento canônico por e-mail
+ if(email&&(assistNormEmail(doc?.email)===email||assistNormEmail(doc?.userEmail)===email))score+=500;
+ if(uid&&did===uid)score+=350;
+ if(uid&&(String(doc?.authUid||'')===uid||String(doc?.uid||'')===uid||String(doc?.userId||'')===uid))score+=250;
+ const ts=Date.parse(doc?.updatedAtISO||doc?.updatedAt||'')||0;
+ score+=Math.min(200,Math.floor(ts/100000000000));
+ return score;
+}
+function assistFindPermissionRecord(rows,target){
+ const matches=(rows||[]).filter(x=>assistPermissionMatches(x,target));
+ if(!matches.length)return null;
+ return matches.sort((a,b)=>assistPermissionScore(b,target)-assistPermissionScore(a,target))[0]||null;
+}
 function assistIsMaster(){
  return String(window.userProfile?.perfil||'').toUpperCase()==='MASTER';
 }
 window.temPermissaoAssistencia=function(chave){
- // FASE 1.66.3 — segurança por padrão.
  // Master mantém acesso total; demais usuários precisam de permissão explícita.
  if(assistIsMaster())return true;
  const p=window.assistPermissions||{};
@@ -8159,21 +8227,22 @@ window.exigirPermissaoAssistencia=function(chave){
  return false;
 };
 window.carregarMinhasPermissoesAssistencia=async function(){
+ const ident=assistCurrentIdentity();
  const uid=assistUserId();
  if(!uid){window.assistPermissions={__configured:false,__source:'SEM_USUARIO'};return}
  if(assistIsMaster()){
-   const all={uid,__configured:true,__source:'MASTER'};
+   const all={uid:ident.uid||uid,authUid:ident.authUid||'',email:ident.email||'',userEmail:ident.email||'',__configured:true,__source:'MASTER'};
    ASSIST_PERMISSIONS.forEach(([k])=>all[k]=true);
    window.assistPermissions=all;
    return;
  }
  try{
    const rows=await read('assistencia_permissoes');
-   const doc=(rows||[]).find(x=>String(x.id||x.uid||x.userId)===uid);
-   window.assistPermissions=doc?{...doc,__configured:true,__source:'EXPLICITA'}:{uid,__configured:false,__source:'NAO_CONFIGURADA'};
+   const doc=assistFindPermissionRecord(rows,ident);
+   window.assistPermissions=doc?{...doc,__configured:true,__source:'EXPLICITA_RECONCILIADA'}:{...ident,__configured:false,__source:'NAO_CONFIGURADA'};
  }catch(e){
    console.warn('[Assistência] permissões',e);
-   window.assistPermissions={uid,__configured:false,__source:'ERRO_LEITURA'};
+   window.assistPermissions={...ident,__configured:false,__source:'ERRO_LEITURA'};
  }
 };
 window.aplicarPermissoesAssistencia=function(){
@@ -8247,29 +8316,90 @@ window.abrirPermissoesAssistencia=async function(){
  const sel=document.getElementById('perm-usuario');
  const users=(state.usuarios||state.users||[]);
  sel.innerHTML='<option value="">Selecione...</option>'+users.map(u=>{
-  const id=String(u.uid||u.id||u.email||'');const n=u.nome||u.displayName||u.name||u.email||id;
-  return `<option value="${esc(id)}">${esc(n)}</option>`;
+  const ident=assistIdentityForUserRecord(u);
+  const key=ident.email||ident.authUid||ident.userId||ident.id;
+  const n=ident.nome||key;
+  const sub=ident.email||(ident.authUid?('UID: '+ident.authUid):'');
+  return `<option value="${esc(key)}">${esc(n)}${sub?' · '+esc(sub):''}</option>`;
  }).join('');
  document.getElementById('perm-grid').innerHTML='<div class="text-sm text-slate-400">Selecione um usuário.</div>';
+ const st=document.getElementById('perm-preset-status');if(st)st.textContent='As permissões serão vinculadas por e-mail e UID quando disponível.';
  document.getElementById('modal-permissoes-assistencia').classList.remove('hidden');
 };
 window.fecharPermissoesAssistencia=function(){document.getElementById('modal-permissoes-assistencia')?.classList.add('hidden')};
+function assistSelectedPermissionUser(){
+ const key=assistIdentityToken(document.getElementById('perm-usuario')?.value||'');
+ if(!key)return null;
+ const users=(state.usuarios||state.users||[]);
+ return users.find(u=>assistIdentityTokensFromObject(assistIdentityForUserRecord(u)).has(key))||null;
+}
 window.carregarPermissoesUsuario=async function(){
- const uid=document.getElementById('perm-usuario')?.value||'',grid=document.getElementById('perm-grid');if(!uid){grid.innerHTML='';return}
+ const selected=assistSelectedPermissionUser(),grid=document.getElementById('perm-grid');
+ if(!selected){grid.innerHTML='';return}
+ const ident=assistIdentityForUserRecord(selected);
  let atual={};
- try{const rows=await read('assistencia_permissoes');atual=(rows||[]).find(x=>String(x.id||x.uid||x.userId)===uid)||{}}catch(e){console.warn(e)}
+ try{
+   const rows=await read('assistencia_permissoes');
+   atual=assistFindPermissionRecord(rows,ident)||{};
+ }catch(e){console.warn('[Assistência] carregar permissões do usuário',e)}
  grid.innerHTML=ASSIST_PERMISSIONS.map(([k,n])=>`<label class="perm-item"><span><b>${esc(n)}</b><small>${esc(k)}</small></span><input type="checkbox" data-perm="${esc(k)}" ${atual[k]===true?'checked':''}></label>`).join('');
+ const st=document.getElementById('perm-preset-status');
+ if(st){
+   const ids=[ident.email?('E-mail: '+ident.email):'',ident.authUid?('UID: '+ident.authUid):''].filter(Boolean).join(' · ');
+   st.textContent=(atual.__configured===true||Object.keys(atual).length?'Permissões carregadas. ':'Sem configuração salva ainda. ')+ids;
+ }
 };
 window.salvarPermissoesUsuario=async function(){
  if(!window.exigirPermissaoAssistencia('administrar_permissoes'))return;
- const uid=document.getElementById('perm-usuario')?.value||'';if(!uid){alert('Selecione um usuário.');return}
- const payload={uid,__configured:true,updatedAtISO:new Date().toISOString(),updatedByUid:assistUserId()};
+ const selected=assistSelectedPermissionUser();
+ if(!selected){alert('Selecione um usuário.');return}
+ const ident=assistIdentityForUserRecord(selected);
+ const email=ident.email;
+ const authUid=ident.authUid;
+ const canonicalId=email||ident.userId||authUid||ident.id;
+ if(!canonicalId){alert('Não foi possível identificar o usuário selecionado.');return}
+ const now=new Date().toISOString();
+ const payload={
+   uid:authUid||ident.userId||canonicalId,
+   authUid:authUid||'',
+   userId:ident.userId||canonicalId,
+   email:email||'',
+   userEmail:email||'',
+   userName:ident.nome||'',
+   canonicalDocId:canonicalId,
+   __configured:true,
+   updatedAtISO:now,
+   updatedByUid:assistCurrentIdentity().uid||assistUserId(),
+   updatedByEmail:assistCurrentIdentity().email||''
+ };
  ASSIST_PERMISSIONS.forEach(([k])=>payload[k]=!!document.querySelector(`[data-perm="${k}"]`)?.checked);
  try{
-  await saveDoc('assistencia_permissoes',uid,payload);
-  if(uid===assistUserId()){window.assistPermissions={...payload};window.aplicarPermissoesAssistencia()}
-  toast('Permissões salvas.');
- }catch(e){console.error(e);alert('Não foi possível salvar as permissões. Verifique as Security Rules.\n\n'+(e?.message||e))}
+   // Documento canônico por e-mail quando disponível. Isso fica alinhado a usuarios_permissoes.
+   await saveDoc('assistencia_permissoes',canonicalId,payload);
+   // Compatibilidade com versões antigas da Assistência que procuravam diretamente pelo UID.
+   if(authUid&&authUid!==canonicalId){
+     await saveDoc('assistencia_permissoes',authUid,{...payload,aliasOf:canonicalId});
+   }
+   // Se já existia um documento legado com outro ID, mantém esse alias sincronizado para não quebrar aparelhos desatualizados.
+   try{
+     const rows=await read('assistencia_permissoes');
+     const antigo=assistFindPermissionRecord(rows,ident);
+     if(antigo?.id&&String(antigo.id)!==String(canonicalId)&&String(antigo.id)!==String(authUid||'')){
+       await saveDoc('assistencia_permissoes',antigo.id,{...payload,aliasOf:canonicalId});
+     }
+   }catch(_){/* compatibilidade opcional */}
+
+   const current=assistCurrentIdentity();
+   if(assistPermissionMatches(payload,current)){
+     window.assistPermissions={...payload,__source:'SALVA_LOCAL'};
+     window.aplicarPermissoesAssistencia();
+   }
+   const st=document.getElementById('perm-preset-status');if(st)st.textContent='Permissões salvas e reconciliadas por e-mail'+(authUid?' + UID.':'.');
+   toast('Permissões salvas.');
+ }catch(e){
+   console.error('[Assistência] salvar permissões',e);
+   alert('Não foi possível salvar as permissões. Verifique as Security Rules.\n\n'+(e?.message||e));
+ }
 };
 
 

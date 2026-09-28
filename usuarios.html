@@ -105,7 +105,7 @@
     </div>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
-    <script type="module" src="core.js?v=20260928-1710"></script>
+    <script type="module" src="core.js?v=20260928-1720"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -353,6 +353,8 @@
             const senhaInicial = document.getElementById('u_senha').value.trim();
             const modulosSelecionados = [];
             const visaoGlobalObj = {};
+            const usuarioExistente = editingUserId ? window.listaDeUsuarios.find(x => x.id === editingUserId) : null;
+            let authUid = String(usuarioExistente?.authUid || usuarioExistente?.uid || '').trim();
 
             // SE FOR USUÁRIO NOVO, CRIA A CONTA NO MOTOR DE LOGIN DO GOOGLE (FIREBASE AUTH)
             if (!editingUserId) {
@@ -364,7 +366,8 @@
 
                 try {
                     // Cria no Motor Real
-                    await window.FsCreateUser(window.AppAuthSecundaria, emailFormatado, senhaInicial);
+                    const credCriacao = await window.FsCreateUser(window.AppAuthSecundaria, emailFormatado, senhaInicial);
+                    authUid = String(credCriacao?.user?.uid || '').trim();
                     // Faz logout no motor secundário para não atrapalhar sua sessão de Administrador
                     await window.FsSignOut(window.AppAuthSecundaria); 
                 } catch (error) {
@@ -392,15 +395,19 @@
                 }
             });
 
+            const docId = editingUserId ? editingUserId : emailFormatado;
             const data = {
                 email: emailFormatado,
+                userEmail: emailFormatado,
                 nome: document.getElementById('u_nome').value,
                 perfil: document.getElementById('u_perfil').value,
                 visaoGlobalPorTela: visaoGlobalObj,
-                modulos: modulosSelecionados
+                modulos: modulosSelecionados,
+                userId: docId,
+                authUid: authUid || '',
+                uid: authUid || usuarioExistente?.uid || '',
+                updatedAtISO: new Date().toISOString()
             };
-
-            const docId = editingUserId ? editingUserId : emailFormatado;
 
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes', docId), data);
