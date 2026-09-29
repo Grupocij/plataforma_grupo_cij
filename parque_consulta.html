@@ -6,6 +6,7 @@
 <title>Consulta Parque - Portal CIJ</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{font-family:Inter,sans-serif;background:#f8fafc;color:#0f172a}
@@ -23,6 +24,23 @@
 .ro-pager{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.55rem .7rem;border-top:1px solid #e2e8f0;flex-wrap:wrap}.ro-pager span,.ro-pager label{font-size:.62rem;color:#64748b;font-weight:700}
 .readonly-watermark{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
 @media(max-width:720px){#ro-shell{padding:.4rem!important}.ro-modal{padding:.25rem}.ro-modal-card{border-radius:.9rem}.ro-pager{align-items:flex-start;flex-direction:column}.mobile-stack{grid-template-columns:1fr!important}}
+
+.qr-camera-box{position:relative;background:#020617;border-radius:1rem;overflow:hidden;min-height:280px}
+#qr-reader{width:100%;min-height:280px;background:#020617}
+#qr-reader video{object-fit:cover!important;border-radius:.9rem}
+#qr-reader__scan_region{background:#020617!important}
+#qr-reader__dashboard{background:#fff!important;padding:.65rem!important}
+#qr-reader__dashboard_section_swaplink{color:#2563eb!important;font-size:11px!important;font-weight:800!important}
+.qr-guide{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(66vw,260px);aspect-ratio:1;border:3px solid rgba(255,255,255,.88);border-radius:1rem;box-shadow:0 0 0 9999px rgba(2,6,23,.18);pointer-events:none;z-index:5}
+.qr-guide:before,.qr-guide:after{content:"";position:absolute;width:38px;height:38px;border-color:#22c55e}
+.qr-guide:before{left:-4px;top:-4px;border-left:5px solid #22c55e;border-top:5px solid #22c55e;border-radius:12px 0 0 0}
+.qr-guide:after{right:-4px;bottom:-4px;border-right:5px solid #22c55e;border-bottom:5px solid #22c55e;border-radius:0 0 12px 0}
+.qr-status{border-radius:.8rem;padding:.65rem .75rem;font-size:11px;font-weight:700}
+.qr-status.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.qr-status.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
+.qr-status.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.qr-status.error{background:#fff1f2;border:1px solid #fecdd3;color:#be123c}
+
 </style>
 </head>
 <body class="h-full overflow-hidden">
@@ -31,9 +49,9 @@
   <section class="ro-card px-3 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2">
     <div class="flex items-center gap-2.5 min-w-0">
       <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-industry"></i></div>
-      <div class="min-w-0"><div class="flex flex-wrap gap-1.5 items-center"><span class="ro-pill readonly-watermark"><i class="fa-solid fa-eye"></i>SOMENTE LEITURA</span><span class="text-[9px] text-slate-400 font-bold">V1.0</span></div><h1 class="text-base font-black mt-1">Consulta Parque</h1><p class="text-[10px] text-slate-500">Pesquisa de máquinas e histórico de OS/OSR para técnicos.</p></div>
+      <div class="min-w-0"><div class="flex flex-wrap gap-1.5 items-center"><span class="ro-pill readonly-watermark"><i class="fa-solid fa-eye"></i>SOMENTE LEITURA</span><span class="text-[9px] text-slate-400 font-bold">V1.1</span></div><h1 class="text-base font-black mt-1">Consulta Parque</h1><p class="text-[10px] text-slate-500">Pesquisa de máquinas e histórico de OS/OSR para técnicos.</p></div>
     </div>
-    <button class="ro-btn ro-btn-light" onclick="scanSerial()"><i class="fa-solid fa-qrcode"></i> Ler / informar série</button>
+    <button class="ro-btn ro-btn-primary" onclick="scanSerial()"><i class="fa-solid fa-qrcode"></i> Ler QR Code</button>
   </section>
 
   <section class="ro-card p-2.5 grid md:grid-cols-[1fr_220px_180px] gap-2 items-end mobile-stack">
@@ -58,6 +76,58 @@
 </div>
 </main>
 
+
+<div id="qr-modal" class="ro-modal hidden">
+  <div class="ro-modal-card !max-w-xl">
+    <div class="p-4 border-b flex justify-between gap-3 sticky top-0 bg-white z-20">
+      <div>
+        <div class="flex flex-wrap gap-1.5"><span class="ro-pill bg-blue-50 text-blue-700"><i class="fa-solid fa-qrcode"></i>LEITURA QR</span><span class="ro-pill readonly-watermark"><i class="fa-solid fa-eye"></i>Somente leitura</span></div>
+        <h2 class="font-black text-lg mt-1">Localizar equipamento</h2>
+        <p class="text-[10px] text-slate-500">Aponte a câmera para o QR Code da máquina.</p>
+      </div>
+      <button class="ro-btn ro-btn-light !w-9 !px-0 shrink-0" onclick="closeQrScanner()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="p-4 space-y-3">
+      <div id="qr-secure-warning" class="hidden qr-status warn"></div>
+
+      <div class="qr-camera-box">
+        <div id="qr-reader"></div>
+        <div id="qr-guide" class="qr-guide"></div>
+      </div>
+
+      <div id="qr-status" class="qr-status info">
+        <i class="fa-solid fa-camera mr-1"></i>Preparando a câmera traseira...
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button id="qr-retry-btn" type="button" class="ro-btn ro-btn-primary" onclick="startQrCamera()">
+          <i class="fa-solid fa-camera-rotate"></i> Ativar câmera
+        </button>
+        <label class="ro-btn ro-btn-light cursor-pointer">
+          <i class="fa-solid fa-image"></i> Ler QR de uma foto
+          <input id="qr-image-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="scanQrImage(this.files[0])">
+        </label>
+      </div>
+
+      <div class="rounded-xl border bg-slate-50 p-3">
+        <div class="text-[10px] font-black text-slate-700 mb-2">Ou informe o número de série</div>
+        <div class="flex gap-2">
+          <input id="qr-manual-serial" class="ro-input font-mono uppercase" placeholder="Número de série" onkeydown="if(event.key==='Enter'){event.preventDefault();manualSerialLookup()}">
+          <button type="button" class="ro-btn ro-btn-light shrink-0" onclick="manualSerialLookup()"><i class="fa-solid fa-magnifying-glass"></i> Localizar</button>
+        </div>
+      </div>
+
+      <p class="text-[9px] text-slate-400 leading-4">
+        A leitura reconhece QR contendo apenas o número de série e também formatos como
+        <b>SN: 123456</b>, <b>SERIAL=123456</b>, JSON ou URL com parâmetro de série.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="qr-file-reader" class="hidden"></div>
+
 <div id="machine-modal" class="ro-modal hidden"><div class="ro-modal-card">
   <div class="p-4 border-b flex justify-between gap-3 sticky top-0 bg-white z-20">
     <div class="min-w-0"><div class="flex flex-wrap gap-1.5"><span class="ro-pill readonly-watermark"><i class="fa-solid fa-lock"></i>Consulta</span><span id="detail-status" class="ro-pill bg-slate-100 text-slate-700">-</span></div><h2 id="detail-title" class="font-black text-lg mt-1 truncate">Equipamento</h2><p id="detail-subtitle" class="text-[10px] text-slate-500"></p></div>
@@ -80,7 +150,7 @@
 
 <script>
 const ROOT=['artifacts','plataforma-cij','public','data'];
-const ST={machines:[],clients:[],os:[],osr:[],page:1,pageSize:10,selected:null,osEqCache:new Map(),historyToken:0};
+const ST={machines:[],clients:[],os:[],osr:[],page:1,pageSize:10,selected:null,osEqCache:new Map(),historyToken:0,qrScanner:null,qrFileScanner:null,qrRunning:false,qrBusy:false};
 const col=n=>window.fsCollection(window.AppDB,...ROOT,n);
 const sub=(osId,n)=>window.fsCollection(window.AppDB,...ROOT,'os_ordens',osId,n);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -120,8 +190,185 @@ function transferEntries(m){return (m.historico_transferencias||[]).map(t=>({kin
 async function loadHistory(m){const token=++ST.historyToken,box=document.getElementById('detail-history'),load=document.getElementById('history-loading');if(!box)return;load.textContent='Carregando histórico completo...';box.innerHTML='<div class="text-xs text-slate-400 py-4"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Consultando OS e OSR vinculadas à máquina.</div>';try{const matches=await matchingOS(m,token);if(token!==ST.historyToken)return;const sn=snorm(machineSerial(m)),osrs=ST.osr.filter(r=>sn&&snorm(r.serial||r.numeroSerie||r.equipamentoNumeroSerie)===sn),events=[...matches.map(osEntry),...osrs.map(osrEntry),...transferEntries(m)].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));load.textContent=`${matches.length} OS · ${osrs.length} OSR`;box.innerHTML=events.length?events.map(e=>`<div class="ro-event ${e.kind==='OSR'?'osr':e.kind==='TRANSFERENCIA'?'transfer':''}"><div class="flex flex-wrap justify-between gap-2"><div><span class="ro-pill ${e.kind==='OSR'?'bg-violet-50 text-violet-700':e.kind==='TRANSFERENCIA'?'bg-amber-50 text-amber-700':'bg-blue-50 text-blue-700'}">${esc(e.kind)}</span> <b class="text-xs">${esc(e.number||e.title)}</b></div><span class="text-[9px] text-slate-400">${esc(fmtDate(e.date))}</span></div>${e.status?`<div class="text-[9px] font-bold text-slate-500 mt-1">Status: ${esc(e.status)}</div>`:''}${e.description?`<div class="text-[10px] text-slate-700 mt-1">${esc(e.description)}</div>`:''}${e.extra?`<div class="text-[9px] text-slate-500 mt-1">${esc(e.extra)}</div>`:''}${e.technician?`<div class="text-[9px] text-slate-400 mt-1"><i class="fa-solid fa-user-wrench mr-1"></i>${esc(e.technician)}</div>`:''}</div>`).join(''):'<div class="text-xs text-slate-400 py-5">Nenhuma OS, OSR ou transferência encontrada para esta máquina.</div>'}catch(e){console.error(e);load.textContent='';box.innerHTML='<div class="text-xs text-rose-600 py-5">Não foi possível carregar o histórico completo. Tente novamente.</div>'}}
 function openMachine(id){const m=ST.machines.find(x=>String(x.id)===String(id));if(!m)return;ST.selected=m;const c=ST.clients.find(x=>String(x.id)===String(m.clienteId||'')),w=warranty(m),sm=statusMeta(m.statusOperacional);document.getElementById('detail-status').className='ro-pill '+sm[1];document.getElementById('detail-status').textContent=sm[0];document.getElementById('detail-title').textContent=machineModel(m);document.getElementById('detail-subtitle').textContent=`SN ${machineSerial(m)||'-'} · ${machineClientName(m)}`;document.getElementById('detail-kpis').innerHTML=[['Série',machineSerial(m)||'-'],['Garantia',w.label],['Venda',m.dataVenda?fmtDate(m.dataVenda):'-'],['Instalação',m.dataInstalacaoAtual||m.data_instalacao?fmtDate(m.dataInstalacaoAtual||m.data_instalacao):'-']].map(x=>`<div class="ro-card ro-kpi"><span>${esc(x[0])}</span><b class="!text-sm">${esc(x[1])}</b></div>`).join('');document.getElementById('detail-machine').innerHTML=[['Fabricante',m.fabricante||m.marca],['Modelo',machineModel(m)],['Tipo',m.tipoEquipamento],['Categoria',m.categoriaEquipamento],['Local',m.localInstalacao||m.identificacaoLocal],['Vínculo',m.tipoVinculo||m.modalidade],['Garantia até',w.end?fmtDate(w.end):'-'],['Observações',m.observacoes||'-']].map(x=>`<div class="rounded-lg bg-slate-50 border p-2"><span class="ro-label">${esc(x[0])}</span><b class="text-[10px]">${esc(x[1]||'-')}</b></div>`).join('');const cp=c?(Array.isArray(c.contatos)?(c.contatos.find(x=>x?.principal)||c.contatos[0]):null):null;document.getElementById('detail-client').innerHTML=c?`<b class="text-slate-900">${esc(c.razao_social||clientName(c))}</b>${c.cnpj?`<br>CNPJ: ${esc(c.cnpj)}`:''}<br>${esc(c.enderecoCompleto||c.endereco_completo||[c.logradouro,c.numero,c.bairro,c.cidade,c.uf||c.estado].filter(Boolean).join(' · ')||'Endereço não informado')}<br><b>Contato:</b> ${esc(cp?.nome||c.contatoPrincipalNome||c.contato||'-')} · ${esc(cp?.telefone||c.contatoPrincipalTelefone||c.telefone||'-')}`:`${esc(machineClientName(m))}<br><span class="text-slate-400">Cadastro atual do cliente não localizado.</span>`;document.getElementById('machine-modal').classList.remove('hidden');loadHistory(m)}
 function closeMachine(){ST.historyToken++;ST.selected=null;document.getElementById('machine-modal')?.classList.add('hidden')}
-function scanSerial(){const val=prompt('Leia o QR Code com a câmera do celular ou informe o número de série da máquina:');if(!val)return;const key=snorm(val),m=ST.machines.find(x=>snorm(machineSerial(x))===key);if(m){openMachine(m.id)}else{document.getElementById('q').value=val;filterChanged();toast('Série não localizada exatamente. A pesquisa foi preenchida para conferência.')}}
+function qrSetStatus(message,type='info'){
+  const e=document.getElementById('qr-status');if(!e)return;
+  e.className='qr-status '+type;
+  const icon=type==='ok'?'fa-circle-check':type==='error'?'fa-circle-exclamation':type==='warn'?'fa-triangle-exclamation':'fa-camera';
+  e.innerHTML=`<i class="fa-solid ${icon} mr-1"></i>${esc(message)}`;
+}
+function qrSerialCandidates(decoded){
+  const raw=String(decoded||'').trim(),out=[];
+  const push=v=>{v=String(v||'').trim();if(v&&!out.includes(v))out.push(v)};
+  push(raw);
+
+  // JSON: {"serial":"..."} / {"sn":"..."} / {"numeroSerie":"..."}
+  try{
+    const obj=JSON.parse(raw);
+    if(obj&&typeof obj==='object'){
+      ['serial','serie','sn','numeroSerie','numero_serie','serialNumber','serial_number'].forEach(k=>push(obj[k]));
+    }
+  }catch(_){}
+
+  // URL: ?serial=... / ?sn=... and last path segment.
+  try{
+    const u=new URL(raw);
+    ['serial','serie','sn','numeroSerie','numero_serie'].forEach(k=>push(u.searchParams.get(k)));
+    const parts=u.pathname.split('/').filter(Boolean);
+    if(parts.length)push(decodeURIComponent(parts[parts.length-1]));
+  }catch(_){}
+
+  // Text prefixes.
+  const patterns=[
+    /(?:^|[\s;|,])(?:SN|S\/N)\s*[:=#-]?\s*([A-Z0-9._\/-]{3,})/i,
+    /(?:^|[\s;|,])SERIAL\s*[:=#-]?\s*([A-Z0-9._\/-]{3,})/i,
+    /(?:^|[\s;|,])S[EÉ]RIE\s*[:=#-]?\s*([A-Z0-9._\/-]{3,})/i,
+    /(?:N[ÚU]MERO\s*(?:DE\s*)?S[EÉ]RIE)\s*[:=#-]?\s*([A-Z0-9._\/-]{3,})/i
+  ];
+  for(const p of patterns){const m=raw.match(p);if(m)push(m[1])}
+
+  // Linhas simples do QR também podem conter apenas a série.
+  raw.split(/[\r\n;|]+/).map(x=>x.trim()).filter(Boolean).forEach(push);
+  return out;
+}
+function resolveMachineFromQr(decoded){
+  const candidates=qrSerialCandidates(decoded);
+
+  // Primeiro: correspondência exata por candidato.
+  for(const candidate of candidates){
+    const key=snorm(candidate);if(!key)continue;
+    const exact=ST.machines.filter(m=>snorm(machineSerial(m))===key);
+    if(exact.length===1)return {machine:exact[0],serial:machineSerial(exact[0]),mode:'exact'};
+    if(exact.length>1)return {ambiguous:exact,serial:candidate,mode:'duplicate'};
+  }
+
+  // Segundo: QR pode conter prefixos/URL/texto em volta da série.
+  const rawKey=snorm(decoded);
+  const contained=ST.machines.filter(m=>{
+    const s=snorm(machineSerial(m));
+    return s.length>=4 && rawKey.includes(s);
+  });
+  if(contained.length===1)return {machine:contained[0],serial:machineSerial(contained[0]),mode:'contained'};
+  if(contained.length>1)return {ambiguous:contained,serial:String(decoded||''),mode:'multiple'};
+  return {machine:null,serial:candidates.find(x=>snorm(x))||String(decoded||'').trim(),mode:'not_found'};
+}
+async function stopQrCamera(){
+  if(!ST.qrScanner||!ST.qrRunning)return;
+  try{await ST.qrScanner.stop()}catch(e){console.warn('[Consulta Parque] parar câmera QR',e)}
+  try{await ST.qrScanner.clear()}catch(_){}
+  ST.qrRunning=false;
+}
+async function closeQrScanner(){
+  ST.qrBusy=true;
+  await stopQrCamera();
+  document.getElementById('qr-modal')?.classList.add('hidden');
+  ST.qrBusy=false;
+}
+async function processQrResult(decoded){
+  if(ST.qrBusy)return;
+  ST.qrBusy=true;
+  const result=resolveMachineFromQr(decoded);
+
+  if(result.machine){
+    qrSetStatus(`Equipamento localizado: ${machineSerial(result.machine)}.`,'ok');
+    await stopQrCamera();
+    document.getElementById('qr-modal')?.classList.add('hidden');
+    ST.qrBusy=false;
+    openMachine(result.machine.id);
+    return;
+  }
+
+  if(result.ambiguous?.length){
+    qrSetStatus('O código corresponde a mais de um cadastro. Revise os números de série duplicados no Parque.','error');
+    document.getElementById('q').value=result.serial||decoded||'';
+    filterChanged();
+    ST.qrBusy=false;
+    return;
+  }
+
+  qrSetStatus('QR lido, mas o número de série não foi localizado no Parque. A pesquisa foi preenchida para conferência.','warn');
+  document.getElementById('q').value=result.serial||decoded||'';
+  filterChanged();
+  ST.qrBusy=false;
+}
+async function startQrCamera(){
+  if(ST.qrRunning)return;
+  if(!window.isSecureContext){
+    const w=document.getElementById('qr-secure-warning');
+    if(w){w.classList.remove('hidden');w.innerHTML='<i class="fa-solid fa-lock mr-1"></i>A câmera exige HTTPS. Use a versão publicada do Portal ou escolha “Ler QR de uma foto”.'}
+    qrSetStatus('Câmera indisponível fora de conexão segura (HTTPS).','warn');
+    return;
+  }
+  if(typeof Html5Qrcode==='undefined'){
+    qrSetStatus('Leitor de QR não carregou. Verifique a internet ou use a leitura por foto / série manual.','error');
+    return;
+  }
+
+  ST.qrBusy=false;
+  qrSetStatus('Solicitando acesso à câmera traseira...','info');
+
+  try{
+    if(!ST.qrScanner)ST.qrScanner=new Html5Qrcode('qr-reader',{verbose:false});
+    let cameraConfig={facingMode:'environment'};
+
+    // Em alguns aparelhos, escolher explicitamente a câmera traseira é mais estável.
+    try{
+      const cameras=await Html5Qrcode.getCameras();
+      if(cameras?.length){
+        const preferred=[...cameras].reverse().find(c=>/back|rear|traseira|environment/i.test(c.label||'')) || cameras[cameras.length-1];
+        if(preferred?.id)cameraConfig=preferred.id;
+      }
+    }catch(_){}
+
+    await ST.qrScanner.start(
+      cameraConfig,
+      {fps:12,qrbox:{width:250,height:250},aspectRatio:1.0,disableFlip:false},
+      decoded=>processQrResult(decoded),
+      ()=>{}
+    );
+    ST.qrRunning=true;
+    qrSetStatus('Câmera ativa. Centralize o QR Code dentro do quadro.','ok');
+  }catch(err){
+    console.error('[Consulta Parque] câmera QR',err);
+    ST.qrRunning=false;
+    const msg=String(err?.message||err||'');
+    if(/permission|notallowed|denied/i.test(msg))qrSetStatus('Permissão da câmera foi negada. Libere a câmera no navegador ou use “Ler QR de uma foto”.','error');
+    else if(/notfound|devicesnotfound/i.test(msg))qrSetStatus('Nenhuma câmera foi encontrada neste dispositivo.','error');
+    else qrSetStatus('Não foi possível iniciar a câmera. Use “Ativar câmera” novamente ou leia o QR por uma foto.','error');
+  }
+}
+async function scanQrImage(file){
+  const input=document.getElementById('qr-image-input');
+  if(!file)return;
+  if(typeof Html5Qrcode==='undefined'){qrSetStatus('Leitor de QR não carregou.','error');if(input)input.value='';return}
+  try{
+    await stopQrCamera();
+    qrSetStatus('Analisando a imagem do QR Code...','info');
+    if(!ST.qrFileScanner)ST.qrFileScanner=new Html5Qrcode('qr-file-reader',{verbose:false});
+    const decoded=await ST.qrFileScanner.scanFile(file,true);
+    if(input)input.value='';
+    await processQrResult(decoded);
+  }catch(err){
+    console.error('[Consulta Parque] leitura de foto QR',err);
+    qrSetStatus('Não encontrei um QR Code legível nessa imagem. Tente aproximar mais a câmera ou tirar outra foto.','error');
+    if(input)input.value='';
+  }
+}
+function manualSerialLookup(){
+  const val=document.getElementById('qr-manual-serial')?.value.trim();
+  if(!val){qrSetStatus('Informe o número de série para localizar.','warn');return}
+  processQrResult(val);
+}
+async function scanSerial(){
+  document.getElementById('qr-manual-serial').value='';
+  document.getElementById('qr-secure-warning')?.classList.add('hidden');
+  document.getElementById('qr-modal')?.classList.remove('hidden');
+  qrSetStatus('Preparando a câmera traseira...','info');
+  ST.qrBusy=false;
+  await startQrCamera();
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopQrCamera()});
+
 </script>
-<script type="module" src="core.js?v=20260929-1500"></script>
+<script type="module" src="core.js?v=20260929-1510"></script>
 </body>
 </html>

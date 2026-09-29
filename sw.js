@@ -1,5 +1,5 @@
-const SW_VERSION='3.11.0';
-const APP_BUILD='1.75';
+const SW_VERSION='3.11.1';
+const APP_BUILD='1.75.1';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,7 +8,7 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
-  './core.js?v=20260928-1720',
+  './core.js?v=20260929-1510',
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
