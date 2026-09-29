@@ -116,6 +116,26 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 .tech-app-status{display:flex;align-items:center;gap:.45rem;font-size:.65rem;font-weight:900;color:#475569}.tech-app-dot{width:.55rem;height:.55rem;border-radius:999px;background:#10b981;box-shadow:0 0 0 3px #d1fae5}.tech-app-dot.offline{background:#f59e0b;box-shadow:0 0 0 3px #fef3c7}.tech-install-btn{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:.65rem;padding:.5rem .7rem;font-size:.62rem;font-weight:900;white-space:nowrap}.tech-install-btn.hidden{display:none}.tech-app-nav{display:none}
 @media(max-width:640px){body.tech-app-mode #main-content{padding:.55rem!important;padding-top:6.5rem!important;padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;overflow-y:auto!important;scroll-padding-top:6.5rem!important;scroll-padding-bottom:150px!important}body.tech-app-mode #tech-lista{padding-bottom:140px!important}body.tech-app-mode #tech-lista .tech-os-card:last-child{margin-bottom:120px!important}body.tech-app-mode #main-content>div>section:first-child{display:none!important}body.tech-app-mode #view-tecnico{margin:0!important}.tech-app-nav{position:fixed;display:grid;grid-template-columns:repeat(3,1fr);left:0;right:0;bottom:0;z-index:100010;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #e2e8f0;padding:.45rem .55rem max(.45rem,env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.08)}.tech-app-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.18rem;min-height:48px;font-size:.56rem;font-weight:900;color:#64748b}.tech-app-nav button i{font-size:1rem}.tech-app-nav button.active{color:#2563eb}.tech-hero{padding:1rem}.tech-app-strip{padding:.6rem .7rem}}
 
+
+/* V1.72.3 — fluxo simplificado / serviços sem orçamento */
+.flow-simplified-badge{
+  display:inline-flex;align-items:center;gap:.35rem;margin-top:.45rem;padding:.28rem .55rem;
+  border-radius:999px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
+  font-size:9px;font-weight:900;letter-spacing:.03em;text-transform:uppercase
+}
+.eq-actions .flow-skipped{
+  background:#fffbeb!important;border-color:#fde68a!important;color:#92400e!important;opacity:.82
+}
+.simplified-eq-row{
+  display:flex;align-items:flex-start;gap:.65rem;padding:.7rem .8rem;border:1px solid #e2e8f0;
+  border-radius:.8rem;background:#fff
+}
+.simplified-eq-row input{margin-top:.18rem}
+.simplified-note{
+  border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:.85rem;padding:.75rem;
+  font-size:11px;line-height:1.45
+}
+
 </style>
 
 <style>
@@ -1500,12 +1520,13 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32.1</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions">
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.3</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions">
   <div class="os-general-actions-label">Ações gerais da OS</div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button>
     <button class="btn btn-light" onclick="window.abrirTrocaTecnicos()"><i class="fa-solid fa-users-gear"></i> Alterar técnicos</button>
     <button class="btn btn-light" onclick="window.abrirAlterarTipoAtendimento()"><i class="fa-solid fa-right-left"></i> Alterar tipo</button>
+    <button class="btn btn-light" data-assist-perm="liberar_execucao" onclick="window.abrirFluxoSimplificado()"><i class="fa-solid fa-forward-fast"></i> Fluxo simplificado</button>
     <button class="btn btn-light duplicate-os-btn" data-assist-perm="duplicar_os" onclick="window.abrirDuplicarOS()"><i class="fa-solid fa-copy"></i> Duplicar OS</button>
     <button class="btn btn-light" onclick="window.abrirRelatorioOS()"><i class="fa-solid fa-file-lines"></i> Relatório</button>
     <button class="btn btn-light" onclick="window.abrirVerificacaoIntegridadeOS()"><i class="fa-solid fa-stethoscope"></i> Verificar OS</button>
@@ -1604,6 +1625,86 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
       <button onclick="window.fecharAlterarTipoAtendimento()" class="btn btn-light">Cancelar</button>
       <button id="btn-salvar-tipo-atendimento" onclick="window.salvarAlterarTipoAtendimento()" class="btn btn-primary">
         <i class="fa-solid fa-right-left"></i> Alterar tipo
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div id="modal-fluxo-simplificado" class="modal-backdrop hidden" style="z-index:100079!important">
+  <div class="modal-card !max-w-none" style="width:min(780px,96vw)">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <span class="tag tag-blue">SERVIÇO SEM FLUXO COMERCIAL</span>
+        <h2 class="text-xl font-black mt-2">Fluxo simplificado da OS</h2>
+        <p id="fluxo-simplificado-identificacao" class="text-xs text-slate-500 mt-1">-</p>
+      </div>
+      <button onclick="window.fecharFluxoSimplificado()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="simplified-note mt-4">
+      Use somente quando o serviço <b>não precisa de solicitação técnica, orçamento comercial nem aprovação do cliente</b>,
+      como comissionamento, instalação bonificada, cortesia, garantia sem cobrança ou atividade interna.
+      O desvio fica registrado no histórico da OS.
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-5">
+      <label>
+        <span class="field-label">Modo *</span>
+        <select id="fluxo-simplificado-modo" class="input" onchange="window.alternarModoFluxoSimplificado()">
+          <option value="SIMPLIFICADO">Ativar / ajustar fluxo simplificado</option>
+          <option value="PADRAO">Retornar ao fluxo padrão</option>
+        </select>
+      </label>
+
+      <label id="fluxo-simplificado-natureza-wrap">
+        <span class="field-label">Natureza do serviço *</span>
+        <select id="fluxo-simplificado-natureza" class="input">
+          <option value="COMISSIONAMENTO">Comissionamento de máquina</option>
+          <option value="INSTALACAO_BONIFICADA">Instalação bonificada</option>
+          <option value="CORTESIA">Serviço de cortesia</option>
+          <option value="GARANTIA_SEM_COBRANCA">Garantia sem cobrança</option>
+          <option value="DEMONSTRACAO_TESTE">Demonstração / teste</option>
+          <option value="SERVICO_INTERNO">Serviço interno</option>
+          <option value="OUTRO">Outro</option>
+        </select>
+      </label>
+    </div>
+
+    <label id="fluxo-simplificado-destino-wrap" class="block mt-4">
+      <span class="field-label">Ir diretamente para *</span>
+      <select id="fluxo-simplificado-destino" class="input">
+        <option value="TRIAGEM">Triagem / diagnóstico</option>
+        <option value="AGENDAMENTO">Agendamento / aguardando liberação</option>
+        <option value="EXECUCAO">Execução direta — sem orçamento e sem agendamento</option>
+        <option value="CHECKOUT">Execução direta / checkout já liberado</option>
+      </select>
+    </label>
+
+    <label id="fluxo-simplificado-nao-fat-wrap" class="mt-4 flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 cursor-pointer">
+      <input id="fluxo-simplificado-nao-fat" type="checkbox" class="mt-0.5">
+      <span class="text-xs text-slate-700">
+        <b>Marcar como serviço não faturável</b><br>
+        <span class="text-[10px] text-slate-500">No encerramento administrativo, o sistema já abrirá “Não faturável”. A confirmação final continua obrigatória.</span>
+      </span>
+    </label>
+
+    <div class="mt-4">
+      <div class="field-label mb-2">Equipamentos que receberão esta regra *</div>
+      <div id="fluxo-simplificado-equipamentos" class="space-y-2"></div>
+    </div>
+
+    <label class="block mt-4">
+      <span class="field-label">Justificativa / observação *</span>
+      <textarea id="fluxo-simplificado-motivo" class="input min-h-24" placeholder="Ex.: instalação bonificada prevista na venda; comissionamento sem cobrança; serviço interno sem necessidade de proposta..."></textarea>
+    </label>
+
+    <div id="fluxo-simplificado-alerta" class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900"></div>
+
+    <div class="mt-5 flex justify-end gap-2">
+      <button onclick="window.fecharFluxoSimplificado()" class="btn btn-light">Cancelar</button>
+      <button id="btn-salvar-fluxo-simplificado" data-assist-perm="liberar_execucao" onclick="window.salvarFluxoSimplificado()" class="btn btn-primary">
+        <i class="fa-solid fa-forward-fast"></i> Aplicar fluxo
       </button>
     </div>
   </div>
@@ -3749,8 +3850,13 @@ function materialPendente(e){const st=String(e?.ultimaSolicitacaoMaterialStatus|
 function pendenciaEquipamento(e){
  const st=String(e?.statusEquipamento||'PENDENTE').toUpperCase();
  const req=String(e?.solicitacaoOrcamentoStatus||'').toUpperCase();
+ const simpl=fluxoSimplificadoEquipamento(e);
 
  if(st==='RECUSADO'||st==='CANCELADO')return {texto:'Equipamento recusado/cancelado',tipo:'ok'};
+ if(simpl&&st==='PENDENTE')return {texto:'Fluxo simplificado — iniciar na etapa necessária',tipo:'warn'};
+ if(simpl&&st==='EM_DIAGNOSTICO')return {texto:'Fluxo simplificado — diagnóstico / avanço livre sem orçamento',tipo:'warn'};
+ if(simpl&&st==='AGUARDANDO_ORCAMENTO')return {texto:'Fluxo simplificado — orçamento dispensado; avance para execução',tipo:'warn'};
+ if(simpl&&st==='AGUARDANDO_EXECUCAO')return {texto:e?.dispensaAgendamento?'Fluxo simplificado — liberar execução':'Fluxo simplificado — agendar e liberar execução',tipo:'warn'};
  if(st==='PENDENTE')return {texto:'Iniciar triagem / diagnóstico',tipo:'warn'};
  if(st==='EM_DIAGNOSTICO'){
    if(req==='DEVOLVIDO_CORRECAO')return {texto:'Solicitação devolvida — corrigir e reenviar para revisão',tipo:'warn'};
@@ -4326,6 +4432,170 @@ function tipoAtendimentoLabel(o){
   return'Interno / Laboratório';
 }
 
+
+// V1.72.3 — fluxo simplificado para serviços sem orçamento/comercial
+function fluxoSimplificadoEquipamento(eq){
+  return !!eq && (eq.fluxoSimplificado===true || String(eq.fluxoOperacional||'').toUpperCase()==='SIMPLIFICADO' || eq.dispensaOrcamento===true);
+}
+function fluxoSimplificadoOS(o){
+  if(!o)return false;
+  if(o.fluxoSimplificadoAtivo===true || String(o.fluxoOperacional||'').toUpperCase()==='SIMPLIFICADO')return true;
+  return (o._equipamentos||[]).some(fluxoSimplificadoEquipamento);
+}
+function fluxoSimplificadoNaturezaLabel(v){
+  return ({
+    COMISSIONAMENTO:'Comissionamento',
+    INSTALACAO_BONIFICADA:'Instalação bonificada',
+    CORTESIA:'Cortesia',
+    GARANTIA_SEM_COBRANCA:'Garantia sem cobrança',
+    DEMONSTRACAO_TESTE:'Demonstração / teste',
+    SERVICO_INTERNO:'Serviço interno',
+    OUTRO:'Outro'
+  })[String(v||'').toUpperCase()]||String(v||'Fluxo simplificado').replaceAll('_',' ');
+}
+function fluxoSimplificadoStatusDestino(v){
+  return ({TRIAGEM:'EM_DIAGNOSTICO',AGENDAMENTO:'AGUARDANDO_EXECUCAO',EXECUCAO:'EM_EXECUCAO',CHECKOUT:'EM_EXECUCAO'})[String(v||'').toUpperCase()]||'EM_DIAGNOSTICO';
+}
+function fluxoSimplificadoDestinoLabel(v){
+  return ({
+    TRIAGEM:'Triagem / diagnóstico',
+    AGENDAMENTO:'Agendamento / aguardando liberação',
+    EXECUCAO:'Execução direta',
+    CHECKOUT:'Execução direta / checkout liberado'
+  })[String(v||'').toUpperCase()]||String(v||'');
+}
+window.fecharFluxoSimplificado=function(){document.getElementById('modal-fluxo-simplificado')?.classList.add('hidden')};
+window.alternarModoFluxoSimplificado=function(){
+  const simpl=document.getElementById('fluxo-simplificado-modo')?.value!=='PADRAO';
+  ['fluxo-simplificado-natureza-wrap','fluxo-simplificado-destino-wrap','fluxo-simplificado-nao-fat-wrap'].forEach(id=>document.getElementById(id)?.classList.toggle('hidden',!simpl));
+  const a=document.getElementById('fluxo-simplificado-alerta');
+  if(a)a.innerHTML=simpl
+    ?'<b>O que será dispensado:</b> revisão técnica obrigatória, orçamento comercial e aprovação do cliente. Se você escolher <b>Execução direta</b>, o agendamento também será dispensado. Diagnóstico, Diário, FormCraft, fotos, materiais, checkout e encerramento continuam disponíveis.'
+    :'<b>Retorno ao fluxo padrão:</b> os marcadores de dispensa serão removidos. O status atual do equipamento não será retrocedido automaticamente; a partir dali, as travas normais voltam a valer.';
+};
+window.abrirFluxoSimplificado=async function(){
+  if(!window.exigirPermissaoAssistencia('liberar_execucao'))return;
+  const o=state.selectedOS;if(!o)return;
+  try{
+    if(!Array.isArray(o._equipamentos)||!o._equipamentos.length){
+      o._equipamentos=(await readSub(o.internalId||o.id,'equipamentos')).filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
+    }
+  }catch(e){console.error('[Assistência] carregar equipamentos fluxo simplificado',e)}
+  const ativos=(o._equipamentos||[]).filter(e=>e?.ativo!==false&&!['RECUSADO','CANCELADO','CONCLUIDO'].includes(String(e.statusEquipamento||'').toUpperCase()));
+  if(!ativos.length){alert('Não há equipamento ativo pendente nesta OS para aplicar o fluxo simplificado.');return}
+  document.getElementById('fluxo-simplificado-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'Cliente');
+  document.getElementById('fluxo-simplificado-modo').value=fluxoSimplificadoOS(o)?'SIMPLIFICADO':'SIMPLIFICADO';
+  document.getElementById('fluxo-simplificado-natureza').value=o.fluxoSimplificadoNatureza||'SERVICO_INTERNO';
+  document.getElementById('fluxo-simplificado-destino').value='EXECUCAO';
+  document.getElementById('fluxo-simplificado-nao-fat').checked=!!o.fluxoSimplificadoNaoFaturavel;
+  document.getElementById('fluxo-simplificado-motivo').value=o.fluxoSimplificadoMotivo||'';
+  document.getElementById('fluxo-simplificado-equipamentos').innerHTML=ativos.map((e,i)=>`
+    <label class="simplified-eq-row">
+      <input type="checkbox" class="fluxo-simplificado-eq" value="${esc(e.id||e.internalId)}" ${fluxoSimplificadoEquipamento(e)||ativos.length===1?'checked':''}>
+      <span class="min-w-0">
+        <b class="text-xs">${esc(e.modelo||e.nome||'Equipamento')}</b>
+        <span class="block text-[10px] text-slate-500 mt-0.5">SN: ${esc(e.numeroSerie||'não informado')} · Status atual: ${esc(statusLabel(String(e.statusEquipamento||'PENDENTE').toUpperCase()))}</span>
+        ${fluxoSimplificadoEquipamento(e)?`<span class="flow-simplified-badge"><i class="fa-solid fa-forward-fast"></i>${esc(fluxoSimplificadoNaturezaLabel(e.fluxoSimplificadoNatureza||o.fluxoSimplificadoNatureza))}</span>`:''}
+      </span>
+    </label>`).join('');
+  window.alternarModoFluxoSimplificado();
+  document.getElementById('modal-fluxo-simplificado').classList.remove('hidden');
+};
+window.salvarFluxoSimplificado=async function(){
+  if(!window.exigirPermissaoAssistencia('liberar_execucao'))return;
+  const o=state.selectedOS;if(!o)return;
+  const modo=document.getElementById('fluxo-simplificado-modo')?.value||'SIMPLIFICADO';
+  const ids=[...document.querySelectorAll('.fluxo-simplificado-eq:checked')].map(x=>String(x.value));
+  if(!ids.length){alert('Selecione ao menos um equipamento.');return}
+  const motivo=document.getElementById('fluxo-simplificado-motivo')?.value.trim()||'';
+  if(!motivo){alert('Informe a justificativa para esta alteração de fluxo.');return}
+  const natureza=document.getElementById('fluxo-simplificado-natureza')?.value||'SERVICO_INTERNO';
+  const destino=document.getElementById('fluxo-simplificado-destino')?.value||'EXECUCAO';
+  const naoFaturavel=!!document.getElementById('fluxo-simplificado-nao-fat')?.checked;
+  const selecionados=(o._equipamentos||[]).filter(e=>ids.includes(String(e.id||e.internalId)));
+  if(!selecionados.length){alert('Os equipamentos selecionados não foram localizados.');return}
+
+  if(modo==='SIMPLIFICADO'&&['EXECUCAO','CHECKOUT'].includes(destino)&&!integrityTecnicosOS(o).length){
+    alert('Defina ao menos um técnico responsável antes de enviar diretamente para execução.');
+    return;
+  }
+
+  const textoConfirmacao=modo==='PADRAO'
+    ?`Retornar ${selecionados.length} equipamento(s) ao fluxo padrão? O status atual será mantido.`
+    :`Aplicar fluxo simplificado em ${selecionados.length} equipamento(s) e avançar para "${fluxoSimplificadoDestinoLabel(destino)}"?`;
+  if(!confirm(textoConfirmacao))return;
+
+  const btn=document.getElementById('btn-salvar-fluxo-simplificado'),now=new Date().toISOString(),osid=o.internalId||o.id;
+  try{
+    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Aplicando...';
+
+    for(const eq of selecionados){
+      let patch;
+      if(modo==='PADRAO'){
+        patch={
+          fluxoOperacional:'PADRAO',fluxoSimplificado:false,dispensaOrcamento:false,
+          dispensaRevisaoTecnica:false,dispensaAprovacaoComercial:false,dispensaAgendamento:false,
+          fluxoSimplificadoDesativadoEmISO:now,fluxoSimplificadoDesativadoPorUid:window.currentUser?.uid||'',
+          fluxoSimplificadoDesativadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+          fluxoSimplificadoDesativadoMotivo:motivo,updatedAtISO:now
+        };
+      }else{
+        const st=fluxoSimplificadoStatusDestino(destino);
+        patch={
+          fluxoOperacional:'SIMPLIFICADO',fluxoSimplificado:true,dispensaOrcamento:true,
+          dispensaRevisaoTecnica:true,dispensaAprovacaoComercial:true,
+          dispensaAgendamento:['EXECUCAO','CHECKOUT'].includes(destino),
+          fluxoSimplificadoNatureza:natureza,fluxoSimplificadoDestino:destino,fluxoSimplificadoMotivo:motivo,
+          fluxoSimplificadoAtivadoEmISO:now,fluxoSimplificadoAtivadoPorUid:window.currentUser?.uid||'',
+          fluxoSimplificadoAtivadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+          statusEquipamento:st,statusDetalhado:'FLUXO_SIMPLIFICADO_'+destino,
+          updatedAtISO:now
+        };
+        if(st==='EM_EXECUCAO'){
+          patch.liberadoExecucaoEmISO=now;
+          patch.liberadoExecucaoPorUid=window.currentUser?.uid||'';
+          patch.liberadoExecucaoPorNome=window.nomeUsuarioLogado||window.userProfile?.nome||'';
+          patch.liberacaoExecucaoSimplificada=true;
+        }
+      }
+      await mergeSubDoc(osid,'equipamentos',eq.id||eq.internalId,patch);
+      Object.assign(eq,patch);
+    }
+
+    const anySimpl=(o._equipamentos||[]).some(fluxoSimplificadoEquipamento);
+    const osPatch={
+      fluxoSimplificadoAtivo:anySimpl,
+      fluxoOperacional:anySimpl?'SIMPLIFICADO':'PADRAO',
+      fluxoSimplificadoNatureza:anySimpl?natureza:'',
+      fluxoSimplificadoMotivo:anySimpl?motivo:'',
+      fluxoSimplificadoNaoFaturavel:anySimpl?naoFaturavel:false,
+      fluxoSimplificadoAtualizadoEmISO:now,
+      fluxoSimplificadoAtualizadoPorUid:window.currentUser?.uid||'',
+      fluxoSimplificadoAtualizadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
+      updatedAtISO:now
+    };
+    await mergeOSDoc(osid,osPatch);Object.assign(o,osPatch);
+
+    await addHistory(o,'FLUXO_SIMPLIFICADO',
+      modo==='PADRAO'?'Fluxo padrão restaurado':'Fluxo simplificado aplicado',
+      `${selecionados.map(e=>e.modelo||e.nome||'Equipamento').join(', ')} · ${modo==='PADRAO'?'Retorno ao fluxo padrão':fluxoSimplificadoNaturezaLabel(natureza)+' · '+fluxoSimplificadoDestinoLabel(destino)} · ${motivo}`,
+      {equipamentoIds:selecionados.map(e=>e.id||e.internalId),modo,natureza,destino,dispensaOrcamento:modo!=='PADRAO',dispensaAgendamento:modo!=='PADRAO'&&['EXECUCAO','CHECKOUT'].includes(destino),naoFaturavel}
+    );
+
+    await recalcOSStage(o,o._equipamentos||[]);
+    window.fecharFluxoSimplificado();
+    await renderEquipamentosOS(o);
+    renderKanban();renderModoTecnico();
+    window.abrirDetalheOS(o.id||o.internalId);
+    toast(modo==='PADRAO'?'Fluxo padrão restaurado.':'Fluxo simplificado aplicado com rastreabilidade.');
+  }catch(e){
+    console.error('[Assistência] fluxo simplificado',e);
+    alert('Não foi possível aplicar o fluxo simplificado.\n\n'+(e?.message||e));
+  }finally{
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-forward-fast"></i> Aplicar fluxo';
+  }
+};
+
 window.abrirAlterarTipoAtendimento=function(destino){
  const o=state.selectedOS;if(!o)return;
  const atual=tipoAtendimentoOS(o);
@@ -4488,11 +4758,11 @@ window.alterarStatusEquipamento=async function(eid,status){
  if(status==='CONCLUIDO'){window.abrirCheckoutEquipamento(eid);return}
 
  const novo=String(status||'').toUpperCase();
- if(novo==='AGUARDANDO_EXECUCAO'&&String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
+ if(novo==='AGUARDANDO_EXECUCAO'&&!fluxoSimplificadoEquipamento(eq)&&String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
    const issues=[integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Não é possível avançar para execução','O orçamento comercial deste equipamento ainda não está aprovado.',{equipamentoId:eq.id||eq.internalId})];
    abrirIntegridadeBloqueante(o,issues,'Alteração de status');return;
  }
- if(novo==='AGUARDANDO_ORCAMENTO'){
+ if(novo==='AGUARDANDO_ORCAMENTO'&&!fluxoSimplificadoEquipamento(eq)){
    const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
    if(!['AGUARDANDO_REVISAO','APROVADO_TECNICAMENTE'].includes(req)&&!eq.ultimoOrcamentoId){
      const issues=[integrityIssue('ERROR','STATUS_ORCAMENTO_SEM_BASE','Etapa de orçamento sem base técnica','Antes de avançar manualmente, registre a solicitação técnica para orçamento.',{equipamentoId:eq.id||eq.internalId})];
@@ -4513,7 +4783,7 @@ window.alterarStatusEquipamento=async function(eid,status){
    alert('Não foi possível alterar o status do equipamento. Verifique as Security Rules.\n\n'+(e?.message||e));
  }
 };
-async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const allItems=await readSub(o.internalId||o.id,'equipamentos');const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');const clsDiag=equipmentActionFlowClass(e,'diag');const clsSol=equipmentActionFlowClass(e,'solicitacao');const clsOrc=equipmentActionFlowClass(e,'orcamento');const clsApr=equipmentActionFlowClass(e,'aprovacao');const clsAge=equipmentActionFlowClass(e,'agendamento');const clsChk=equipmentActionFlowClass(e,'checkout');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div></div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div><div class="eq-tools-block">
+async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const allItems=await readSub(o.internalId||o.id,'equipamentos');const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');const clsDiag=equipmentActionFlowClass(e,'diag');const clsSol=equipmentActionFlowClass(e,'solicitacao');const clsOrc=equipmentActionFlowClass(e,'orcamento');const clsApr=equipmentActionFlowClass(e,'aprovacao');const clsAge=equipmentActionFlowClass(e,'agendamento');const clsChk=equipmentActionFlowClass(e,'checkout');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div>${fluxoSimplificadoEquipamento(e)?`<div class="flow-simplified-badge"><i class="fa-solid fa-forward-fast"></i>Fluxo simplificado · ${esc(fluxoSimplificadoNaturezaLabel(e.fluxoSimplificadoNatureza||o.fluxoSimplificadoNatureza))}</div>`:''}</div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div><div class="eq-tools-block">
 <div class="eq-block-label"><i class="fa-solid fa-toolbox"></i> Ações do equipamento · ordem do fluxo</div>
 <div class="eq-actions">
 <button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirEditarEquipamento('${esc(e.id)}')"><i class="fa-solid fa-pen-to-square"></i> Editar dados</button>
@@ -4521,7 +4791,7 @@ async function renderEquipamentosOS(o){const box=document.getElementById('detalh
 <button class="orc-tech-btn ${clsSol}" onclick="event.stopPropagation();window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitação orçamento</button>
 <button class="orc-btn ${clsOrc}" data-assist-perm="editar_orcamento" onclick="event.stopPropagation();window.abrirOrcamentoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-file-invoice-dollar"></i> Orçamento comercial</button>
 <button class="orc-btn ${clsApr}" data-assist-perm="registrar_aprovacao" onclick="event.stopPropagation();window.abrirAprovacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-circle-check"></i> Aprovação / proposta</button>
-${String(e.ultimoOrcamentoStatus||'').toUpperCase()==='APROVADO'&&!['CONCLUIDO','RECUSADO','CANCELADO'].includes(st)?`<button class="schedule-flow-btn ${clsAge}" onclick="event.stopPropagation();window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> ${o.agendadoParaISO?'Reagendar OS':'Agendar OS'}</button>`:''}
+${(String(e.ultimoOrcamentoStatus||'').toUpperCase()==='APROVADO'||(fluxoSimplificadoEquipamento(e)&&!e.dispensaAgendamento))&&!['CONCLUIDO','RECUSADO','CANCELADO'].includes(st)?`<button class="schedule-flow-btn ${clsAge}" onclick="event.stopPropagation();window.abrirAgendamentoOS()"><i class="fa-solid fa-calendar-days"></i> ${o.agendadoParaISO?'Reagendar OS':'Agendar OS'}</button>`:''}
 ${String(e.statusEquipamento||'').toUpperCase()==='AGUARDANDO_EXECUCAO'?`<button class="release-btn ${clsAge}" data-assist-perm="liberar_execucao" onclick="event.stopPropagation();window.liberarExecucaoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-play"></i> Liberar execução</button>`:''}
 <button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirDiarioEquipamento('${esc(e.id)}')"><i class="fa-solid fa-book-open"></i> Diário</button>
 <button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirFormulariosEquipamento('${esc(e.id)}')"><i class="fa-solid fa-list-check"></i> Formulários</button>
@@ -6027,13 +6297,13 @@ window.abrirFaturamentoOS=async function(){
  const preIssues=await verificarIntegridadePreEncerramento(o);
  if(integrityErrors(preIssues).length){abrirIntegridadeBloqueante(o,preIssues,'Faturamento / encerramento');return}
  document.getElementById('fat-os-identificacao').textContent=`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||''}`;
- document.getElementById('fat-situacao').value=o.situacaoFaturamento||'FATURADO';
+ document.getElementById('fat-situacao').value=o.situacaoFaturamento||(o.fluxoSimplificadoNaoFaturavel?'NAO_FATURAVEL':'FATURADO');
  document.getElementById('fat-nf').value=o.numeroNF||'';
  document.getElementById('fat-data').value=(o.faturadoEmData||new Date().toISOString().slice(0,10));
  let sugerido=0;try{sugerido=await window.obterValorOrcamentoAprovadoOS(o)}catch(_){}
  window.__fatValorAprovadoAtual=Number(sugerido||0);
  document.getElementById('fat-valor').value=o.valorFaturado!==undefined&&o.valorFaturado!==''?o.valorFaturado:(sugerido>0?sugerido.toFixed(2):'');
- document.getElementById('fat-obs').value=o.observacaoFaturamento||'';
+ document.getElementById('fat-obs').value=o.observacaoFaturamento||(o.fluxoSimplificadoNaoFaturavel?('Serviço sem faturamento — '+fluxoSimplificadoNaturezaLabel(o.fluxoSimplificadoNatureza||'SERVICO_INTERNO')):'');
  document.getElementById('fat-justificativa').value=o.justificativaDivergenciaFaturamento||'';
  const hint=document.getElementById('fat-valor-sugestao');if(hint)hint.textContent=sugerido>0?'Total dos orçamentos aprovados do ciclo atual: '+moedaBR(sugerido):'Nenhum orçamento aprovado encontrado para comparação.';
  window.alternarCamposFaturamento();
@@ -6468,6 +6738,7 @@ window.abrirDetalheOS=function(id){
     ['Etapa',stages.find(s=>s[0]===normStage(o.etapaKanban||o.etapa||o.status))?.[1]||normStage(o.etapaKanban||o.etapa||o.status)],
     ['Ciclo','Ciclo '+Number(o.cicloAtendimento||1)],
     ['Tipo',tipoAtendimentoLabel(o)],
+    ['Fluxo',fluxoSimplificadoOS(o)?'SIMPLIFICADO — SEM ORÇAMENTO':'PADRÃO'],
     ['Prioridade',o.prioridade||'NORMAL'],
     ['Origem',o.origem||'MANUAL'],
     ['Técnico',o.tecnicoNome||o.tecnico||'A definir'],
@@ -6504,7 +6775,7 @@ window.salvarNovaOS=async function(){const clienteId=document.getElementById('no
 window.assistenciaAtualizar=load;window.filtrarKanban=renderKanban;window.legacyPage=(delta)=>{legacyCurrentPage+=delta;renderLegacy();};
 // FASE 1.28 — auditoria e histórico completo
 let auditEventos=[],auditFiltro='TODOS';
-function auditGrupo(tipo){tipo=String(tipo||'').toUpperCase();if(tipo.startsWith('ATENDIMENTO'))return'ATENDIMENTO';if(['DIAGNOSTICO','CHECKOUT','ANEXO','ANEXO_EXCLUIDO','MATERIAL','MATERIAL_STATUS','EQUIPAMENTO','EQUIPAMENTO_STATUS','FINALIZACAO'].includes(tipo))return'TECNICO';if(['ORCAMENTO','ORCAMENTO_DECISAO','AGENDAMENTO'].includes(tipo))return'COMERCIAL';if(['FATURAMENTO','ENCERRAMENTO','ETAPA','CRIACAO','ASSINATURA','TIPO_ATENDIMENTO'].includes(tipo))return'ADMIN';return'TECNICO'}
+function auditGrupo(tipo){tipo=String(tipo||'').toUpperCase();if(tipo.startsWith('ATENDIMENTO'))return'ATENDIMENTO';if(['DIAGNOSTICO','CHECKOUT','ANEXO','ANEXO_EXCLUIDO','MATERIAL','MATERIAL_STATUS','EQUIPAMENTO','EQUIPAMENTO_STATUS','FINALIZACAO'].includes(tipo))return'TECNICO';if(['ORCAMENTO','ORCAMENTO_DECISAO','AGENDAMENTO'].includes(tipo))return'COMERCIAL';if(['FATURAMENTO','ENCERRAMENTO','ETAPA','CRIACAO','ASSINATURA','TIPO_ATENDIMENTO','FLUXO_SIMPLIFICADO'].includes(tipo))return'ADMIN';return'TECNICO'}
 function auditIcon(tipo){const g=auditGrupo(tipo);return g==='ATENDIMENTO'?'fa-stopwatch':g==='COMERCIAL'?'fa-file-signature':g==='ADMIN'?'fa-shield-halved':'fa-screwdriver-wrench'}
 window.abrirAuditoriaOS=async function(){const o=state.selectedOS;if(!o)return;document.getElementById('audit-os-identificacao').textContent=(o.osNumber||o.numero||'OS')+' · '+(o.clienteNome||o.cliente||'');document.getElementById('modal-auditoria-os').classList.remove('hidden');document.querySelectorAll('.audit-chip').forEach(x=>x.classList.toggle('active',x.dataset.audit==='TODOS'));auditFiltro='TODOS';const box=document.getElementById('audit-lista');box.innerHTML='<div class="timeline-empty"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando auditoria...</div>';try{auditEventos=await readSub(o.internalId||o.id,'historico');auditEventos.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));window.renderAuditoriaOS()}catch(e){console.error('[Assistência] auditoria',e);box.innerHTML='<div class="timeline-empty text-rose-600">Não foi possível carregar a auditoria.</div>'}};
 window.fecharAuditoriaOS=()=>document.getElementById('modal-auditoria-os').classList.add('hidden');
@@ -6601,6 +6872,8 @@ function techMateriaisHTML(eq,oficiais,planejamentos,solicitacoes,ciclo){
 
 function equipmentFlowActionState(e,key){
  const st=String(e?.statusEquipamento||'PENDENTE').toUpperCase();
+ const simpl=fluxoSimplificadoEquipamento(e);
+ if(simpl&&['solicitacao','orcamento','aprovacao'].includes(key))return 'skipped';
  const hasDiag=!!String(e?.diagnosticoTecnico||'').trim();
  const hasBudget=!!String(e?.ultimoOrcamentoId||'').trim();
  const budgetStatus=String(e?.ultimoOrcamentoStatus||'').toUpperCase();
@@ -6642,7 +6915,7 @@ function equipmentFlowActionState(e,key){
 }
 function equipmentActionFlowClass(e,key){
  const st=equipmentFlowActionState(e,key);
- return st==='done'?'flow-done':st==='current'?'flow-current':st==='neutral'?'flow-neutral':'';
+ return st==='done'?'flow-done':st==='current'?'flow-current':st==='skipped'?'flow-skipped':st==='neutral'?'flow-neutral':'';
 }
 function assistPick(obj,keys){
  if(!obj)return '';
@@ -7859,6 +8132,7 @@ function verificarIntegridadeOSLocal(o){
       const sn=eq.numeroSerie?` · SN ${eq.numeroSerie}`:'';
       const req=String(eq.solicitacaoOrcamentoStatus||'').toUpperCase();
       const orc=String(eq.ultimoOrcamentoStatus||'').toUpperCase();
+      const simpl=fluxoSimplificadoEquipamento(eq);
 
       if(st==='CONCLUIDO'&&!eq.checkoutConcluidoEmISO){
         issues.push(integrityIssue('ERROR','CONCLUIDO_SEM_CHECKOUT','Equipamento concluído sem checkout',`${modelo}${sn} está como Concluído, porém não possui registro de checkout.`,{equipamentoId:eq.id||eq.internalId}));
@@ -7866,20 +8140,20 @@ function verificarIntegridadeOSLocal(o){
 
       if(st==='EM_EXECUCAO'&&tipo==='INTERNO'){
         const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
-        if(!agendado){
+        if(!agendado&&!(simpl&&eq.dispensaAgendamento===true)){
           issues.push(integrityIssue('ERROR','EXECUCAO_SEM_AGENDAMENTO','Execução interna sem agendamento',`${modelo}${sn} está em execução sem agendamento válido da OS.`,{equipamentoId:eq.id||eq.internalId}));
         }
-        if(orc!=='APROVADO'){
+        if(!simpl&&orc!=='APROVADO'){
           issues.push(integrityIssue('ERROR','EXECUCAO_SEM_APROVACAO','Execução sem orçamento aprovado',`${modelo}${sn} está em execução, mas o último orçamento não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
         }
       }
 
       // Não duplica EXECUCAO_SEM_APROVACAO: este código vale apenas antes da liberação.
-      if(st==='AGUARDANDO_EXECUCAO'&&tipo==='INTERNO'&&orc!=='APROVADO'){
+      if(st==='AGUARDANDO_EXECUCAO'&&tipo==='INTERNO'&&!simpl&&orc!=='APROVADO'){
         issues.push(integrityIssue('ERROR','FLUXO_COMERCIAL_INCOMPLETO','Aguardando execução sem aprovação comercial',`${modelo}${sn} aguarda liberação para execução, mas o orçamento ainda não está aprovado.`,{equipamentoId:eq.id||eq.internalId}));
       }
 
-      if(req==='APROVADO_TECNICAMENTE'&&!eq.ultimoOrcamentoId&&st!=='CONCLUIDO'){
+      if(!simpl&&req==='APROVADO_TECNICAMENTE'&&!eq.ultimoOrcamentoId&&st!=='CONCLUIDO'){
         issues.push(integrityIssue('WARN','REVISAO_SEM_ORCAMENTO','Base técnica aprovada sem orçamento comercial',`${modelo}${sn} já foi aprovado tecnicamente, mas ainda não possui orçamento comercial criado.`,{equipamentoId:eq.id||eq.internalId}));
       }
 
@@ -8121,7 +8395,7 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.();window.fecharDiarioEquipamento?.();window.fecharFormulariosEquipamento?.();window.fecharFormCraftPreencher?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharFluxoSimplificado?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.();window.fecharDiarioEquipamento?.();window.fecharFormulariosEquipamento?.();window.fecharFormCraftPreencher?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
@@ -8523,14 +8797,15 @@ window.liberarExecucaoEquipamento=async function(eid){
   const eq=(o._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));
   if(!eq){toast('Equipamento não encontrado.');return}
 
-  if(String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
+  const simpl=fluxoSimplificadoEquipamento(eq);
+  if(!simpl&&String(eq.ultimoOrcamentoStatus||'').toUpperCase()!=='APROVADO'){
     alert('O equipamento só pode ser liberado após a aprovação do orçamento.');
     return;
   }
 
   const agendado=String(o.statusAgendamento||'').toUpperCase()==='AGENDADO'||!!o.agendadoParaISO||!!o.agendaTaskId;
-  if(!agendado){
-    alert('Agende a OS antes de liberar o equipamento para execução.');
+  if(!agendado&&!(simpl&&eq.dispensaAgendamento===true)){
+    alert(simpl?'Agende a OS antes de liberar este serviço simplificado para execução.':'Agende a OS antes de liberar o equipamento para execução.');
     return;
   }
 
@@ -8564,7 +8839,7 @@ window.liberarExecucaoEquipamento=async function(eid){
     Object.assign(eq,patch);
     await addHistory(o,'LIBERACAO_EXECUCAO','Equipamento liberado para execução',
       (eq.modelo||'Equipamento')+(o.agendadoParaISO?' · Agendado: '+fmtDate(o.agendadoParaISO):''),
-      {equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||''});
+      {equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',fluxoSimplificado:simpl,dispensaOrcamento:simpl,dispensaAgendamento:!!eq.dispensaAgendamento});
     await recalcOSStage(o,o._equipamentos);
     await renderEquipamentosOS(o);
     renderModoTecnico();
