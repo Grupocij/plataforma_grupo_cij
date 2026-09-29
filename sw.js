@@ -1,5 +1,5 @@
-const SW_VERSION='3.11.2';
-const APP_BUILD='1.75.2';
+const SW_VERSION='3.12.0';
+const APP_BUILD='1.76';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,7 +8,7 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
-  './core.js?v=20260929-1520',
+  './core.js?v=20260929-1600',
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
@@ -227,4 +227,21 @@ self.addEventListener('fetch',event=>{
   if(isStaticCrossOrigin(url)){
     event.respondWith(staleWhileRevalidate(request,CACHE_RUNTIME));
   }
+});
+
+
+// V1.76 — abertura de alertas do Portal e preparação para Web Push
+self.addEventListener('notificationclick',event=>{
+  event.notification?.close();
+  const target=event.notification?.data?.url||'./index.html';
+  event.waitUntil((async()=>{
+    const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    const url=new URL(target,self.location.origin).href;
+    for(const c of windows){try{if(new URL(c.url).origin===self.location.origin){await c.focus();if('navigate'in c)await c.navigate(url);return}}catch(_){}}
+    if(self.clients.openWindow)return self.clients.openWindow(url);
+  })());
+});
+self.addEventListener('push',event=>{
+  let d={};try{d=event.data?.json?.()||{}}catch(_){try{d={body:event.data?.text?.()||''}}catch(__){}}
+  event.waitUntil(self.registration.showNotification(d.title||d.titulo||'Portal CIJ',{body:d.body||d.mensagem||'Você possui um novo alerta.',icon:'./assistencia-icon-192.png',badge:'./assistencia-icon-192.png',tag:d.tag||d.dedupeKey||undefined,data:{url:d.url||d.data?.url||'./index.html'}}));
 });

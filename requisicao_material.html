@@ -1127,6 +1127,18 @@
             }
         };
 
+        async function reqNotificarTecnico(req,novoStatus){
+            if(!req||typeof window.enviarNotificacaoApp!=='function')return;
+            const email=String(req.autor_email||req.tecnicoEmail||'').toLowerCase().trim();if(!email)return;
+            const os=String(req.os||req.osNumber||''),numero=String(req.grupo_requisicao_numero||req.id||'Requisição'),status=String(novoStatus||'').toUpperCase();
+            let titulo='',mensagem='',tipo='info';
+            if(status==='COM_TECNICO'){titulo='Material autorizado / liberado';mensagem=`${numero}${os?' · '+os:''}: material aprovado e liberado para o seu atendimento.`;tipo='success'}
+            else if(status==='REJEITADO'){titulo='Pedido de material rejeitado';mensagem=`${numero}${os?' · '+os:''}: o pedido de material foi rejeitado.`;tipo='warning'}
+            else if(status==='DEVOLVIDO'){titulo='Devolução de material concluída';mensagem=`${numero}${os?' · '+os:''}: a devolução foi confirmada.`;tipo='info'}
+            else return;
+            await window.enviarNotificacaoApp({titulo,mensagem,tipo,targetEmails:[email],modulo:'requisicao_material.html',url:req.osId?`assistencia.html?modo=tecnico&os=${encodeURIComponent(req.osId)}`:'requisicao_material.html',osId:req.osId||'',osNumber:os,eventType:'MATERIAL_'+status,sourceId:req.id||'',dedupeKey:`REQ:${req.id||numero}:${status}:${Date.now()}`});
+        }
+
         // Gestor Actions
         window.alterarStatus = async function(id, novoStatus) {
             const req = window.reqData.find(i => i.id === id);
@@ -1143,6 +1155,7 @@
             try {
                 if (novoStatus === 'COM_TECNICO') {
                     await window.entregarMaterialAoTecnico(req);
+                    await reqNotificarTecnico(req,'COM_TECNICO');
                     window.mostrarNotificacao(req.materialTipo==='PECA' && req.estoqueMovimentado
                         ? 'Material entregue ao técnico e saldo do estoque atualizado.'
                         : 'Material entregue ao técnico.');
@@ -1150,6 +1163,7 @@
                 }
                 if (novoStatus === 'DEVOLVIDO') {
                     await window.confirmarRetornoAoEstoque(req);
+                    await reqNotificarTecnico(req,'DEVOLVIDO');
                     window.mostrarNotificacao(req.materialTipo==='PECA' && req.estoqueDevolucaoMovimentada
                         ? 'Devolução confirmada e peça reintegrada ao estoque.'
                         : 'Devolução confirmada.');
@@ -1157,6 +1171,7 @@
                 }
 
                 await reqAtualizarStatusSimples(req,novoStatus);
+                await reqNotificarTecnico(req,novoStatus);
                 window.mostrarNotificacao('Status da requisição atualizado.');
             } catch(e) {
                 console.error('[Requisição] alterar status / estoque',e);

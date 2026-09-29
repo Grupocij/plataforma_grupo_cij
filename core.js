@@ -38,6 +38,14 @@ const injectLayout = () => {
             70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
             100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
+
+        .notif-bell-btn{position:relative;width:36px;height:34px;border-radius:10px;border:1px solid #334155;background:#1e293b;color:#cbd5e1;display:flex;align-items:center;justify-content:center;transition:.15s}
+        .notif-bell-btn:hover{background:#334155;color:#fff}.notif-badge{position:absolute;right:-5px;top:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #0f172a}
+        .notif-panel{position:fixed;right:12px;top:70px;width:min(410px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 86px));z-index:10050;background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 25px 70px rgba(15,23,42,.25);overflow:hidden;color:#0f172a}
+        .notif-panel.hidden{display:none}.notif-list{max-height:500px;overflow-y:auto}.notif-item{display:flex;gap:10px;padding:12px;border-bottom:1px solid #f1f5f9;background:#fff;text-align:left;width:100%}.notif-item:hover{background:#f8fafc}.notif-item.unread{background:#eff6ff}
+        .notif-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.notif-icon.info{background:#dbeafe;color:#1d4ed8}.notif-icon.warning{background:#fef3c7;color:#b45309}.notif-icon.success{background:#d1fae5;color:#047857}.notif-icon.danger{background:#fee2e2;color:#b91c1c}
+        .notif-title{font-size:11px;font-weight:900}.notif-message{font-size:10px;line-height:1.45;color:#475569;margin-top:2px}.notif-meta{font-size:9px;color:#94a3b8;margin-top:4px}.notif-dot{width:8px;height:8px;border-radius:999px;background:#2563eb;flex:0 0 auto;margin-top:5px}
+        @media(max-width:720px){.notif-panel{right:6px;left:6px;top:62px;width:auto;max-height:calc(100vh - 72px);border-radius:16px}.notif-list{max-height:calc(100vh - 235px)}}
     `;
     document.head.appendChild(style);
 
@@ -198,6 +206,7 @@ const injectLayout = () => {
                 </nav>
 
                 <div class="flex items-center gap-2 shrink-0 ml-2">
+                    <button id="notif-bell-btn" onclick="window.toggleNotificationCenter()" class="notif-bell-btn" title="Notificações"><i class="fa-solid fa-bell"></i><span id="notif-badge" class="notif-badge hidden">0</span></button>
                     <a href="index.html" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition items-center gap-1.5 hover:bg-slate-800"><i class="fa-solid fa-house"></i> Home</a>
                     <button onclick="window.fazerLogout()" class="hidden lg:flex px-3 py-1.5 rounded-lg text-xs font-bold bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 transition items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
                     <!-- Botão Menu Mobile Corrigido -->
@@ -208,6 +217,18 @@ const injectLayout = () => {
             </div>
         </div>
     </header>
+
+    <section id="notif-panel" class="notif-panel hidden no-print">
+        <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 bg-slate-50">
+            <div><div class="text-xs font-black"><i class="fa-solid fa-bell text-blue-600 mr-1"></i>Notificações</div><div id="notif-subtitle" class="text-[9px] text-slate-500 mt-0.5">Carregando...</div></div>
+            <button onclick="window.toggleNotificationCenter(false)" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="px-3 py-2 border-b border-slate-100 flex flex-wrap gap-2">
+            <button id="notif-enable-device" onclick="window.ativarNotificacoesDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black bg-blue-600 text-white"><i class="fa-solid fa-mobile-screen mr-1"></i>Ativar no dispositivo</button>
+            <button onclick="window.marcarTodasNotificacoesLidas()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-slate-300 text-slate-600 bg-white"><i class="fa-solid fa-check-double mr-1"></i>Marcar todas como lidas</button>
+        </div>
+        <div id="notif-list" class="notif-list"><div class="p-8 text-center text-xs text-slate-400">Nenhuma notificação.</div></div>
+    </section>
 
     <!-- Sidebar Mobile -->
     <div id="mobile-overlay" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-black/60 z-[105] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm lg:hidden"></div>
@@ -457,90 +478,66 @@ window.aplicarPermissoesDeModulos = function(dbUser) {
 };
 
 // ==========================================
-// CENTRAL UNIVERSAL DE NOTIFICAÇÕES & ALERTAS
+// CENTRAL UNIVERSAL DE NOTIFICAÇÕES & ALERTAS — V1.76
 // ==========================================
-window.tocarSomAlerta = function() {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (ctx.state === 'suspended') ctx.resume();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15); // Efeito "Ding-Ding"
-        gain.gain.setValueAtTime(0.5, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.5);
-    } catch(e) { console.warn("Áudio bloqueado pelo navegador."); }
+window.__notifState={rows:[],readIds:new Set(),profile:null,user:null,initial:true,startedAt:Date.now(),unsubs:[]};
+function notifSafeId(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'_').slice(0,140)}
+function notifUserKey(){const s=window.__notifState;return String(s.user?.email||s.profile?.email||s.user?.uid||'').toLowerCase().trim()}
+function notifReadDocId(id){return notifSafeId(notifUserKey())+'__'+notifSafeId(id)}
+function notifTarget(n,profile,user){
+    if(!n)return false;if(String(profile?.perfil||'')==='Master')return true;
+    const email=String(user?.email||profile?.email||'').toLowerCase().trim(),uid=String(user?.uid||profile?.authUid||profile?.uid||'').trim(),perfil=String(profile?.perfil||'');
+    const emails=(n.targetEmails||[]).map(x=>String(x||'').toLowerCase().trim()),uids=(n.targetUids||[]).map(x=>String(x||'').trim()),profiles=(n.targetProfiles||[]).map(String);
+    return n.broadcast===true||(email&&emails.includes(email))||(uid&&uids.includes(uid))||(perfil&&profiles.includes(perfil));
+}
+function notifTs(n){return Number(n.timestamp||Date.parse(n.createdAtISO||'')||0)}
+function notifEsc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function notifType(n){const t=String(n.tipo||'info').toLowerCase();return ['info','warning','success','danger'].includes(t)?t:'info'}
+function notifIcon(t){return ({info:'fa-circle-info',warning:'fa-triangle-exclamation',success:'fa-circle-check',danger:'fa-circle-exclamation'})[t]||'fa-bell'}
+window.enviarNotificacaoApp=async function(payloadOrMessage,targetEmails=[],targetProfiles=[],tipo='info'){
+    const p=(payloadOrMessage&&typeof payloadOrMessage==='object')?{...payloadOrMessage}:{mensagem:String(payloadOrMessage||''),targetEmails,targetProfiles,tipo};
+    const mensagem=String(p.mensagem||p.message||'').trim();if(!mensagem)return null;
+    const id=p.id||('notif_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)),now=Date.now();
+    const data={id,titulo:p.titulo||p.title||'Portal CIJ',mensagem,tipo:p.tipo||tipo||'info',
+      targetEmails:(p.targetEmails||targetEmails||[]).map(x=>String(x||'').toLowerCase().trim()).filter(Boolean),
+      targetUids:(p.targetUids||[]).map(x=>String(x||'').trim()).filter(Boolean),targetProfiles:(p.targetProfiles||targetProfiles||[]).filter(Boolean),
+      broadcast:p.broadcast===true,modulo:p.modulo||'',url:p.url||'',actionLabel:p.actionLabel||'Abrir',osId:p.osId||'',osNumber:p.osNumber||'',
+      eventType:p.eventType||'',sourceId:p.sourceId||'',dedupeKey:p.dedupeKey||'',createdAtISO:new Date(now).toISOString(),
+      createdByEmail:String(window.currentUser?.email||'').toLowerCase(),createdByName:window.nomeUsuarioLogado||'',timestamp:now};
+    try{await setDoc(doc(db,'artifacts','plataforma-cij','public','data','notificacoes_app',id),data);return id}
+    catch(e){console.error('[Core] envio de notificação',e);return null}
 };
-
-window.dispararAlertaGlobal = function(msg, tocarSom) {
-    if (tocarSom) window.tocarSomAlerta();
-    const banner = document.getElementById('global-yellow-alert');
-    const txt = document.getElementById('global-yellow-alert-text');
-    if(banner && txt) {
-        txt.innerText = msg;
-        banner.classList.remove('hidden');
-    }
+window.toggleNotificationCenter=function(force){const p=document.getElementById('notif-panel');if(!p)return;const open=typeof force==='boolean'?force:p.classList.contains('hidden');p.classList.toggle('hidden',!open);if(open)window.renderNotificationCenter?.()};
+window.ativarNotificacoesDispositivo=async function(){
+    const btn=document.getElementById('notif-enable-device');if(!('Notification'in window)){if(btn)btn.textContent='Sem suporte';return}
+    try{const permission=await Notification.requestPermission();if(permission==='granted'){if(btn){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
+      const reg=await navigator.serviceWorker?.ready?.catch(()=>null);if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',data:{url:location.href}});
+    }else if(btn)btn.textContent=permission==='denied'?'Notificações bloqueadas':'Ativar no dispositivo'}catch(e){console.warn(e)}
 };
-
-window.marcarAlertaCiente = function() {
-    if (window.pendingSolicTime) localStorage.setItem('cij_last_alert_time', window.pendingSolicTime.toString());
-    document.getElementById('global-yellow-alert').classList.add('hidden');
+async function notifMarkRead(id){
+    if(!id||!notifUserKey())return;window.__notifState.readIds.add(String(id));
+    try{const rid=notifReadDocId(id);await setDoc(doc(db,'artifacts','plataforma-cij','public','data','notificacoes_app_leituras',rid),{id:rid,notificationId:id,userKey:notifUserKey(),lidaEmISO:new Date().toISOString(),timestamp:Date.now()})}catch(e){console.warn('[Core] leitura notificação',e)}
+}
+window.abrirNotificacao=async function(id){const n=(window.__notifState.rows||[]).find(x=>String(x.id)===String(id));if(!n)return;await notifMarkRead(id);window.renderNotificationCenter?.();if(n.url)location.href=n.url};
+window.marcarTodasNotificacoesLidas=async function(){const s=window.__notifState,rows=(s.rows||[]).filter(n=>notifTarget(n,s.profile,s.user));for(const n of rows){if(!s.readIds.has(String(n.id)))await notifMarkRead(n.id)}window.renderNotificationCenter?.()};
+window.renderNotificationCenter=function(){
+    const s=window.__notifState,box=document.getElementById('notif-list'),badge=document.getElementById('notif-badge'),sub=document.getElementById('notif-subtitle');if(!box||!s.profile)return;
+    const rows=(s.rows||[]).filter(n=>notifTarget(n,s.profile,s.user)).sort((a,b)=>notifTs(b)-notifTs(a)).slice(0,80),unread=rows.filter(n=>!s.readIds.has(String(n.id))).length;
+    if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',unread===0)}
+    if(sub)sub.textContent=unread?`${unread} não lida${unread===1?'':'s'} · ${rows.length} recentes`:`${rows.length} notificação${rows.length===1?'':'ões'} · tudo em dia`;
+    box.innerHTML=rows.length?rows.map(n=>{const unreadRow=!s.readIds.has(String(n.id)),t=notifType(n);return `<button class="notif-item ${unreadRow?'unread':''}" onclick="window.abrirNotificacao('${notifEsc(n.id)}')"><span class="notif-icon ${t}"><i class="fa-solid ${notifIcon(t)}"></i></span><span class="min-w-0 flex-1"><span class="notif-title">${notifEsc(n.titulo||'Portal CIJ')}</span><span class="notif-message block">${notifEsc(n.mensagem||'')}</span><span class="notif-meta block">${new Date(notifTs(n)).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${n.osNumber?' · '+notifEsc(n.osNumber):''}</span></span>${unreadRow?'<span class="notif-dot"></span>':''}</button>`}).join(''):'<div class="p-8 text-center text-xs text-slate-400"><i class="fa-regular fa-bell-slash text-2xl mb-2"></i><div>Nenhuma notificação para você.</div></div>';
 };
-
-window.enviarNotificacaoApp = async function(mensagem, targetEmails = [], targetProfiles = [], tipo = 'info') {
-    if(!mensagem) return;
-    const id = 'notif_' + Date.now();
-    try {
-        await setDoc(doc(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app', id), {
-            id: id,
-            mensagem: mensagem,
-            targetEmails: targetEmails, 
-            targetProfiles: targetProfiles,
-            tipo: tipo,
-            timestamp: Date.now()
-        });
-    } catch(e) {}
+async function notifShowDevice(n){
+    if(!('Notification'in window)||Notification.permission!=='granted')return;
+    try{const reg=await navigator.serviceWorker?.ready;if(reg)await reg.showNotification(n.titulo||'Portal CIJ',{body:n.mensagem||'',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:n.dedupeKey||n.id,renotify:false,data:{url:n.url||location.href,notificationId:n.id}})}catch(e){console.warn('[Core] alerta dispositivo',e)}
+}
+window.iniciarRadarNotificacoes=function(dbUser){
+    const s=window.__notifState;s.profile=dbUser;s.user=window.currentUser;s.startedAt=Date.now();s.initial=true;for(const u of s.unsubs||[]){try{u()}catch(_){}}s.unsubs=[];
+    const reads=collection(db,'artifacts','plataforma-cij','public','data','notificacoes_app_leituras'),notifs=collection(db,'artifacts','plataforma-cij','public','data','notificacoes_app');
+    s.unsubs.push(onSnapshot(reads,snap=>{const key=notifUserKey(),set=new Set();snap.forEach(d=>{const x=d.data();if(String(x.userKey||'').toLowerCase()===key)set.add(String(x.notificationId||''))});s.readIds=set;window.renderNotificationCenter?.()},e=>console.warn('[Core] leituras',e)));
+    s.unsubs.push(onSnapshot(notifs,snap=>{const prev=new Set((s.rows||[]).map(x=>String(x.id)));s.rows=[];snap.forEach(d=>s.rows.push({id:d.id,...d.data()}));const fresh=s.rows.filter(n=>!prev.has(String(n.id))&&notifTarget(n,dbUser,window.currentUser)&&notifTs(n)>=s.startedAt-2500);window.renderNotificationCenter?.();if(!s.initial)fresh.sort((a,b)=>notifTs(a)-notifTs(b)).forEach(notifShowDevice);s.initial=false},e=>console.warn('[Core] notificações',e)));
+    const btn=document.getElementById('notif-enable-device');if(btn&&'Notification'in window&&Notification.permission==='granted'){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
 };
-
-window.iniciarRadarNotificacoes = function(dbUser) {
-    const colNotif = collection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'notificacoes_app');
-    let lastSeenTime = parseInt(localStorage.getItem('cij_last_alert_time') || Date.now().toString());
-    let initialLoad = true;
-    
-    onSnapshot(colNotif, (snap) => {
-        let maxTime = lastSeenTime;
-        let hasNew = false;
-        let latestMsg = "";
-
-        snap.docChanges().forEach(change => {
-            const n = change.doc.data();
-            const ts = n.timestamp;
-            
-            if (ts > lastSeenTime) {
-                const imTargetEmail = n.targetEmails && n.targetEmails.includes(dbUser.email);
-                const imTargetProfile = n.targetProfiles && n.targetProfiles.includes(dbUser.perfil);
-                
-                if (imTargetEmail || imTargetProfile || (dbUser.perfil === 'Master')) {
-                    hasNew = true;
-                    if (ts > maxTime) maxTime = ts;
-                    latestMsg = n.mensagem;
-                }
-            }
-        });
-
-        if (hasNew) {
-            window.pendingSolicTime = maxTime;
-            window.dispararAlertaGlobal(latestMsg, !initialLoad); 
-        }
-        initialLoad = false;
-    });
-};
-
 
 // FASE 1.66.2 — perfil autenticado local para inicialização offline
 const CORE_OFFLINE_PROFILE_KEY='cij_core_offline_profile_v2';
