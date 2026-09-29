@@ -43,7 +43,7 @@ const injectLayout = () => {
         .notif-bell-btn:hover{background:#334155;color:#fff}.notif-badge{position:absolute;right:-5px;top:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #0f172a}
         .notif-panel{position:fixed;right:12px;top:70px;width:min(410px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 86px));z-index:10050;background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 25px 70px rgba(15,23,42,.25);overflow:hidden;color:#0f172a}
         .notif-panel.hidden{display:none}.notif-list{max-height:500px;overflow-y:auto}.notif-item{display:flex;gap:10px;padding:12px;border-bottom:1px solid #f1f5f9;background:#fff;text-align:left;width:100%}.notif-item:hover{background:#f8fafc}.notif-item.unread{background:#eff6ff}
-        .notif-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.notif-icon.info{background:#dbeafe;color:#1d4ed8}.notif-icon.warning{background:#fef3c7;color:#b45309}.notif-icon.success{background:#d1fae5;color:#047857}.notif-icon.danger{background:#fee2e2;color:#b91c1c}
+        .notif-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.notif-icon.info{background:#dbeafe;color:#1d4ed8}.notif-icon.warning{background:#fef3c7;color:#b45309}.notif-icon.success{background:#d1fae5;color:#047857}.notif-icon.danger{background:#fee2e2;color:#b91c1c}.notif-item.danger{border-left:4px solid #dc2626;background:#fff7f7}.notif-item.danger.unread{background:#fff1f2}.notif-item.danger .notif-title{color:#b91c1c}.notif-item.danger .notif-icon{animation:notifDangerPulse 1.25s ease-in-out infinite}@keyframes notifDangerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
         .notif-title{font-size:11px;font-weight:900}.notif-message{font-size:10px;line-height:1.45;color:#475569;margin-top:2px}.notif-meta{font-size:9px;color:#94a3b8;margin-top:4px}.notif-dot{width:8px;height:8px;border-radius:999px;background:#2563eb;flex:0 0 auto;margin-top:5px}
         @media(max-width:720px){.notif-panel{right:6px;left:6px;top:62px;width:auto;max-height:calc(100vh - 72px);border-radius:16px}.notif-list{max-height:calc(100vh - 235px)}}
     `;
@@ -493,6 +493,17 @@ function notifTarget(n,profile,user){
 function notifTs(n){return Number(n.timestamp||Date.parse(n.createdAtISO||'')||0)}
 function notifEsc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function notifType(n){const t=String(n.tipo||'info').toLowerCase();return ['info','warning','success','danger'].includes(t)?t:'info'}
+function notifVibrationPattern(n){
+    const t=notifType(n);
+    if(t==='danger')return [350,120,350,120,650];
+    if(t==='warning')return [250,100,250];
+    if(t==='success')return [120];
+    return [180,90,180];
+}
+function notifDeviceTitle(n){
+    return notifType(n)==='danger' ? `URGENTE · ${n.titulo||'Portal CIJ'}` : (n.titulo||'Portal CIJ');
+}
+
 function notifIcon(t){return ({info:'fa-circle-info',warning:'fa-triangle-exclamation',success:'fa-circle-check',danger:'fa-circle-exclamation'})[t]||'fa-bell'}
 window.enviarNotificacaoApp=async function(payloadOrMessage,targetEmails=[],targetProfiles=[],tipo='info'){
     const p=(payloadOrMessage&&typeof payloadOrMessage==='object')?{...payloadOrMessage}:{mensagem:String(payloadOrMessage||''),targetEmails,targetProfiles,tipo};
@@ -511,7 +522,7 @@ window.toggleNotificationCenter=function(force){const p=document.getElementById(
 window.ativarNotificacoesDispositivo=async function(){
     const btn=document.getElementById('notif-enable-device');if(!('Notification'in window)){if(btn)btn.textContent='Sem suporte';return}
     try{const permission=await Notification.requestPermission();if(permission==='granted'){if(btn){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
-      const reg=await navigator.serviceWorker?.ready?.catch(()=>null);if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',data:{url:location.href}});
+      const reg=await navigator.serviceWorker?.ready?.catch(()=>null);if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',silent:false,vibrate:[120],data:{url:location.href}});
     }else if(btn)btn.textContent=permission==='denied'?'Notificações bloqueadas':'Ativar no dispositivo'}catch(e){console.warn(e)}
 };
 async function notifMarkRead(id){
@@ -525,11 +536,29 @@ window.renderNotificationCenter=function(){
     const rows=(s.rows||[]).filter(n=>notifTarget(n,s.profile,s.user)).sort((a,b)=>notifTs(b)-notifTs(a)).slice(0,80),unread=rows.filter(n=>!s.readIds.has(String(n.id))).length;
     if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',unread===0)}
     if(sub)sub.textContent=unread?`${unread} não lida${unread===1?'':'s'} · ${rows.length} recentes`:`${rows.length} notificação${rows.length===1?'':'ões'} · tudo em dia`;
-    box.innerHTML=rows.length?rows.map(n=>{const unreadRow=!s.readIds.has(String(n.id)),t=notifType(n);return `<button class="notif-item ${unreadRow?'unread':''}" onclick="window.abrirNotificacao('${notifEsc(n.id)}')"><span class="notif-icon ${t}"><i class="fa-solid ${notifIcon(t)}"></i></span><span class="min-w-0 flex-1"><span class="notif-title">${notifEsc(n.titulo||'Portal CIJ')}</span><span class="notif-message block">${notifEsc(n.mensagem||'')}</span><span class="notif-meta block">${new Date(notifTs(n)).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${n.osNumber?' · '+notifEsc(n.osNumber):''}</span></span>${unreadRow?'<span class="notif-dot"></span>':''}</button>`}).join(''):'<div class="p-8 text-center text-xs text-slate-400"><i class="fa-regular fa-bell-slash text-2xl mb-2"></i><div>Nenhuma notificação para você.</div></div>';
+    box.innerHTML=rows.length?rows.map(n=>{const unreadRow=!s.readIds.has(String(n.id)),t=notifType(n);return `<button class="notif-item ${t==='danger'?'danger':''} ${unreadRow?'unread':''}" onclick="window.abrirNotificacao('${notifEsc(n.id)}')"><span class="notif-icon ${t}"><i class="fa-solid ${notifIcon(t)}"></i></span><span class="min-w-0 flex-1"><span class="notif-title">${notifEsc(n.titulo||'Portal CIJ')}</span><span class="notif-message block">${notifEsc(n.mensagem||'')}</span><span class="notif-meta block">${new Date(notifTs(n)).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${n.osNumber?' · '+notifEsc(n.osNumber):''}</span></span>${unreadRow?'<span class="notif-dot"></span>':''}</button>`}).join(''):'<div class="p-8 text-center text-xs text-slate-400"><i class="fa-regular fa-bell-slash text-2xl mb-2"></i><div>Nenhuma notificação para você.</div></div>';
 };
 async function notifShowDevice(n){
     if(!('Notification'in window)||Notification.permission!=='granted')return;
-    try{const reg=await navigator.serviceWorker?.ready;if(reg)await reg.showNotification(n.titulo||'Portal CIJ',{body:n.mensagem||'',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:n.dedupeKey||n.id,renotify:false,data:{url:n.url||location.href,notificationId:n.id}})}catch(e){console.warn('[Core] alerta dispositivo',e)}
+    const pattern=notifVibrationPattern(n),danger=notifType(n)==='danger';
+    try{
+        // Vibração imediata enquanto o Portal/PWA está aberto (quando suportado, principalmente Android).
+        if(navigator.vibrate)navigator.vibrate(pattern);
+    }catch(_){}
+    try{
+        const reg=await navigator.serviceWorker?.ready;
+        if(reg)await reg.showNotification(notifDeviceTitle(n),{
+            body:n.mensagem||'',
+            icon:'assistencia-icon-192.png',
+            badge:'assistencia-icon-192.png',
+            tag:n.dedupeKey||n.id,
+            renotify:danger,
+            silent:false,
+            vibrate:pattern,
+            requireInteraction:danger,
+            data:{url:n.url||location.href,notificationId:n.id,tipo:notifType(n)}
+        });
+    }catch(e){console.warn('[Core] alerta dispositivo',e)}
 }
 window.iniciarRadarNotificacoes=function(dbUser){
     const s=window.__notifState;s.profile=dbUser;s.user=window.currentUser;s.startedAt=Date.now();s.initial=true;for(const u of s.unsubs||[]){try{u()}catch(_){}}s.unsubs=[];

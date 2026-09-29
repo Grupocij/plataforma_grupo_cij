@@ -1,5 +1,5 @@
-const SW_VERSION='3.12.0';
-const APP_BUILD='1.76';
+const SW_VERSION='3.12.1';
+const APP_BUILD='1.76.1';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,7 +8,7 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
-  './core.js?v=20260929-1600',
+  './core.js?v=20260929-1610',
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
@@ -242,6 +242,24 @@ self.addEventListener('notificationclick',event=>{
   })());
 });
 self.addEventListener('push',event=>{
-  let d={};try{d=event.data?.json?.()||{}}catch(_){try{d={body:event.data?.text?.()||''}}catch(__){}}
-  event.waitUntil(self.registration.showNotification(d.title||d.titulo||'Portal CIJ',{body:d.body||d.mensagem||'Você possui um novo alerta.',icon:'./assistencia-icon-192.png',badge:'./assistencia-icon-192.png',tag:d.tag||d.dedupeKey||undefined,data:{url:d.url||d.data?.url||'./index.html'}}));
+  let d={};
+  try{d=event.data?.json?.()||{}}catch(_){try{d={body:event.data?.text?.()||''}}catch(__){}}
+  const tipo=String(d.tipo||d.type||d.data?.tipo||'info').toLowerCase();
+  const danger=tipo==='danger'||tipo==='urgent'||tipo==='urgente';
+  const warning=tipo==='warning'||tipo==='aviso';
+  const success=tipo==='success'||tipo==='sucesso';
+  const vibrate=danger?[350,120,350,120,650]:warning?[250,100,250]:success?[120]:[180,90,180];
+  const baseTitle=d.title||d.titulo||'Portal CIJ';
+  const title=danger?`URGENTE · ${baseTitle}`:baseTitle;
+  event.waitUntil(self.registration.showNotification(title,{
+    body:d.body||d.mensagem||'Você possui um novo alerta.',
+    icon:'./assistencia-icon-192.png',
+    badge:'./assistencia-icon-192.png',
+    tag:d.tag||d.dedupeKey||undefined,
+    renotify:danger,
+    silent:false,
+    vibrate,
+    requireInteraction:danger,
+    data:{url:d.url||d.data?.url||'./index.html',tipo}
+  }));
 });
