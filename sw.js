@@ -1,5 +1,5 @@
-const SW_VERSION='3.12.3';
-const APP_BUILD='1.76.3';
+const SW_VERSION='3.12.4';
+const APP_BUILD='1.76.4';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';

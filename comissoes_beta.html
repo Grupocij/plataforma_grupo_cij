@@ -34,6 +34,15 @@ textarea.c-input{height:auto}.c-label{display:block;font-size:.56rem;font-weight
 .c-status-await{background:#fff7ed;color:#c2410c}.c-status-free{background:#ecfdf5;color:#047857}.c-status-program{background:#eff6ff;color:#1d4ed8}.c-status-paid{background:#f0fdf4;color:#166534}.c-status-late{background:#fff1f2;color:#be123c}.c-status-cancel{background:#f1f5f9;color:#64748b}
 .matrix-grid input{height:32px}
 @media(max-width:720px){#commission-shell{padding:.4rem!important}.c-tabs{overflow-x:auto;flex-wrap:nowrap!important}.c-table td,.c-table th{padding:.48rem}.c-modal{padding:.3rem}}
+.seller-pay-card{border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:#fff;transition:.15s}
+.seller-pay-card:hover{border-color:#c7d2fe;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+.seller-pay-card.active{border-color:#6366f1;background:#eef2ff}
+.seller-group-row td{background:#f8fafc!important;border-top:2px solid #cbd5e1!important;border-bottom:1px solid #e2e8f0!important}
+.batch-seller-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 0;border-top:1px solid #f1f5f9}
+.batch-seller-row:first-child{border-top:0}
+.receipt-state-paid{color:#047857}.receipt-state-unpaid{color:#be123c}.receipt-state-pending{color:#b45309}
+@media(max-width:720px){.seller-pay-card{padding:10px}.batch-seller-row{grid-template-columns:1fr}.batch-seller-row .batch-actions{justify-content:flex-start!important}}
+
 </style>
 </head>
 <body class="h-full overflow-hidden">
@@ -44,7 +53,7 @@ textarea.c-input{height:auto}.c-label{display:block;font-size:.56rem;font-weight
   <div class="flex items-center gap-2.5">
     <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
     <div>
-      <div class="flex items-center gap-2"><span class="c-pill bg-amber-100 text-amber-800">AMBIENTE BETA</span><span class="text-[9px] font-bold text-slate-400">V0.2</span></div>
+      <div class="flex items-center gap-2"><span class="c-pill bg-amber-100 text-amber-800">AMBIENTE BETA</span><span class="text-[9px] font-bold text-slate-400">V0.3</span></div>
       <h1 class="text-base font-black mt-1">Gestão de Comissões</h1>
       <p class="text-[10px] text-slate-500">Vendas, recebimentos reais, liberação automática e pagamentos nos ciclos 15/30.</p>
     </div>
@@ -149,12 +158,29 @@ textarea.c-input{height:auto}.c-label{display:block;font-size:.56rem;font-weight
   <div class="c-card p-2.5 flex flex-wrap items-end gap-2">
     <label class="w-44"><span class="c-label">Mês do ciclo</span><input id="pay-cycle-month" type="month" class="c-input" onchange="renderPayments()"></label>
     <label class="w-36"><span class="c-label">Dia</span><select id="pay-cycle-day" class="c-input" onchange="renderPayments()"><option value="15">Dia 15</option><option value="30">Dia 30</option></select></label>
+    <label class="w-56"><span class="c-label">Vendedor</span><select id="pay-seller-filter" class="c-input" onchange="renderPayments()"><option value="">Todos os vendedores</option></select></label>
     <button class="c-btn c-btn-light" onclick="renderPayments()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+    <button id="btn-finance-alert-config" class="c-btn c-btn-light hidden" onclick="openFinanceAlertConfig()"><i class="fa-solid fa-bell"></i> Alertas financeiros</button>
     <button id="btn-close-cycle" class="c-btn c-btn-primary ml-auto" onclick="closePaymentCycle()"><i class="fa-solid fa-lock"></i> Fechar ciclo</button>
   </div>
+
+  <div id="finance-alert-status" class="c-card p-2.5 text-[10px] text-slate-500"></div>
   <div id="payment-summary" class="grid sm:grid-cols-3 gap-2"></div>
+
+  <div class="c-card p-3">
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <div><h3 class="font-black text-xs">Total por vendedor</h3><p class="text-[10px] text-slate-500">Clique em um vendedor para filtrar as comissões do ciclo.</p></div>
+      <button class="c-btn c-btn-light !min-h-8" onclick="setPaySellerFilter('')"><i class="fa-solid fa-users"></i> Todos</button>
+    </div>
+    <div id="seller-payment-summary" class="grid md:grid-cols-2 xl:grid-cols-3 gap-2"></div>
+  </div>
+
   <div class="c-card overflow-hidden"><div class="overflow-auto c-scroll max-h-[58vh]"><table class="c-table w-full min-w-[1050px]"><thead><tr><th>Vendedor</th><th>NF</th><th>Cliente</th><th>Liberação real</th><th>Ciclo</th><th class="text-right">Comissão</th><th>Status</th></tr></thead><tbody id="payments-body"></tbody></table></div></div>
-  <div class="c-card p-3"><div class="flex items-center justify-between gap-2 mb-2"><div><h3 class="font-black text-xs">Lotes de pagamento</h3><p class="text-[10px] text-slate-500">Fechamentos já criados para os ciclos 15/30.</p></div></div><div id="batch-list" class="grid lg:grid-cols-2 gap-2"></div></div>
+
+  <div class="c-card p-3">
+    <div class="flex items-center justify-between gap-2 mb-2"><div><h3 class="font-black text-xs">Lotes de pagamento</h3><p class="text-[10px] text-slate-500">Fechamentos 15/30 com pagamento separado por vendedor. Administradores podem editar ciclos fechados e pagamentos já realizados.</p></div></div>
+    <div id="batch-list" class="grid lg:grid-cols-2 gap-2"></div>
+  </div>
 </section>
 
 <!-- MATRIZ -->
@@ -202,13 +228,56 @@ textarea.c-input{height:auto}.c-label{display:block;font-size:.56rem;font-weight
 <!-- CONFIRMAR RECEBIMENTO -->
 <div id="receipt-modal" class="c-modal hidden"><div class="c-modal-card max-w-lg">
   <form onsubmit="saveReceipt(event)">
-    <div class="p-4 border-b flex justify-between"><div><span class="c-pill bg-emerald-50 text-emerald-700">RECEBIMENTO REAL</span><h2 id="receipt-title" class="font-black text-lg mt-1">Confirmar recebimento</h2></div><button type="button" class="c-btn c-btn-light !w-9 !px-0" onclick="closeModal('receipt-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="p-4 border-b flex justify-between"><div><span class="c-pill bg-emerald-50 text-emerald-700">CONFERÊNCIA FINANCEIRA</span><h2 id="receipt-title" class="font-black text-lg mt-1">Confirmar parcela</h2></div><button type="button" class="c-btn c-btn-light !w-9 !px-0" onclick="closeModal('receipt-modal')"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="p-4 space-y-3"><input id="receipt-id" type="hidden"><div id="receipt-info" class="rounded-xl border bg-slate-50 p-3 text-xs"></div>
-      <label><span class="c-label">Valor efetivamente recebido *</span><input id="receipt-amount" type="number" min="0" step="0.01" class="c-input" required></label>
-      <label><span class="c-label">Data real do recebimento *</span><input id="receipt-date" type="date" class="c-input" required></label>
+      <label><span class="c-label">Situação *</span><select id="receipt-status" class="c-input" onchange="receiptStatusChanged()"><option value="RECEBIDO">Recebido</option><option value="NAO_RECEBIDO">Não recebido</option></select></label>
+      <label id="receipt-amount-wrap"><span class="c-label">Valor efetivamente recebido *</span><input id="receipt-amount" type="number" min="0" step="0.01" class="c-input" required></label>
+      <label><span id="receipt-date-label" class="c-label">Data real do recebimento *</span><input id="receipt-date" type="date" class="c-input" required></label>
       <label><span class="c-label">Observação</span><input id="receipt-notes" class="c-input" placeholder="Opcional"></label>
+      <div id="receipt-admin-warning" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[10px] text-amber-800 font-bold"><i class="fa-solid fa-user-shield mr-1"></i>Edição administrativa de um registro já incluído em ciclo fechado/pago. O histórico será preservado.</div>
     </div>
-    <div class="p-4 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="c-btn c-btn-light" onclick="closeModal('receipt-modal')">Cancelar</button><button class="c-btn c-btn-emerald"><i class="fa-solid fa-check"></i> Confirmar</button></div>
+    <div class="p-4 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="c-btn c-btn-light" onclick="closeModal('receipt-modal')">Cancelar</button><button class="c-btn c-btn-emerald"><i class="fa-solid fa-check"></i> Salvar conferência</button></div>
+  </form>
+</div></div>
+
+
+<!-- ALERTAS FINANCEIROS -->
+<div id="finance-alert-modal" class="c-modal hidden"><div class="c-modal-card max-w-2xl">
+  <form onsubmit="saveFinanceAlertConfig(event)">
+    <div class="p-4 border-b flex justify-between gap-3">
+      <div><span class="c-pill bg-blue-50 text-blue-700">ALERTAS</span><h2 class="font-black text-lg mt-1">Responsável financeiro</h2><p class="text-[10px] text-slate-500 mt-1">Os usuários selecionados receberão alertas das parcelas dos clientes.</p></div>
+      <button type="button" class="c-btn c-btn-light !w-9 !px-0" onclick="closeModal('finance-alert-modal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-4 space-y-4">
+      <section><span class="c-label">Responsável(is)</span><div id="finance-alert-users" class="mt-2 grid md:grid-cols-2 gap-2 max-h-64 overflow-auto c-scroll"></div></section>
+      <section class="rounded-xl bg-slate-50 border p-3">
+        <span class="c-label">Quando alertar</span>
+        <div class="grid sm:grid-cols-3 gap-2 mt-2 text-[10px] font-bold">
+          <label class="flex items-center gap-2"><input id="fin-alert-before" type="checkbox" checked> 1 dia antes</label>
+          <label class="flex items-center gap-2"><input id="fin-alert-due" type="checkbox" checked> No vencimento</label>
+          <label class="flex items-center gap-2"><input id="fin-alert-overdue" type="checkbox" checked> Quando atrasada</label>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-2">O alerta de atraso é gerado uma vez por parcela/vencimento para evitar repetição excessiva.</p>
+      </section>
+    </div>
+    <div class="p-4 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="c-btn c-btn-light" onclick="closeModal('finance-alert-modal')">Cancelar</button><button class="c-btn c-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar alertas</button></div>
+  </form>
+</div></div>
+
+<!-- EDITAR CICLO / LOTE -->
+<div id="batch-edit-modal" class="c-modal hidden"><div class="c-modal-card max-w-3xl">
+  <form onsubmit="saveBatchEditor(event)">
+    <div class="p-4 border-b flex justify-between gap-3">
+      <div><span class="c-pill bg-indigo-50 text-indigo-700">ADMINISTRADOR</span><h2 class="font-black text-lg mt-1">Editar ciclo fechado</h2><p id="batch-edit-subtitle" class="text-[10px] text-slate-500 mt-1"></p></div>
+      <button type="button" class="c-btn c-btn-light !w-9 !px-0" onclick="closeModal('batch-edit-modal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-4 space-y-3">
+      <input id="batch-edit-id" type="hidden">
+      <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] text-amber-900"><b>Atenção:</b> alterar as vendas de um ciclo recalcula os totais por vendedor. Se a composição de um vendedor já pago for alterada, o pagamento desse vendedor volta para <b>Pendente</b> para nova conferência.</div>
+      <label><span class="c-label">Observação administrativa</span><input id="batch-edit-notes" class="c-input" placeholder="Motivo / observação da alteração"></label>
+      <section><div class="flex justify-between gap-2 items-center"><span class="c-label">Comissões incluídas no ciclo</span><span id="batch-edit-count" class="text-[9px] text-slate-500"></span></div><div id="batch-edit-sales" class="mt-2 divide-y border rounded-xl max-h-80 overflow-auto c-scroll"></div></section>
+    </div>
+    <div class="p-4 border-t bg-slate-50 flex justify-end gap-2"><button type="button" class="c-btn c-btn-light" onclick="closeModal('batch-edit-modal')">Cancelar</button><button class="c-btn c-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar ciclo</button></div>
   </form>
 </div></div>
 
@@ -224,7 +293,7 @@ textarea.c-input{height:auto}.c-label{display:block;font-size:.56rem;font-weight
 <div id="toast-container" class="fixed right-4 bottom-4 z-[12000] space-y-2 pointer-events-none"></div>
 
 <script>
-const BETA_VERSION='0.2';
+const BETA_VERSION='0.3';
 const ROOT=['artifacts','plataforma-cij','public','data'];
 const COL={
   sales:'comissoes_beta_vendas',
@@ -243,7 +312,9 @@ const ST={
   matrix:null,matrixRevision:0,matrixHistory:[],itemSeq:0,selectedSaleId:null,
   salesPage:1,salesPageSize:10,
   charts:{seller:null,type:null},
-  profile:'',canEditMatrix:false,canManagePayments:false
+  profile:'',canEditMatrix:false,canManagePayments:false,isAdmin:false,
+  financeAlertConfig:{responsaveis:[],alertBefore:true,alertDue:true,alertOverdue:true},
+  financeAlertTimer:null,deepLinkDone:false
 };
 
 const col=n=>window.fsCollection(window.AppDB,...ROOT,n);
@@ -261,6 +332,28 @@ function closeModal(id){document.getElementById(id)?.classList.add('hidden')}
 function uuid(prefix){return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`}
 function currentUserName(){return window.nomeUsuarioLogado||window.currentUser?.email||'Usuário'}
 function currentUserEmail(){return window.currentUser?.email||''}
+function userRecord(u){
+  return {
+    id:String(u?.userId||u?.id||u?.email||''),
+    email:String(u?.email||u?.id||'').toLowerCase().trim(),
+    uid:String(u?.authUid||u?.uid||'').trim(),
+    nome:String(u?.nome||u?.displayName||u?.email||u?.id||'Usuário')
+  };
+}
+function sellerKey(s){return String(s?.sellerId||s?.sellerEmail||s?.sellerName||'SEM_VENDEDOR')}
+function sellerLabel(s){return String(s?.sellerName||s?.sellerEmail||s?.sellerId||'Sem vendedor')}
+function receiptState(r){
+  if(Number(r?.actualAmount||0)>0||r?.receiptStatus==='RECEBIDO')return 'RECEBIDO';
+  if(r?.receiptStatus==='NAO_RECEBIDO')return 'NAO_RECEBIDO';
+  return 'PENDENTE';
+}
+function calendarDiffDays(target,base=today()){
+  if(!target)return null;
+  const a=new Date(String(base).slice(0,10)+'T12:00:00'),b=new Date(String(target).slice(0,10)+'T12:00:00');
+  return Math.round((b-a)/86400000);
+}
+function safeDocToken(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9_.-]+/g,'_').slice(0,140)}
+
 
 function statusMeta(status){
   const map={
@@ -301,14 +394,25 @@ function liberationInfo(sale){
 async function logEvent(saleId,type,message,extra={}){
   const id=uuid('evt');await window.fsSetDoc(doc(COL.events,id),{id,saleId,type,message,...extra,createdAtISO:nowISO(),userEmail:currentUserEmail(),userName:currentUserName()});
 }
-async function refreshSaleComputed(saleId){
+async function refreshSaleComputed(saleId,options={}){
   const sale=ST.sales.find(s=>s.id===saleId);if(!sale)return;
-  const li=liberationInfo(sale);
+  const li=liberationInfo(sale),preserveSettlement=options.preserveSettlement===true&&['PROGRAMADA','PAGA'].includes(sale.status);
   let status=sale.status;
   if(status!=='PAGA'&&status!=='CANCELADA'&&status!=='INADIMPLENTE'){
     status=sale.paymentBatchId?'PROGRAMADA':li.liberated?'LIBERADA':'AGUARDANDO_RECEBIMENTO';
   }
-  const patch={...sale,requiredReceivedPercent:li.requiredPercent,receivedValue:li.received,receivedPercent:li.receivedPercent,liberatedAtISO:li.liberatedAt||'',paymentCycleDay:li.cycle?.day||null,paymentCycleMonth:li.cycle?.monthKey||'',paymentCycleKey:li.cycle?.key||'',paymentCycleLabel:li.cycle?.label||'',status,updatedAtISO:nowISO()};
+  const patch={
+    ...sale,
+    requiredReceivedPercent:li.requiredPercent,
+    receivedValue:li.received,
+    receivedPercent:li.receivedPercent,
+    liberatedAtISO:preserveSettlement?(sale.liberatedAtISO||li.liberatedAt||''):(li.liberatedAt||''),
+    paymentCycleDay:preserveSettlement?sale.paymentCycleDay:(li.cycle?.day||null),
+    paymentCycleMonth:preserveSettlement?sale.paymentCycleMonth:(li.cycle?.monthKey||''),
+    paymentCycleKey:preserveSettlement?sale.paymentCycleKey:(li.cycle?.key||''),
+    paymentCycleLabel:preserveSettlement?sale.paymentCycleLabel:(li.cycle?.label||''),
+    status,updatedAtISO:nowISO()
+  };
   await window.fsSetDoc(doc(COL.sales,saleId),patch);
 }
 
@@ -327,23 +431,25 @@ function matrixCommission(category,model,unitPrice){
 
 window.initModule=function(perfil){
   ST.profile=String(perfil||'');
-  ST.canEditMatrix=['Master','Administrativo'].includes(ST.profile);
+  ST.isAdmin=['Master','Administrativo'].includes(ST.profile);
+  ST.canEditMatrix=ST.isAdmin;
   ST.canManagePayments=['Master','Administrativo','Financeiro'].includes(ST.profile);
   document.getElementById('main-content')?.classList.remove('hidden');
   document.getElementById('tab-btn-matriz')?.classList.toggle('hidden',!ST.canEditMatrix);
   document.getElementById('btn-close-cycle')?.classList.toggle('hidden',!ST.canManagePayments);
+  document.getElementById('btn-finance-alert-config')?.classList.toggle('hidden',!ST.isAdmin);
   const d=new Date(),mk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
   ['dash-month','sales-month','pay-cycle-month'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=mk});
   document.getElementById('sale-date').value=today();document.getElementById('sale-entry-date').value=today();document.getElementById('sale-first-installment').value=today();
   addSaleItem();
 
-  window.fsOnSnapshot(col(COL.sales),snap=>{ST.sales=[];snap.forEach(d=>ST.sales.push({id:d.id,...d.data()}));ST.sales.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));renderAll()});
-  window.fsOnSnapshot(col(COL.receipts),snap=>{ST.receipts=[];snap.forEach(d=>ST.receipts.push({id:d.id,...d.data()}));renderAll();if(ST.selectedSaleId)renderSaleDetail(ST.selectedSaleId)});
+  window.fsOnSnapshot(col(COL.sales),snap=>{ST.sales=[];snap.forEach(d=>ST.sales.push({id:d.id,...d.data()}));ST.sales.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));renderAll();queueFinancialDueAlerts();tryCommissionDeepLink()});
+  window.fsOnSnapshot(col(COL.receipts),snap=>{ST.receipts=[];snap.forEach(d=>ST.receipts.push({id:d.id,...d.data()}));renderAll();if(ST.selectedSaleId)renderSaleDetail(ST.selectedSaleId);queueFinancialDueAlerts();tryCommissionDeepLink()});
   window.fsOnSnapshot(col(COL.events),snap=>{ST.events=[];snap.forEach(d=>ST.events.push({id:d.id,...d.data()}));if(ST.selectedSaleId)renderSaleDetail(ST.selectedSaleId)});
   window.fsOnSnapshot(col(COL.batches),snap=>{ST.batches=[];snap.forEach(d=>ST.batches.push({id:d.id,...d.data()}));renderPayments()});
   window.fsOnSnapshot(col(COL.matrixHistory),snap=>{ST.matrixHistory=[];snap.forEach(d=>ST.matrixHistory.push({id:d.id,...d.data()}));ST.matrixHistory.sort((a,b)=>Number(b.revision||0)-Number(a.revision||0));renderMatrixHistory()});
   window.fsOnSnapshot(col(COL.clients),snap=>{ST.clients=[];snap.forEach(d=>{const x={id:d.id,...d.data()};if(activeClient(x))ST.clients.push(x)});ST.clients.sort((a,b)=>clientName(a).localeCompare(clientName(b),'pt-BR'));populateMasterData()});
-  window.fsOnSnapshot(col(COL.users),snap=>{ST.users=[];snap.forEach(d=>ST.users.push({id:d.id,...d.data()}));ST.users.sort((a,b)=>String(a.nome||a.email||'').localeCompare(String(b.nome||b.email||''),'pt-BR'));populateMasterData()});
+  window.fsOnSnapshot(col(COL.users),snap=>{ST.users=[];snap.forEach(d=>ST.users.push({id:d.id,...d.data()}));ST.users.sort((a,b)=>String(a.nome||a.email||'').localeCompare(String(b.nome||b.email||''),'pt-BR'));populateMasterData();renderFinanceAlertStatus();queueFinancialDueAlerts()});
   window.fsOnSnapshot(col(COL.config),async snap=>{
     const cfg=snap.docs?.find?.(d=>d.id==='matriz') || null;
     if(cfg){const x=cfg.data();ST.matrix=x.matrix||structuredClone(DEFAULT_MATRIX);ST.matrixRevision=Number(x.revision||1)}
@@ -354,15 +460,102 @@ window.initModule=function(perfil){
         if(ST.canEditMatrix)await window.fsSetDoc(doc(COL.matrixHistory,'matriz_rev_1'),{revision:1,matrix:ST.matrix,createdAtISO:nowISO(),createdBy:currentUserName(),createdByEmail:currentUserEmail(),note:'Matriz inicial importada do módulo Comissões Azul.'});
       }catch(e){console.warn(e)}
     }
-    populateMatrixSelectors();renderMatrixEditor();renderSaleItemsMachineSelectors();
+    const fin=snap.docs?.find?.(d=>d.id==='alertas_financeiro')||null;
+    if(fin){
+      const x=fin.data()||{};
+      ST.financeAlertConfig={
+        responsaveis:Array.isArray(x.responsaveis)?x.responsaveis:[],
+        alertBefore:x.alertBefore!==false,
+        alertDue:x.alertDue!==false,
+        alertOverdue:x.alertOverdue!==false,
+        updatedAtISO:x.updatedAtISO||'',
+        updatedBy:x.updatedBy||''
+      };
+    }
+    populateMatrixSelectors();renderMatrixEditor();renderSaleItemsMachineSelectors();renderFinanceAlertStatus();queueFinancialDueAlerts();
   });
 };
-function renderAll(){renderDashboard();renderSales();renderPayments()}
+function renderAll(){renderDashboard();renderSales();renderPayments();renderFinanceAlertStatus();tryCommissionDeepLink()}
 function switchTab(tab){
   document.querySelectorAll('.tab-section').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+tab)?.classList.remove('hidden');
   document.querySelectorAll('.c-tab').forEach(x=>x.classList.remove('active'));document.getElementById('tab-btn-'+tab)?.classList.add('active');
   if(tab==='dashboard')renderDashboard();if(tab==='vendas')renderSales();if(tab==='pagamentos')renderPayments();if(tab==='matriz'){populateMatrixSelectors();renderMatrixEditor()}
 }
+
+function renderFinanceAlertStatus(){
+  const box=document.getElementById('finance-alert-status');if(!box)return;
+  const rs=ST.financeAlertConfig?.responsaveis||[];
+  if(!rs.length){
+    box.innerHTML=`<i class="fa-solid fa-bell-slash text-amber-600 mr-1"></i><b class="text-amber-700">Alertas financeiros sem responsável configurado.</b>${ST.isAdmin?' Use o botão “Alertas financeiros” para selecionar.':''}`;
+    return;
+  }
+  const rules=[
+    ST.financeAlertConfig.alertBefore?'1 dia antes':null,
+    ST.financeAlertConfig.alertDue?'no vencimento':null,
+    ST.financeAlertConfig.alertOverdue?'atrasadas':null
+  ].filter(Boolean).join(' · ');
+  box.innerHTML=`<i class="fa-solid fa-bell text-blue-600 mr-1"></i><b>Alertas de parcelas:</b> ${esc(rs.map(x=>x.nome||x.email).join(', '))} <span class="text-slate-400">· ${esc(rules||'sem regras ativas')}</span>`;
+}
+function openFinanceAlertConfig(){
+  if(!ST.isAdmin){toast('Somente administradores podem alterar os responsáveis financeiros.','error');return}
+  const selected=new Set((ST.financeAlertConfig?.responsaveis||[]).map(x=>String(x.email||'').toLowerCase()));
+  const box=document.getElementById('finance-alert-users');
+  box.innerHTML=ST.users.map(u=>{const r=userRecord(u);return `<label class="rounded-xl border bg-white p-2.5 flex items-center gap-2 text-[10px] cursor-pointer"><input class="fin-alert-user" type="checkbox" value="${esc(r.email)}" ${selected.has(r.email)?'checked':''}><span class="min-w-0"><b class="block truncate">${esc(r.nome)}</b><span class="text-slate-400 block truncate">${esc(r.email)}</span></span></label>`}).join('')||'<div class="text-xs text-slate-400">Nenhum usuário disponível.</div>';
+  document.getElementById('fin-alert-before').checked=ST.financeAlertConfig?.alertBefore!==false;
+  document.getElementById('fin-alert-due').checked=ST.financeAlertConfig?.alertDue!==false;
+  document.getElementById('fin-alert-overdue').checked=ST.financeAlertConfig?.alertOverdue!==false;
+  document.getElementById('finance-alert-modal').classList.remove('hidden');
+}
+async function saveFinanceAlertConfig(e){
+  e.preventDefault();if(!ST.isAdmin)return;
+  const emails=[...document.querySelectorAll('.fin-alert-user:checked')].map(x=>String(x.value||'').toLowerCase());
+  const responsaveis=emails.map(email=>{const u=ST.users.find(x=>userRecord(x).email===email);return u?userRecord(u):{id:email,email,uid:'',nome:email}});
+  const data={responsaveis,alertBefore:document.getElementById('fin-alert-before').checked,alertDue:document.getElementById('fin-alert-due').checked,alertOverdue:document.getElementById('fin-alert-overdue').checked,updatedAtISO:nowISO(),updatedBy:currentUserName()};
+  try{
+    await window.fsSetDoc(doc(COL.config,'alertas_financeiro'),data);
+    ST.financeAlertConfig=data;closeModal('finance-alert-modal');renderFinanceAlertStatus();queueFinancialDueAlerts(true);toast('Alertas financeiros configurados.','success');
+  }catch(err){console.error(err);toast('Erro ao salvar alertas financeiros.','error')}
+}
+function queueFinancialDueAlerts(immediate=false){
+  clearTimeout(ST.financeAlertTimer);
+  ST.financeAlertTimer=setTimeout(scanFinancialDueAlerts,immediate?50:700);
+}
+async function scanFinancialDueAlerts(){
+  const cfg=ST.financeAlertConfig||{},targets=cfg.responsaveis||[];
+  if(!targets.length||!ST.receipts.length||!ST.sales.length||typeof window.enviarNotificacaoApp!=='function')return;
+  const targetEmails=[...new Set(targets.map(x=>String(x.email||'').toLowerCase().trim()).filter(Boolean))];
+  const targetUids=[...new Set(targets.map(x=>String(x.uid||'').trim()).filter(Boolean))];
+  for(const r of ST.receipts.filter(x=>x.is_deleted!==true&&x.expectedDate)){
+    if(receiptState(r)==='RECEBIDO')continue;
+    const sale=ST.sales.find(s=>s.id===r.saleId);if(!sale||sale.status==='CANCELADA'||sale.is_deleted===true)continue;
+    const diff=calendarDiffDays(r.expectedDate);
+    let stage='',title='',tipo='info';
+    if(diff===1&&cfg.alertBefore!==false){stage='AMANHA';title='Parcela vence amanhã';tipo='info'}
+    else if(diff===0&&cfg.alertDue!==false){stage='HOJE';title='Parcela vence hoje';tipo='warning'}
+    else if(diff<0&&cfg.alertOverdue!==false){stage='ATRASADA';title='Parcela vencida sem recebimento';tipo='danger'}
+    else continue;
+    const id=`combeta_${safeDocToken(r.id)}_${stage}_${safeDocToken(r.expectedDate)}`;
+    const situacao=receiptState(r)==='NAO_RECEBIDO'?' · marcada como não recebida':'';
+    await window.enviarNotificacaoApp({
+      id,titulo:title,
+      mensagem:`NF ${sale.nf} · ${sale.clientName} · ${r.label} · ${money(r.expectedAmount)} · vencimento ${dateBR(r.expectedDate)}${situacao}.`,
+      tipo,targetEmails,targetUids,modulo:'comissoes_beta.html',
+      url:`comissoes_beta.html?tab=vendas&sale=${encodeURIComponent(sale.id)}&receipt=${encodeURIComponent(r.id)}`,
+      actionLabel:'Conferir parcela',eventType:'COMISSAO_PARCELA_'+stage,sourceId:r.id,
+      dedupeKey:`COMISSAO_PARCELA:${r.id}:${stage}:${r.expectedDate}`
+    });
+  }
+}
+function tryCommissionDeepLink(){
+  if(ST.deepLinkDone)return;
+  const p=new URLSearchParams(location.search),saleId=p.get('sale'),receiptId=p.get('receipt'),tab=p.get('tab');
+  if(!saleId){if(tab&&document.getElementById('tab-'+tab)){ST.deepLinkDone=true;switchTab(tab)}return}
+  const sale=ST.sales.find(x=>x.id===saleId);if(!sale)return;
+  if(receiptId&&!ST.receipts.find(x=>x.id===receiptId))return;
+  ST.deepLinkDone=true;switchTab(tab&&document.getElementById('tab-'+tab)?tab:'vendas');openSaleDetail(saleId);
+  if(receiptId)setTimeout(()=>openReceipt(receiptId),180);
+}
+
 function clientName(c){return c?.fantasia||c?.nomeFantasia||c?.razao_social||c?.razaoSocial||'SEM NOME'}
 function clientAddress(c){return c?.enderecoCompleto||c?.endereco_completo||[[c?.logradouro||c?.endereco,c?.numero].filter(Boolean).join(', '),[c?.bairro,c?.cidade,c?.uf||c?.estado].filter(Boolean).join(' · ')].filter(Boolean).join(' | ')}
 function principalContact(c){const a=Array.isArray(c?.contatos)?c.contatos:[];return a.find(x=>x?.principal)||a[0]||{nome:c?.contatoPrincipalNome||c?.contato||'',telefone:c?.contatoPrincipalTelefone||c?.telefone||''}}
@@ -540,20 +733,46 @@ function renderSaleDetail(id){
   const s=ST.sales.find(x=>x.id===id);if(!s)return;const li=liberationInfo(s),sm=statusMeta(s.status);document.getElementById('detail-status').className='c-pill '+sm[1];document.getElementById('detail-status').textContent=sm[0];document.getElementById('detail-title').textContent=`NF ${s.nf}`;document.getElementById('detail-subtitle').textContent=`${s.clientName} · ${s.sellerName} · venda ${dateBR(s.date)}`;
   document.getElementById('detail-kpis').innerHTML=[['Venda',money(s.saleValue)],['Comissão',money(s.commissionValue)],['Recebido',`${money(li.received)} · ${li.receivedPercent.toFixed(1)}%`],['Pagamento',li.cycle?`Ciclo ${li.cycle.label}`:'Aguardando liberação']].map(x=>`<div class="c-card c-kpi"><span>${x[0]}</span><b class="!text-sm">${esc(x[1])}</b></div>`).join('');
   document.getElementById('detail-items').innerHTML=(s.items||[]).map(i=>`<div class="py-2 flex justify-between gap-3"><div><b class="text-[10px]">${esc(i.type)} · ${esc(i.model||i.description||'-')}</b><div class="text-[9px] text-slate-500">${i.qty} × ${money(i.unitValue)} · comissão ${i.commissionPercent}%${i.commissionSource==='TABELA'?` · tabela rev. ${i.matrixRevision||'-'}`:''}</div></div><b class="text-xs text-emerald-700">${money(i.commissionValue)}</b></div>`).join('');
-  const rs=receiptsForSale(id).sort((a,b)=>String(a.expectedDate).localeCompare(String(b.expectedDate)));document.getElementById('detail-receipts').innerHTML=rs.map(r=>`<div class="py-2 flex justify-between items-center gap-3"><div><b class="text-[10px]">${esc(r.label)}</b><div class="text-[9px] text-slate-500">Previsto ${dateBR(r.expectedDate)} · ${money(r.expectedAmount)}</div>${Number(r.actualAmount||0)>0?`<div class="text-[9px] font-bold text-emerald-700">Recebido ${dateBR(r.actualDate)} · ${money(r.actualAmount)}</div>`:'<div class="text-[9px] text-amber-700 font-bold">Pendente</div>'}</div><button class="c-btn c-btn-light !min-h-8" onclick="openReceipt('${r.id}')">${Number(r.actualAmount||0)>0?'Editar':'Confirmar'}</button></div>`).join('')||'<div class="text-xs text-slate-400 py-4">Sem cronograma.</div>';
+  const rs=receiptsForSale(id).sort((a,b)=>String(a.expectedDate).localeCompare(String(b.expectedDate)));document.getElementById('detail-receipts').innerHTML=rs.map(r=>{const st=receiptState(r),locked=['PROGRAMADA','PAGA','CANCELADA'].includes(s.status),canEdit=!locked||ST.isAdmin;const stateHtml=st==='RECEBIDO'?`<div class="text-[9px] font-bold receipt-state-paid">Recebido ${dateBR(r.actualDate)} · ${money(r.actualAmount)}</div>`:st==='NAO_RECEBIDO'?`<div class="text-[9px] font-bold receipt-state-unpaid">Não recebido · conferido em ${dateBR(r.actualDate||r.checkedDate)}</div>`:'<div class="text-[9px] receipt-state-pending font-bold">Pendente de conferência</div>';return `<div class="py-2 flex justify-between items-center gap-3"><div><b class="text-[10px]">${esc(r.label)}</b><div class="text-[9px] text-slate-500">Previsto ${dateBR(r.expectedDate)} · ${money(r.expectedAmount)}</div>${stateHtml}</div>${canEdit?`<button class="c-btn c-btn-light !min-h-8" onclick="openReceipt('${r.id}')">${st==='PENDENTE'?'Conferir':ST.isAdmin&&locked?'Editar (Admin)':'Editar'}</button>`:'<span class="text-[9px] text-slate-400 font-bold"><i class="fa-solid fa-lock"></i> Ciclo fechado</span>'}</div>`}).join('')||'<div class="text-xs text-slate-400 py-4">Sem cronograma.</div>';
   document.getElementById('detail-events').innerHTML=eventsForSale(id).map(e=>`<div class="c-event"><div class="flex justify-between gap-2"><b class="text-[10px]">${esc(e.message||e.type)}</b><span class="text-[9px] text-slate-400">${new Date(e.createdAtISO).toLocaleString('pt-BR')}</span></div><div class="text-[9px] text-slate-500">${esc(e.userName||'')}</div></div>`).join('')||'<div class="text-xs text-slate-400">Sem eventos.</div>';
   document.getElementById('btn-edit-detail').onclick=()=>{closeModal('sale-detail-modal');editSale(id)};document.getElementById('btn-late-detail').onclick=()=>toggleLate(id);document.getElementById('btn-cancel-detail').onclick=()=>cancelSale(id);
 }
+function receiptStatusChanged(){
+  const st=document.getElementById('receipt-status')?.value||'RECEBIDO',amount=document.getElementById('receipt-amount'),wrap=document.getElementById('receipt-amount-wrap'),label=document.getElementById('receipt-date-label');
+  const received=st==='RECEBIDO';wrap?.classList.toggle('hidden',!received);if(amount){amount.required=received;if(!received)amount.value=0}
+  if(label)label.textContent=received?'Data real do recebimento *':'Data da conferência *';
+}
 function openReceipt(id){
   const r=ST.receipts.find(x=>x.id===id);if(!r)return;
-  const sale=ST.sales.find(x=>x.id===r.saleId);
-  if(sale&&['PROGRAMADA','PAGA','CANCELADA'].includes(sale.status)){toast('Recebimentos ficam congelados após fechamento do ciclo, pagamento ou cancelamento.','warning');return}document.getElementById('receipt-id').value=id;document.getElementById('receipt-title').textContent=r.actualAmount?'Editar recebimento':'Confirmar recebimento';document.getElementById('receipt-info').innerHTML=`<b>${esc(r.label)}</b><br>Previsto: ${dateBR(r.expectedDate)} · ${money(r.expectedAmount)}`;document.getElementById('receipt-amount').value=r.actualAmount??r.expectedAmount??0;document.getElementById('receipt-date').value=r.actualDate||today();document.getElementById('receipt-notes').value=r.actualNotes||'';document.getElementById('receipt-modal').classList.remove('hidden');
+  const sale=ST.sales.find(x=>x.id===r.saleId),locked=sale&&['PROGRAMADA','PAGA','CANCELADA'].includes(sale.status);
+  if(locked&&!ST.isAdmin){toast('Este recebimento está congelado. Somente Administrador/Master pode editar após fechamento/pagamento.','warning');return}
+  const st=receiptState(r)==='NAO_RECEBIDO'?'NAO_RECEBIDO':'RECEBIDO';
+  document.getElementById('receipt-id').value=id;
+  document.getElementById('receipt-title').textContent=receiptState(r)==='PENDENTE'?'Conferir parcela':'Editar conferência';
+  document.getElementById('receipt-info').innerHTML=`<b>${esc(r.label)}</b><br>NF ${esc(sale?.nf||r.nf||'-')} · ${esc(sale?.clientName||r.clientName||'-')}<br>Previsto: ${dateBR(r.expectedDate)} · ${money(r.expectedAmount)}`;
+  document.getElementById('receipt-status').value=st;
+  document.getElementById('receipt-amount').value=st==='RECEBIDO'?(r.actualAmount??r.expectedAmount??0):0;
+  document.getElementById('receipt-date').value=r.actualDate||r.checkedDate||today();
+  document.getElementById('receipt-notes').value=r.actualNotes||r.checkNotes||'';
+  document.getElementById('receipt-admin-warning').classList.toggle('hidden',!(locked&&ST.isAdmin));
+  receiptStatusChanged();document.getElementById('receipt-modal').classList.remove('hidden');
 }
 async function saveReceipt(e){
   e.preventDefault();const id=document.getElementById('receipt-id').value,r=ST.receipts.find(x=>x.id===id);if(!r)return;
-  const sale=ST.sales.find(x=>x.id===r.saleId);if(sale&&['PROGRAMADA','PAGA','CANCELADA'].includes(sale.status)){toast('Este recebimento está congelado pelo fechamento/pagamento da comissão.','error');closeModal('receipt-modal');return}
-  const amount=Number(document.getElementById('receipt-amount').value||0),date=document.getElementById('receipt-date').value,notes=document.getElementById('receipt-notes').value.trim(),was=Number(r.actualAmount||0);
-  try{await window.fsSetDoc(doc(COL.receipts,id),{...r,actualAmount:amount,actualDate:date,actualNotes:notes,confirmedBy:currentUserName(),confirmedByEmail:currentUserEmail(),confirmedAtISO:nowISO(),updatedAtISO:nowISO()});await logEvent(r.saleId,was?'RECEBIMENTO_EDITADO':'RECEBIMENTO_CONFIRMADO',`${r.label}: ${money(amount)} recebido em ${dateBR(date)}.`);await refreshSaleComputed(r.saleId);closeModal('receipt-modal');toast('Recebimento atualizado.','success')}catch(err){console.error(err);toast('Erro ao registrar recebimento.','error')}
+  const sale=ST.sales.find(x=>x.id===r.saleId),locked=sale&&['PROGRAMADA','PAGA','CANCELADA'].includes(sale.status);
+  if(locked&&!ST.isAdmin){toast('Somente administradores podem editar recebimentos após fechamento/pagamento.','error');closeModal('receipt-modal');return}
+  const status=document.getElementById('receipt-status').value,date=document.getElementById('receipt-date').value,notes=document.getElementById('receipt-notes').value.trim();
+  const amount=status==='RECEBIDO'?Number(document.getElementById('receipt-amount').value||0):0;
+  if(status==='RECEBIDO'&&amount<=0){toast('Informe o valor efetivamente recebido.','error');return}
+  const before=receiptState(r),stamp=nowISO();
+  const patch={...r,receiptStatus:status,actualAmount:amount,actualDate:date,actualNotes:notes,checkedDate:date,checkedAtISO:stamp,checkedBy:currentUserName(),checkedByEmail:currentUserEmail(),confirmedBy:status==='RECEBIDO'?currentUserName():'',confirmedByEmail:status==='RECEBIDO'?currentUserEmail():'',confirmedAtISO:status==='RECEBIDO'?stamp:'',updatedAtISO:stamp,adminEditedLockedRecord:locked&&ST.isAdmin};
+  try{
+    await window.fsSetDoc(doc(COL.receipts,id),patch);
+    const msg=status==='RECEBIDO'?`${r.label}: ${money(amount)} recebido em ${dateBR(date)}.`:`${r.label}: conferido como NÃO RECEBIDO em ${dateBR(date)}.`;
+    await logEvent(r.saleId,before==='PENDENTE'?'RECEBIMENTO_CONFERIDO':'RECEBIMENTO_EDITADO',msg,{receiptStatus:status,adminEdit:locked&&ST.isAdmin});
+    await refreshSaleComputed(r.saleId,{preserveSettlement:locked&&ST.isAdmin});
+    closeModal('receipt-modal');toast('Conferência financeira atualizada.','success');queueFinancialDueAlerts(true);
+  }catch(err){console.error(err);toast('Erro ao registrar conferência.','error')}
 }
 async function toggleLate(id){
   const s=ST.sales.find(x=>x.id===id);if(!s)return;
@@ -576,31 +795,162 @@ function renderDashboard(){
   const waiting=visibleSalesBase().filter(s=>['AGUARDANDO_RECEBIMENTO','INADIMPLENTE'].includes(s.status)).sort((a,b)=>Number(liberationInfo(b).receivedPercent)-Number(liberationInfo(a).receivedPercent)).slice(0,15);document.getElementById('dash-waiting').innerHTML=waiting.map(s=>{const l=liberationInfo(s);return `<div class="py-2 flex justify-between gap-2"><div><b class="text-[10px]">${esc(s.nf)} · ${esc(s.clientName)}</b><div class="text-[9px] text-slate-500">${l.receivedPercent.toFixed(1)}% recebido · exige ${l.requiredPercent}%</div></div><b class="text-xs">${money(s.commissionValue)}</b></div>`}).join('')||'<div class="text-xs text-slate-400 py-5 text-center">Nenhuma venda aguardando.</div>';
 }
 
-function cycleSales(){
+function cycleSalesBase(){
   const month=document.getElementById('pay-cycle-month')?.value||'',day=Number(document.getElementById('pay-cycle-day')?.value||15);
-  return visibleSalesBase().filter(s=>s.is_deleted!==true&&s.status!=='CANCELADA'&&s.paymentCycleMonth===month&&Number(s.paymentCycleDay)===day&&['LIBERADA','PROGRAMADA','PAGA'].includes(s.status)).sort((a,b)=>String(a.sellerName).localeCompare(String(b.sellerName),'pt-BR')||String(a.nf).localeCompare(String(b.nf)));
+  return visibleSalesBase().filter(s=>s.is_deleted!==true&&s.status!=='CANCELADA'&&s.paymentCycleMonth===month&&Number(s.paymentCycleDay)===day&&['LIBERADA','PROGRAMADA','PAGA'].includes(s.status)).sort((a,b)=>sellerLabel(a).localeCompare(sellerLabel(b),'pt-BR')||String(a.nf).localeCompare(String(b.nf)));
+}
+function cycleSales(){
+  const seller=document.getElementById('pay-seller-filter')?.value||'';
+  return cycleSalesBase().filter(s=>!seller||sellerKey(s)===seller);
 }
 function cycleId(){return `${document.getElementById('pay-cycle-month').value}-D${document.getElementById('pay-cycle-day').value}`}
+function paymentSellerGroups(rows){
+  const map=new Map();
+  for(const s of rows){
+    const key=sellerKey(s);if(!map.has(key))map.set(key,{key,name:sellerLabel(s),email:s.sellerEmail||'',sellerId:s.sellerId||'',rows:[],total:0});
+    const g=map.get(key);g.rows.push(s);g.total+=Number(s.commissionValue||0);
+  }
+  return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+}
+function populatePaySellerFilter(rows){
+  const sel=document.getElementById('pay-seller-filter');if(!sel)return;const prev=sel.value,groups=paymentSellerGroups(rows);
+  sel.innerHTML='<option value="">Todos os vendedores</option>'+groups.map(g=>`<option value="${esc(g.key)}">${esc(g.name)} · ${money(g.total)}</option>`).join('');
+  if(groups.some(g=>g.key===prev))sel.value=prev;else sel.value='';
+}
+function setPaySellerFilter(key){const sel=document.getElementById('pay-seller-filter');if(sel)sel.value=key||'';renderPayments()}
+function setPaySellerFilterEncoded(key){setPaySellerFilter(decodeURIComponent(key||''))}
+function normalizeBatchSellerPayments(batch){
+  const old=new Map((batch?.sellerPayments||[]).map(p=>[String(p.key),p])),groups=paymentSellerGroups((batch?.saleIds||[]).map(id=>ST.sales.find(s=>s.id===id)).filter(Boolean));
+  return groups.map(g=>{
+    const p=old.get(g.key),legacyPaid=!p&&batch?.status==='PAGO';
+    return {key:g.key,sellerId:g.sellerId,sellerName:g.name,sellerEmail:g.email,saleIds:g.rows.map(s=>s.id),total:g.total,status:p?.status||(legacyPaid?'PAGO':'PENDENTE'),paidAtISO:p?.paidAtISO||(legacyPaid?batch?.paidAtISO||'':''),paidBy:p?.paidBy||(legacyPaid?batch?.paidBy||'':'')};
+  });
+}
+function batchStatusFromSellerPayments(ps){const paid=ps.filter(p=>p.status==='PAGO').length;return paid===0?'ABERTO':paid===ps.length&&ps.length?'PAGO':'PARCIAL'}
+function batchPill(status){
+  if(status==='PAGO')return '<span class="c-pill c-status-paid">Pago</span>';
+  if(status==='PARCIAL')return '<span class="c-pill bg-amber-100 text-amber-800">Parcial</span>';
+  return '<span class="c-pill c-status-program">Fechado / pendente</span>';
+}
 function renderPayments(){
-  const tb=document.getElementById('payments-body');if(!tb)return;const rows=cycleSales(),total=rows.reduce((a,s)=>a+Number(s.commissionValue||0),0),sellers=new Set(rows.map(s=>s.sellerName)),batch=ST.batches.find(b=>b.id===cycleId());
-  document.getElementById('payment-summary').innerHTML=[['Comissões',rows.length],['Vendedores',sellers.size],['Total',money(total)]].map(x=>`<div class="c-card c-kpi"><span>${x[0]}</span><b>${esc(x[1])}</b></div>`).join('');
-  tb.innerHTML=rows.length?rows.map(s=>`<tr><td><b>${esc(s.sellerName)}</b></td><td class="font-bold text-blue-700">${esc(s.nf)}</td><td>${esc(s.clientName)}</td><td>${dateBR(s.liberatedAtISO)}</td><td><b>${esc(s.paymentCycleLabel)}</b></td><td class="text-right font-black text-emerald-700">${money(s.commissionValue)}</td><td>${statusPill(s.status)}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-slate-400 py-10">Nenhuma comissão para este ciclo.</td></tr>';
-  const close=document.getElementById('btn-close-cycle');close.disabled=!rows.filter(s=>s.status==='LIBERADA').length||!!batch;close.innerHTML=batch?'<i class="fa-solid fa-lock"></i> Ciclo já fechado':'<i class="fa-solid fa-lock"></i> Fechar ciclo';
+  const tb=document.getElementById('payments-body');if(!tb)return;
+  const allRows=cycleSalesBase();populatePaySellerFilter(allRows);
+  const rows=cycleSales(),total=rows.reduce((a,s)=>a+Number(s.commissionValue||0),0),groups=paymentSellerGroups(allRows),batch=ST.batches.find(b=>b.id===cycleId());
+  document.getElementById('payment-summary').innerHTML=[['Comissões exibidas',rows.length],['Vendedores no ciclo',groups.length],['Total exibido',money(total)]].map(x=>`<div class="c-card c-kpi"><span>${x[0]}</span><b>${esc(x[1])}</b></div>`).join('');
+  const selected=document.getElementById('pay-seller-filter')?.value||'';
+  document.getElementById('seller-payment-summary').innerHTML=groups.map(g=>{
+    const paid=g.rows.filter(s=>s.status==='PAGA').reduce((a,s)=>a+Number(s.commissionValue||0),0),pending=g.total-paid;
+    return `<button type="button" class="seller-pay-card text-left ${selected===g.key?'active':''}" onclick="setPaySellerFilterEncoded('${encodeURIComponent(g.key)}')"><div class="flex justify-between gap-2"><div class="min-w-0"><b class="text-xs block truncate">${esc(g.name)}</b><span class="text-[9px] text-slate-500">${g.rows.length} comissão(ões)</span></div><b class="text-sm text-emerald-700 whitespace-nowrap">${money(g.total)}</b></div><div class="mt-2 grid grid-cols-2 gap-2 text-[9px]"><div class="rounded-lg bg-emerald-50 p-2"><span class="text-slate-500">Já pago</span><b class="block text-emerald-700">${money(paid)}</b></div><div class="rounded-lg bg-amber-50 p-2"><span class="text-slate-500">Pendente</span><b class="block text-amber-700">${money(pending)}</b></div></div></button>`;
+  }).join('')||'<div class="text-xs text-slate-400">Nenhuma comissão neste ciclo.</div>';
+
+  let body='',lastSeller='';
+  for(const s of rows){
+    if(!selected&&sellerKey(s)!==lastSeller){
+      lastSeller=sellerKey(s);const g=groups.find(x=>x.key===lastSeller);
+      body+=`<tr class="seller-group-row"><td colspan="7"><div class="flex justify-between gap-2"><b>${esc(g?.name||sellerLabel(s))}</b><b class="text-emerald-700">${money(g?.total||0)}</b></div></td></tr>`;
+    }
+    body+=`<tr><td><b>${esc(s.sellerName)}</b></td><td class="font-bold text-blue-700">${esc(s.nf)}</td><td>${esc(s.clientName)}</td><td>${dateBR(s.liberatedAtISO)}</td><td><b>${esc(s.paymentCycleLabel)}</b></td><td class="text-right font-black text-emerald-700">${money(s.commissionValue)}</td><td>${statusPill(s.status)}</td></tr>`;
+  }
+  tb.innerHTML=body||'<tr><td colspan="7" class="text-center text-slate-400 py-10">Nenhuma comissão para este ciclo/vendedor.</td></tr>';
+  const close=document.getElementById('btn-close-cycle');close.disabled=!allRows.filter(s=>s.status==='LIBERADA').length||!!batch;close.innerHTML=batch?'<i class="fa-solid fa-lock"></i> Ciclo já fechado':'<i class="fa-solid fa-lock"></i> Fechar ciclo';
   renderBatches();
 }
 async function closePaymentCycle(){
   if(!ST.canManagePayments){toast('Seu perfil não pode fechar ciclos de pagamento.','error');return}
-  const rows=cycleSales().filter(s=>s.status==='LIBERADA');if(!rows.length)return;const id=cycleId();if(ST.batches.some(b=>b.id===id)){toast('Este ciclo já possui lote.','error');return}if(!confirm(`Fechar o ciclo ${id} com ${rows.length} comissão(ões), total ${money(rows.reduce((a,s)=>a+Number(s.commissionValue||0),0))}?`))return;
-  const batch={id,cycleMonth:document.getElementById('pay-cycle-month').value,cycleDay:Number(document.getElementById('pay-cycle-day').value),status:'ABERTO',saleIds:rows.map(s=>s.id),total:rows.reduce((a,s)=>a+Number(s.commissionValue||0),0),createdAtISO:nowISO(),createdBy:currentUserName()};
-  try{await window.fsSetDoc(doc(COL.batches,id),batch);for(const s of rows){await window.fsSetDoc(doc(COL.sales,s.id),{...s,status:'PROGRAMADA',paymentBatchId:id,updatedAtISO:nowISO()});await logEvent(s.id,'PROGRAMADA',`Comissão incluída no lote ${id}.`)}toast('Ciclo fechado.','success')}catch(e){console.error(e);toast('Erro ao fechar ciclo.','error')}
+  const rows=cycleSalesBase().filter(s=>s.status==='LIBERADA');if(!rows.length)return;
+  const id=cycleId();if(ST.batches.some(b=>b.id===id)){toast('Este ciclo já possui lote.','error');return}
+  const total=rows.reduce((a,s)=>a+Number(s.commissionValue||0),0),groups=paymentSellerGroups(rows);
+  if(!confirm(`Fechar o ciclo ${id} com ${rows.length} comissão(ões), ${groups.length} vendedor(es), total ${money(total)}?`))return;
+  const batch={id,cycleMonth:document.getElementById('pay-cycle-month').value,cycleDay:Number(document.getElementById('pay-cycle-day').value),status:'ABERTO',saleIds:rows.map(s=>s.id),total,sellerPayments:groups.map(g=>({key:g.key,sellerId:g.sellerId,sellerName:g.name,sellerEmail:g.email,saleIds:g.rows.map(s=>s.id),total:g.total,status:'PENDENTE',paidAtISO:'',paidBy:''})),createdAtISO:nowISO(),createdBy:currentUserName(),updatedAtISO:nowISO()};
+  try{
+    await window.fsSetDoc(doc(COL.batches,id),batch);
+    for(const s of rows){await window.fsSetDoc(doc(COL.sales,s.id),{...s,status:'PROGRAMADA',paymentBatchId:id,updatedAtISO:nowISO(),updatedBy:currentUserName()});await logEvent(s.id,'PROGRAMADA',`Comissão incluída no lote ${id}.`)}
+    toast('Ciclo fechado e separado por vendedor.','success');
+  }catch(e){console.error(e);toast('Erro ao fechar ciclo.','error')}
 }
 function renderBatches(){
-  const box=document.getElementById('batch-list');if(!box)return;const rows=[...ST.batches].sort((a,b)=>String(b.id).localeCompare(String(a.id))).slice(0,12);box.innerHTML=rows.map(b=>`<div class="c-card p-3"><div class="flex justify-between gap-2"><div><b class="text-xs">${esc(b.id)}</b><div class="text-[9px] text-slate-500">${(b.saleIds||[]).length} comissão(ões) · ${money(b.total)}</div></div>${statusPill(b.status==='PAGO'?'PAGA':'PROGRAMADA')}</div><div class="mt-2 flex justify-end">${b.status==='ABERTO'?(ST.canManagePayments?`<button class="c-btn c-btn-emerald" onclick="markBatchPaid('${b.id}')"><i class="fa-solid fa-check"></i> Marcar lote pago</button>`:`<span class="text-[10px] text-slate-500 font-bold">Lote aberto</span>`):`<span class="text-[10px] text-emerald-700 font-bold">Pago em ${dateBR(b.paidAtISO)}</span>`}</div></div>`).join('')||'<div class="text-xs text-slate-400">Nenhum lote fechado.</div>';
+  const box=document.getElementById('batch-list');if(!box)return;
+  const rows=[...ST.batches].sort((a,b)=>String(b.id).localeCompare(String(a.id))).slice(0,12);
+  box.innerHTML=rows.map(b=>{
+    const ps=normalizeBatchSellerPayments(b),status=batchStatusFromSellerPayments(ps);
+    return `<div class="c-card p-3"><div class="flex justify-between gap-2"><div><b class="text-xs">${esc(b.id)}</b><div class="text-[9px] text-slate-500">${(b.saleIds||[]).length} comissão(ões) · ${ps.length} vendedor(es) · ${money(b.total)}</div></div>${batchPill(status)}</div>
+      <div class="mt-2">${ps.map(p=>`<div class="batch-seller-row"><div><b class="text-[10px]">${esc(p.sellerName)}</b><div class="text-[9px] text-slate-500">${p.saleIds.length} comissão(ões) · <b>${money(p.total)}</b></div>${p.status==='PAGO'?`<div class="text-[9px] text-emerald-700 font-bold mt-1">Pago em ${dateBR(p.paidAtISO)} · ${esc(p.paidBy||'')}</div>`:'<div class="text-[9px] text-amber-700 font-bold mt-1">Pagamento pendente</div>'}</div><div class="batch-actions flex items-center justify-end gap-1">${p.status!=='PAGO'&&ST.canManagePayments?`<button class="c-btn c-btn-emerald !min-h-8" onclick="markSellerPaid('${esc(b.id)}','${encodeURIComponent(p.key)}')"><i class="fa-solid fa-check"></i> Pagar</button>`:''}${p.status==='PAGO'&&ST.isAdmin?`<button class="c-btn c-btn-light !min-h-8" onclick="editSellerPayment('${esc(b.id)}','${encodeURIComponent(p.key)}')"><i class="fa-solid fa-pen"></i> Editar</button>`:''}</div></div>`).join('')}</div>
+      <div class="mt-3 pt-2 border-t flex flex-wrap justify-end gap-2">${status!=='PAGO'&&ST.canManagePayments?`<button class="c-btn c-btn-emerald !min-h-8" onclick="markBatchPaid('${esc(b.id)}')"><i class="fa-solid fa-check-double"></i> Pagar todos pendentes</button>`:''}${ST.isAdmin?`<button class="c-btn c-btn-light !min-h-8" onclick="openBatchEditor('${esc(b.id)}')"><i class="fa-solid fa-user-shield"></i> Editar ciclo</button>`:''}</div></div>`;
+  }).join('')||'<div class="text-xs text-slate-400">Nenhum lote fechado.</div>';
+}
+async function persistSellerPayment(batch,payment,paidDate){
+  const ps=normalizeBatchSellerPayments(batch).map(p=>p.key===payment.key?{...p,status:paidDate?'PAGO':'PENDENTE',paidAtISO:paidDate||'',paidBy:paidDate?currentUserName():''}:p);
+  const status=batchStatusFromSellerPayments(ps),stamp=nowISO();
+  for(const sid of payment.saleIds||[]){
+    const s=ST.sales.find(x=>x.id===sid);if(!s)continue;
+    const patch={...s,status:paidDate?'PAGA':'PROGRAMADA',paidAtISO:paidDate||'',paymentBatchId:batch.id,updatedAtISO:stamp,updatedBy:currentUserName()};
+    await window.fsSetDoc(doc(COL.sales,sid),patch);
+    await logEvent(sid,paidDate?'COMISSAO_PAGA':'COMISSAO_PAGAMENTO_EDITADO',paidDate?`Comissão do vendedor ${payment.sellerName} paga no lote ${batch.id} em ${dateBR(paidDate)}.`:`Pagamento do vendedor ${payment.sellerName} reaberto no lote ${batch.id}.`,{batchId:batch.id,sellerKey:payment.key,adminEdit:ST.isAdmin});
+  }
+  const paidDates=ps.filter(p=>p.status==='PAGO'&&p.paidAtISO).map(p=>p.paidAtISO).sort();
+  await window.fsSetDoc(doc(COL.batches,batch.id),{...batch,sellerPayments:ps,status,total:ps.reduce((a,p)=>a+Number(p.total||0),0),paidAtISO:status==='PAGO'?(paidDates.at(-1)||paidDate||''):'',paidBy:status==='PAGO'?currentUserName():'',updatedAtISO:stamp,updatedBy:currentUserName()});
+}
+async function markSellerPaid(batchId,encodedKey){
+  if(!ST.canManagePayments){toast('Seu perfil não pode confirmar pagamentos.','error');return}
+  const b=ST.batches.find(x=>x.id===batchId);if(!b)return;const key=decodeURIComponent(encodedKey),p=normalizeBatchSellerPayments(b).find(x=>x.key===key);if(!p)return;
+  const payDate=prompt(`Data real do pagamento para ${p.sellerName} (AAAA-MM-DD):`,today());if(!payDate)return;
+  try{await persistSellerPayment(b,p,payDate);toast(`Pagamento de ${p.sellerName} confirmado.`,'success')}catch(e){console.error(e);toast('Erro ao confirmar pagamento.','error')}
+}
+async function editSellerPayment(batchId,encodedKey){
+  if(!ST.isAdmin){toast('Somente administradores podem editar pagamento já realizado.','error');return}
+  const b=ST.batches.find(x=>x.id===batchId);if(!b)return;const key=decodeURIComponent(encodedKey),p=normalizeBatchSellerPayments(b).find(x=>x.key===key);if(!p)return;
+  const value=prompt(`Editar data do pagamento de ${p.sellerName}.\nInforme AAAA-MM-DD ou deixe em branco para voltar a PENDENTE:`,p.paidAtISO||today());
+  if(value===null)return;if(!value&&!confirm(`Reabrir o pagamento de ${p.sellerName}?`))return;
+  try{await persistSellerPayment(b,p,value.trim());toast('Pagamento administrativo atualizado.','success')}catch(e){console.error(e);toast('Erro ao editar pagamento.','error')}
 }
 async function markBatchPaid(id){
   if(!ST.canManagePayments){toast('Seu perfil não pode confirmar pagamentos.','error');return}
-  const b=ST.batches.find(x=>x.id===id);if(!b||b.status==='PAGO')return;const payDate=prompt('Data real do pagamento aos vendedores (AAAA-MM-DD):',today());if(!payDate)return;
-  try{for(const sid of b.saleIds||[]){const s=ST.sales.find(x=>x.id===sid);if(!s)continue;await window.fsSetDoc(doc(COL.sales,sid),{...s,status:'PAGA',paidAtISO:payDate,paymentBatchId:id,updatedAtISO:nowISO(),updatedBy:currentUserName()});await logEvent(sid,'COMISSAO_PAGA',`Comissão paga no lote ${id} em ${dateBR(payDate)}.`)}await window.fsSetDoc(doc(COL.batches,id),{...b,status:'PAGO',paidAtISO:payDate,paidBy:currentUserName(),updatedAtISO:nowISO()});toast('Lote marcado como pago.','success')}catch(e){console.error(e);toast('Erro ao marcar pagamento.','error')}
+  const b=ST.batches.find(x=>x.id===id);if(!b)return;const pending=normalizeBatchSellerPayments(b).filter(p=>p.status!=='PAGO');if(!pending.length)return;
+  const payDate=prompt('Data real do pagamento para todos os vendedores pendentes (AAAA-MM-DD):',today());if(!payDate)return;
+  try{
+    let current={...b,sellerPayments:normalizeBatchSellerPayments(b)};
+    for(const p of pending){await persistSellerPayment(current,p,payDate);current={...current,sellerPayments:current.sellerPayments.map(x=>x.key===p.key?{...x,status:'PAGO',paidAtISO:payDate,paidBy:currentUserName()}:x)}}
+    toast('Pagamentos pendentes marcados como pagos.','success');
+  }catch(e){console.error(e);toast('Erro ao marcar pagamentos.','error')}
+}
+function openBatchEditor(id){
+  if(!ST.isAdmin){toast('Somente administradores podem editar ciclos fechados.','error');return}
+  const b=ST.batches.find(x=>x.id===id);if(!b)return;
+  const candidates=visibleSalesBase().filter(s=>s.is_deleted!==true&&s.status!=='CANCELADA'&&s.paymentCycleMonth===b.cycleMonth&&Number(s.paymentCycleDay)===Number(b.cycleDay)&&(!s.paymentBatchId||s.paymentBatchId===b.id));
+  const selected=new Set(b.saleIds||[]);
+  document.getElementById('batch-edit-id').value=b.id;
+  document.getElementById('batch-edit-subtitle').textContent=`${b.id} · ${dateBR(b.createdAtISO)} · total atual ${money(b.total)}`;
+  document.getElementById('batch-edit-notes').value=b.adminNotes||'';
+  document.getElementById('batch-edit-sales').innerHTML=candidates.map(s=>`<label class="flex items-center gap-3 px-3 py-2.5 text-[10px] cursor-pointer hover:bg-slate-50"><input class="batch-edit-sale" type="checkbox" value="${esc(s.id)}" ${selected.has(s.id)?'checked':''}><span class="min-w-0 flex-1"><b class="block">${esc(s.sellerName)} · NF ${esc(s.nf)}</b><span class="text-slate-500 block truncate">${esc(s.clientName)}</span></span><b class="text-emerald-700 whitespace-nowrap">${money(s.commissionValue)}</b></label>`).join('')||'<div class="p-4 text-xs text-slate-400">Nenhuma comissão elegível.</div>';
+  document.getElementById('batch-edit-count').textContent=`${selected.size} selecionada(s)`;
+  document.querySelectorAll('.batch-edit-sale').forEach(x=>x.addEventListener('change',()=>{document.getElementById('batch-edit-count').textContent=`${document.querySelectorAll('.batch-edit-sale:checked').length} selecionada(s)`}));
+  document.getElementById('batch-edit-modal').classList.remove('hidden');
+}
+async function saveBatchEditor(e){
+  e.preventDefault();if(!ST.isAdmin)return;
+  const id=document.getElementById('batch-edit-id').value,b=ST.batches.find(x=>x.id===id);if(!b)return;
+  const selected=[...document.querySelectorAll('.batch-edit-sale:checked')].map(x=>x.value);if(!selected.length){toast('O ciclo precisa manter ao menos uma comissão.','error');return}
+  const oldIds=new Set(b.saleIds||[]),newIds=new Set(selected),oldPs=normalizeBatchSellerPayments(b),stamp=nowISO();
+  const selectedSales=selected.map(sid=>ST.sales.find(s=>s.id===sid)).filter(Boolean),newGroups=paymentSellerGroups(selectedSales);
+  const newPs=newGroups.map(g=>{
+    const old=oldPs.find(p=>p.key===g.key),same=old&&old.saleIds.length===g.rows.length&&old.saleIds.every(x=>g.rows.some(s=>s.id===x));
+    return {key:g.key,sellerId:g.sellerId,sellerName:g.name,sellerEmail:g.email,saleIds:g.rows.map(s=>s.id),total:g.total,status:same?old.status:'PENDENTE',paidAtISO:same?old.paidAtISO:'',paidBy:same?old.paidBy:''};
+  });
+  try{
+    for(const sid of oldIds){
+      if(newIds.has(sid))continue;const s=ST.sales.find(x=>x.id===sid);if(!s)continue;const li=liberationInfo(s),status=li.liberated?'LIBERADA':'AGUARDANDO_RECEBIMENTO';
+      await window.fsSetDoc(doc(COL.sales,sid),{...s,status,paymentBatchId:'',paidAtISO:'',updatedAtISO:stamp,updatedBy:currentUserName()});
+      await logEvent(sid,'CICLO_EDITADO',`Comissão removida do lote ${id} por administrador.`,{batchId:id});
+    }
+    for(const s of selectedSales){
+      const p=newPs.find(x=>x.key===sellerKey(s)),paid=p?.status==='PAGO';
+      await window.fsSetDoc(doc(COL.sales,s.id),{...s,status:paid?'PAGA':'PROGRAMADA',paymentBatchId:id,paidAtISO:paid?(p.paidAtISO||''):'',updatedAtISO:stamp,updatedBy:currentUserName()});
+      if(!oldIds.has(s.id))await logEvent(s.id,'CICLO_EDITADO',`Comissão incluída administrativamente no lote ${id}.`,{batchId:id});
+    }
+    const status=batchStatusFromSellerPayments(newPs),history=[...(b.adminHistory||[]),{atISO:stamp,by:currentUserName(),beforeSaleIds:[...oldIds],afterSaleIds:selected,notes:document.getElementById('batch-edit-notes').value.trim()}].slice(-30);
+    await window.fsSetDoc(doc(COL.batches,id),{...b,saleIds:selected,total:selectedSales.reduce((a,s)=>a+Number(s.commissionValue||0),0),sellerPayments:newPs,status,paidAtISO:status==='PAGO'?(newPs.map(p=>p.paidAtISO).filter(Boolean).sort().at(-1)||''):'',adminNotes:document.getElementById('batch-edit-notes').value.trim(),adminHistory:history,updatedAtISO:stamp,updatedBy:currentUserName()});
+    closeModal('batch-edit-modal');toast('Ciclo fechado atualizado pelo administrador.','success');
+  }catch(err){console.error(err);toast('Erro ao editar ciclo.','error')}
 }
 
 function populateMatrixSelectors(){
