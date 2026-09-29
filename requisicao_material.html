@@ -24,6 +24,134 @@
             70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
             100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
+
+        /* V1.72.2 — seletor de materiais responsivo */
+        .req-material-field { position: relative; min-width: 0; }
+        .req-material-suggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 6px);
+            z-index: 10030;
+            max-height: min(360px, 52vh);
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 45px rgba(15,23,42,.20);
+            padding: 5px;
+        }
+        .req-material-suggestions.hidden { display: none; }
+        .req-material-option {
+            width: 100%;
+            display: block;
+            text-align: left;
+            padding: 10px 11px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            transition: .12s;
+            background: #fff;
+        }
+        .req-material-option + .req-material-option { margin-top: 3px; }
+        .req-material-option:hover,
+        .req-material-option:focus { background: #f8fafc; border-color: #e2e8f0; outline: none; }
+        .req-material-option-code {
+            display: block;
+            font-size: 10px;
+            line-height: 1.2;
+            font-weight: 900;
+            color: #2563eb;
+            margin-bottom: 3px;
+            word-break: break-word;
+        }
+        .req-material-option-name {
+            display: block;
+            font-size: 12px;
+            line-height: 1.35;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .req-material-option-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 8px;
+            margin-top: 5px;
+            font-size: 9px;
+            line-height: 1.3;
+            color: #64748b;
+            font-weight: 700;
+        }
+        .req-material-selected {
+            display: none;
+            margin-top: 6px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border-radius: 10px;
+            padding: 8px 9px;
+            font-size: 10px;
+            line-height: 1.4;
+            font-weight: 800;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .req-material-selected.visible { display: block; }
+        .req-material-empty {
+            padding: 14px 12px;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #64748b;
+            font-weight: 700;
+        }
+        .item-req-row { overflow: visible; }
+        #linhas-req-container { overflow: visible !important; max-height: none !important; }
+
+        @media (max-width: 640px) {
+            #modalNovaReq { padding: 8px; align-items: flex-start; }
+            #modalNovaReq > div { margin-top: 8px; margin-bottom: 8px; border-radius: 20px; }
+            #modalNovaReq form { padding: 16px; }
+            .item-req-row {
+                display: grid !important;
+                grid-template-columns: minmax(0,1fr) 72px 42px;
+                gap: 8px;
+                align-items: end !important;
+                padding: 10px !important;
+            }
+            .req-material-field {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+            .req-qtd-wrap {
+                grid-column: 2;
+                width: 72px !important;
+            }
+            .req-remove-wrap {
+                grid-column: 3;
+            }
+            .req-material { min-height: 44px; font-size: 13px !important; }
+            .req-material-suggestions {
+                position: fixed;
+                left: 12px;
+                right: 12px;
+                top: auto;
+                bottom: 12px;
+                max-height: 55vh;
+                border-radius: 18px;
+                z-index: 10050;
+                padding: 7px;
+                box-shadow: 0 24px 70px rgba(15,23,42,.30);
+            }
+            .req-material-option { padding: 12px; }
+            .req-material-option-code { font-size: 10px; }
+            .req-material-option-name { font-size: 13px; line-height: 1.4; }
+            .req-material-option-meta { font-size: 10px; }
+        }
+
     </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
@@ -256,7 +384,7 @@
                         </button>
                     </div>
                     
-                    <div id="linhas-req-container" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    <div id="linhas-req-container" class="space-y-2 p-1">
                         <!-- Linhas dinâmicas entram aqui -->
                     </div>
                 </div>
@@ -365,7 +493,7 @@
         <span id="toast-message" class="text-xs font-semibold">Sucesso!</span>
     </div>
 
-    <script type="module" src="core.js?v=20260928-1720"></script>
+    <script type="module" src="core.js?v=20260929-1700"></script>
 
     <script>
         window.reqData = [];
@@ -437,6 +565,113 @@
             );
             return legacy.length === 1 ? legacy[0] : null;
         };
+
+
+        function reqHtml(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            }[c]));
+        }
+
+        function reqSearchMaterialScore(x, termo) {
+            const q = reqNorm(termo);
+            if (!q) return 1;
+            const cod = reqNorm(x.codigo || '');
+            const nome = reqNorm(x.nome || '');
+            const base = reqNorm(reqMaterialBaseLabel(x));
+            const label = reqNorm(x.label || '');
+            if (cod === q) return 100;
+            if (nome === q || base === q) return 95;
+            if (cod.startsWith(q)) return 85;
+            if (nome.startsWith(q)) return 80;
+            if (base.startsWith(q)) return 75;
+            const tokens = q.split(' ').filter(Boolean);
+            if (tokens.length && tokens.every(t => label.includes(t))) return 65;
+            if (label.includes(q)) return 55;
+            return 0;
+        }
+
+        window.fecharSugestoesMaterialReq = function(exceptInput=null) {
+            document.querySelectorAll('.req-material-suggestions').forEach(box => {
+                if (!exceptInput || box.closest('.req-material-field')?.querySelector('.req-material') !== exceptInput) {
+                    box.classList.add('hidden');
+                }
+            });
+        };
+
+        window.renderSugestoesMaterialReq = function(input) {
+            const field = input.closest('.req-material-field');
+            const box = field?.querySelector('.req-material-suggestions');
+            if (!field || !box) return;
+
+            window.fecharSugestoesMaterialReq(input);
+
+            const termo = input.value.trim();
+            const ranked = (window.catalogoMateriais || [])
+                .map(x => ({x, score:reqSearchMaterialScore(x, termo)}))
+                .filter(o => o.score > 0)
+                .sort((a,b) => b.score - a.score || reqMaterialBaseLabel(a.x).localeCompare(reqMaterialBaseLabel(b.x),'pt-BR'))
+                .slice(0, 30)
+                .map(o => o.x);
+
+            if (!ranked.length) {
+                box.innerHTML = `<div class="req-material-empty"><i class="fa-solid fa-magnifying-glass mr-1"></i>Nenhum material encontrado.<br>Pesquise pelo código ou por qualquer parte do nome.</div>`;
+            } else {
+                box.innerHTML = ranked.map(x => {
+                    const meta = x.tipo === 'PECA'
+                        ? `<span><i class="fa-solid fa-boxes-stacked mr-1"></i>${reqHtml(x.condicao || 'Novos')}</span>
+                           <span>Saldo: ${Number(x.saldo || 0)}</span>
+                           ${x.endereco ? `<span><i class="fa-solid fa-location-dot mr-1"></i>${reqHtml(x.endereco)}</span>` : ''}`
+                        : `<span><i class="fa-solid fa-droplet mr-1"></i>Consumível</span>`;
+                    return `<button type="button" class="req-material-option" data-material-id="${reqHtml(x.id)}" onclick="window.selecionarMaterialReq(this)">
+                        <span class="req-material-option-code">${reqHtml(x.codigo || (x.tipo === 'PECA' ? 'PEÇA' : 'CONSUMÍVEL'))}</span>
+                        <span class="req-material-option-name">${reqHtml(x.nome || reqMaterialBaseLabel(x))}</span>
+                        <span class="req-material-option-meta">${meta}</span>
+                    </button>`;
+                }).join('');
+            }
+            box.classList.remove('hidden');
+        };
+
+        window.selecionarMaterialReq = function(button) {
+            const field = button.closest('.req-material-field');
+            const input = field?.querySelector('.req-material');
+            const selected = field?.querySelector('.req-material-selected');
+            const id = String(button.dataset.materialId || '');
+            const x = (window.catalogoMateriais || []).find(m => String(m.id) === id);
+            if (!input || !x) return;
+
+            input.value = reqMaterialBaseLabel(x);
+            input.dataset.materialId = String(x.id || '');
+            input.dataset.materialLabel = x.label || '';
+            if (selected) {
+                selected.innerHTML = `<i class="fa-solid fa-circle-check text-blue-600 mr-1"></i><b>${reqHtml(x.codigo || '')}${x.codigo ? ' - ' : ''}${reqHtml(x.nome || '')}</b>`;
+                selected.classList.add('visible');
+            }
+            field.querySelector('.req-material-suggestions')?.classList.add('hidden');
+            window.atualizarInfoMaterialReq(input);
+        };
+
+        window.abrirSugestoesMaterialReq = function(input) {
+            window.renderSugestoesMaterialReq(input);
+        };
+
+        window.alterarPesquisaMaterialReq = function(input) {
+            const field = input.closest('.req-material-field');
+            const selected = field?.querySelector('.req-material-selected');
+            const current = (window.catalogoMateriais || []).find(x => String(x.id) === String(input.dataset.materialId || ''));
+            if (!current || reqNorm(reqMaterialBaseLabel(current)) !== reqNorm(input.value)) {
+                input.dataset.materialId = '';
+                input.dataset.materialLabel = '';
+                selected?.classList.remove('visible');
+            }
+            window.atualizarInfoMaterialReq(input);
+            window.renderSugestoesMaterialReq(input);
+        };
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.req-material-field')) window.fecharSugestoesMaterialReq();
+        });
 
         window.atualizarInfoMaterialReq = function(input) {
             const info = input.closest('.item-req-row')?.querySelector('.req-material-info');
@@ -1030,6 +1265,7 @@
         // ================= FUNÇÕES DE AÇÃO E MODAIS =================
 
         window.fecharModais = function() {
+            window.fecharSugestoesMaterialReq?.();
             document.getElementById('modalNovaReq').classList.add('hidden');
             document.getElementById('modalBaixaOS').classList.add('hidden');
             document.getElementById('modalAddRS').classList.add('hidden');
@@ -1040,6 +1276,7 @@
         window.abrirModalNovaReq = function() {
             document.getElementById('req_destino').value = '';
             document.getElementById('linhas-req-container').innerHTML = '';
+            window.fecharSugestoesMaterialReq?.();
             window.addLinhaReq(); // Adiciona a primeira linha obrigatoriamente
             document.getElementById('modalNovaReq').classList.remove('hidden');
         };
@@ -1047,16 +1284,25 @@
         window.addLinhaReq = function() {
             const container = document.getElementById('linhas-req-container');
             const row = document.createElement('div');
-            row.className = "flex gap-2 item-req-row items-center bg-slate-50 p-2 rounded-xl border border-slate-200";
+            row.className = "grid grid-cols-[minmax(0,1fr)_80px_36px] gap-2 item-req-row items-end bg-slate-50 p-2 rounded-xl border border-slate-200";
             row.innerHTML = `
-                <div class="flex-1">
-                    <input type="text" list="materiais-catalogo" required placeholder="Selecione o material oficial" onchange="window.atualizarInfoMaterialReq(this)" oninput="window.atualizarInfoMaterialReq(this)" class="req-material w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 shadow-sm">
+                <div class="req-material-field min-w-0">
+                    <label class="block text-[9px] font-black text-slate-500 uppercase tracking-wide mb-1">Material</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-[10px]"></i>
+                        <input type="text" required autocomplete="off" placeholder="Digite código ou nome da peça..." onfocus="window.abrirSugestoesMaterialReq(this)" onclick="window.abrirSugestoesMaterialReq(this)" oninput="window.alterarPesquisaMaterialReq(this)" class="req-material w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 shadow-sm">
+                    </div>
+                    <div class="req-material-suggestions hidden custom-scrollbar"></div>
+                    <div class="req-material-selected"></div>
                     <div class="req-material-info text-[9px] text-slate-400 mt-1"></div>
                 </div>
-                <div class="w-20">
+                <div class="req-qtd-wrap w-20">
+                    <label class="block text-[9px] font-black text-slate-500 uppercase tracking-wide mb-1">Qtd.</label>
                     <input type="number" required min="1" value="1" class="req-qtd w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold outline-none focus:border-amber-500 text-center shadow-sm">
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition cursor-pointer" title="Remover Linha"><i class="fa-solid fa-trash"></i></button>
+                <div class="req-remove-wrap">
+                    <button type="button" onclick="window.fecharSugestoesMaterialReq();this.closest('.item-req-row').remove()" class="w-9 h-9 flex items-center justify-center bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition cursor-pointer" title="Remover Linha"><i class="fa-solid fa-trash"></i></button>
+                </div>
             `;
             container.appendChild(row);
         };
@@ -1084,10 +1330,11 @@
                     const qtd=Number(row.querySelector('.req-qtd').value||0);
                     if(!valor || !(qtd>0)) continue;
 
-                    const cat=window.resolverMaterialCatalogo(valor);
+                    const selectedId=String(row.querySelector('.req-material')?.dataset.materialId||'');
+                    const cat=(selectedId ? window.catalogoMateriais.find(x=>String(x.id)===selectedId) : null) || window.resolverMaterialCatalogo(valor);
                     if(!cat) {
                         row.querySelector('.req-material')?.focus();
-                        throw new Error(`Item ${index+1}: selecione uma peça/consumível existente no cadastro oficial.`);
+                        throw new Error(`Item ${index+1}: selecione o material pela lista exibida abaixo do campo de pesquisa.`);
                     }
 
                     const docId='req_'+Date.now()+'_'+index+'_'+Math.random().toString(36).slice(2,5);
