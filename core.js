@@ -118,6 +118,8 @@ const injectLayout = () => {
 
                                 <a href="assistencia.html?modo=tecnico" data-module="app_tecnico.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">App do Técnico</h4><p class="text-[10px] text-slate-500">Execução mobile e offline</p></div></a>
 
+                                <a href="parque_consulta.html" data-module="parque_consulta.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-industry"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Consulta Parque</h4><p class="text-[10px] text-slate-500">Somente leitura · histórico OS/OSR</p></div></a>
+
                                 <a href="servicos_osr.html" data-module="servicos_osr.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Gestão de OSR</h4><p class="text-[10px] text-slate-500">Painel de atendimentos</p></div></a>
 
                                 <a href="veiculos_mobile.html" data-module="veiculos_mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-car"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Veículos Mobile</h4><p class="text-[10px] text-slate-500">Retirada da frota</p></div></a>
@@ -294,6 +296,7 @@ const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Assistência Técnica', url: 'assistencia.html', icon: 'fa-screwdriver-wrench text-blue-500' },
     { name: 'App do Técnico', url: 'app_tecnico.html', href: 'assistencia.html?modo=tecnico', icon: 'fa-mobile-screen-button text-sky-500' },
+    { name: 'Consulta Parque', url: 'parque_consulta.html', icon: 'fa-industry text-indigo-700' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
     { name: 'Veículos Mobile', url: 'veiculos_mobile.html', icon: 'fa-car text-emerald-600' },
     { name: 'Simulador Financeiro', url: 'simulador.html', icon: 'fa-calculator text-teal-600' },

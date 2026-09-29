@@ -1,5 +1,5 @@
-const SW_VERSION='3.10.0';
-const APP_BUILD='1.74';
+const SW_VERSION='3.11.0';
+const APP_BUILD='1.75';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -15,6 +15,7 @@ const PORTAL_SHELL=[
   './suporte-mobile.html',
   './requisicao_material.html',
   './comissoes_beta.html',
+  './parque_consulta.html',
   './cadastros_clientes.html',
   './cadastros_modelos.html',
   './cadastros_pecas.html',

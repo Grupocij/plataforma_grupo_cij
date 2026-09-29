@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Consulta Parque - Portal CIJ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:Inter,sans-serif;background:#f8fafc;color:#0f172a}
+.ro-card{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.ro-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:36px;padding:.5rem .72rem;border-radius:.75rem;font-size:.68rem;font-weight:800;transition:.15s}
+.ro-btn-light{background:#fff;border:1px solid #cbd5e1;color:#334155}.ro-btn-light:hover{background:#f8fafc}.ro-btn-primary{background:#2563eb;color:#fff}.ro-btn-primary:hover{background:#1d4ed8}
+.ro-input{width:100%;height:38px;border:1px solid #cbd5e1;background:#fff;border-radius:.75rem;padding:.5rem .7rem;font-size:.72rem;outline:none}.ro-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.ro-label{display:block;font-size:.55rem;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem}
+.ro-pill{display:inline-flex;align-items:center;gap:.32rem;border-radius:999px;padding:.24rem .55rem;font-size:.57rem;font-weight:900}
+.ro-table th{background:#f1f5f9;color:#64748b;text-transform:uppercase;font-size:.55rem;letter-spacing:.025em;padding:.55rem .62rem;text-align:left;position:sticky;top:0;z-index:2}.ro-table td{padding:.58rem .62rem;border-top:1px solid #f1f5f9;font-size:.68rem;vertical-align:middle}
+.ro-scroll::-webkit-scrollbar{width:6px;height:6px}.ro-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+.ro-modal{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.68);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:.55rem}.ro-modal.hidden{display:none}.ro-modal-card{width:min(980px,98vw);max-height:95vh;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:1.1rem;box-shadow:0 25px 70px rgba(15,23,42,.3)}
+.ro-kpi{padding:.65rem .75rem}.ro-kpi span{font-size:.52rem;color:#94a3b8;text-transform:uppercase;font-weight:900}.ro-kpi b{display:block;font-size:1.05rem;margin-top:.06rem}
+.ro-timeline{position:relative;padding-left:1rem}.ro-timeline:before{content:"";position:absolute;left:.28rem;top:.35rem;bottom:.35rem;width:2px;background:#e2e8f0}.ro-event{position:relative;padding:0 0 .85rem .9rem}.ro-event:before{content:"";position:absolute;left:-.91rem;top:.28rem;width:.5rem;height:.5rem;background:#3b82f6;border-radius:99px;box-shadow:0 0 0 3px #eff6ff}.ro-event.osr:before{background:#7c3aed;box-shadow:0 0 0 3px #f5f3ff}.ro-event.transfer:before{background:#f59e0b;box-shadow:0 0 0 3px #fffbeb}
+.ro-pager{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.55rem .7rem;border-top:1px solid #e2e8f0;flex-wrap:wrap}.ro-pager span,.ro-pager label{font-size:.62rem;color:#64748b;font-weight:700}
+.readonly-watermark{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857}
+@media(max-width:720px){#ro-shell{padding:.4rem!important}.ro-modal{padding:.25rem}.ro-modal-card{border-radius:.9rem}.ro-pager{align-items:flex-start;flex-direction:column}.mobile-stack{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body class="h-full overflow-hidden">
+<main id="main-content" class="hidden h-[calc(100vh-64px)] overflow-y-auto ro-scroll">
+<div id="ro-shell" class="max-w-[1500px] mx-auto p-2 md:p-3 space-y-2.5">
+  <section class="ro-card px-3 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-industry"></i></div>
+      <div class="min-w-0"><div class="flex flex-wrap gap-1.5 items-center"><span class="ro-pill readonly-watermark"><i class="fa-solid fa-eye"></i>SOMENTE LEITURA</span><span class="text-[9px] text-slate-400 font-bold">V1.0</span></div><h1 class="text-base font-black mt-1">Consulta Parque</h1><p class="text-[10px] text-slate-500">Pesquisa de máquinas e histórico de OS/OSR para técnicos.</p></div>
+    </div>
+    <button class="ro-btn ro-btn-light" onclick="scanSerial()"><i class="fa-solid fa-qrcode"></i> Ler / informar série</button>
+  </section>
+
+  <section class="ro-card p-2.5 grid md:grid-cols-[1fr_220px_180px] gap-2 items-end mobile-stack">
+    <label><span class="ro-label">Pesquisar</span><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i><input id="q" class="ro-input !pl-9" oninput="filterChanged()" placeholder="Cliente, modelo, marca ou número de série"></div></label>
+    <label><span class="ro-label">Cliente</span><select id="client-filter" class="ro-input" onchange="filterChanged()"><option value="">Todos os clientes</option></select></label>
+    <label><span class="ro-label">Status</span><select id="status-filter" class="ro-input" onchange="filterChanged()"><option value="">Todos</option><option value="OPERACIONAL">Operacional</option><option value="MANUTENCAO">Manutenção</option><option value="INATIVO">Inativo</option></select></label>
+  </section>
+
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-2">
+    <div class="ro-card ro-kpi"><span>Máquinas encontradas</span><b id="kpi-total">0</b></div>
+    <div class="ro-card ro-kpi"><span>Clientes</span><b id="kpi-clients">0</b></div>
+    <div class="ro-card ro-kpi"><span>Em manutenção</span><b id="kpi-maint" class="text-amber-700">0</b></div>
+    <div class="ro-card ro-kpi"><span>Garantia vigente</span><b id="kpi-warranty" class="text-emerald-700">0</b></div>
+  </section>
+
+  <section class="ro-card overflow-hidden">
+    <div class="overflow-auto ro-scroll max-h-[61vh]">
+      <table class="ro-table w-full min-w-[980px]"><thead><tr><th>Nº série</th><th>Equipamento</th><th>Cliente</th><th>Local</th><th>Garantia</th><th>Status</th><th></th></tr></thead><tbody id="machine-body"></tbody></table>
+    </div>
+    <div id="pager" class="ro-pager"></div>
+  </section>
+</div>
+</main>
+
+<div id="machine-modal" class="ro-modal hidden"><div class="ro-modal-card">
+  <div class="p-4 border-b flex justify-between gap-3 sticky top-0 bg-white z-20">
+    <div class="min-w-0"><div class="flex flex-wrap gap-1.5"><span class="ro-pill readonly-watermark"><i class="fa-solid fa-lock"></i>Consulta</span><span id="detail-status" class="ro-pill bg-slate-100 text-slate-700">-</span></div><h2 id="detail-title" class="font-black text-lg mt-1 truncate">Equipamento</h2><p id="detail-subtitle" class="text-[10px] text-slate-500"></p></div>
+    <button class="ro-btn ro-btn-light !w-9 !px-0 shrink-0" onclick="closeMachine()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="p-4 space-y-3">
+    <div id="detail-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-2"></div>
+    <div class="grid xl:grid-cols-2 gap-3">
+      <section class="ro-card p-3"><h3 class="font-black text-xs"><i class="fa-solid fa-industry text-indigo-600 mr-1"></i>Dados da máquina</h3><div id="detail-machine" class="mt-2 grid grid-cols-2 gap-2 text-[10px]"></div></section>
+      <section class="ro-card p-3"><h3 class="font-black text-xs"><i class="fa-solid fa-building text-blue-600 mr-1"></i>Cliente atual</h3><div id="detail-client" class="mt-2 text-[10px] text-slate-600 leading-5"></div></section>
+    </div>
+    <section class="ro-card p-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"><div><h3 class="font-black text-xs"><i class="fa-solid fa-clock-rotate-left text-slate-600 mr-1"></i>Histórico de OS e OSR</h3><p class="text-[10px] text-slate-500">Busca pelo vínculo do Parque e pelo número de série. Nenhum registro é alterado.</p></div><span id="history-loading" class="text-[10px] text-blue-600 font-bold"></span></div>
+      <div id="detail-history" class="ro-timeline mt-4"></div>
+    </section>
+  </div>
+</div></div>
+
+<div id="toast" class="fixed right-4 bottom-4 z-[12000]"></div>
+
+<script>
+const ROOT=['artifacts','plataforma-cij','public','data'];
+const ST={machines:[],clients:[],os:[],osr:[],page:1,pageSize:10,selected:null,osEqCache:new Map(),historyToken:0};
+const col=n=>window.fsCollection(window.AppDB,...ROOT,n);
+const sub=(osId,n)=>window.fsCollection(window.AppDB,...ROOT,'os_ordens',osId,n);
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+const snorm=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const fmtDate=v=>{if(!v)return'-';const d=new Date(v);if(!isNaN(d))return d.toLocaleString('pt-BR');const p=String(v).slice(0,10).split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:String(v)};
+const active=x=>x&&x.is_deleted!==true&&x.ativo!==false;
+function machineSerial(m){return m?.numeroSerie||m?.numero_serie||m?.serial||m?.sn||m?.serie||''}
+function machineModel(m){return m?.modelo||m?.equipamento||m?.nomeEquipamento||m?.descricao||'Equipamento'}
+function clientName(c){return c?.fantasia||c?.nomeFantasia||c?.razao_social||c?.razaoSocial||'Cliente'}
+function machineClientName(m){const c=ST.clients.find(x=>String(x.id)===String(m?.clienteId||''));return c?clientName(c):(m?.clienteNome||m?.cliente_atual||m?.clienteAtual||'-')}
+function addMonths(dateStr,n){if(!dateStr||!n)return'';const d=new Date(dateStr+'T12:00:00');if(isNaN(d))return'';d.setMonth(d.getMonth()+Number(n||0));return d.toISOString().slice(0,10)}
+function warranty(m){const end=m?.garantiaFimISO||addMonths(m?.dataVenda,Number(m?.garantiaMeses||0));if(!end)return{label:'Não informada',cls:'bg-slate-100 text-slate-600',active:false,end:''};const ok=new Date(end+'T23:59:59')>=new Date();return{label:ok?'Vigente':'Expirada',cls:ok?'bg-emerald-50 text-emerald-700':'bg-slate-100 text-slate-600',active:ok,end}}
+function statusMeta(v){const s=String(v||'OPERACIONAL').toUpperCase();if(s==='MANUTENCAO')return['Manutenção','bg-amber-50 text-amber-700'];if(s==='INATIVO')return['Inativo','bg-slate-100 text-slate-600'];return['Operacional','bg-emerald-50 text-emerald-700']}
+function toast(msg){const e=document.getElementById('toast');e.innerHTML=`<div class="rounded-xl bg-slate-900 text-white px-4 py-3 shadow-xl text-xs font-bold">${esc(msg)}</div>`;setTimeout(()=>e.innerHTML='',3000)}
+
+window.initModule=function(){
+  document.getElementById('main-content')?.classList.remove('hidden');
+  window.fsOnSnapshot(col('parque_maquinas'),snap=>{ST.machines=[];snap.forEach(d=>{const x={id:d.id,...d.data()};if(active(x))ST.machines.push(x)});ST.machines.sort((a,b)=>machineClientName(a).localeCompare(machineClientName(b),'pt-BR')||machineModel(a).localeCompare(machineModel(b),'pt-BR'));renderAll()});
+  window.fsOnSnapshot(col('cadastros_clientes'),snap=>{ST.clients=[];snap.forEach(d=>{const x={id:d.id,...d.data()};if(active(x))ST.clients.push(x)});ST.clients.sort((a,b)=>clientName(a).localeCompare(clientName(b),'pt-BR'));populateClients();renderAll()});
+  window.fsOnSnapshot(col('os_ordens'),snap=>{ST.os=[];snap.forEach(d=>{const x={id:d.id,...d.data()};if(x.is_deleted!==true)ST.os.push(x)});if(ST.selected)loadHistory(ST.selected)});
+  window.fsOnSnapshot(col('suportes_osr'),snap=>{ST.osr=[];snap.forEach(d=>{const x={id:d.id,...d.data()};if(x.is_deleted!==true)ST.osr.push(x)});if(ST.selected)loadHistory(ST.selected)});
+};
+function populateClients(){const e=document.getElementById('client-filter');if(!e)return;const v=e.value;e.innerHTML='<option value="">Todos os clientes</option>'+ST.clients.map(c=>`<option value="${esc(c.id)}">${esc(clientName(c))}</option>`).join('');if([...e.options].some(o=>o.value===v))e.value=v}
+function filtered(){const q=norm(document.getElementById('q')?.value||''),cid=document.getElementById('client-filter')?.value||'',st=document.getElementById('status-filter')?.value||'';return ST.machines.filter(m=>(!cid||String(m.clienteId||'')===cid)&&(!st||String(m.statusOperacional||'OPERACIONAL').toUpperCase()===st)&&(!q||norm([machineSerial(m),machineModel(m),m.fabricante,m.marca,m.tipoEquipamento,m.localInstalacao,m.identificacaoLocal,machineClientName(m)].join(' ')).includes(q)))}
+function filterChanged(){ST.page=1;renderAll()}
+function renderAll(){const rows=filtered(),clients=new Set(rows.map(m=>String(m.clienteId||machineClientName(m)))),maint=rows.filter(m=>String(m.statusOperacional||'').toUpperCase()==='MANUTENCAO').length,warr=rows.filter(m=>warranty(m).active).length;document.getElementById('kpi-total').textContent=rows.length;document.getElementById('kpi-clients').textContent=clients.size;document.getElementById('kpi-maint').textContent=maint;document.getElementById('kpi-warranty').textContent=warr;renderTable(rows)}
+function renderTable(rows){const pages=Math.max(1,Math.ceil(rows.length/ST.pageSize));ST.page=Math.max(1,Math.min(ST.page,pages));const start=(ST.page-1)*ST.pageSize,view=rows.slice(start,start+ST.pageSize),tb=document.getElementById('machine-body');if(!tb)return;tb.innerHTML=view.length?view.map(m=>{const w=warranty(m),sm=statusMeta(m.statusOperacional);return `<tr><td><button class="font-mono font-black text-indigo-700 hover:underline" onclick="openMachine('${esc(m.id)}')"><i class="fa-solid fa-qrcode mr-1 text-slate-400"></i>${esc(machineSerial(m)||'-')}</button></td><td><b>${esc(m.fabricante||m.marca||'')}</b><div class="text-blue-700 font-black">${esc(machineModel(m))}</div><div class="text-[9px] text-slate-500">${esc(m.tipoEquipamento||m.categoriaEquipamento||'')}</div></td><td><b>${esc(machineClientName(m))}</b></td><td>${esc(m.localInstalacao||m.identificacaoLocal||'-')}</td><td><span class="ro-pill ${w.cls}">${esc(w.label)}</span><div class="text-[9px] text-slate-400 mt-1">${w.end?fmtDate(w.end):''}</div></td><td><span class="ro-pill ${sm[1]}">${sm[0]}</span></td><td><button class="ro-btn ro-btn-light !min-h-8" onclick="openMachine('${esc(m.id)}')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</button></td></tr>`}).join(''):'<tr><td colspan="7" class="text-center text-slate-400 py-10">Nenhuma máquina encontrada.</td></tr>';document.getElementById('pager').innerHTML=`<span>Mostrando <b>${rows.length?start+1:0}</b>–<b>${Math.min(start+ST.pageSize,rows.length)}</b> de <b>${rows.length}</b></span><div class="flex gap-2 items-center"><label>Exibir <select class="ro-input !w-auto !h-8 !py-1" onchange="ST.pageSize=Number(this.value);ST.page=1;renderAll()">${[10,25,50,100].map(n=>`<option ${ST.pageSize===n?'selected':''}>${n}</option>`).join('')}</select></label><button class="ro-btn ro-btn-light !min-h-8 !w-8 !p-0" ${ST.page<=1?'disabled':''} onclick="ST.page--;renderAll()"><i class="fa-solid fa-chevron-left"></i></button><span>Página ${ST.page}/${pages}</span><button class="ro-btn ro-btn-light !min-h-8 !w-8 !p-0" ${ST.page>=pages?'disabled':''} onclick="ST.page++;renderAll()"><i class="fa-solid fa-chevron-right"></i></button></div>`}
+
+function machineOwnerIds(m){const ids=new Set([String(m.clienteId||'')].filter(Boolean));for(const t of m.historico_transferencias||[]){[t.clienteAntigoId,t.clienteNovoId,t.clienteIdAnterior,t.clienteIdNovo].forEach(x=>{if(x)ids.add(String(x))})}return ids}
+function osTopMatch(o,m){const sn=snorm(machineSerial(m));return (m.id&&String(o.parqueMaquinaId||'')===String(m.id))||(sn&&[o.equipamentoNumeroSerie,o.numeroSerie,o.serial].some(x=>snorm(x)===sn))}
+function eqMatch(eq,m){const sn=snorm(machineSerial(m));return (m.id&&String(eq.parqueMaquinaId||'')===String(m.id))||(sn&&snorm(eq.numeroSerie||eq.serial||eq.sn)===sn)}
+async function matchingOS(m,token){const owners=machineOwnerIds(m),direct=ST.os.filter(o=>osTopMatch(o,m)),candidate=ST.os.filter(o=>direct.includes(o)||owners.has(String(o.clienteId||'')));const found=new Map(direct.map(o=>[o.id,{os:o,eq:null}]));const todo=candidate.filter(o=>!found.has(o.id));let index=0;const workers=Array.from({length:Math.min(8,todo.length)},async()=>{while(index<todo.length){const o=todo[index++];if(token!==ST.historyToken)return;try{let arr=ST.osEqCache.get(o.id);if(!arr){const snap=await window.fsGetDocs(sub(o.id,'equipamentos'));arr=[];snap.forEach(d=>arr.push({id:d.id,...d.data()}));ST.osEqCache.set(o.id,arr)}const eq=arr.find(x=>x.is_deleted!==true&&eqMatch(x,m));if(eq)found.set(o.id,{os:o,eq})}catch(e){console.warn('[Consulta Parque] equipamentos da OS',o.id,e)}}});await Promise.all(workers);return [...found.values()]}
+function osEntry(x){const o=x.os,eq=x.eq;return{kind:'OS',date:o.createdAtISO||o.createdAt||o.updatedAtISO||'',number:o.osNumber||o.numero||o.id,status:eq?.statusEquipamento||o.status||o.etapaKanban||'',title:'Ordem de Serviço',description:eq?.diagnosticoTecnico||eq?.observacao||o.descricaoInicial||o.descricao||'',technician:(Array.isArray(o.tecnicoNomes)?o.tecnicoNomes.join(', '):(o.tecnicoNome||o.tecnico||'')),extra:eq?`Equipamento: ${eq.modelo||machineModel(ST.selected)}${eq.numeroSerie?' · SN '+eq.numeroSerie:''}`:''}}
+function osrEntry(r){return{kind:'OSR',date:r.timestamp||r.createdAtISO||r.data_formatada||r.updatedAtISO||'',number:r.osr||r.osNumber||r.numero||r.id,status:r.conclusao||r.status||'',title:'Suporte OSR',description:r.solucao||r.parecer||r.defeito||'',technician:r.tecnico||r.tecnicoNome||'',extra:[r.contato,r.pecas].filter(Boolean).join(' · ')}}
+function transferEntries(m){return (m.historico_transferencias||[]).map(t=>({kind:'TRANSFERENCIA',date:t.createdAtISO||t.data||'',number:'',status:'',title:'Transferência de máquina',description:t.motivo||'',technician:t.responsavel||'',extra:`${t.cliente_antigo||t.clienteAntigo||''} → ${t.cliente_novo||t.clienteNovo||''}`}))}
+async function loadHistory(m){const token=++ST.historyToken,box=document.getElementById('detail-history'),load=document.getElementById('history-loading');if(!box)return;load.textContent='Carregando histórico completo...';box.innerHTML='<div class="text-xs text-slate-400 py-4"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Consultando OS e OSR vinculadas à máquina.</div>';try{const matches=await matchingOS(m,token);if(token!==ST.historyToken)return;const sn=snorm(machineSerial(m)),osrs=ST.osr.filter(r=>sn&&snorm(r.serial||r.numeroSerie||r.equipamentoNumeroSerie)===sn),events=[...matches.map(osEntry),...osrs.map(osrEntry),...transferEntries(m)].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));load.textContent=`${matches.length} OS · ${osrs.length} OSR`;box.innerHTML=events.length?events.map(e=>`<div class="ro-event ${e.kind==='OSR'?'osr':e.kind==='TRANSFERENCIA'?'transfer':''}"><div class="flex flex-wrap justify-between gap-2"><div><span class="ro-pill ${e.kind==='OSR'?'bg-violet-50 text-violet-700':e.kind==='TRANSFERENCIA'?'bg-amber-50 text-amber-700':'bg-blue-50 text-blue-700'}">${esc(e.kind)}</span> <b class="text-xs">${esc(e.number||e.title)}</b></div><span class="text-[9px] text-slate-400">${esc(fmtDate(e.date))}</span></div>${e.status?`<div class="text-[9px] font-bold text-slate-500 mt-1">Status: ${esc(e.status)}</div>`:''}${e.description?`<div class="text-[10px] text-slate-700 mt-1">${esc(e.description)}</div>`:''}${e.extra?`<div class="text-[9px] text-slate-500 mt-1">${esc(e.extra)}</div>`:''}${e.technician?`<div class="text-[9px] text-slate-400 mt-1"><i class="fa-solid fa-user-wrench mr-1"></i>${esc(e.technician)}</div>`:''}</div>`).join(''):'<div class="text-xs text-slate-400 py-5">Nenhuma OS, OSR ou transferência encontrada para esta máquina.</div>'}catch(e){console.error(e);load.textContent='';box.innerHTML='<div class="text-xs text-rose-600 py-5">Não foi possível carregar o histórico completo. Tente novamente.</div>'}}
+function openMachine(id){const m=ST.machines.find(x=>String(x.id)===String(id));if(!m)return;ST.selected=m;const c=ST.clients.find(x=>String(x.id)===String(m.clienteId||'')),w=warranty(m),sm=statusMeta(m.statusOperacional);document.getElementById('detail-status').className='ro-pill '+sm[1];document.getElementById('detail-status').textContent=sm[0];document.getElementById('detail-title').textContent=machineModel(m);document.getElementById('detail-subtitle').textContent=`SN ${machineSerial(m)||'-'} · ${machineClientName(m)}`;document.getElementById('detail-kpis').innerHTML=[['Série',machineSerial(m)||'-'],['Garantia',w.label],['Venda',m.dataVenda?fmtDate(m.dataVenda):'-'],['Instalação',m.dataInstalacaoAtual||m.data_instalacao?fmtDate(m.dataInstalacaoAtual||m.data_instalacao):'-']].map(x=>`<div class="ro-card ro-kpi"><span>${esc(x[0])}</span><b class="!text-sm">${esc(x[1])}</b></div>`).join('');document.getElementById('detail-machine').innerHTML=[['Fabricante',m.fabricante||m.marca],['Modelo',machineModel(m)],['Tipo',m.tipoEquipamento],['Categoria',m.categoriaEquipamento],['Local',m.localInstalacao||m.identificacaoLocal],['Vínculo',m.tipoVinculo||m.modalidade],['Garantia até',w.end?fmtDate(w.end):'-'],['Observações',m.observacoes||'-']].map(x=>`<div class="rounded-lg bg-slate-50 border p-2"><span class="ro-label">${esc(x[0])}</span><b class="text-[10px]">${esc(x[1]||'-')}</b></div>`).join('');const cp=c?(Array.isArray(c.contatos)?(c.contatos.find(x=>x?.principal)||c.contatos[0]):null):null;document.getElementById('detail-client').innerHTML=c?`<b class="text-slate-900">${esc(c.razao_social||clientName(c))}</b>${c.cnpj?`<br>CNPJ: ${esc(c.cnpj)}`:''}<br>${esc(c.enderecoCompleto||c.endereco_completo||[c.logradouro,c.numero,c.bairro,c.cidade,c.uf||c.estado].filter(Boolean).join(' · ')||'Endereço não informado')}<br><b>Contato:</b> ${esc(cp?.nome||c.contatoPrincipalNome||c.contato||'-')} · ${esc(cp?.telefone||c.contatoPrincipalTelefone||c.telefone||'-')}`:`${esc(machineClientName(m))}<br><span class="text-slate-400">Cadastro atual do cliente não localizado.</span>`;document.getElementById('machine-modal').classList.remove('hidden');loadHistory(m)}
+function closeMachine(){ST.historyToken++;ST.selected=null;document.getElementById('machine-modal')?.classList.add('hidden')}
+function scanSerial(){const val=prompt('Leia o QR Code com a câmera do celular ou informe o número de série da máquina:');if(!val)return;const key=snorm(val),m=ST.machines.find(x=>snorm(machineSerial(x))===key);if(m){openMachine(m.id)}else{document.getElementById('q').value=val;filterChanged();toast('Série não localizada exatamente. A pesquisa foi preenchida para conferência.')}}
+</script>
+<script type="module" src="core.js?v=20260929-1500"></script>
+</body>
+</html>
