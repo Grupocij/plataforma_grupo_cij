@@ -136,6 +136,51 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   font-size:11px;line-height:1.45
 }
 
+
+/* V1.72.6 — rastreabilidade de recebimento da OS */
+.tech-receipt-panel{
+  border:1px solid #bfdbfe;background:linear-gradient(135deg,#eff6ff,#fff);
+  border-radius:16px;padding:12px;margin-top:10px
+}
+.tech-receipt-panel.confirmed{border-color:#a7f3d0;background:linear-gradient(135deg,#ecfdf5,#fff)}
+.tech-receipt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tech-receipt-state{font-size:11px;font-weight:900;color:#1e3a8a}
+.tech-receipt-panel.confirmed .tech-receipt-state{color:#047857}
+.tech-receipt-meta{font-size:9px;line-height:1.45;color:#64748b;margin-top:3px}
+.tech-receipt-confirm{
+  min-height:38px;border:0;border-radius:11px;padding:0 12px;background:#2563eb;color:white;
+  font-size:10px;font-weight:900;white-space:nowrap
+}
+.tech-receipt-confirm:disabled{background:#10b981;cursor:default}
+.receipt-admin-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.receipt-admin-list{display:grid;gap:8px}
+.receipt-admin-row{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
+  border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:10px
+}
+.receipt-admin-person{font-size:11px;font-weight:900;color:#0f172a}
+.receipt-admin-meta{font-size:9px;color:#64748b;line-height:1.45;margin-top:2px}
+.receipt-state-pill{
+  display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;
+  font-size:8px;font-weight:900;white-space:nowrap
+}
+.receipt-state-pill.sent{background:#f1f5f9;color:#475569}
+.receipt-state-pill.viewed{background:#dbeafe;color:#1d4ed8}
+.receipt-state-pill.confirmed{background:#d1fae5;color:#047857}
+.os-receipt-chip{
+  margin-top:6px;display:inline-flex;align-items:center;gap:5px;border-radius:999px;
+  padding:4px 7px;font-size:8px;font-weight:900
+}
+.os-receipt-chip.sent{background:#f1f5f9;color:#64748b}
+.os-receipt-chip.viewed{background:#dbeafe;color:#1d4ed8}
+.os-receipt-chip.confirmed{background:#d1fae5;color:#047857}
+@media(max-width:640px){
+  .tech-receipt-top{flex-direction:column}
+  .tech-receipt-confirm{width:100%}
+  .receipt-admin-row{grid-template-columns:1fr}
+  .receipt-state-pill{width:max-content}
+}
+
 </style>
 
 <style>
@@ -1456,7 +1501,17 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   </div>
 </div>
 
-<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">APP DO TÉCNICO · USO EM CAMPO</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div><section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><section id="tech-client-card" class="tech-client-card"></section><div class="tech-section-head mt-4"><div class="tech-section-title">Equipamentos do atendimento</div><button class="tech-inline-action" type="button" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div><div id="tech-at-equipamentos"></div></div><div class="tech-mobile-note"><i class="fa-solid fa-mobile-screen-button"></i><span>Este app contém somente ações do técnico. Orçamentos comerciais, aprovações, agendamento, liberações, faturamento e gestão de estoque ficam no administrativo.</span></div></div><div class="tech-work-footer tech-signature-footer"><button class="btn btn-primary justify-center w-full" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button></div></div></div>
+<div id="modal-tech-atendimento" class="modal-backdrop tech-work-modal hidden"><div class="modal-card tech-work-card"><div class="tech-work-head"><div class="flex items-start justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-blue-200">APP DO TÉCNICO · USO EM CAMPO</div><h2 id="tech-at-numero" class="text-lg font-black mt-1">Ordem de Serviço</h2><p id="tech-at-cliente" class="text-xs text-blue-100 mt-1">-</p></div><button onclick="window.fecharAtendimentoTecnico()" class="w-10 h-10 rounded-xl bg-white/15"><i class="fa-solid fa-xmark"></i></button></div></div><div class="tech-work-body"><div id="tech-at-resumo" class="grid grid-cols-2 gap-2"></div>
+<section id="tech-receipt-panel" class="tech-receipt-panel">
+  <div class="tech-receipt-top">
+    <div>
+      <div id="tech-receipt-state" class="tech-receipt-state"><i class="fa-regular fa-eye mr-1"></i>OS visualizada</div>
+      <div id="tech-receipt-meta" class="tech-receipt-meta">Registrando abertura desta OS...</div>
+    </div>
+    <button id="tech-receipt-confirm-btn" type="button" class="tech-receipt-confirm" onclick="window.confirmarRecebimentoOSTecnico()"><i class="fa-solid fa-check-double mr-1"></i> Confirmar recebimento</button>
+  </div>
+</section>
+<section id="tech-time-card" class="tech-time-card"><div class="tech-time-top"><div><div class="tech-time-state" id="tech-time-status">Não iniciado</div><div class="tech-time-note" id="tech-time-detail">Inicie o atendimento para registrar o tempo.</div></div><div class="tech-time-clock" id="tech-time-clock">00:00:00</div></div><div class="tech-time-actions"><button id="tech-time-start" class="tech-time-btn start" onclick="window.iniciarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Iniciar atendimento</button><button id="tech-time-pause" class="tech-time-btn pause" onclick="window.pausarAtendimentoTecnico()"><i class="fa-solid fa-pause mr-1"></i> Pausar</button><button id="tech-time-resume" class="tech-time-btn resume" onclick="window.retomarAtendimentoTecnico()"><i class="fa-solid fa-play mr-1"></i> Retomar</button><button id="tech-time-finish" class="tech-time-btn finish" onclick="window.finalizarAtendimentoTecnico()"><i class="fa-solid fa-stop mr-1"></i> Finalizar atendimento</button></div></section><div class="mt-4"><section id="tech-client-card" class="tech-client-card"></section><div class="tech-section-head mt-4"><div class="tech-section-title">Equipamentos do atendimento</div><button class="tech-inline-action" type="button" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button></div><div id="tech-at-equipamentos"></div></div><div class="tech-mobile-note"><i class="fa-solid fa-mobile-screen-button"></i><span>Este app contém somente ações do técnico. Orçamentos comerciais, aprovações, agendamento, liberações, faturamento e gestão de estoque ficam no administrativo.</span></div></div><div class="tech-work-footer tech-signature-footer"><button class="btn btn-primary justify-center w-full" onclick="window.abrirAssinaturaCliente()"><i class="fa-solid fa-signature"></i> Assinatura do cliente</button></div></div></div>
 
 
 <div id="modal-limpeza-homologacao" class="modal-backdrop hidden" style="z-index:2147483647!important">
@@ -1520,7 +1575,14 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.4</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4"><section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions">
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.6</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4">
+<section class="os-detail-section">
+  <div class="os-detail-kicker">Equipe técnica</div>
+  <h3 class="section-title"><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-2"></i>Recebimento da OS</h3>
+  <p class="text-[10px] text-slate-500 mt-1">Registra a chegada da OS ao app de cada técnico, a primeira abertura e a confirmação. O envio do aviso é exibido separadamente.</p>
+  <div id="detalhe-recebimento-tecnicos" class="mt-3"><div class="text-[10px] text-slate-400">Carregando...</div></div>
+</section>
+<section class="os-detail-section timeline-panel"><div class="os-detail-kicker">Rastreabilidade</div><h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>Linha do tempo da OS</h3><div id="detalhe-historico" class="mt-4 space-y-3"></div></section><section id="detalhe-faturamento-box" class="os-detail-section hidden"><h3 class="section-title"><i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-2"></i>Encerramento administrativo</h3><div id="detalhe-faturamento-status" class="mt-3 text-xs"></div><button id="btn-abrir-faturamento" onclick="window.abrirFaturamentoOS()" class="btn btn-primary mt-3 w-full"><i class="fa-solid fa-receipt"></i> Confirmar faturamento</button></section><section class="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-xs text-blue-900"><b>Importante:</b> esta tela lê a OS em <code>os_ordens</code>. O histórico de <code>Suporte Técnico (suportes_osr)</code> permanece preservado.</section></aside></div><div class="os-general-actions">
   <div class="os-general-actions-label">Ações gerais da OS</div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-primary" onclick="window.abrirAdicionarEquipamento()"><i class="fa-solid fa-plus"></i> Adicionar equipamento</button>
@@ -2343,6 +2405,14 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   <div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">NOTIFICAÇÕES</span><h2 class="text-xl font-black mt-2">Responsáveis pelos alertas</h2><p class="text-xs text-slate-500 mt-1">Defina quem recebe cada tipo de pendência. Técnicos atribuídos são avisados automaticamente.</p></div><button onclick="window.fecharConfiguracaoAlertasAssistencia()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 mt-4"><b>Sino + dispositivo:</b> o alerta aparece no sino do Portal. Cada usuário pode ativar notificações do navegador no próprio dispositivo.</div>
   <div id="alertas-assistencia-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3 mt-5"></div>
+  <section class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+    <div class="flex items-start justify-between gap-3">
+      <div><b class="text-xs text-amber-900"><i class="fa-solid fa-eye-slash mr-1"></i>OS atribuída e ainda não visualizada</b><div class="text-[9px] text-amber-800 mt-1">O Supervisor técnico pode ser avisado quando um técnico não abrir a OS dentro do prazo definido.</div></div>
+      <label class="flex items-center gap-2 text-[10px] font-black text-amber-900"><input id="alert-nao-visualizada-ativo" type="checkbox" checked> Ativo</label>
+    </div>
+    <label class="block mt-3 max-w-52"><span class="field-label">Alertar após</span><div class="flex items-center gap-2"><input id="alert-nao-visualizada-horas" type="number" min="1" max="72" step="1" value="2" class="input"><span class="text-[10px] font-black text-amber-900">hora(s)</span></div></label>
+    <div class="text-[9px] text-amber-700 mt-2">É apenas um alerta. Não bloqueia o atendimento nem altera o fluxo da OS.</div>
+  </section>
   <div id="alertas-assistencia-status" class="text-[10px] font-bold text-slate-500 mt-3"></div>
   <div class="mt-5 flex justify-end gap-2"><button class="btn btn-light" onclick="window.fecharConfiguracaoAlertasAssistencia()">Cancelar</button><button id="btn-salvar-alertas-assistencia" class="btn btn-primary" onclick="window.salvarConfiguracaoAlertasAssistencia()"><i class="fa-solid fa-floppy-disk"></i> Salvar responsáveis</button></div>
  </div>
@@ -2400,32 +2470,304 @@ const ASSIST_ALERT_ROLES=[
  ['LOGISTICA','Logística','Novas requisições geradas pela Assistência.','fa-truck-ramp-box']
 ];
 function assistAlertUserRecord(u){const i=typeof assistIdentityForUserRecord==='function'?assistIdentityForUserRecord(u):{};const email=String(i.email||u?.email||'').toLowerCase().trim(),uid=String(i.authUid||i.uid||u?.authUid||u?.uid||'').trim(),id=String(i.userId||u?.id||email||uid).trim();return{id,email,uid,nome:String(i.nome||u?.nome||u?.displayName||email||id).trim()}}
-async function assistLoadAlertsConfig(force=false){if(window.assistAlertsConfig.loaded&&!force)return window.assistAlertsConfig;try{const rows=await read('assistencia_alertas_config'),cfg=(rows||[]).find(x=>String(x.id||x.internalId)==='responsaveis')||{};window.assistAlertsConfig={...cfg,roles:cfg.roles||{},loaded:true}}catch(e){console.warn('[Assistência] configuração alertas',e);window.assistAlertsConfig={roles:{},loaded:true,error:true}}return window.assistAlertsConfig}
+async function assistLoadAlertsConfig(force=false){if(window.assistAlertsConfig.loaded&&!force)return window.assistAlertsConfig;try{const rows=await read('assistencia_alertas_config'),cfg=(rows||[]).find(x=>String(x.id||x.internalId)==='responsaveis')||{};window.assistAlertsConfig={...cfg,roles:cfg.roles||{},alertaNaoVisualizadaAtivo:cfg.alertaNaoVisualizadaAtivo!==false,naoVisualizadaHoras:Math.max(1,Number(cfg.naoVisualizadaHoras||2)),loaded:true}}catch(e){console.warn('[Assistência] configuração alertas',e);window.assistAlertsConfig={roles:{},alertaNaoVisualizadaAtivo:true,naoVisualizadaHoras:2,loaded:true,error:true}}return window.assistAlertsConfig}
 function assistRoleRecipients(role){const a=window.assistAlertsConfig?.roles?.[role];return Array.isArray(a)?a:[]}
 function assistUserByTechId(id){const t=String(id||'').trim();return(state.usuarios||[]).find(u=>{const r=assistAlertUserRecord(u);return[r.id,r.uid,r.email,String(u?.id||''),String(u?.userId||'')].filter(Boolean).includes(t)})||null}
 function assistTechnicianRecipients(o,onlyIds=null){const ids=(onlyIds||((Array.isArray(o?.tecnicoIds)&&o.tecnicoIds.length)?o.tecnicoIds:[o?.tecnicoId||o?.tecnicoUid])).filter(Boolean).map(String),out=[];ids.forEach(id=>{const u=assistUserByTechId(id);if(u)out.push(assistAlertUserRecord(u));else if(id.includes('@'))out.push({id,email:id.toLowerCase(),uid:'',nome:id})});return out.filter((r,i,a)=>r.email&&a.findIndex(x=>x.email===r.email)===i)}
-async function assistNotify(roleOrRecipients,{eventType='ASSISTENCIA',titulo='Assistência Técnica',mensagem='',tipo='info',o=null,eq=null,url='',sourceId='',dedupeKey=''}={}){
- if(!mensagem||typeof window.enviarNotificacaoApp!=='function')return;
+async function assistNotify(roleOrRecipients,{id='',eventType='ASSISTENCIA',titulo='Assistência Técnica',mensagem='',tipo='info',o=null,eq=null,url='',sourceId='',dedupeKey=''}={}){
+ if(!mensagem||typeof window.enviarNotificacaoApp!=='function')return null;
  await assistLoadAlertsConfig();let recipients=Array.isArray(roleOrRecipients)?roleOrRecipients:(roleOrRecipients==='TECNICO'?assistTechnicianRecipients(o):assistRoleRecipients(roleOrRecipients));
  const emails=[...new Set(recipients.map(r=>String(r.email||'').toLowerCase().trim()).filter(Boolean))],uids=[...new Set(recipients.map(r=>String(r.uid||'').trim()).filter(Boolean))];
+ if(!emails.length&&!uids.length)return null;
  const osid=String(o?.internalId||o?.id||''),osnum=String(o?.osNumber||o?.numero||'');
- const targetUrl=url||(roleOrRecipients==='TECNICO'?`assistencia.html?modo=tecnico&os=${encodeURIComponent(osid)}`:`assistencia.html?os=${encodeURIComponent(osid)}`);
- await window.enviarNotificacaoApp({titulo,mensagem,tipo,targetEmails:emails,targetUids:uids,modulo:'assistencia.html',url:targetUrl,actionLabel:'Abrir',osId:osid,osNumber:osnum,eventType,sourceId,dedupeKey:dedupeKey||`${eventType}:${osid}:${eq?.id||eq?.internalId||sourceId||''}`});
+ const technicalTarget=roleOrRecipients==='TECNICO'||['OS_ATRIBUIDA','OS_AGENDADA'].includes(eventType);
+ const targetUrl=url||(technicalTarget?`assistencia.html?modo=tecnico&os=${encodeURIComponent(osid)}`:`assistencia.html?os=${encodeURIComponent(osid)}`);
+ return await window.enviarNotificacaoApp({id:id||undefined,titulo,mensagem,tipo,targetEmails:emails,targetUids:uids,modulo:'assistencia.html',url:targetUrl,actionLabel:'Abrir',osId:osid,osNumber:osnum,eventType,sourceId,dedupeKey:dedupeKey||`${eventType}:${osid}:${eq?.id||eq?.internalId||sourceId||''}`});
 }
 window.fecharConfiguracaoAlertasAssistencia=function(){document.getElementById('modal-alertas-assistencia')?.classList.add('hidden')};
 window.abrirConfiguracaoAlertasAssistencia=async function(){
  if(!window.exigirPermissaoAssistencia('administrar_permissoes'))return;await assistLoadAlertsConfig(true);
  const users=(state.usuarios||[]).map(assistAlertUserRecord).filter(u=>u.email).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),grid=document.getElementById('alertas-assistencia-grid');
  grid.innerHTML=ASSIST_ALERT_ROLES.map(([key,label,desc,icon])=>{const selected=new Set(assistRoleRecipients(key).map(r=>String(r.email||'').toLowerCase()));return`<section class="rounded-2xl border border-slate-200 bg-slate-50 p-3"><div class="flex items-start gap-2"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i class="fa-solid ${icon}"></i></div><div><b class="text-xs">${esc(label)}</b><div class="text-[9px] text-slate-500 mt-1">${esc(desc)}</div></div></div><div class="mt-3 space-y-1 max-h-44 overflow-auto custom-scrollbar">${users.map(u=>`<label class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-2 py-1.5 text-[10px] cursor-pointer"><input type="checkbox" data-alert-role="${key}" data-alert-email="${esc(u.email)}" ${selected.has(u.email)?'checked':''}><span class="min-w-0"><b class="block truncate">${esc(u.nome)}</b><span class="text-slate-400 truncate block">${esc(u.email)}</span></span></label>`).join('')}</div></section>`}).join('');
+ const av=document.getElementById('alert-nao-visualizada-ativo'),ah=document.getElementById('alert-nao-visualizada-horas');if(av)av.checked=window.assistAlertsConfig.alertaNaoVisualizadaAtivo!==false;if(ah)ah.value=Math.max(1,Number(window.assistAlertsConfig.naoVisualizadaHoras||2));
  document.getElementById('alertas-assistencia-status').textContent='Configuração carregada. Técnicos são identificados diretamente pela OS.';document.getElementById('modal-alertas-assistencia').classList.remove('hidden');
 };
 window.salvarConfiguracaoAlertasAssistencia=async function(){
  if(!window.exigirPermissaoAssistencia('administrar_permissoes'))return;const roles={},btn=document.getElementById('btn-salvar-alertas-assistencia');
  for(const [key]of ASSIST_ALERT_ROLES){roles[key]=[...document.querySelectorAll(`[data-alert-role="${key}"]:checked`)].map(el=>{const email=String(el.dataset.alertEmail||'').toLowerCase(),u=(state.usuarios||[]).find(x=>assistAlertUserRecord(x).email===email);return u?assistAlertUserRecord(u):{email,uid:'',id:'',nome:email}})}
- const payload={internalId:'responsaveis',roles,updatedAtISO:new Date().toISOString(),updatedByUid:window.currentUser?.uid||'',updatedByNome:window.nomeUsuarioLogado||''};
+ const payload={internalId:'responsaveis',roles,alertaNaoVisualizadaAtivo:document.getElementById('alert-nao-visualizada-ativo')?.checked!==false,naoVisualizadaHoras:Math.max(1,Math.min(72,Number(document.getElementById('alert-nao-visualizada-horas')?.value||2))),updatedAtISO:new Date().toISOString(),updatedByUid:window.currentUser?.uid||'',updatedByNome:window.nomeUsuarioLogado||''};
  try{btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';await saveDoc('assistencia_alertas_config','responsaveis',payload);window.assistAlertsConfig={...payload,loaded:true};document.getElementById('alertas-assistencia-status').textContent='Responsáveis salvos.';toast('Configuração de alertas salva.')}catch(e){console.error(e);alert('Não foi possível salvar os alertas.\n\n'+(e?.message||e))}finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar responsáveis'}
 };
 function assistTryOpenNotificationOS(){if(window.__assistNotificationDeepLinkDone)return;const p=new URLSearchParams(location.search),id=p.get('os')||p.get('osId');if(!id)return;const o=(state.os||[]).find(x=>String(x.id||x.internalId)===String(id));if(!o)return;window.__assistNotificationDeepLinkDone=true;setTimeout(()=>{if(document.body.classList.contains('tech-app-mode'))window.abrirAtendimentoTecnico?.(o.id||o.internalId);else window.abrirDetalheOS?.(o.id||o.internalId)},120)}
+
+function assistReceiptSafeKey(v){
+ const s=String(v||'').trim();if(!s)return 'sem_id';
+ return encodeURIComponent(s).replace(/\./g,'%2E').slice(0,300);
+}
+function assistReceiptEntries(o){return (o&&o.tecnicoRecebimentos&&typeof o.tecnicoRecebimentos==='object')?o.tecnicoRecebimentos:{}}
+function assistReceiptResolveRef(ref,nomeHint=''){
+ const raw=String(ref||'').trim(),u=assistUserByTechId(raw),r=u?assistAlertUserRecord(u):null;
+ return {
+   id:String(r?.id||raw||'').trim(),
+   uid:String(r?.uid||'').trim(),
+   email:String(r?.email||(raw.includes('@')?raw:'')).toLowerCase().trim(),
+   nome:String(r?.nome||nomeHint||raw||'Técnico').trim()
+ };
+}
+function assistReceiptIdentityTokens(x){
+ return new Set([x?.id,x?.uid,x?.authUid,x?.email,x?.userEmail,x?.tecnicoId,x?.tecnicoUid,x?.tecnicoEmail,x?.ref].map(v=>String(v||'').toLowerCase().trim()).filter(Boolean));
+}
+function assistReceiptFindEntry(o,identOrRef){
+ const map=assistReceiptEntries(o),target=typeof identOrRef==='string'?assistReceiptResolveRef(identOrRef):identOrRef,tokens=assistReceiptIdentityTokens(target);
+ for(const [key,e] of Object.entries(map)){
+   const et=assistReceiptIdentityTokens(e);
+   for(const t of tokens)if(et.has(t))return {key,entry:e};
+ }
+ return null;
+}
+function assistReceiptCurrentIdentity(){
+ const i=typeof assistCurrentIdentity==='function'?assistCurrentIdentity():{};
+ return {id:String(i.userId||i.id||'').trim(),uid:String(i.uid||i.authUid||window.currentUser?.uid||'').trim(),email:String(i.email||i.userEmail||window.currentUser?.email||'').toLowerCase().trim(),nome:String(window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'Técnico').trim()};
+}
+function assistReceiptCurrentEntry(o){return assistReceiptFindEntry(o,assistReceiptCurrentIdentity())}
+function assistReceiptAssignedRefs(o){return (Array.isArray(o?.tecnicoIds)&&o.tecnicoIds.length?o.tecnicoIds:[o?.tecnicoId||o?.tecnicoUid]).filter(Boolean).map(String)}
+function assistReceiptAssignedNames(o){return (Array.isArray(o?.tecnicoNomes)&&o.tecnicoNomes.length?o.tecnicoNomes:[o?.tecnicoNome||o?.tecnico]).filter(Boolean).map(String)}
+function assistReceiptEntryState(e){
+ if(e?.confirmadoEmISO)return 'CONFIRMADO';
+ if(e?.primeiraVisualizacaoEmISO)return 'VISUALIZADO';
+ if(e?.recebidaNoAppEmISO)return 'RECEBIDO';
+ return 'ENVIADO';
+}
+function assistReceiptFormatWhen(v){return v?fmtDate(v):''}
+
+async function assistSincronizarEquipeRecebimento(o,ids,nomes,novos=[],notificationId=''){
+ if(!o)return;
+ const osid=o.internalId||o.id,now=new Date().toISOString();
+ const ref=window.fsDoc(window.AppDB,...BASE,'os_ordens',osid);
+ const map=await window.fsRunTransaction(window.AppDB,async tx=>{
+   const snap=await tx.get(ref);if(!snap.exists())throw new Error('OS não encontrada.');
+   const current={id:osid,...snap.data()},actual=assistReceiptAssignedRefs(current);
+   if(ids.length!==actual.length||ids.some(id=>!actual.includes(String(id))))throw new Error('A equipe foi alterada em outro dispositivo. Atualize a OS.');
+   const map=Object.fromEntries(Object.entries(assistReceiptEntries(current)).map(([k,v])=>[k,{...v}])),activeKeys=new Set();
+   ids.forEach((techRef,idx)=>{
+     const ident=assistReceiptResolveRef(techRef,nomes[idx]||''),found=assistReceiptFindEntry({tecnicoRecebimentos:map},ident);
+     const key=found?.key||assistReceiptSafeKey(ident.uid||ident.email||ident.id||techRef),was=found?.entry||{};
+     const reassigned=was.ativo===false,isNew=!Object.keys(was).length||reassigned;
+     const reset=reassigned?{recebidaNoAppEmISO:'',primeiraVisualizacaoEmISO:'',ultimaVisualizacaoEmISO:'',confirmadoEmISO:'',supervisorAlertadoEmISO:'',avisoEmISO:'',avisoNotificacaoId:'',ciclosAnteriores:[...(was.ciclosAnteriores||[]),{...was,ciclosAnteriores:[]}]}:{};
+     map[key]={...was,...reset,key,ref:String(techRef),tecnicoId:ident.id||String(techRef),tecnicoUid:ident.uid||'',tecnicoEmail:ident.email||'',tecnicoNome:ident.nome||nomes[idx]||String(techRef),ativo:true,atribuidaEmISO:isNew?now:(was.atribuidaEmISO||now),removidoEmISO:''};
+     if(notificationId&&(isNew||novos.map(String).includes(String(techRef)))){map[key].avisoEmISO=now;map[key].avisoNotificacaoId=notificationId}
+     activeKeys.add(key);
+   });
+   Object.keys(map).forEach(k=>{if(!activeKeys.has(k)&&map[k]?.ativo!==false)map[k]={...map[k],ativo:false,removidoEmISO:now}});
+   tx.set(ref,{tecnicoRecebimentos:map,tecnicoRecebimentosAtualizadosEmISO:now},{merge:true});
+   return map;
+ });
+ o.tecnicoRecebimentos=map;o.tecnicoRecebimentosAtualizadosEmISO=now;
+}
+
+// V1.72.6 — eventos individuais, transação e fila offline por usuário.
+function assistReceiptMatchesAssignment(o,ident){
+ const tokens=assistReceiptIdentityTokens(ident),refs=assistReceiptAssignedRefs(o);
+ if(!tokens.size)return false;
+ return refs.some(ref=>{const t=assistReceiptIdentityTokens(assistReceiptResolveRef(ref));return [...tokens].some(v=>t.has(v))});
+}
+function assistReceiptApplyEvent(o,event){
+ if(!o||o.is_deleted===true||!assistReceiptMatchesAssignment(o,event.ident))return null;
+ const found=assistReceiptFindEntry(o,event.ident),was=found?.entry||{};
+ // Uma pendência de uma atribuição anterior não pode confirmar a nova equipe.
+ if(event.atribuidaEmISO&&was.atribuidaEmISO&&event.atribuidaEmISO!==was.atribuidaEmISO)return null;
+ const key=found?.key||assistReceiptSafeKey(event.ident.uid||event.ident.email||event.ident.id);
+ const ref=assistReceiptAssignedRefs(o).find(r=>assistReceiptMatchesAssignment({tecnicoIds:[r]},event.ident));
+ const ident=event.ident,now=event.emISO;
+ const e={...was,key,ref:was.ref||ref,tecnicoId:was.tecnicoId||ident.id||ref,tecnicoUid:was.tecnicoUid||ident.uid||'',tecnicoEmail:was.tecnicoEmail||ident.email||'',tecnicoNome:was.tecnicoNome||ident.nome||'',ativo:true,atribuidaEmISO:was.atribuidaEmISO||event.atribuidaEmISO||o.createdAtISO||now};
+ const earliest=(a,b)=>!a||Date.parse(b)<Date.parse(a)?b:a;
+ const latest=(a,b)=>!a||Date.parse(b)>Date.parse(a)?b:a;
+ e.recebidaNoAppEmISO=earliest(e.recebidaNoAppEmISO,now);
+ if(event.tipo==='VISUALIZADA'||event.tipo==='CONFIRMADA'){
+   e.primeiraVisualizacaoEmISO=earliest(e.primeiraVisualizacaoEmISO,now);
+   e.ultimaVisualizacaoEmISO=latest(e.ultimaVisualizacaoEmISO,now);
+   e.visualizadoPorUid=ident.uid||'';e.visualizadoPorEmail=ident.email||'';e.visualizadoPorNome=ident.nome||'';
+ }
+ if(event.tipo==='CONFIRMADA'){
+   e.confirmadoEmISO=earliest(e.confirmadoEmISO,now);
+   e.confirmadoPorUid=ident.uid||'';e.confirmadoPorEmail=ident.email||'';e.confirmadoPorNome=ident.nome||'';
+ }
+ return {key,entry:e,previous:was};
+}
+async function assistReceiptRawEvent(osid,event){
+ if(typeof window.fsRunTransaction!=='function')throw new Error('Atualize o core.js: fsRunTransaction não está disponível.');
+ const ref=window.fsDoc(window.AppDB,...BASE,'os_ordens',osid);
+ const result=await window.fsRunTransaction(window.AppDB,async tx=>{
+   const snap=await tx.get(ref);if(!snap.exists())return null;
+   const o={id:osid,...snap.data()},r=assistReceiptApplyEvent(o,event);if(!r)return null;
+   tx.set(ref,{tecnicoRecebimentos:{[r.key]:r.entry},tecnicoRecebimentosAtualizadosEmISO:new Date().toISOString()},{merge:true});
+   const field={RECEBIDA:'recebidaNoAppEmISO',VISUALIZADA:'primeiraVisualizacaoEmISO',CONFIRMADA:'confirmadoEmISO'}[event.tipo];
+   if(!r.previous[field]||Date.parse(r.entry[field])<Date.parse(r.previous[field])){
+     const title={RECEBIDA:'OS recebida no App do Técnico',VISUALIZADA:'OS aberta pelo técnico',CONFIRMADA:'Recebimento da OS confirmado'}[event.tipo];
+     const hid=assistReceiptSafeKey('receipt_'+r.key+'_'+r.entry.atribuidaEmISO+'_'+event.tipo);
+     tx.set(window.fsDoc(window.AppDB,...BASE,'os_ordens',osid,'historico',hid),{internalId:hid,tipo:'OS_'+event.tipo+'_TECNICO',titulo:title,detalhe:(event.ident.nome||event.ident.email||'Técnico')+' · '+title,osId:osid,osNumber:o.osNumber||o.numero||'',createdAtISO:r.entry[field],usuarioUid:event.ident.uid||'',usuarioEmail:event.ident.email||'',usuarioNome:event.ident.nome||'',origemEvento:'APP_TECNICO',schemaVersion:2});
+   }
+   return r;
+ });
+ return result;
+}
+const assistReceiptInFlight=new Map();
+async function assistRegistrarEventoTecnico(o,tipo){
+ if(!document.body.classList.contains('tech-app-mode')||!o||!isMinhaOS(o))return null;
+ const ident=assistReceiptCurrentIdentity(),found=assistReceiptCurrentEntry(o),osid=String(o.internalId||o.id);
+ const field={RECEBIDA:'recebidaNoAppEmISO',VISUALIZADA:'primeiraVisualizacaoEmISO',CONFIRMADA:'confirmadoEmISO'}[tipo];
+ if(!field)throw new Error('Evento de recebimento inválido.');
+ if(tipo!=='VISUALIZADA'&&found?.entry?.[field])return found.entry;
+ const event={tipo,ident,emISO:new Date().toISOString(),atribuidaEmISO:found?.entry?.atribuidaEmISO||''};
+ const lock=osid+':'+(ident.uid||ident.email)+':'+tipo;
+ if(assistReceiptInFlight.has(lock))return assistReceiptInFlight.get(lock);
+ const work=(async()=>{
+   let result;
+   if(assistOfflineSemRede())result=await assistOfflineQueue('receiptEvent',[osid,event]);
+   else try{result=await assistOfflineTimeout(assistReceiptRawEvent(osid,event),ASSIST_NETWORK_TIMEOUT_MS,'receipt-event')}
+   catch(e){
+     if(!['unavailable','deadline-exceeded','ASSIST_NETWORK_TIMEOUT'].includes(String(e?.code||'')))throw e;
+     assistOfflineMarkNetworkFailure();result=await assistOfflineQueue('receiptEvent',[osid,event]);
+   }
+   if(result===null)return null;
+   const local=result?.entry?result:assistReceiptApplyEvent(o,event);
+   if(!local)return null;
+   o.tecnicoRecebimentos={...assistReceiptEntries(o),[local.key]:local.entry};
+   await assistOfflineApplyCache('receiptEvent',[osid,event]);
+   if(state.selectedOS&&String(state.selectedOS.internalId||state.selectedOS.id)===osid){state.selectedOS.tecnicoRecebimentos=o.tecnicoRecebimentos;renderTechReceiptStatus(state.selectedOS)}
+   renderKanban();renderModoTecnico();
+   return local.entry;
+ })();
+ assistReceiptInFlight.set(lock,work);
+ try{return await work}finally{assistReceiptInFlight.delete(lock)}
+}
+async function assistRegistrarVisualizacaoTecnico(o){return assistRegistrarEventoTecnico(o,'VISUALIZADA')}
+async function assistReceiptRegisterArrivals(){
+ if(!document.body.classList.contains('tech-app-mode'))return;
+ for(const o of (state.os||[]).filter(x=>x.is_deleted!==true&&isMinhaOS(x)&&!['FATURAMENTO','ENCERRADOS'].includes(normStage(x.etapaKanban||x.status)))){
+   try{await assistRegistrarEventoTecnico(o,'RECEBIDA')}catch(e){console.warn('[Assistência] chegada da OS',e)}
+ }
+}
+let assistReceiptUnsubscribe=null,assistReceiptOwner='';
+function assistStartReceiptMonitor(){
+ if(assistOfflineSemRede()||typeof window.fsOnSnapshot!=='function')return;
+ const owner=assistOfflineCurrentUid();if(!owner)return;
+ if(assistReceiptUnsubscribe&&assistReceiptOwner===owner)return;
+ assistReceiptUnsubscribe?.();assistReceiptOwner=owner;
+ assistReceiptUnsubscribe=window.fsOnSnapshot(col('os_ordens'),snap=>{
+   if(assistOfflineCurrentUid()!==owner){assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null;return}
+   snap.docChanges().forEach(change=>{
+     const id=change.doc.id,ix=state.os.findIndex(o=>String(o.id||o.internalId)===id);
+     if(change.type==='removed'){if(ix>=0)state.os.splice(ix,1);return}
+     const data={id,...change.doc.data()};
+     if(ix>=0)Object.assign(state.os[ix],data);else state.os.push(data);
+   });
+   if(state.selectedOS){
+     const selected=(state.os||[]).find(o=>String(o.id||o.internalId)===String(state.selectedOS.id||state.selectedOS.internalId));
+     if(selected){state.selectedOS.tecnicoRecebimentos=selected.tecnicoRecebimentos;renderTecnicoRecebimentosOS(state.selectedOS);renderTechReceiptStatus(state.selectedOS)}
+   }
+   renderKanban();renderModoTecnico();assistReceiptRegisterArrivals();
+ },e=>{console.warn('[Assistência] monitor de recebimento',e);assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null});
+}
+window.addEventListener('online',()=>{assistStartReceiptMonitor();assistReceiptRegisterArrivals()});
+window.confirmarRecebimentoOSTecnico=async function(){
+ const o=state.selectedOS;if(!o)return;
+ if(!isMinhaOS(o)){alert('Esta OS não está atribuída ao seu usuário.');return}
+ const btn=document.getElementById('tech-receipt-confirm-btn');
+ if(btn?.disabled)return;
+ try{
+   if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1"></i> Confirmando...'}
+   const entry=await assistRegistrarEventoTecnico(o,'CONFIRMADA');
+   if(!entry)throw new Error('O vínculo com esta OS mudou. Atualize a lista de atendimentos.');
+   renderKanban();toast(assistOfflineSemRede()?'Confirmação salva no aparelho. Será enviada ao sincronizar.':'Recebimento da OS confirmado.');
+ }catch(e){console.error('[Assistência] confirmação recebimento',e);alert('Não foi possível confirmar o recebimento.\n\n'+(e?.message||e))}
+ finally{if(state.selectedOS===o)renderTechReceiptStatus(o)}
+};
+
+function renderTechReceiptStatus(o){
+ const panel=document.getElementById('tech-receipt-panel'),stateEl=document.getElementById('tech-receipt-state'),meta=document.getElementById('tech-receipt-meta'),btn=document.getElementById('tech-receipt-confirm-btn');
+ if(!panel||!stateEl||!meta||!btn||!o)return;
+ const found=assistReceiptCurrentEntry(o),e=found?.entry||{},confirmed=!!e.confirmadoEmISO,viewed=!!e.primeiraVisualizacaoEmISO;
+ const received=e.recebidaNoAppEmISO?`Recebida no app em ${assistReceiptFormatWhen(e.recebidaNoAppEmISO)} · `:'';
+ panel.classList.toggle('confirmed',confirmed);
+ if(confirmed){
+   stateEl.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Recebimento confirmado';
+   meta.textContent=received+`Confirmado em ${assistReceiptFormatWhen(e.confirmadoEmISO)}${e.primeiraVisualizacaoEmISO?' · Primeira abertura '+assistReceiptFormatWhen(e.primeiraVisualizacaoEmISO):''}`;
+   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-check-double mr-1"></i> Confirmado';
+ }else{
+   stateEl.innerHTML=viewed?'<i class="fa-regular fa-eye mr-1"></i>OS aberta':'<i class="fa-solid fa-inbox mr-1"></i>OS recebida no app';
+   if(!viewed&&!e.recebidaNoAppEmISO)stateEl.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1"></i>Registrando abertura';
+   meta.textContent=received+(viewed?`Primeira abertura em ${assistReceiptFormatWhen(e.primeiraVisualizacaoEmISO)}. Confirme abaixo que recebeu a OS.`:'A abertura será registrada automaticamente.');
+   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-check-double mr-1"></i> Confirmar recebimento';
+ }
+}
+
+function assistReceiptSummaryForOS(o){
+ const refs=assistReceiptAssignedRefs(o),names=assistReceiptAssignedNames(o),rows=refs.map((ref,i)=>{
+   const ident=assistReceiptResolveRef(ref,names[i]||''),found=assistReceiptFindEntry(o,ident),e=found?.entry||null;
+   return {ref,ident,e,state:e?assistReceiptEntryState(e):'ENVIADO'};
+ });
+ return rows;
+}
+function assistReceiptKanbanChip(o){
+ const rows=assistReceiptSummaryForOS(o);if(!rows.length)return '';
+ const confirmed=rows.filter(x=>x.state==='CONFIRMADO').length,viewed=rows.filter(x=>x.state==='VISUALIZADO'||x.state==='CONFIRMADO').length;
+ if(confirmed===rows.length)return `<div class="os-receipt-chip confirmed"><i class="fa-solid fa-check-double"></i>Equipe confirmou ${confirmed}/${rows.length}</div>`;
+ if(viewed>0)return `<div class="os-receipt-chip viewed"><i class="fa-regular fa-eye"></i>Visualizada ${viewed}/${rows.length}</div>`;
+ const received=rows.filter(x=>x.state==='RECEBIDO').length;
+ if(received)return `<div class="os-receipt-chip viewed"><i class="fa-solid fa-inbox"></i>Recebida no app ${received}/${rows.length}</div>`;
+ return `<div class="os-receipt-chip sent"><i class="fa-regular fa-clock"></i>Aguardando chegada ao app</div>`;
+}
+function renderTecnicoRecebimentosOS(o){
+ const box=document.getElementById('detalhe-recebimento-tecnicos');if(!box||!o)return;
+ const rows=assistReceiptSummaryForOS(o);
+ if(!rows.length){box.innerHTML='<div class="rounded-xl border border-dashed border-slate-300 p-3 text-[10px] text-slate-500">Nenhum técnico atribuído à OS.</div>';return}
+ const confirmed=rows.filter(x=>x.state==='CONFIRMADO').length,viewed=rows.filter(x=>x.state==='VISUALIZADO'||x.state==='CONFIRMADO').length;
+ box.innerHTML=`<div class="receipt-admin-summary"><div class="text-[10px] font-bold text-slate-600">${rows.filter(x=>x.e?.recebidaNoAppEmISO).length}/${rows.length} receberam no app · ${viewed}/${rows.length} abriram · ${confirmed}/${rows.length} confirmaram</div>${confirmed===rows.length?'<span class="receipt-state-pill confirmed"><i class="fa-solid fa-check-double"></i>Equipe confirmada</span>':''}</div>
+ <div class="receipt-admin-list">${rows.map(x=>{
+   const e=x.e||{},st=x.state;
+   const cls=st==='CONFIRMADO'?'confirmed':['VISUALIZADO','RECEBIDO'].includes(st)?'viewed':'sent';
+   const label=st==='CONFIRMADO'?'Confirmado':st==='VISUALIZADO'?'Aberta':st==='RECEBIDO'?'Recebida no app':'Aguardando chegada';
+   const icon=st==='CONFIRMADO'?'fa-check-double':st==='VISUALIZADO'?'fa-eye':st==='RECEBIDO'?'fa-inbox':'fa-clock';
+   const events=[
+     e.avisoEmISO?`Aviso gerado: ${assistReceiptFormatWhen(e.avisoEmISO)}`:(e.atribuidaEmISO?`Atribuída: ${assistReceiptFormatWhen(e.atribuidaEmISO)}`:'Atribuída · sem rastreio anterior'),
+     e.recebidaNoAppEmISO?`Recebida no app: ${assistReceiptFormatWhen(e.recebidaNoAppEmISO)}`:'',
+     e.primeiraVisualizacaoEmISO?`Primeira abertura: ${assistReceiptFormatWhen(e.primeiraVisualizacaoEmISO)}`:'',
+     e.ultimaVisualizacaoEmISO&&e.ultimaVisualizacaoEmISO!==e.primeiraVisualizacaoEmISO?`Último acesso: ${assistReceiptFormatWhen(e.ultimaVisualizacaoEmISO)}`:'',
+     e.confirmadoEmISO?`Confirmação: ${assistReceiptFormatWhen(e.confirmadoEmISO)}`:''
+   ].filter(Boolean).join(' · ');
+   return `<div class="receipt-admin-row"><div><div class="receipt-admin-person">${esc(e.tecnicoNome||x.ident.nome||x.ref)}</div><div class="receipt-admin-meta">${esc(events)}</div></div><span class="receipt-state-pill ${cls}"><i class="fa-solid ${icon}"></i>${label}</span></div>`;
+ }).join('')}</div>`;
+}
+
+let assistNaoVisualizadaTimer=null;
+async function assistCheckOSNaoVisualizadas(){
+ try{
+   await assistLoadAlertsConfig();
+   if(window.assistAlertsConfig.alertaNaoVisualizadaAtivo===false)return;
+   const horas=Math.max(1,Number(window.assistAlertsConfig.naoVisualizadaHoras||2)),limite=horas*3600000,now=Date.now();
+   for(const o of (state.os||[]).filter(x=>assistOSAtiva(x)&&!['FATURAMENTO','ENCERRADOS'].includes(normStage(x.etapaKanban||x.status)))){
+     const rows=assistReceiptSummaryForOS(o);
+     for(const x of rows){
+       const e=x.e;if(!e||e.primeiraVisualizacaoEmISO||e.supervisorAlertadoEmISO||e.ativo===false)continue;
+       const base=Date.parse(e.avisoEmISO||e.atribuidaEmISO||'');if(!base||now-base<limite)continue;
+       const osid=o.internalId||o.id,key=x.e.key||assistReceiptSafeKey(x.ref);
+       const nid=`os_nao_visualizada_${assistReceiptSafeKey(osid)}_${assistReceiptSafeKey(key)}_${assistReceiptSafeKey(e.atribuidaEmISO||e.avisoEmISO)}`;
+       const notif=await assistNotify('SUPERVISOR_TECNICO',{id:nid,eventType:'OS_NAO_VISUALIZADA',titulo:'OS ainda não visualizada',mensagem:`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||'Cliente'} foi atribuída a ${e.tecnicoNome||x.ident.nome||'técnico'} há mais de ${horas} hora(s) e ainda não foi aberta.`,tipo:'warning',o,dedupeKey:nid});
+       if(notif){
+         const map={...assistReceiptEntries(o)};map[key]={...map[key],supervisorAlertadoEmISO:new Date().toISOString(),supervisorAlertaNotificacaoId:notif};
+         await mergeOSDoc(osid,{tecnicoRecebimentos:{[key]:{supervisorAlertadoEmISO:map[key].supervisorAlertadoEmISO,supervisorAlertaNotificacaoId:notif}}});o.tecnicoRecebimentos=map;
+       }
+     }
+   }
+ }catch(e){console.warn('[Assistência] verificação de OS não visualizadas',e)}
+}
+function assistStartNaoVisualizadaMonitor(){
+ clearInterval(assistNaoVisualizadaTimer);
+ setTimeout(()=>assistCheckOSNaoVisualizadas(),1200);
+ assistNaoVisualizadaTimer=setInterval(()=>assistCheckOSNaoVisualizadas(),15*60*1000);
+}
+
 
 let legacyCurrentPage=1; const LEGACY_PAGE_SIZE=10;
 const fontes=[['clientes','cadastros_clientes','Clientes','Fonte oficial de clientes'],['parque','parque_maquinas','Parque de Máquinas','Máquinas físicas / números de série'],['modelos','cadastros_equipamentos','Cadastro de Equipamentos','Catálogo de modelos e fabricantes'],['usuarios','usuarios_permissoes','Usuários e acessos','Usuários atuais do Portal CIJ'],['osr','suportes_osr','Suporte Técnico / OSR','Histórico oficial de suportes remotos'],['os','os_ordens','Nova coleção de OS','Domínio exclusivo da nova Assistência'],['agenda','agenda_tasks_v2','Agenda','Integração oficial de agendamentos'],['formcraftForms','sandbox_forms','FormCraft - Modelos','Formulários, laudos e check-lists'],['formcraftSubs','sandbox_submissions','FormCraft - Respostas','Respostas salvas dos formulários']];
@@ -2630,6 +2972,10 @@ async function assistOfflineApplyCache(kind,args){
       if(sub==='equipamentos'&&state.selectedOS&&String(state.selectedOS.internalId||state.selectedOS.id)===String(osId)){
         const list=state.selectedOS._equipamentos||[];const li=list.findIndex(x=>String(x.id||x.internalId)===String(id));if(li>=0)Object.assign(list[li],row);else list.push(row);state.selectedOS._equipamentos=list;
       }
+    }else if(kind==='receiptEvent'){
+      const [osId,event]=args,key='collection:os_ordens';let arr=(await assistOfflineCacheGet(key))||[];
+      const row=arr.find(x=>String(x.id||x.internalId)===String(osId));
+      if(row){const r=assistReceiptApplyEvent(row,event);if(r){row.tecnicoRecebimentos={...assistReceiptEntries(row),[r.key]:r.entry};await assistOfflineCacheSet(key,arr)}}
     }else if(kind==='mergeOSDoc'){
       const [osId,data]=args,key='collection:os_ordens';let arr=(await assistOfflineCacheGet(key))||[];
       const ix=arr.findIndex(x=>String(x.id||x.internalId)===String(osId));if(ix>=0)arr[ix]={...arr[ix],...data};else arr.push({id:osId,internalId:osId,...data});await assistOfflineCacheSet(key,arr);
@@ -2645,7 +2991,7 @@ function assistOfflineCurrentUid(){
 }
 function assistOfflineQueueContext(kind,args=[],extra={}){
   let osId='',osNumber='';
-  if(['saveSubDoc','mergeSubDoc','mergeOSDoc'].includes(kind))osId=String(args?.[0]||'');
+  if(['saveSubDoc','mergeSubDoc','mergeOSDoc','receiptEvent'].includes(kind))osId=String(args?.[0]||'');
   if(kind==='saveDoc'){
     const data=args?.[2]||{};
     osId=String(data.osId||data.internalIdOS||'');
@@ -2675,6 +3021,7 @@ function assistOfflineKindLabel(kind){
   const m={
     saveDoc:'Registro',
     saveSubDoc:'Registro da OS',
+    receiptEvent:'Recebimento / abertura da OS',
     mergeOSDoc:'Atualização da OS',
     mergeSubDoc:'Atualização do equipamento',
     signature:'Assinatura do cliente',
@@ -2684,12 +3031,13 @@ function assistOfflineKindLabel(kind){
 }
 function assistOfflineKindIcon(kind){
   const m={
-    saveDoc:'fa-floppy-disk',saveSubDoc:'fa-list-check',mergeOSDoc:'fa-pen-to-square',
+    receiptEvent:'fa-check-double',saveDoc:'fa-floppy-disk',saveSubDoc:'fa-list-check',mergeOSDoc:'fa-pen-to-square',
     mergeSubDoc:'fa-screwdriver-wrench',signature:'fa-signature',attachment:'fa-camera'
   };
   return m[String(kind||'')]||'fa-cloud-arrow-up';
 }
 function assistOfflineOpDescription(op){
+  if(op?.kind==='receiptEvent')return ({RECEBIDA:'Chegada da OS ao app',VISUALIZADA:'Abertura da OS',CONFIRMADA:'Confirmação de recebimento'})[op.args?.[1]?.tipo]||'Registro de recebimento';
   if(op?.kind==='signature')return op?.meta?.nome?('Responsável: '+op.meta.nome):'Assinatura coletada em campo';
   if(op?.kind==='attachment')return op?.meta?.nome||'Arquivo salvo em campo';
   if(op?.kind==='saveSubDoc'||op?.kind==='mergeSubDoc'){
@@ -2896,7 +3244,7 @@ async function assistOfflineQueue(kind,args,extra={}){
     ...extra
   };
   await assistOfflineStorePut('queue',rec);
-  if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind))await assistOfflineApplyCache(kind,args);
+  if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc','receiptEvent'].includes(kind))await assistOfflineApplyCache(kind,args);
   window.__assistOfflineLastQueued=true;
   await assistOfflineUpdateBadge();
   return {offlineQueued:true,id};
@@ -2937,7 +3285,7 @@ async function assistOfflineWrite(kind,args,onlineFn){
   if(podeFila&&assistOfflineSemRede())return assistOfflineQueue(kind,args);
   try{
     const r=await assistOfflineTimeout(onlineFn(),ASSIST_NETWORK_TIMEOUT_MS,kind);
-    if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc'].includes(kind)&&assistOfflineTechRequested())await assistOfflineApplyCache(kind,args);
+    if(['saveDoc','saveSubDoc','mergeOSDoc','mergeSubDoc','receiptEvent'].includes(kind)&&assistOfflineTechRequested())await assistOfflineApplyCache(kind,args);
     assistOfflineClearForced();
     return r;
   }catch(e){
@@ -3508,6 +3856,7 @@ async function assistOfflineRawHistory(meta,titulo,detalhe,tipo='SINCRONIZACAO')
 }
 async function assistOfflineRawExecute(op){
   const k=op.kind,a=op.args||[];
+  if(k==='receiptEvent')return assistReceiptRawEvent(a[0],a[1]);
   if(k==='saveDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,a[0],a[1]),a[2]);
   if(k==='saveSubDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',a[0],a[1],a[2]),a[3]);
   if(k==='mergeOSDoc')return window.fsSetDoc(window.fsDoc(window.AppDB,...BASE,'os_ordens',a[0]),a[1],{merge:true});
@@ -3966,16 +4315,10 @@ function renderKanban(){
    const sla=normStage(o.etapaKanban||o.etapa||o.status)==='ENCERRADOS'?null:slaEstadoOS(o);
    const slaCls=sla?.classe==='danger'?'sla-danger':sla?.classe==='warn'?'sla-warn':'';
    const d=assistOSDate(o);
-   return `<div class="os-card ${slaCls}" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${d?`<div class="os-meta"><i class="fa-regular fa-calendar mr-1"></i>${d.toLocaleDateString('pt-BR')}</div>`:''}${sla?`<div class="mt-2"><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)} · ${esc(slaMetaLabel(sla.meta))}</span></div>`:''}${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mr-1"></i>${esc(p.texto)}</div>`})()}</div>`;
+   return `<div class="os-card ${slaCls}" role="button" tabindex="0" onclick="window.abrirDetalheOS('${o.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.abrirDetalheOS('${o.id}')}" title="Clique para abrir a OS"><div class="flex justify-between gap-2"><span class="os-number">${o.osNumber||o.numero||'OS sem número'}</span><span class="priority">${o.prioridade||'NORMAL'}</span></div><div class="os-client">${o.clienteNome||o.cliente||'Cliente não informado'}</div><div class="os-meta"><i class="fa-solid fa-user-gear mr-1"></i>${o.tecnicoNome||o.tecnico||'Técnico a definir'}</div>${assistReceiptKanbanChip(o)}${d?`<div class="os-meta"><i class="fa-regular fa-calendar mr-1"></i>${d.toLocaleDateString('pt-BR')}</div>`:''}${sla?`<div class="mt-2"><span class="sla-state ${sla.classe}"><i class="fa-solid ${sla.classe==='danger'?'fa-triangle-exclamation':sla.classe==='warn'?'fa-clock':'fa-circle-check'}"></i>${esc(sla.label)} · ${esc(slaMetaLabel(sla.meta))}</span></div>`:''}${(()=>{const p=pendenciaOS(o);return `<div class="os-pending ${p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mr-1"></i>${esc(p.texto)}</div>`})()}</div>`;
  }).join('')||'<div class="text-center text-xs text-slate-400 py-8">Nenhuma OS neste período</div>'}</div></div>`}).join('');
 }
-function isMinhaOS(o){
- const uid=String(window.currentUser?.uid||'').trim();
- const nome=String(window.nomeUsuarioLogado||window.userProfile?.nome||'').trim().toLowerCase();
- const ids=(Array.isArray(o?.tecnicoIds)&&o.tecnicoIds.length?o.tecnicoIds:[o?.tecnicoId||o?.tecnicoUid]).filter(Boolean).map(String);
- const nomes=(Array.isArray(o?.tecnicoNomes)&&o.tecnicoNomes.length?o.tecnicoNomes:[o?.tecnicoNome||o?.tecnico]).filter(Boolean).map(x=>String(x).toLowerCase());
- return (!!uid&&ids.includes(uid))||(!!nome&&nomes.includes(nome));
-}
+function isMinhaOS(o){return assistReceiptMatchesAssignment(o,assistReceiptCurrentIdentity())}
 
 
 // FASE 1.68 — Diário de eventos + integração FormCraft por equipamento
@@ -4382,7 +4725,7 @@ function renderModoTecnico(){
        ?`<span class="offline-partial-chip"><i class="fa-solid fa-triangle-exclamation"></i>${esc(assistOfflineReadyLabel(o))}</span>`
        :`<span class="offline-notready-chip"><i class="fa-solid fa-cloud-arrow-down"></i>${readyState==='FAILED'?'Preparo offline falhou':'Não preparado offline'}</span>`):'';
    const prep=externo?`<button data-offline-os="${esc(o.internalId||o.id)}" class="tech-offline-prepare ${assistOfflineReadyClass(o)}" onclick="event.stopPropagation();window.prepararOSOffline('${esc(o.id||o.internalId)}')"><i class="fa-solid ${readyState==='READY'?'fa-cloud-arrow-down':readyState==='PARTIAL'?'fa-triangle-exclamation':'fa-download'}"></i>${readyState==='READY'?'Atualizar offline':readyState==='PARTIAL'?'Completar preparo':'Preparar offline'}</button>`:'';
-   return `<article class="tech-os-card ${stage==='FATURAMENTO'?'admin':''}"><div class="flex justify-between gap-3"><div><div class="os-number">${esc(o.osNumber||o.numero||'OS')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(o.clienteNome||o.cliente||'Cliente não informado')}</div></div><span class="priority h-fit">${esc(o.prioridade||'NORMAL')}</span></div><div class="mt-2">${chip}</div><div class="tech-meta-grid"><div class="tech-meta"><span>Tipo</span><b>${esc(tipoAtendimentoLabel(o))}</b></div><div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta col-span-2"><span>Equipamento(s)</span><b>${esc(eqtxt)}</b></div></div><div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span>${esc(p.texto)}</span></div><div class="tech-card-actions"><button class="tech-primary-action !mt-0" onclick="window.abrirAtendimentoTecnico('${esc(o.id||o.internalId)}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir atendimento</button>${prep}</div></article>`;
+   return `<article class="tech-os-card ${stage==='FATURAMENTO'?'admin':''}"><div class="flex justify-between gap-3"><div><div class="os-number">${esc(o.osNumber||o.numero||'OS')}</div><div class="text-sm font-black text-slate-900 mt-1">${esc(o.clienteNome||o.cliente||'Cliente não informado')}</div></div><span class="priority h-fit">${esc(o.prioridade||'NORMAL')}</span></div><div class="mt-2">${chip}</div>${(()=>{const e=assistReceiptCurrentEntry(o)?.entry||{};return `<div class="os-receipt-chip ${e.confirmadoEmISO?'confirmed':'viewed'}"><i class="fa-solid ${e.confirmadoEmISO?'fa-check-double':e.primeiraVisualizacaoEmISO?'fa-eye':'fa-inbox'}"></i>${e.confirmadoEmISO?'Recebimento confirmado':e.primeiraVisualizacaoEmISO?'OS já aberta':e.recebidaNoAppEmISO?'Recebida no app · aguardando abertura':'Registrando chegada'}</div>`})()}<div class="tech-meta-grid"><div class="tech-meta"><span>Tipo</span><b>${esc(tipoAtendimentoLabel(o))}</b></div><div class="tech-meta"><span>Agendamento</span><b>${esc(fmtDate(o.agendadoParaISO))}</b></div><div class="tech-meta col-span-2"><span>Equipamento(s)</span><b>${esc(eqtxt)}</b></div></div><div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span>${esc(p.texto)}</span></div><div class="tech-card-actions"><button class="tech-primary-action !mt-0" onclick="window.abrirAtendimentoTecnico('${esc(o.id||o.internalId)}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Abrir atendimento</button>${prep}</div></article>`;
  }).join(''):`<div class="tech-empty"><i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i><div class="font-black text-slate-700">Nenhum atendimento atribuído a você</div><div class="mt-1">As OS aparecerão aqui quando você estiver definido como técnico responsável.</div></div>`;
 }
 
@@ -4440,7 +4783,7 @@ async function load(){
 
   renderIntegrations(r);renderLegacy();
   await carregarPendenciasOS();await carregarConfiguracaoSLA();
-  renderKanban();await assistOfflineRefreshPreparedMap?.();renderModoTecnico();renderCentralPendencias();renderSLAOperacional();renderProdutividadeTecnica();fillSelects();await assistLoadAlertsConfig();assistTryOpenNotificationOS();
+  renderKanban();await assistOfflineRefreshPreparedMap?.();renderModoTecnico();assistReceiptRegisterArrivals();assistStartReceiptMonitor();renderCentralPendencias();renderSLAOperacional();renderProdutividadeTecnica();fillSelects();await assistLoadAlertsConfig();assistStartNaoVisualizadaMonitor();assistTryOpenNotificationOS();
   await window.carregarMinhasPermissoesAssistencia?.();window.aplicarPermissoesAssistencia?.();
   const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);
   if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}
@@ -6800,6 +7143,7 @@ window.abrirDetalheOS=function(id){
   document.getElementById('detalhe-resumo').innerHTML=boxes.map(x=>`<div class="detail-box"><span class="field-label">${esc(x[0])}</span><div class="detail-value">${esc(x[1])}</div></div>`).join('');
   assistMoveGeneralActionsTop();
   document.getElementById('detalhe-descricao').textContent=o.descricaoInicial||o.descricao||'Nenhuma descrição informada.';
+  renderTecnicoRecebimentosOS(o);
   renderHistoricoOS(o);
   document.getElementById('modal-detalhe-os').classList.remove('hidden');
 
@@ -6822,7 +7166,7 @@ window.abrirDetalheOS=function(id){
 }
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
 window.toastDetalheIndisponivel=(nome)=>toast(`${nome}: será liberado em uma próxima fase.`);
-window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);const novaOSObj={id:internalId,...data};await addHistory(novaOSObj,'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push(novaOSObj);if(tecnicoId)await assistNotify(assistTechnicianRecipients(novaOSObj,[tecnicoId]),{eventType:'OS_ATRIBUIDA',titulo:'Nova OS atribuída',mensagem:`${osNumber} · ${data.clienteNome} foi atribuída a você.`,tipo:data.prioridade==='URGENTE'?'danger':'info',o:novaOSObj,dedupeKey:`OS_ATRIBUIDA:${internalId}:${tecnicoId}`});renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tipo-atendimento').value='INTERNO';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
+window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);const novaOSObj={id:internalId,...data};await addHistory(novaOSObj,'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push(novaOSObj);if(tecnicoId){const notifId=await assistNotify(assistTechnicianRecipients(novaOSObj,[tecnicoId]),{eventType:'OS_ATRIBUIDA',titulo:'Nova OS atribuída',mensagem:`${osNumber} · ${data.clienteNome} foi atribuída a você.`,tipo:data.prioridade==='URGENTE'?'danger':'info',o:novaOSObj,dedupeKey:`OS_ATRIBUIDA:${internalId}:${tecnicoId}`});await assistSincronizarEquipeRecebimento(novaOSObj,[tecnicoId],[data.tecnicoNome],[tecnicoId],notifId||'')}renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tipo-atendimento').value='INTERNO';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
 window.assistenciaAtualizar=load;window.filtrarKanban=renderKanban;window.legacyPage=(delta)=>{legacyCurrentPage+=delta;renderLegacy();};
 // FASE 1.28 — auditoria e histórico completo
 let auditEventos=[],auditFiltro='TODOS';
@@ -7071,6 +7415,8 @@ window.abrirAtendimentoTecnico=async function(id){
  document.getElementById('tech-at-numero').textContent=o.osNumber||o.numero||'Ordem de Serviço';
  document.getElementById('tech-at-cliente').textContent=o.clienteNome||o.cliente||'Cliente não informado';
  document.getElementById('modal-tech-atendimento').classList.remove('hidden');
+ renderTechReceiptStatus(o);
+ assistRegistrarVisualizacaoTecnico(o).catch(e=>console.warn('[Assistência] registro de abertura',e));
  techRenderTimer();
  await window.renderAtendimentoTecnico();
 };
@@ -7595,7 +7941,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.69';
+const ASSISTENCIA_BUILD='1.76.9';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -7767,6 +8113,7 @@ function iniciarAppTecnico(){
  const mobile=p.get('modo')==='tecnico'||p.get('app')==='tecnico'||techAppStandalone();
  if(mobile){
    document.body.classList.add('tech-app-mode');
+   assistReceiptRegisterArrivals();assistStartReceiptMonitor();
    setTimeout(()=>{techHistoryInit();window.techAppInicio()},80);
  }
 
@@ -8631,7 +8978,8 @@ window.salvarTrocaTecnicos=async function(){
    }catch(e){console.warn('[Assistência] agenda não sincronizada',e)}
   }
   await addHistory(o,'EQUIPE_TECNICA','Equipe técnica alterada','De: '+(anteriorNomes.join(', ')||'não definida')+' → Para: '+nomes.join(', '),{tecnicoIdsAnteriores:anteriorIds,tecnicoIdsNovos:ids});
-  const novos=ids.filter(id=>!anteriorIds.map(String).includes(String(id)));if(novos.length)await assistNotify(assistTechnicianRecipients(o,novos),{eventType:'OS_ATRIBUIDA',titulo:'OS atribuída à sua equipe',mensagem:`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||'Cliente'} agora está atribuída a você.`,tipo:o.prioridade==='URGENTE'?'danger':'info',o,dedupeKey:`EQUIPE:${osid}:${novos.join(',')}`});
+  const novos=ids.filter(id=>!anteriorIds.map(String).includes(String(id)));let notifEquipe='';if(novos.length)notifEquipe=await assistNotify(assistTechnicianRecipients(o,novos),{eventType:'OS_ATRIBUIDA',titulo:'OS atribuída à sua equipe',mensagem:`${o.osNumber||o.numero||'OS'} · ${o.clienteNome||o.cliente||'Cliente'} agora está atribuída a você.`,tipo:o.prioridade==='URGENTE'?'danger':'info',o,dedupeKey:`EQUIPE:${osid}:${novos.join(',')}`})||'';
+  await assistSincronizarEquipeRecebimento(o,ids,nomes,novos,notifEquipe);
   window.fecharTrocaTecnicos();renderKanban();renderModoTecnico();state.selectedOS=o;await window.abrirDetalheOS(o.id||o.internalId);toast('Equipe técnica atualizada.');
  }catch(e){console.error('[Assistência] troca de técnicos',e);alert('Não foi possível alterar os técnicos.\\n\\n'+(e?.message||e))}
  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-users-gear"></i> Salvar equipe'}
@@ -9494,6 +9842,8 @@ window.initModule=function(p){
   document.getElementById('main-content')?.classList.remove('hidden');
   renderUser(p);
   assistOfflinePersistSession();
+  const params=new URLSearchParams(location.search);
+  if(params.get('modo')==='tecnico'||params.get('app')==='tecnico'||techAppStandalone())document.body.classList.add('tech-app-mode');
 
   Promise.resolve(load())
     .catch(e=>console.warn('[Assistência] carga inicial parcial',e))
@@ -9505,7 +9855,7 @@ window.initModule=function(p){
 })();
 
 </script>
-<script type="module" src="core.js?v=20260928-1720"></script>
+<script type="module" src="core.js?v=20260929-1800-1700"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){
