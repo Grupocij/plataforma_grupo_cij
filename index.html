@@ -59,6 +59,73 @@
             color:#94a3b8;font-size:10px;font-weight:800;background:rgba(255,255,255,.55)
         }
 
+
+        /* V2.1 — calendário como elemento principal */
+        #viewCalendar{
+            display:block;
+        }
+        #viewCalendar.hidden{display:none!important}
+        #calendar-panel{
+            width:100%;
+            min-height:620px!important;
+        }
+        #calendarGrid{
+            grid-template-rows:repeat(6,minmax(82px,1fr));
+            min-height:540px;
+        }
+        #agenda-support-panels{
+            display:grid;
+            grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);
+            gap:1rem;
+            margin-top:1rem;
+        }
+        #notice-panel{
+            min-height:420px!important;
+            max-height:620px;
+        }
+        #upcoming-panel{
+            min-height:420px;
+            max-height:620px;
+        }
+        .upcoming-list{
+            overflow-y:auto;
+            min-height:0;
+            flex:1;
+        }
+        .upcoming-day-group + .upcoming-day-group{margin-top:12px}
+        .upcoming-day-title{
+            position:sticky;top:0;z-index:2;
+            display:flex;align-items:center;justify-content:space-between;gap:8px;
+            background:rgba(248,250,252,.96);backdrop-filter:blur(8px);
+            border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;
+            font-size:10px;font-weight:900;color:#334155;
+        }
+        .upcoming-task{
+            width:100%;text-align:left;padding:9px 10px;margin-top:6px;
+            border:1px solid #e2e8f0;border-radius:11px;background:white;transition:.15s;
+        }
+        .upcoming-task:hover{border-color:#bfdbfe;background:#f8fafc}
+        .conflict-alert{
+            display:none;border:1px solid #fdba74;background:#fff7ed;color:#9a3412;
+            border-radius:12px;padding:10px 11px;font-size:10px;line-height:1.45;font-weight:700;
+        }
+        .conflict-alert.visible{display:block}
+        .conflict-row{
+            margin-top:7px;padding-top:7px;border-top:1px solid #fed7aa;
+        }
+        .calendar-time{
+            font-size:8px;font-weight:900;opacity:.8;white-space:nowrap;margin-right:4px;
+        }
+        .support-collapse-btn{display:none}
+
+        @media(min-width:721px){
+            #calendar-panel{
+                height:clamp(620px,calc(100dvh - 285px),760px);
+            }
+            #calendarGrid{min-height:0}
+            .agenda-day-cell{min-height:0!important}
+        }
+
         @media(max-width:720px){
             #main-content{padding:.5rem!important;gap:.6rem!important}
             .agenda-toolbar-sticky{top:0}
@@ -95,8 +162,15 @@
             .agenda-task-preview{display:none!important}
             .agenda-day-dots{display:flex}
             .agenda-day-count{height:18px;min-width:18px;font-size:8px;padding:0 5px}
-            #notice-panel{min-height:420px!important;border-radius:1rem}
-            #noticeList{max-height:440px}
+            #calendar-panel{min-height:auto!important;height:auto!important;border-radius:1rem}
+            #calendarGrid{grid-template-rows:repeat(6,minmax(58px,1fr));min-height:348px!important}
+            .agenda-day-cell{min-height:58px!important;padding:.28rem!important}
+            #agenda-support-panels{grid-template-columns:1fr;gap:.6rem;margin-top:.6rem}
+            #upcoming-panel,#notice-panel{min-height:0!important;max-height:none;border-radius:1rem}
+            #upcoming-panel .upcoming-list{max-height:420px}
+            #noticeList{max-height:380px}
+            .support-collapse-btn{display:inline-flex}
+            .support-panel-body.mobile-collapsed{display:none!important}
             #viewKanban{
                 display:grid!important;
                 grid-auto-flow:column;
@@ -224,10 +298,9 @@
             </div>
         </div>
 
-        <!-- VISÃO 1: CALENDÁRIO & MURAL -->
-        <div id="viewCalendar" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            
-            <div id="calendar-panel" class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
+        <!-- VISÃO 1: CALENDÁRIO PRINCIPAL -->
+        <div id="viewCalendar">
+<div id="calendar-panel" class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
                 <div id="calendar-toolbar" class="p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 shrink-0">
                     <div class="flex items-center gap-3">
                         <h2 id="calendarMonthYear" class="text-sm font-black text-slate-800 capitalize">Mês / Ano</h2>
@@ -248,15 +321,33 @@
                 </div>
                 <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr gap-px bg-slate-200 flex-1 h-full"></div>
             </div>
+            <div id="agenda-support-panels">
 
-            <!-- MURAL DE RECADOS -->
-            <div id="notice-panel" class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[750px] overflow-hidden">
+            <div id="upcoming-panel" class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-calendar-week text-xs"></i></div>
+                        <div><h3 class="text-xs font-black text-slate-800">Próximos 7 dias</h3><p class="text-[9px] text-slate-500 font-bold">Agenda imediata da equipe</p></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="upcomingCount" class="text-[9px] font-black bg-white border border-blue-200 text-blue-700 rounded-full px-2 py-1">0</span>
+                        <button type="button" class="support-collapse-btn w-8 h-8 rounded-lg bg-white/80 border border-blue-200 items-center justify-center text-blue-700" onclick="window.toggleSupportPanel('upcoming-panel-body',this)" aria-label="Abrir ou recolher próximos dias"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                </div>
+                <div id="upcoming-panel-body" class="support-panel-body p-3 flex flex-col min-h-0 flex-1">
+                    <div id="upcomingList" class="upcoming-list custom-scrollbar"></div>
+                </div>
+            </div>
+
+<div id="notice-panel" class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[750px] overflow-hidden">
                 <div class="p-3 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-bullhorn text-xs"></i></div>
                         <div><h3 class="text-xs font-black text-slate-800">Mural de Recados</h3><p class="text-[9px] text-slate-500 font-bold">Avisos e Notas da Equipe</p></div>
                     </div>
+                    <button type="button" class="support-collapse-btn w-8 h-8 rounded-lg bg-white/80 border border-amber-200 items-center justify-center text-amber-700" onclick="window.toggleSupportPanel('notice-panel-body',this)" aria-label="Abrir ou recolher mural"><i class="fa-solid fa-chevron-up"></i></button>
                 </div>
+                <div id="notice-panel-body" class="support-panel-body flex flex-col min-h-0 flex-1">
                 <div class="p-2.5 border-b border-slate-100 bg-slate-50 shrink-0">
                     <form onsubmit="window.handleAddNotice(event)" class="flex flex-col gap-2">
                         <div class="flex gap-2">
@@ -274,6 +365,8 @@
                     </form>
                 </div>
                 <div id="noticeList" class="p-2.5 flex-1 overflow-y-auto space-y-2.5 custom-scrollbar"></div>
+                </div>
+            </div>
             </div>
         </div>
 
@@ -398,12 +491,27 @@
                     </div>
                     <div>
                         <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Início *</label>
-                        <input type="date" id="taskScheduledDate" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <input type="date" id="taskScheduledDate" required onchange="window.checkTaskConflictsLive()" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Data Conclusão *</label>
-                        <input type="date" id="taskDueDate" required class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
+                        <input type="date" id="taskDueDate" required onchange="window.checkTaskConflictsLive()" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition cursor-pointer">
                     </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Horário início</label>
+                        <input type="time" id="taskStartTime" oninput="window.checkTaskConflictsLive()" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Horário fim</label>
+                        <input type="time" id="taskEndTime" oninput="window.checkTaskConflictsLive()" class="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition">
+                    </div>
+                </div>
+                <div id="taskConflictAlert" class="conflict-alert">
+                    <div class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-0.5"></i><div><b>Possível conflito de agenda</b><div id="taskConflictText" class="mt-0.5">Há outro compromisso para um dos responsáveis.</div></div></div>
+                    <div id="taskConflictList"></div>
+                    <div class="mt-2 pt-2 border-t border-orange-200 font-black">Este é somente um alerta. O agendamento poderá ser salvo normalmente.</div>
                 </div>
                 <div>
                     <label class="block text-[10px] sm:text-[11px] font-bold text-slate-600 mb-1 uppercase">Status de Andamento *</label>
@@ -539,6 +647,13 @@
             const source={...(raw||{})};
             const start=dateOnly(source.scheduledDate||source.startDate||source.dueDateISO||source.dataHoraISO||source.startISO||source.agendadoParaISO||source.date);
             const end=dateOnly(source.dueDate||source.endDate||source.endISO||source.dueDateISO||source.dataHoraISO||source.agendadoParaISO)||start;
+            const extractTime=(v)=>{
+                const s=String(v||'');
+                const m=s.match(/[T\s](\d{2}):(\d{2})/);
+                return m?`${m[1]}:${m[2]}`:'';
+            };
+            const startTime=String(source.startTime||source.horaInicio||source.time||extractTime(source.dataHoraISO||source.startISO||source.agendadoParaISO||source.dueDateISO)||'').slice(0,5);
+            const endTime=String(source.endTime||source.horaFim||extractTime(source.endISO)||'').slice(0,5);
             let rawTechs=[];
             if(Array.isArray(source.techIds)) rawTechs=source.techIds;
             else if(Array.isArray(source.technicians)) rawTechs=source.technicians;
@@ -567,6 +682,8 @@
                 urgency,
                 scheduledDate:start,
                 dueDate:end,
+                startTime,
+                endTime,
                 status:taskStatus(source),
                 description:String(source.description||source.observacao||source.descricao||''),
                 __raw:source,
@@ -592,6 +709,8 @@
                 urgency:patch.urgency??task?.urgency??'MEDIUM',
                 scheduledDate:patch.scheduledDate??task?.scheduledDate??'',
                 dueDate:patch.dueDate??task?.dueDate??patch.scheduledDate??task?.scheduledDate??'',
+                startTime:patch.startTime??task?.startTime??'',
+                endTime:patch.endTime??task?.endTime??'',
                 status,
                 description:patch.description??task?.description??'',
                 statusAgendamento: status==='DONE'?'CONCLUIDO':status==='IN_PROGRESS'?'EM_ANDAMENTO':'AGENDADO',
@@ -677,7 +796,7 @@
                 TECHNICIANS.forEach(t => {
                     taskTechContainer.innerHTML += `
                         <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-200 p-1.5 rounded-lg transition border border-transparent hover:border-slate-300">
-                            <input type="checkbox" value="${t.id}" class="tech-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer">
+                            <input type="checkbox" value="${t.id}" class="tech-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer" onchange="window.checkTaskConflictsLive()">
                             <span class="font-bold text-slate-700 truncate select-none">${t.name}</span>
                         </label>
                     `;
@@ -725,6 +844,60 @@
             });
         }
 
+        window.toggleSupportPanel=function(id,btn){
+            const el=document.getElementById(id);if(!el)return;
+            el.classList.toggle('mobile-collapsed');
+            const icon=btn?.querySelector('i');if(icon)icon.className=el.classList.contains('mobile-collapsed')?'fa-solid fa-chevron-down':'fa-solid fa-chevron-up';
+        };
+
+        function taskTimeLabel(t){
+            if(t.startTime&&t.endTime)return `${t.startTime}–${t.endTime}`;
+            if(t.startTime)return t.startTime;
+            return '';
+        }
+
+        window.renderUpcoming = function(filteredTasks=getFilteredTasks()){
+            const box=document.getElementById('upcomingList'),count=document.getElementById('upcomingCount');
+            if(!box)return;
+            const start=todayLocal(),d0=new Date(start+'T12:00:00'),d7=new Date(d0);d7.setDate(d7.getDate()+6);
+            const end=`${d7.getFullYear()}-${String(d7.getMonth()+1).padStart(2,'0')}-${String(d7.getDate()).padStart(2,'0')}`;
+            const rows=filteredTasks.filter(t=>{
+                if(!t.scheduledDate)return false;
+                const finish=t.dueDate&&t.dueDate>=t.scheduledDate?t.dueDate:t.scheduledDate;
+                return finish>=start&&t.scheduledDate<=end&&t.status!=='DONE';
+            }).sort((a,b)=>String(a.scheduledDate).localeCompare(String(b.scheduledDate))||String(a.startTime||'99:99').localeCompare(String(b.startTime||'99:99'))||String(a.client).localeCompare(String(b.client),'pt-BR'));
+            if(count)count.textContent=String(rows.length);
+
+            const groups=[];
+            for(let i=0;i<7;i++){
+                const d=new Date(d0);d.setDate(d.getDate()+i);
+                const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                const dayRows=rows.filter(t=>{
+                    const finish=t.dueDate&&t.dueDate>=t.scheduledDate?t.dueDate:t.scheduledDate;
+                    return key>=t.scheduledDate&&key<=finish;
+                });
+                if(dayRows.length)groups.push({key,d,rows:dayRows});
+            }
+
+            box.innerHTML=groups.length?groups.map(g=>{
+                const isToday=g.key===start,tm=new Date(d0);tm.setDate(tm.getDate()+1);
+                const tomorrow=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
+                const label=isToday?'Hoje':g.key===tomorrow?'Amanhã':g.d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+                return `<section class="upcoming-day-group">
+                    <div class="upcoming-day-title"><span>${escHtml(label)}</span><span class="text-slate-400">${g.rows.length} tarefa(s)</span></div>
+                    ${g.rows.map(t=>{
+                        const techs=window.getTechsForTask(t),time=taskTimeLabel(t),urgent=t.urgency==='CRITICAL'||t.urgency==='HIGH';
+                        return `<button type="button" class="upcoming-task" onclick="window.openDetailsModal('${escHtml(t.id)}')">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0"><b class="text-[11px] text-slate-800 block truncate">${escHtml(t.osNumber?t.osNumber+' · '+t.client:t.client)}</b><span class="text-[9px] text-slate-500 block truncate mt-0.5">${escHtml(techs.map(x=>x.name).join(', '))}${time?' · '+escHtml(time):''}</span></div>
+                                ${urgent?'<i class="fa-solid fa-triangle-exclamation text-orange-500 text-[10px] mt-0.5"></i>':''}
+                            </div>
+                        </button>`;
+                    }).join('')}
+                </section>`;
+            }).join(''):'<div class="py-12 text-center text-slate-400"><i class="fa-regular fa-calendar-check text-3xl"></i><p class="text-xs font-bold mt-2">Nenhum compromisso pendente nos próximos 7 dias.</p></div>';
+        };
+
         window.switchView = function(view) {
             const map={calendar:['Calendar','viewCalendar'],kanban:['Kanban','viewKanban'],table:['Table','viewTable']};
             if(!map[view]) view='calendar';
@@ -749,7 +922,10 @@
             document.getElementById('statCritical').innerText = filtered.filter(t => t.urgency === 'CRITICAL').length;
             document.getElementById('resultsCount').innerText = `${filtered.length} agendamentos`;
 
-            if (currentView === 'calendar') window.renderCalendar(filtered);
+            if (currentView === 'calendar') {
+                window.renderCalendar(filtered);
+                window.renderUpcoming(filtered);
+            }
             else if (currentView === 'kanban') window.renderKanban(filtered);
             else if (currentView === 'table') window.renderTable(filtered);
         };
@@ -821,7 +997,7 @@
                     item.type='button';
                     item.onclick=(e)=>{e.stopPropagation();window.openDetailsModal(task.id)};
                     item.className=`w-full px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer transition shadow-xs flex items-center justify-between border-l-[3px] ${bgClass} ${isCritical?'pulse-critical':''}`;
-                    item.innerHTML=`<span class="truncate">${escHtml(task.osNumber?task.osNumber+' · ':'')}${escHtml(task.client)}</span>${isCritical?'<i class="fa-solid fa-circle-exclamation text-red-600 ml-1"></i>':''}`;
+                    item.innerHTML=`<span class="truncate">${taskTimeLabel(task)?`<span class="calendar-time">${escHtml(taskTimeLabel(task))}</span>`:''}${escHtml(task.osNumber?task.osNumber+' · ':'')}${escHtml(task.client)}</span>${isCritical?'<i class="fa-solid fa-circle-exclamation text-red-600 ml-1"></i>':''}`;
                     tContainer.appendChild(item);
                 });
                 if(dayTasks.length>3){
@@ -873,7 +1049,7 @@
                     </div>
                     <div class="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex flex-wrap gap-1">${techs.map(x=>`<span class="text-[9px] font-bold bg-slate-100 border border-slate-200 rounded-full px-2 py-1">${escHtml(x.name)}</span>`).join('')}</div>
-                        <span class="text-[9px] font-bold text-slate-400">${fmtDateShort(t.scheduledDate)}${t.dueDate&&t.dueDate!==t.scheduledDate?' → '+fmtDateShort(t.dueDate):''}</span>
+                        <span class="text-[9px] font-bold text-slate-400">${taskTimeLabel(t)?escHtml(taskTimeLabel(t))+' · ':''}${fmtDateShort(t.scheduledDate)}${t.dueDate&&t.dueDate!==t.scheduledDate?' → '+fmtDateShort(t.dueDate):''}</span>
                     </div>
                 </button>`;
             }).join(''):`<div class="py-12 text-center text-slate-400"><i class="fa-regular fa-calendar-xmark text-3xl"></i><p class="text-xs font-bold mt-2">Nenhuma tarefa neste dia.</p><button type="button" onclick="window.closeDayModal();window.openTaskModalWithDate('${dateStr}')" class="mt-3 text-xs font-black text-blue-700">Criar agendamento</button></div>`;
@@ -969,7 +1145,7 @@
                     </div>
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px] font-bold text-slate-500 pointer-events-none">
                         <div class="flex items-center gap-1 flex-wrap min-w-0">${techs.slice(0,3).map(t => `<span class="px-1.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[8px] text-slate-600">${escHtml(t.name)}</span>`).join('')}</div>
-                        <span class="text-[9px] text-slate-400 shrink-0"><i class="fa-regular fa-calendar"></i> ${fmtDateShort(task.scheduledDate)}</span>
+                        <span class="text-[9px] text-slate-400 shrink-0"><i class="fa-regular fa-calendar"></i> ${fmtDateShort(task.scheduledDate)}${taskTimeLabel(task)?' · '+escHtml(taskTimeLabel(task)):''}</span>
                     </div>`;
                 cols[status]?.appendChild(card);counts[status]++;
             });
@@ -1024,7 +1200,7 @@
                     const techs=window.getTechsForTask(t),status=t.status==='PENDING'?['Agendado','bg-blue-100 text-blue-800']:t.status==='IN_PROGRESS'?['Em andamento','bg-amber-100 text-amber-800']:['Concluído','bg-emerald-100 text-emerald-800'];
                     return `<article class="task-mobile-card" onclick="window.openDetailsModal('${escHtml(t.id)}')">
                         <div class="flex items-start justify-between gap-2"><div class="min-w-0">${t.osNumber?`<span class="text-[9px] font-black bg-slate-100 border px-1.5 py-0.5 rounded">${escHtml(t.osNumber)}</span>`:''}<h3 class="text-sm font-black text-slate-900 mt-1">${escHtml(t.client)}</h3><p class="text-[10px] text-slate-500 mt-1">${escHtml(t.location||'Local não informado')}</p></div><span class="text-[9px] font-black px-2 py-1 rounded ${status[1]} shrink-0">${status[0]}</span></div>
-                        <div class="mt-2 pt-2 border-t flex items-center justify-between gap-2"><div class="flex flex-wrap gap-1">${techs.slice(0,2).map(x=>`<span class="text-[9px] font-bold bg-slate-100 rounded-full px-2 py-1">${escHtml(x.name)}</span>`).join('')}</div><span class="text-[9px] font-bold text-slate-400">${fmtDateShort(t.scheduledDate)}</span></div>
+                        <div class="mt-2 pt-2 border-t flex items-center justify-between gap-2"><div class="flex flex-wrap gap-1">${techs.slice(0,2).map(x=>`<span class="text-[9px] font-bold bg-slate-100 rounded-full px-2 py-1">${escHtml(x.name)}</span>`).join('')}</div><span class="text-[9px] font-bold text-slate-400">${fmtDateShort(t.scheduledDate)}${taskTimeLabel(t)?' · '+escHtml(taskTimeLabel(t)):''}</span></div>
                     </article>`;
                 }).join('')||'<div class="p-8 text-center text-xs text-slate-400">Nenhum agendamento encontrado.</div>';
             }
@@ -1037,6 +1213,50 @@
         };
 
         function todayLocal(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+        function intervalsOverlap(aStart,aEnd,bStart,bEnd){
+            const ae=aEnd&&aEnd>=aStart?aEnd:aStart,be=bEnd&&bEnd>=bStart?bEnd:bStart;
+            return aStart<=be&&bStart<=ae;
+        }
+        function timesOverlap(aStart,aEnd,bStart,bEnd){
+            if(!aStart||!bStart)return true; // sem horário completo: conflito possível no mesmo dia
+            const ae=aEnd||aStart,be=bEnd||bStart;
+            return aStart<be&&bStart<ae || aStart===bStart || ae===be;
+        }
+        function getTaskConflicts({id='',techIds=[],scheduledDate='',dueDate='',startTime='',endTime=''}){
+            if(!scheduledDate||!techIds.length)return[];
+            const finish=dueDate&&dueDate>=scheduledDate?dueDate:scheduledDate;
+            return window.tasks.filter(t=>{
+                if(String(t.id)===String(id)||t.status==='DONE'||!t.scheduledDate)return false;
+                const common=window.getTaskTechIds(t).filter(x=>techIds.includes(x));
+                if(!common.length)return false;
+                const tEnd=t.dueDate&&t.dueDate>=t.scheduledDate?t.dueDate:t.scheduledDate;
+                if(!intervalsOverlap(scheduledDate,finish,t.scheduledDate,tEnd))return false;
+
+                // Se ambos são do mesmo único dia, aplica sobreposição de horário.
+                if(scheduledDate===finish&&t.scheduledDate===tEnd&&scheduledDate===t.scheduledDate){
+                    if(!timesOverlap(startTime,endTime,t.startTime,t.endTime))return false;
+                }
+                return true;
+            });
+        }
+        window.checkTaskConflictsLive=function(){
+            const box=document.getElementById('taskConflictAlert'),list=document.getElementById('taskConflictList');
+            if(!box||!list)return[];
+            const id=document.getElementById('taskId')?.value||'';
+            const techIds=[...document.querySelectorAll('.tech-checkbox:checked')].map(x=>x.value);
+            const scheduledDate=document.getElementById('taskScheduledDate')?.value||'';
+            const dueDate=document.getElementById('taskDueDate')?.value||scheduledDate;
+            const startTime=document.getElementById('taskStartTime')?.value||'';
+            const endTime=document.getElementById('taskEndTime')?.value||'';
+            const conflicts=getTaskConflicts({id,techIds,scheduledDate,dueDate,startTime,endTime});
+            box.classList.toggle('visible',conflicts.length>0);
+            list.innerHTML=conflicts.slice(0,5).map(t=>{
+                const common=window.getTechsForTask(t).filter(x=>techIds.includes(x.id));
+                return `<div class="conflict-row"><b>${escHtml(t.osNumber?t.osNumber+' · '+t.client:t.client)}</b><br><span>${fmtDateShort(t.scheduledDate)}${taskTimeLabel(t)?' · '+escHtml(taskTimeLabel(t)):''} · ${escHtml(common.map(x=>x.name).join(', ')||'Responsável em comum')}</span></div>`;
+            }).join('')+(conflicts.length>5?`<div class="conflict-row"><b>+ ${conflicts.length-5} outro(s) conflito(s)</b></div>`:'');
+            return conflicts;
+        };
 
         window.openTaskModal = function(id = null) {
             document.getElementById('taskForm').reset();
@@ -1054,6 +1274,8 @@
                 document.getElementById('taskDueDate').value = t.dueDate || t.scheduledDate || todayLocal();
                 document.getElementById('taskStatus').value = t.status || 'PENDING';
                 document.getElementById('taskDescription').value = t.description || '';
+                document.getElementById('taskStartTime').value = t.startTime || '';
+                document.getElementById('taskEndTime').value = t.endTime || '';
                 document.getElementById('modalTitle').innerText = 'Editar Agendamento';
 
                 const ids = window.getTaskTechIds(t);
@@ -1065,18 +1287,22 @@
                 document.getElementById('taskId').value = '';
                 document.getElementById('taskScheduledDate').value = todayLocal();
                 document.getElementById('taskDueDate').value = todayLocal();
+                document.getElementById('taskStartTime').value = '';
+                document.getElementById('taskEndTime').value = '';
                 document.getElementById('modalTitle').innerText = 'Novo Agendamento';
 
                 const cb = document.querySelector(`.tech-checkbox[value="${currentUser}"]`);
                 if(cb) cb.checked = true;
             }
             document.getElementById('taskModal').classList.remove('hidden');
+            setTimeout(()=>window.checkTaskConflictsLive(),0);
         };
 
         window.openTaskModalWithDate = function(d) {
             window.openTaskModal();
             document.getElementById('taskScheduledDate').value = d;
             document.getElementById('taskDueDate').value = d;
+            window.checkTaskConflictsLive();
         };
 
         window.closeTaskModal = () => document.getElementById('taskModal').classList.add('hidden');
@@ -1111,6 +1337,8 @@
                 urgency:document.getElementById('taskUrgency').value,
                 scheduledDate:dStart,
                 dueDate:dEnd,
+                startTime:document.getElementById('taskStartTime').value||'',
+                endTime:document.getElementById('taskEndTime').value||'',
                 status:document.getElementById('taskStatus').value,
                 description:document.getElementById('taskDescription').value.trim(),
                 updatedByUid:currentIdentity.uid||'',
@@ -1119,11 +1347,15 @@
             });
 
             const sendToGoogle = document.getElementById('syncGoogle').checked;
+            const conflicts=window.checkTaskConflictsLive();
 
             try {
                 await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', existing?.__docId||data.id), data);
                 if (!window.tasks.find(t => t.id === data.id)) window.tasks.push(normalizeTask(data,data.id));
                 window.closeTaskModal();
+                if(conflicts.length){
+                    setTimeout(()=>alert(`Agendamento salvo normalmente.\n\nAtenção: foram identificados ${conflicts.length} possível(is) conflito(s) de agenda para o(s) responsável(is).`),80);
+                }
                 if (sendToGoogle) {
                     window.addToGoogleCalendar(data.id);
                 }
@@ -1136,20 +1368,25 @@
 
             const title = encodeURIComponent((task.osNumber ? task.osNumber + ' - ' : '') + task.client);
             const location = encodeURIComponent(task.location || '');
-            
-            const dStart = (task.scheduledDate||todayLocal()).replace(/-/g, '');
-            const dEndDateObj = new Date((task.dueDate||task.scheduledDate||todayLocal()) + 'T00:00:00');
-            dEndDateObj.setDate(dEndDateObj.getDate() + 1); 
-            const dEnd = dEndDateObj.toISOString().split('T')[0].replace(/-/g, '');
-            const dates = `${dStart}/${dEnd}`;
+            let dates='';
+            if(task.startTime){
+                const compact=(d,t)=>`${String(d||todayLocal()).replace(/-/g,'')}T${String(t||'00:00').replace(':','')}00`;
+                const endDate=task.dueDate||task.scheduledDate||todayLocal();
+                const endTime=task.endTime||task.startTime;
+                dates=`${compact(task.scheduledDate,task.startTime)}/${compact(endDate,endTime)}`;
+            }else{
+                const dStart=(task.scheduledDate||todayLocal()).replace(/-/g,'');
+                const dEndDateObj=new Date((task.dueDate||task.scheduledDate||todayLocal())+'T00:00:00');
+                dEndDateObj.setDate(dEndDateObj.getDate()+1);
+                const dEnd=dEndDateObj.toISOString().split('T')[0].replace(/-/g,'');
+                dates=`${dStart}/${dEnd}`;
+            }
 
             const techs = window.getTechsForTask(task);
             const emails = techs.map(t => t.email).filter(Boolean).join(',');
             const addParam = emails ? `&add=${emails}` : '';
-            
             const techNames = techs.map(t => t.name).join(', ');
             const details = encodeURIComponent(`Detalhes: ${task.description || 'Nenhum detalhe'}\nEquipe Responsável: ${techNames}`);
-
             const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}${addParam}`;
             window.open(url, '_blank');
         };
@@ -1175,8 +1412,8 @@
             
             document.getElementById('detailUrgency').innerHTML = badgeU;
             document.getElementById('detailStatus').innerHTML = badgeS;
-            document.getElementById('detailScheduled').innerText = fmtDateShort(t.scheduledDate);
-            document.getElementById('detailDue').innerText = fmtDateShort(t.dueDate);
+            document.getElementById('detailScheduled').innerText = fmtDateShort(t.scheduledDate) + (t.startTime ? ' · '+t.startTime : '');
+            document.getElementById('detailDue').innerText = fmtDateShort(t.dueDate) + (t.endTime ? ' · '+t.endTime : '');
             document.getElementById('detailDescription').innerText = t.description || 'Nenhuma observação registrada.';
 
             document.getElementById('btnGoogleCalendar').setAttribute('onclick', `window.addToGoogleCalendar('${t.id}')`);
