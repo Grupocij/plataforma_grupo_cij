@@ -22,6 +22,106 @@
             70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+
+        /* AGENDA V2.0 */
+        .agenda-day-cell{
+            position:relative;
+            cursor:pointer;
+            min-width:0;
+        }
+        .agenda-day-cell:hover{background:#f8fafc}
+        .agenda-day-cell.selected-day{outline:2px solid #6366f1;outline-offset:-2px;background:#eef2ff}
+        .agenda-day-count{
+            min-width:20px;height:20px;padding:0 6px;border-radius:999px;
+            display:inline-flex;align-items:center;justify-content:center;
+            background:#e2e8f0;color:#475569;font-size:9px;font-weight:900;
+        }
+        .agenda-day-count.has-items{background:#dbeafe;color:#1d4ed8}
+        .agenda-day-dots{display:none;align-items:center;gap:3px;flex-wrap:wrap;margin-top:5px}
+        .agenda-dot{width:6px;height:6px;border-radius:999px}
+        .agenda-task-preview{min-width:0}
+        .agenda-toolbar-sticky{position:sticky;top:0;z-index:25}
+        .agenda-kpi{transition:.15s}
+        .agenda-kpi:hover{transform:translateY(-1px)}
+        .day-task-card{
+            width:100%;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:14px;
+            padding:12px;transition:.15s;
+        }
+        .day-task-card:hover{border-color:#bfdbfe;background:#f8fafc}
+        .day-task-card + .day-task-card{margin-top:8px}
+        .task-mobile-card{
+            border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:12px;
+            box-shadow:0 1px 2px rgba(15,23,42,.04)
+        }
+        .kanban-col{min-height:540px!important}
+        .kanban-empty{
+            border:1px dashed #cbd5e1;border-radius:12px;padding:24px 10px;text-align:center;
+            color:#94a3b8;font-size:10px;font-weight:800;background:rgba(255,255,255,.55)
+        }
+
+        @media(max-width:720px){
+            #main-content{padding:.5rem!important;gap:.6rem!important}
+            .agenda-toolbar-sticky{top:0}
+            #agenda-header{padding:.65rem!important;border-radius:1rem}
+            #agenda-header-title p{display:none!important}
+            #agenda-view-switch{order:3;width:100%;justify-content:stretch}
+            #agenda-view-switch button{flex:1;justify-content:center;min-height:42px;padding:.5rem .65rem!important}
+            #agenda-actions{width:auto!important;margin-left:auto}
+            #agenda-actions button{min-height:42px}
+            #agenda-kpis{
+                display:flex!important;overflow-x:auto;gap:.5rem!important;scroll-snap-type:x mandatory;
+                padding-bottom:.1rem;scrollbar-width:none
+            }
+            #agenda-kpis::-webkit-scrollbar{display:none}
+            #agenda-kpis>div{min-width:138px;flex:0 0 138px;scroll-snap-align:start;padding:.65rem!important}
+            #agenda-search{padding:.6rem!important}
+            #agenda-search>div:first-child{display:grid!important;grid-template-columns:1fr 1fr;width:100%}
+            #agenda-search .agenda-search-main{grid-column:1/-1;width:100%!important}
+            #agenda-search select{width:100%;min-height:42px;font-size:12px}
+            #filterSearch{min-height:42px;font-size:13px}
+            #viewCalendar{gap:.55rem!important}
+            #calendar-panel{min-height:auto!important;border-radius:1rem}
+            #calendar-toolbar{padding:.55rem!important}
+            #calendar-legend{display:none!important}
+            #calendar-weekdays{font-size:9px!important}
+            #calendarGrid{min-height:0!important}
+            .agenda-day-cell{
+                min-height:72px!important;padding:.35rem!important;
+                display:flex!important;flex-direction:column;justify-content:flex-start
+            }
+            .agenda-day-cell .agenda-day-head{margin-bottom:0!important}
+            .agenda-day-cell .agenda-day-number{font-size:11px!important}
+            .agenda-day-cell .agenda-day-plus{display:none!important}
+            .agenda-task-preview{display:none!important}
+            .agenda-day-dots{display:flex}
+            .agenda-day-count{height:18px;min-width:18px;font-size:8px;padding:0 5px}
+            #notice-panel{min-height:420px!important;border-radius:1rem}
+            #noticeList{max-height:440px}
+            #viewKanban{
+                display:grid!important;
+                grid-auto-flow:column;
+                grid-template-columns:repeat(3,minmax(84vw,84vw))!important;
+                overflow-x:auto;
+                gap:.65rem!important;
+                padding-bottom:1rem!important;
+                scroll-snap-type:x mandatory;
+                scrollbar-width:none;
+            }
+            #viewKanban.hidden{display:none!important}
+            #viewKanban::-webkit-scrollbar{display:none}
+            .kanban-col{min-height:520px!important;scroll-snap-align:start;padding:.65rem!important}
+            #viewTable{border:0!important;background:transparent!important;box-shadow:none!important}
+            #viewTable .desktop-task-table{display:none!important}
+            #mobileTaskList{display:grid!important;gap:.55rem}
+            #dayModal{padding:0!important;align-items:stretch!important}
+            #dayModal>div{
+                width:100%!important;max-width:none!important;min-height:100dvh;border-radius:0!important;margin:0!important;
+                display:flex;flex-direction:column
+            }
+            #dayTaskList{flex:1;overflow-y:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+            #taskModal,#detailsModal{padding:.35rem!important;align-items:flex-start!important}
+            #taskModal>div,#detailsModal>div{border-radius:1rem!important;margin:.25rem 0!important}
+        }
     </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased bg-slate-50">
@@ -30,19 +130,19 @@
     <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col p-3 md:p-5 relative gap-4 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)] hidden" id="main-content">
         
         <!-- CABEÇALHO INTERNO DA AGENDA -->
-        <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
+        <div id="agenda-header" class="agenda-toolbar-sticky bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex items-center gap-3 w-full lg:w-auto">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20 shrink-0">
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
-                <div>
+                <div id="agenda-header-title">
                     <h1 class="text-lg font-black text-slate-900 leading-tight">Agenda</h1>
                     <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Gestão de Visitas e Chamados Internos</p>
                 </div>
             </div>
 
             <!-- Botões de Troca de Visão -->
-            <div class="flex w-full sm:w-auto items-center justify-center p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto">
+            <div id="agenda-view-switch" class="flex w-full sm:w-auto items-center justify-center p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto">
                 <button onclick="window.switchView('calendar')" id="tabCalendar" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 bg-white text-blue-600 shadow-sm whitespace-nowrap cursor-pointer">
                     <i class="fa-regular fa-calendar"></i> Calendário
                 </button>
@@ -55,7 +155,7 @@
             </div>
 
             <!-- Filtros e Ações Diretas -->
-            <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
+            <div id="agenda-actions" class="flex items-center gap-2 w-full lg:w-auto justify-end">
                 <button id="btnOnlyMine" onclick="window.toggleOnlyMine()" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-user-tag text-slate-400"></i>
                     <span class="hidden sm:inline">Somente Minhas</span>
@@ -68,29 +168,29 @@
         </div>
         
         <!-- KPIS DA AGENDA -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
-            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div id="agenda-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+            <div class="agenda-kpi bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Total Demandas</p>
                     <p id="statTotal" class="text-lg sm:text-xl font-black text-slate-800 mt-0.5">0</p>
                 </div>
                 <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-clipboard-list"></i></div>
             </div>
-            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="agenda-kpi bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <p class="text-[9px] font-bold text-blue-600 uppercase tracking-wider">Agendados</p>
                     <p id="statPending" class="text-lg sm:text-xl font-black text-blue-700 mt-0.5">0</p>
                 </div>
                 <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-regular fa-calendar-check"></i></div>
             </div>
-            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="agenda-kpi bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Em Andamento</p>
                     <p id="statProgress" class="text-lg sm:text-xl font-black text-amber-700 mt-0.5">0</p>
                 </div>
                 <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600"><i class="fa-solid fa-spinner"></i></div>
             </div>
-            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="agenda-kpi bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <p class="text-[9px] font-bold text-red-600 uppercase tracking-wider">Urgência Crítica</p>
                     <p id="statCritical" class="text-lg sm:text-xl font-black text-red-700 mt-0.5">0</p>
@@ -100,9 +200,9 @@
         </div>
 
         <!-- BARRA DE PESQUISA -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div id="agenda-search" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                <div class="relative flex-1 sm:w-56">
+                <div class="agenda-search-main relative flex-1 sm:w-56">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" id="filterSearch" placeholder="Buscar por cliente/OS..." oninput="window.renderApp()" class="w-full pl-8 pr-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white">
                 </div>
@@ -127,13 +227,13 @@
         <!-- VISÃO 1: CALENDÁRIO & MURAL -->
         <div id="viewCalendar" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             
-            <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
-                <div class="p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 shrink-0">
+            <div id="calendar-panel" class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden min-h-[750px]">
+                <div id="calendar-toolbar" class="p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 shrink-0">
                     <div class="flex items-center gap-3">
                         <h2 id="calendarMonthYear" class="text-sm font-black text-slate-800 capitalize">Mês / Ano</h2>
                         <button onclick="window.goToday()" class="text-[11px] font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2.5 py-1 rounded-lg border border-blue-200 transition cursor-pointer">Hoje</button>
                     </div>
-                    <div class="flex items-center gap-2 text-[9px] font-bold text-slate-600 bg-white px-2 py-1 rounded-xl border border-slate-200 shadow-sm">
+                    <div id="calendar-legend" class="flex items-center gap-2 text-[9px] font-bold text-slate-600 bg-white px-2 py-1 rounded-xl border border-slate-200 shadow-sm">
                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Agendado</span>
                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Em Andamento</span>
                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Concluído</span>
@@ -143,14 +243,14 @@
                         <button onclick="window.nextMonth()" class="w-7 h-7 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                     </div>
                 </div>
-                <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-100 text-center text-[10px] font-black text-slate-500 uppercase py-1.5 shrink-0">
+                <div id="calendar-weekdays" class="grid grid-cols-7 border-b border-slate-200 bg-slate-100 text-center text-[10px] font-black text-slate-500 uppercase py-1.5 shrink-0">
                     <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                 </div>
                 <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr gap-px bg-slate-200 flex-1 h-full"></div>
             </div>
 
             <!-- MURAL DE RECADOS -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[750px] overflow-hidden">
+            <div id="notice-panel" class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[750px] overflow-hidden">
                 <div class="p-3 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-bullhorn text-xs"></i></div>
@@ -204,7 +304,8 @@
 
         <!-- VISÃO 3: TABELA -->
         <div id="viewTable" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
-            <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+            <div id="mobileTaskList" class="hidden p-1"></div>
+            <div class="desktop-task-table overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                 <table class="w-full text-left text-xs min-w-[800px]">
                     <thead class="bg-slate-900 text-white uppercase font-bold sticky top-0 z-10">
                         <tr>
@@ -223,6 +324,26 @@
             </div>
         </div>
     </main>
+
+
+    <!-- MODAL: TAREFAS DO DIA -->
+    <div id="dayModal" class="hidden fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-[9998] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden my-auto">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex items-start justify-between gap-3 bg-slate-50">
+                <div>
+                    <span class="text-[9px] font-black uppercase tracking-wider text-blue-600">Agenda do dia</span>
+                    <h2 id="dayModalTitle" class="text-base sm:text-lg font-black text-slate-900 mt-1">--</h2>
+                    <div id="dayModalSummary" class="text-[10px] text-slate-500 font-bold mt-1"></div>
+                </div>
+                <button type="button" onclick="window.closeDayModal()" class="w-9 h-9 rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-900"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="px-4 pt-3 flex flex-wrap gap-2">
+                <button id="dayNewTaskBtn" type="button" class="px-3 py-2 rounded-xl bg-blue-600 text-white text-[11px] font-black hover:bg-blue-700"><i class="fa-solid fa-plus mr-1"></i>Novo agendamento neste dia</button>
+                <button type="button" onclick="window.closeDayModal()" class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-600 text-[11px] font-black">Fechar</button>
+            </div>
+            <div id="dayTaskList" class="p-4"></div>
+        </div>
+    </div>
 
     <!-- MODAL: NOVO / EDITAR TAREFA -->
     <div id="taskModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
@@ -374,32 +495,153 @@
         window.tasks = [];
         window.notices = [];
         let currentView = 'calendar';
-        let currentUser = 'marcos';
+        let currentUser = '';
+        let currentIdentity = { id:'', uid:'', email:'', name:'Usuário', profile:'' };
         let onlyMineFilter = false;
         let currentDate = new Date();
+        let selectedDay = '';
+
+        function escHtml(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function normText(v) {
+            return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+        }
+        function dateOnly(v) {
+            if (!v) return '';
+            const s = String(v);
+            const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+            if (m) return m[1];
+            const d = new Date(v);
+            if (Number.isNaN(d.getTime())) return '';
+            const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');
+            return `${y}-${mo}-${da}`;
+        }
+        function fmtDateShort(v) {
+            const d=dateOnly(v); return d ? d.split('-').reverse().join('/') : 'Sem data';
+        }
+        function taskStatus(raw) {
+            const s=String(raw?.status||'').toUpperCase();
+            if(['PENDING','IN_PROGRESS','DONE'].includes(s)) return s;
+            const a=String(raw?.statusAgendamento||'').toUpperCase();
+            if(['CONCLUIDO','CONCLUÍDO','FINALIZADO','DONE'].includes(a)) return 'DONE';
+            if(['EM_ANDAMENTO','EM EXECUCAO','EM_EXECUCAO','IN_PROGRESS'].includes(a)) return 'IN_PROGRESS';
+            return 'PENDING';
+        }
+        function canonicalTechId(value) {
+            const x=String(value||'').trim();
+            if(!x) return '';
+            const n=normText(x);
+            const found=TECHNICIANS.find(t=>t.id===x||normText(t.email)===n||normText(t.name)===n);
+            return found?.id||x;
+        }
+        function normalizeTask(raw, docId='') {
+            const source={...(raw||{})};
+            const start=dateOnly(source.scheduledDate||source.startDate||source.dueDateISO||source.dataHoraISO||source.startISO||source.agendadoParaISO||source.date);
+            const end=dateOnly(source.dueDate||source.endDate||source.endISO||source.dueDateISO||source.dataHoraISO||source.agendadoParaISO)||start;
+            let rawTechs=[];
+            if(Array.isArray(source.techIds)) rawTechs=source.techIds;
+            else if(Array.isArray(source.technicians)) rawTechs=source.technicians;
+            else if(source.techId) rawTechs=[source.techId];
+            else if(source.tecnicoUid) rawTechs=[source.tecnicoUid];
+            const techName=String(source.tecnicoNome||source.technicianName||'').trim();
+            let techIds=rawTechs.map(canonicalTechId).filter(Boolean);
+            if(techName){
+                const byName=TECHNICIANS.find(t=>normText(t.name)===normText(techName));
+                if(byName && !techIds.includes(byName.id)) techIds=[byName.id,...techIds.filter(x=>x!==byName.id)];
+            }
+            const urgencyRaw=String(source.urgency||source.prioridade||'MEDIUM').toUpperCase();
+            const urgency=['LOW','MEDIUM','HIGH','CRITICAL'].includes(urgencyRaw)
+                ? urgencyRaw
+                : urgencyRaw==='URGENTE'?'HIGH':'MEDIUM';
+            return {
+                ...source,
+                id:String(source.id||source.idOrigem||docId||''),
+                osNumber:String(source.osNumber||source.numeroOS||source.os||''),
+                client:String(source.client||source.clienteNome||source.cliente||source.title||'Sem cliente'),
+                title:String(source.title||source.client||source.clienteNome||source.cliente||'Sem cliente'),
+                type:source.type==='COMMERCIAL'?'COMMERCIAL':'TECHNICAL',
+                location:String(source.location||source.localizacao||source.endereco||source.local||''),
+                techIds,
+                techId:techIds[0]||'',
+                urgency,
+                scheduledDate:start,
+                dueDate:end,
+                status:taskStatus(source),
+                description:String(source.description||source.observacao||source.descricao||''),
+                __raw:source,
+                __docId:String(docId||source.id||source.idOrigem||''),
+                __origin:String(source.origem||source.origin||'AGENDA')
+            };
+        }
+        function taskWritePayload(task, patch={}) {
+            const raw={...(task?.__raw||{})};
+            delete raw.__raw; delete raw.__docId; delete raw.__origin;
+            const merged={...raw,...patch};
+            const status=patch.status||task?.status||taskStatus(merged);
+            return {
+                ...merged,
+                id:patch.id||task?.id||merged.id||merged.idOrigem,
+                osNumber:patch.osNumber??task?.osNumber??merged.osNumber??'',
+                client:patch.client??task?.client??merged.client??merged.clienteNome??'',
+                title:patch.title??patch.client??task?.client??merged.title??merged.clienteNome??'',
+                type:patch.type??task?.type??merged.type??'TECHNICAL',
+                location:patch.location??task?.location??merged.location??'',
+                techIds:patch.techIds??task?.techIds??[],
+                techId:(patch.techIds??task?.techIds??[])[0]||patch.techId||task?.techId||'',
+                urgency:patch.urgency??task?.urgency??'MEDIUM',
+                scheduledDate:patch.scheduledDate??task?.scheduledDate??'',
+                dueDate:patch.dueDate??task?.dueDate??patch.scheduledDate??task?.scheduledDate??'',
+                status,
+                description:patch.description??task?.description??'',
+                statusAgendamento: status==='DONE'?'CONCLUIDO':status==='IN_PROGRESS'?'EM_ANDAMENTO':'AGENDADO',
+                updatedAtISO:new Date().toISOString()
+            };
+        }
+        function resolveCurrentIdentity(perfil) {
+            const profile=window.userProfile||{};
+            const email=String(window.currentUser?.email||profile.email||'').toLowerCase().trim();
+            const uid=String(window.currentUser?.uid||profile.authUid||profile.uid||'').trim();
+            const name=String(window.nomeUsuarioLogado||profile.nome||profile.displayName||email.split('@')[0]||'Usuário').trim();
+            const tech=TECHNICIANS.find(t=>normText(t.email)===normText(email)||normText(t.name)===normText(name));
+            currentUser=tech?.id||email||uid||'usuario';
+            currentIdentity={id:currentUser,uid,email,name,profile:String(profile.perfil||perfil||'')};
+        }
+        function taskBelongsToCurrentUser(task) {
+            const ids=window.getTaskTechIds(task).map(String);
+            const raw=task?.__raw||{};
+            const rawIds=[
+                ...(Array.isArray(raw.technicians)?raw.technicians:[]),
+                ...(Array.isArray(raw.techIds)?raw.techIds:[]),
+                raw.tecnicoUid,raw.techId
+            ].filter(Boolean).map(String);
+            return ids.includes(currentUser)
+                || (!!currentIdentity.uid && rawIds.includes(currentIdentity.uid))
+                || (!!currentIdentity.email && rawIds.map(normText).includes(normText(currentIdentity.email)))
+                || (!!raw.tecnicoNome && normText(raw.tecnicoNome)===normText(currentIdentity.name));
+        }
 
         window.initModule = function(perfil) {
             document.getElementById('login-screen')?.classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
 
-            const uName = (window.nomeUsuarioLogado || '').toLowerCase();
-            const foundTech = TECHNICIANS.find(t => t.name.toLowerCase() === uName);
-            currentUser = foundTech ? foundTech.id : 'marcos';
-
+            resolveCurrentIdentity(perfil);
             window.populateTechnicianSelects();
 
             const tasksCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2');
             window.fsOnSnapshot(tasksCol, (snap) => {
                 window.tasks = [];
-                snap.forEach(d => window.tasks.push(d.data()));
+                snap.forEach(d => window.tasks.push(normalizeTask(d.data(),d.id)));
+                window.tasks.sort((a,b)=>String(a.scheduledDate||'9999').localeCompare(String(b.scheduledDate||'9999'))||String(a.client).localeCompare(String(b.client),'pt-BR'));
                 window.renderApp();
+                if(selectedDay && !document.getElementById('dayModal')?.classList.contains('hidden')) window.openDayModal(selectedDay);
             });
 
             const noticesCol = window.fsCollection(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1');
             window.fsOnSnapshot(noticesCol, (snap) => {
                 window.notices = [];
-                snap.forEach(d => window.notices.push(d.data()));
-                window.notices.sort((a,b) => b.timestamp - a.timestamp);
+                snap.forEach(d => window.notices.push({id:d.id,...d.data()}));
+                window.notices.sort((a,b) => Number(b.timestamp||0) - Number(a.timestamp||0));
                 window.renderNotices();
             });
         };
@@ -412,8 +654,14 @@
 
         window.getTechsForTask = function(task) {
             const ids = window.getTaskTechIds(task);
-            const techs = ids.map(id => TECHNICIANS.find(t => t.id === id)).filter(Boolean);
-            return techs.length > 0 ? techs : [TECHNICIANS[0]];
+            const techs = ids.map(id => TECHNICIANS.find(t => t.id === id || normText(t.email)===normText(id) || normText(t.name)===normText(id))).filter(Boolean);
+            const rawName=String(task?.tecnicoNome||task?.__raw?.tecnicoNome||'').trim();
+            if(!techs.length && rawName){
+                const known=TECHNICIANS.find(t=>normText(t.name)===normText(rawName));
+                if(known)return [known];
+                return [{id:String(task?.tecnicoUid||task?.techId||rawName),name:rawName,email:'',color:'#64748b'}];
+            }
+            return techs.length > 0 ? techs : [{id:'sem-responsavel',name:'Não definido',email:'',color:'#94a3b8'}];
         };
 
         window.populateTechnicianSelects = function() {
@@ -470,7 +718,7 @@
                 const taskTechs = window.getTaskTechIds(task);
 
                 if (searchVal && !os.includes(searchVal) && !client.includes(searchVal) && !loc.includes(searchVal)) return false;
-                if (onlyMineFilter && !taskTechs.includes(currentUser)) return false;
+                if (onlyMineFilter && !taskBelongsToCurrentUser(task)) return false;
                 if (!onlyMineFilter && techVal !== 'ALL' && !taskTechs.includes(techVal)) return false;
                 if (urgencyVal !== 'ALL' && task.urgency !== urgencyVal) return false;
                 return true;
@@ -478,17 +726,17 @@
         }
 
         window.switchView = function(view) {
-            currentView = view;
-            ['Calendar', 'Kanban', 'Table'].forEach(t => {
-                const el = document.getElementById('tab' + t);
-                const viewEl = document.getElementById('view' + t);
-                if (t.toLowerCase() === view) {
-                    el.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 bg-white text-blue-600 shadow-sm whitespace-nowrap cursor-pointer";
-                    viewEl.classList.remove('hidden');
-                } else {
-                    el.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer";
-                    viewEl.classList.add('hidden');
-                }
+            const map={calendar:['Calendar','viewCalendar'],kanban:['Kanban','viewKanban'],table:['Table','viewTable']};
+            if(!map[view]) view='calendar';
+            currentView=view;
+            Object.entries(map).forEach(([key,[tabName,viewId]])=>{
+                const el=document.getElementById('tab'+tabName),viewEl=document.getElementById(viewId);
+                if(!el||!viewEl)return;
+                const active=key===view;
+                el.className = active
+                    ? "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 bg-white text-blue-600 shadow-sm whitespace-nowrap cursor-pointer"
+                    : "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 whitespace-nowrap cursor-pointer";
+                viewEl.classList.toggle('hidden',!active);
             });
             window.renderApp();
         };
@@ -508,6 +756,7 @@
 
         window.renderCalendar = function(filteredTasks) {
             const grid = document.getElementById('calendarGrid');
+            if(!grid)return;
             grid.innerHTML = '';
 
             const year = currentDate.getFullYear();
@@ -517,82 +766,146 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
-            const todayStr = new Date().toISOString().split('T')[0];
+            const now=new Date(),todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
             for (let i = firstDay - 1; i >= 0; i--) {
-                grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-50/50 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-60"><span>${daysInPrevMonth - i}</span></div>`);
+                grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-50/60 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-55"><span>${daysInPrevMonth-i}</span></div>`);
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = dateStr === todayStr;
-                const cell = document.createElement('div');
-                cell.className = `bg-white p-2 min-h-[110px] flex flex-col gap-1 transition hover:bg-slate-50/80 ${isToday ? 'bg-blue-50/40 ring-2 ring-blue-400 inset-0' : ''}`;
-                
-                cell.innerHTML = `
-                    <div class="flex justify-between items-center mb-0.5">
-                        <span class="text-xs font-black ${isToday ? 'w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center' : 'text-slate-700'}">${day}</span>
-                        <button onclick="window.openTaskModalWithDate('${dateStr}')" class="text-slate-300 hover:text-blue-600 p-1 cursor-pointer"><i class="fa-solid fa-plus"></i></button>
+                const dayTasks = filteredTasks.filter(task => {
+                    const start=task.scheduledDate;
+                    if(!start)return false;
+                    const finish=task.dueDate&&task.dueDate>=start?task.dueDate:start;
+                    return dateStr>=start&&dateStr<=finish;
+                }).sort((a,b)=>{
+                    const su={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
+                    return (su[a.urgency]??9)-(su[b.urgency]??9)||String(a.client).localeCompare(String(b.client),'pt-BR');
+                });
+
+                const counts={
+                    pending:dayTasks.filter(t=>t.status==='PENDING').length,
+                    progress:dayTasks.filter(t=>t.status==='IN_PROGRESS').length,
+                    done:dayTasks.filter(t=>t.status==='DONE').length
+                };
+                const cell=document.createElement('div');
+                cell.className=`agenda-day-cell bg-white p-2 min-h-[110px] flex flex-col gap-1 transition ${isToday?'bg-blue-50/50 ring-2 ring-blue-400 ring-inset':''} ${selectedDay===dateStr?'selected-day':''}`;
+                cell.setAttribute('role','button');
+                cell.setAttribute('tabindex','0');
+                cell.setAttribute('aria-label',`${day} de ${currentDate.toLocaleString('pt-BR',{month:'long'})}: ${dayTasks.length} tarefa(s)`);
+                cell.onclick=()=>window.openDayModal(dateStr);
+                cell.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.openDayModal(dateStr)}};
+
+                cell.innerHTML=`
+                    <div class="agenda-day-head flex justify-between items-center mb-0.5">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <span class="agenda-day-number text-xs font-black ${isToday?'w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center':'text-slate-700'}">${day}</span>
+                            ${dayTasks.length?`<span class="agenda-day-count has-items">${dayTasks.length}</span>`:''}
+                        </div>
+                        <button type="button" onclick="event.stopPropagation();window.openTaskModalWithDate('${dateStr}')" class="agenda-day-plus text-slate-300 hover:text-blue-600 p-1 cursor-pointer" title="Novo agendamento"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div class="agenda-day-dots">
+                        ${counts.pending?`<span class="agenda-dot bg-blue-500" title="${counts.pending} agendado(s)"></span>`:''}
+                        ${counts.progress?`<span class="agenda-dot bg-amber-500" title="${counts.progress} em andamento"></span>`:''}
+                        ${counts.done?`<span class="agenda-dot bg-emerald-500" title="${counts.done} concluído(s)"></span>`:''}
                     </div>`;
 
-                const dayTasks = filteredTasks.filter(task => {
-                    if (!task.scheduledDate) return false;
-                    const start = task.scheduledDate;
-                    let end = task.dueDate;
-                    if (!end || end < start) end = start;
-                    return dateStr >= start && dateStr <= end;
-                });
-
-                const tContainer = document.createElement('div');
-                tContainer.className = 'space-y-1.5 overflow-y-auto max-h-[85px] custom-scrollbar pr-0.5';
-
-                dayTasks.forEach(task => {
-                    const isCritical = task.urgency === 'CRITICAL';
-                    const bgClass = task.status === 'PENDING' ? 'bg-blue-100 text-blue-900 border-l-[3px] border-blue-500 hover:bg-blue-200' : task.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-900 border-l-[3px] border-amber-500 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-900 border-l-[3px] border-emerald-500 line-through opacity-75 hover:bg-emerald-200';
-                    const uColor = task.urgency === 'LOW' ? '#10b981' : task.urgency === 'MEDIUM' ? '#f59e0b' : task.urgency === 'HIGH' ? '#f97316' : '#ef4444';
-                    
-                    const isMulti = task.dueDate && task.dueDate > task.scheduledDate;
-                    let badge = '';
-                    if(isMulti) {
-                        if(dateStr === task.scheduledDate) badge = ' <span class="text-[9px] opacity-75">(Início)</span>';
-                        else if(dateStr === task.dueDate) badge = ' <span class="text-[9px] opacity-75">(Fim)</span>';
-                        else badge = ' <span class="text-[9px] opacity-75">(Andamento)</span>';
-                    }
-
-                    const item = document.createElement('div');
-                    item.setAttribute('onclick', `event.stopPropagation(); window.openTaskModal('${task.id}');`);
-                    item.className = `px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer truncate transition shadow-xs flex items-center justify-between ${bgClass} ${isCritical ? 'pulse-critical' : ''}`;
-                    item.innerHTML = `<span class="truncate pointer-events-none">${task.osNumber ? task.osNumber + ' ' : ''}${task.client}${badge}</span><span class="w-2 h-2 rounded-full shrink-0 ml-1 pointer-events-none" style="background-color: ${uColor}"></span>`;
+                const tContainer=document.createElement('div');
+                tContainer.className='agenda-task-preview space-y-1.5 overflow-hidden pr-0.5';
+                dayTasks.slice(0,3).forEach(task=>{
+                    const isCritical=task.urgency==='CRITICAL';
+                    const bgClass=task.status==='PENDING'?'bg-blue-100 text-blue-900 border-blue-500 hover:bg-blue-200':task.status==='IN_PROGRESS'?'bg-amber-100 text-amber-900 border-amber-500 hover:bg-amber-200':'bg-emerald-100 text-emerald-900 border-emerald-500 hover:bg-emerald-200';
+                    const item=document.createElement('button');
+                    item.type='button';
+                    item.onclick=(e)=>{e.stopPropagation();window.openDetailsModal(task.id)};
+                    item.className=`w-full px-1.5 py-1 rounded-r-md text-[10px] font-bold leading-snug cursor-pointer transition shadow-xs flex items-center justify-between border-l-[3px] ${bgClass} ${isCritical?'pulse-critical':''}`;
+                    item.innerHTML=`<span class="truncate">${escHtml(task.osNumber?task.osNumber+' · ':'')}${escHtml(task.client)}</span>${isCritical?'<i class="fa-solid fa-circle-exclamation text-red-600 ml-1"></i>':''}`;
                     tContainer.appendChild(item);
                 });
+                if(dayTasks.length>3){
+                    const more=document.createElement('div');
+                    more.className='text-[9px] font-black text-blue-700 px-1 pt-0.5';
+                    more.textContent=`+ ${dayTasks.length-3} tarefa(s)`;
+                    tContainer.appendChild(more);
+                }
                 cell.appendChild(tContainer);
                 grid.appendChild(cell);
             }
 
-            const remaining = (firstDay + daysInMonth > 35 ? 42 : 35) - (firstDay + daysInMonth);
-            for (let i = 1; i <= remaining; i++) {
-                grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-50/50 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-60"><span>${i}</span></div>`);
-            }
+            const remaining=(firstDay+daysInMonth>35?42:35)-(firstDay+daysInMonth);
+            for(let i=1;i<=remaining;i++)grid.insertAdjacentHTML('beforeend',`<div class="bg-slate-50/60 p-2 text-slate-400 text-[11px] min-h-[110px] font-bold opacity-55"><span>${i}</span></div>`);
         };
 
         window.prevMonth = () => { currentDate.setMonth(currentDate.getMonth() - 1); window.renderApp(); };
         window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); window.renderApp(); };
         window.goToday = () => { currentDate = new Date(); window.renderApp(); };
 
+        window.openDayModal = function(dateStr) {
+            selectedDay=dateStr;
+            const dateObj=new Date(dateStr+'T12:00:00');
+            const title=dateObj.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+            const tasks=getFilteredTasks().filter(t=>{
+                if(!t.scheduledDate)return false;
+                const end=t.dueDate&&t.dueDate>=t.scheduledDate?t.dueDate:t.scheduledDate;
+                return dateStr>=t.scheduledDate&&dateStr<=end;
+            }).sort((a,b)=>{
+                const ss={IN_PROGRESS:0,PENDING:1,DONE:2},uu={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
+                return (ss[a.status]??9)-(ss[b.status]??9)||(uu[a.urgency]??9)-(uu[b.urgency]??9)||String(a.client).localeCompare(String(b.client),'pt-BR');
+            });
+            document.getElementById('dayModalTitle').textContent=title.charAt(0).toUpperCase()+title.slice(1);
+            const pend=tasks.filter(t=>t.status==='PENDING').length,prog=tasks.filter(t=>t.status==='IN_PROGRESS').length,done=tasks.filter(t=>t.status==='DONE').length;
+            document.getElementById('dayModalSummary').textContent=`${tasks.length} tarefa(s) · ${pend} agendada(s) · ${prog} em andamento · ${done} concluída(s)`;
+            document.getElementById('dayNewTaskBtn').onclick=()=>{window.closeDayModal();window.openTaskModalWithDate(dateStr)};
+            const box=document.getElementById('dayTaskList');
+            box.innerHTML=tasks.length?tasks.map(t=>{
+                const techs=window.getTechsForTask(t),status=t.status==='PENDING'?['Agendado','bg-blue-100 text-blue-800']:t.status==='IN_PROGRESS'?['Em andamento','bg-amber-100 text-amber-800']:['Concluído','bg-emerald-100 text-emerald-800'];
+                const urg=t.urgency==='CRITICAL'?['Crítica','bg-red-100 text-red-800']:t.urgency==='HIGH'?['Alta','bg-orange-100 text-orange-800']:t.urgency==='MEDIUM'?['Média','bg-amber-100 text-amber-800']:['Baixa','bg-emerald-100 text-emerald-800'];
+                return `<button type="button" class="day-task-card" onclick="window.closeDayModal();window.openDetailsModal('${escHtml(t.id)}')">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-1.5">${t.osNumber?`<span class="text-[9px] font-black bg-slate-100 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded">${escHtml(t.osNumber)}</span>`:''}<span class="text-[9px] font-black px-1.5 py-0.5 rounded ${status[1]}">${status[0]}</span><span class="text-[9px] font-black px-1.5 py-0.5 rounded ${urg[1]}">${urg[0]}</span></div>
+                            <h3 class="text-sm font-black text-slate-900 mt-1.5">${escHtml(t.client)}</h3>
+                            ${t.location?`<div class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>${escHtml(t.location)}</div>`:''}
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 mt-2"></i>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex flex-wrap gap-1">${techs.map(x=>`<span class="text-[9px] font-bold bg-slate-100 border border-slate-200 rounded-full px-2 py-1">${escHtml(x.name)}</span>`).join('')}</div>
+                        <span class="text-[9px] font-bold text-slate-400">${fmtDateShort(t.scheduledDate)}${t.dueDate&&t.dueDate!==t.scheduledDate?' → '+fmtDateShort(t.dueDate):''}</span>
+                    </div>
+                </button>`;
+            }).join(''):`<div class="py-12 text-center text-slate-400"><i class="fa-regular fa-calendar-xmark text-3xl"></i><p class="text-xs font-bold mt-2">Nenhuma tarefa neste dia.</p><button type="button" onclick="window.closeDayModal();window.openTaskModalWithDate('${dateStr}')" class="mt-3 text-xs font-black text-blue-700">Criar agendamento</button></div>`;
+            document.getElementById('dayModal').classList.remove('hidden');
+            window.renderCalendar(getFilteredTasks());
+        };
+        window.closeDayModal = function(){
+            document.getElementById('dayModal')?.classList.add('hidden');
+            selectedDay='';
+            if(currentView==='calendar')window.renderCalendar(getFilteredTasks());
+        };
+
+        function canDeleteNotice(n){
+            const p=String(window.userProfile?.perfil||currentIdentity.profile||'');
+            if(['Master','Administrativo'].includes(p))return true;
+            if(currentIdentity.uid&&String(n.authorUid||'')===currentIdentity.uid)return true;
+            if(currentIdentity.email&&normText(n.authorEmail)===normText(currentIdentity.email))return true;
+            return !n.authorEmail&&!n.authorUid&&normText(n.author)===normText(currentIdentity.name);
+        }
         window.renderNotices = function() {
             const list = document.getElementById('noticeList');
             if(!list) return;
-            if (window.notices.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center font-bold py-6">Nenhum recado no mural.</p>'; return; }
+            if (!window.notices.length) { list.innerHTML = '<p class="text-xs text-slate-400 text-center font-bold py-6">Nenhum recado no mural.</p>'; return; }
 
             list.innerHTML = window.notices.map(n => {
                 const b = n.category === 'URGENT' ? '<span class="text-[9px] font-black bg-red-100 text-red-700 px-2 py-0.5 rounded">🚨 Urgente</span>' : n.category === 'STOCK' ? '<span class="text-[9px] font-black bg-purple-100 text-purple-700 px-2 py-0.5 rounded">📦 Peças</span>' : n.category === 'REMINDER' ? '<span class="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded">💡 Lembrete</span>' : '<span class="text-[9px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded">📢 Geral</span>';
-                return `
-                <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm transition hover:border-slate-300">
-                    <div class="flex items-center justify-between">${b} <button onclick="window.deleteNotice('${n.id}')" class="text-slate-400 hover:text-red-600 transition cursor-pointer"><i class="fa-solid fa-xmark"></i></button></div>
-                    <p class="text-[11px] font-semibold text-slate-700 leading-snug whitespace-pre-wrap">${n.content}</p>
-                    <div class="flex justify-between items-center text-[9px] font-bold text-slate-400 pt-1 border-t border-slate-100">
-                        <span>Por: <span class="text-slate-600">${n.author}</span></span>
-                        <span>${n.date}</span>
+                return `<div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm transition hover:border-slate-300">
+                    <div class="flex items-center justify-between">${b}${canDeleteNotice(n)?`<button onclick="window.deleteNotice('${escHtml(n.id)}')" class="text-slate-400 hover:text-red-600 transition cursor-pointer" title="Excluir recado"><i class="fa-solid fa-xmark"></i></button>`:''}</div>
+                    <p class="text-[11px] font-semibold text-slate-700 leading-snug whitespace-pre-wrap">${escHtml(n.content)}</p>
+                    <div class="flex justify-between items-center gap-2 text-[9px] font-bold text-slate-400 pt-1 border-t border-slate-100">
+                        <span class="truncate">Por: <span class="text-slate-600">${escHtml(n.author||'Usuário')}</span></span>
+                        <span class="whitespace-nowrap">${escHtml(n.date||'')}</span>
                     </div>
                 </div>`;
             }).join('');
@@ -600,68 +913,73 @@
 
         window.handleAddNotice = async function(e) {
             e.preventDefault();
-            const autorTech = TECHNICIANS.find(t => t.id === currentUser) || TECHNICIANS[0];
+            const content=document.getElementById('noticeContent').value.trim();
+            if(!content)return;
+            const now=new Date();
             const data = {
                 id: 'n_' + Date.now(),
                 category: document.getElementById('noticeCategory').value,
-                content: document.getElementById('noticeContent').value.trim(),
-                author: autorTech.name,
-                date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                content,
+                author: currentIdentity.name || window.nomeUsuarioLogado || 'Usuário',
+                authorEmail: currentIdentity.email || '',
+                authorUid: currentIdentity.uid || '',
+                date: now.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
                 timestamp: Date.now()
             };
-            try { 
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1', data.id), data); 
+            try {
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1', data.id), data);
                 document.getElementById('noticeContent').value = '';
-            } catch(err){}
+            } catch(err){console.error('[Agenda] mural',err)}
         };
 
         window.deleteNotice = async function(id) {
-            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1', id)); } catch(err){}
+            const n=window.notices.find(x=>x.id===id);
+            if(n&&!canDeleteNotice(n)){alert('Você só pode excluir seus próprios recados.');return}
+            if(!confirm('Excluir este recado?'))return;
+            try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_notices_v1', id)); } catch(err){console.error('[Agenda] excluir recado',err)}
         };
 
-        window.renderKanban = function(filteredTasks) {
-            ['Pending', 'Progress', 'Done'].forEach(s => {
-                const el = document.getElementById(`kanban${s}`);
-                if(el) el.innerHTML = '';
-            });
 
-            let cP = 0, cI = 0, cD = 0;
+        window.renderKanban = function(filteredTasks) {
+            const cols={PENDING:document.getElementById('kanbanPending'),IN_PROGRESS:document.getElementById('kanbanProgress'),DONE:document.getElementById('kanbanDone')};
+            Object.values(cols).forEach(el=>{if(el)el.innerHTML=''});
+            const counts={PENDING:0,IN_PROGRESS:0,DONE:0};
+
             filteredTasks.forEach(task => {
                 const techs = window.getTechsForTask(task);
                 const isCom = task.type === 'COMMERCIAL';
                 const uColor = task.urgency === 'LOW' ? '#10b981' : task.urgency === 'MEDIUM' ? '#f59e0b' : task.urgency === 'HIGH' ? '#f97316' : '#ef4444';
+                const status=['PENDING','IN_PROGRESS','DONE'].includes(task.status)?task.status:'PENDING';
 
                 const card = document.createElement('div');
                 card.draggable = true;
-                card.className = `bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing space-y-3 ${task.urgency==='CRITICAL' ? 'pulse-critical border-red-300' : ''}`;
+                card.className = `bg-white p-3 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing space-y-2.5 ${task.urgency==='CRITICAL' ? 'pulse-critical border-red-300' : ''}`;
                 card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', task.id); setTimeout(() => card.classList.add('opacity-40', 'scale-95'), 0); };
                 card.ondragend = () => card.classList.remove('opacity-40', 'scale-95');
                 card.onclick = () => window.openDetailsModal(task.id);
-                
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-1 pointer-events-none">
                         <span class="text-[10px] font-black px-2 py-0.5 rounded ${isCom ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${isCom ? '💼 Comercial' : '🛠️ Técnico'}</span>
-                        <span class="w-3 h-3 rounded-full" style="background-color: ${uColor}"></span>
+                        <span class="w-3 h-3 rounded-full" style="background-color:${uColor}"></span>
                     </div>
-                    <div class="pointer-events-none">
-                        ${task.osNumber ? `<span class="text-[10px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 mr-1 inline-block mb-1">${task.osNumber}</span>` : ''}
-                        <h4 class="text-sm font-black text-slate-800 leading-snug inline">${task.client}</h4>
-                        ${task.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-slate-400"></i> ${task.location}</p>` : ''}
+                    <div class="pointer-events-none min-w-0">
+                        ${task.osNumber ? `<span class="text-[9px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 inline-block mb-1">${escHtml(task.osNumber)}</span>` : ''}
+                        <h4 class="text-sm font-black text-slate-800 leading-snug block">${escHtml(task.client||'Sem cliente')}</h4>
+                        ${task.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-slate-400"></i><span class="truncate">${escHtml(task.location)}</span></p>` : ''}
                     </div>
-                    <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500 pointer-events-none">
-                        <div class="flex items-center gap-1 flex-wrap max-w-[120px]">
-                            ${techs.map(t => `<div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px]" style="background-color:${t.color}" title="${t.name}">${t.name.substring(0,2).toUpperCase()}</div>`).join('')}
-                        </div>
-                        <span class="text-[10px] text-slate-400 shrink-0"><i class="fa-regular fa-calendar"></i> ${task.scheduledDate.split('-').reverse().join('/')}</span>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px] font-bold text-slate-500 pointer-events-none">
+                        <div class="flex items-center gap-1 flex-wrap min-w-0">${techs.slice(0,3).map(t => `<span class="px-1.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[8px] text-slate-600">${escHtml(t.name)}</span>`).join('')}</div>
+                        <span class="text-[9px] text-slate-400 shrink-0"><i class="fa-regular fa-calendar"></i> ${fmtDateShort(task.scheduledDate)}</span>
                     </div>`;
-
-                if (task.status === 'PENDING') { document.getElementById('kanbanPending').appendChild(card); cP++; }
-                else if (task.status === 'IN_PROGRESS') { document.getElementById('kanbanProgress').appendChild(card); cI++; }
-                else { document.getElementById('kanbanDone').appendChild(card); cD++; }
+                cols[status]?.appendChild(card);counts[status]++;
             });
-            document.getElementById('kanbanCountPending').innerText = cP;
-            document.getElementById('kanbanCountProgress').innerText = cI;
-            document.getElementById('kanbanCountDone').innerText = cD;
+
+            Object.entries(cols).forEach(([status,el])=>{
+                if(el&&!el.children.length)el.innerHTML='<div class="kanban-empty"><i class="fa-regular fa-folder-open text-xl mb-2"></i><div>Nenhuma tarefa nesta etapa.</div></div>';
+            });
+            document.getElementById('kanbanCountPending').innerText = counts.PENDING;
+            document.getElementById('kanbanCountProgress').innerText = counts.IN_PROGRESS;
+            document.getElementById('kanbanCountDone').innerText = counts.DONE;
         };
 
         window.handleDragOver = e => { e.preventDefault(); e.currentTarget.classList.add('bg-blue-50/80', 'border-blue-400', 'ring-2', 'ring-blue-300'); };
@@ -672,40 +990,53 @@
             const id = e.dataTransfer.getData('text/plain');
             const task = window.tasks.find(t => t.id === id);
             if (task && task.status !== novoStatus) {
-                task.status = novoStatus;
-                try { await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', task.id), task); } catch(err){}
+                try {
+                    const payload=taskWritePayload(task,{status:novoStatus});
+                    await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', task.__docId||task.id), payload);
+                } catch(err){console.error('[Agenda] mover Kanban',err)}
             }
         };
 
         window.renderTable = function(filteredTasks) {
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = filteredTasks.map(t => {
-                const isCom = t.type === 'COMMERCIAL';
-                const techs = window.getTechsForTask(t);
-                const bgUrg = t.urgency === 'LOW' ? 'bg-emerald-100 text-emerald-800' : t.urgency === 'MEDIUM' ? 'bg-amber-100 text-amber-800' : t.urgency === 'HIGH' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800 pulse-critical';
-                const bgStat = t.status === 'PENDING' ? 'bg-blue-100 text-blue-800' : t.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
-                
-                const techNames = techs.map(tc => `<span class="inline-block px-1.5 py-0.5 bg-slate-100 rounded-md border border-slate-200 m-0.5"><span class="w-2 h-2 rounded-full inline-block mr-1" style="background-color:${tc.color}"></span>${tc.name}</span>`).join('');
+            const mobile=document.getElementById('mobileTaskList');
+            if(!tbody)return;
 
-                return `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer">
-                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')">
-                        <div class="flex items-center gap-1.5"><span class="text-[10px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">${t.osNumber || '--'}</span><span class="font-bold text-slate-800">${t.client}</span></div>
-                        ${t.location ? `<p class="text-[10px] font-medium text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${t.location}</p>` : ''}
-                    </td>
-                    <td class="p-3 font-black text-[10px] uppercase tracking-wider ${isCom ? 'text-purple-600' : 'text-blue-600'}" onclick="window.openDetailsModal('${t.id}')">${isCom ? 'Comercial' : 'Técnico'}</td>
-                    <td class="p-3 font-bold text-slate-700" onclick="window.openDetailsModal('${t.id}')">${techNames}</td>
-                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgUrg}">${t.urgency === 'CRITICAL' ? 'Crítica' : t.urgency === 'HIGH' ? 'Alta' : t.urgency === 'MEDIUM' ? 'Média' : 'Baixa'}</span></td>
-                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.scheduledDate.split('-').reverse().join('/')}</td>
-                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${t.id}')">${t.dueDate.split('-').reverse().join('/')}</td>
-                    <td class="p-3" onclick="window.openDetailsModal('${t.id}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgStat}">${t.status === 'PENDING' ? 'Agendado' : t.status === 'IN_PROGRESS' ? 'Em Andamento' : 'Concluído'}</span></td>
-                    <td class="p-3 text-right space-x-1 no-print">
-                        <button onclick="window.openTaskModal('${t.id}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="if(confirm('Excluir agendamento?')){ window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', '${t.id}')); }" class="p-2 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
+            tbody.innerHTML = filteredTasks.map(t => {
+                const isCom=t.type==='COMMERCIAL',techs=window.getTechsForTask(t);
+                const bgUrg=t.urgency==='LOW'?'bg-emerald-100 text-emerald-800':t.urgency==='MEDIUM'?'bg-amber-100 text-amber-800':t.urgency==='HIGH'?'bg-orange-100 text-orange-800':'bg-red-100 text-red-800 pulse-critical';
+                const bgStat=t.status==='PENDING'?'bg-blue-100 text-blue-800':t.status==='IN_PROGRESS'?'bg-amber-100 text-amber-800':'bg-emerald-100 text-emerald-800';
+                const techNames=techs.map(tc=>`<span class="inline-block px-1.5 py-0.5 bg-slate-100 rounded-md border border-slate-200 m-0.5">${escHtml(tc.name)}</span>`).join('');
+                return `<tr class="hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer">
+                    <td class="p-3" onclick="window.openDetailsModal('${escHtml(t.id)}')"><div class="flex items-center gap-1.5"><span class="text-[10px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">${escHtml(t.osNumber||'--')}</span><span class="font-bold text-slate-800">${escHtml(t.client)}</span></div>${t.location?`<p class="text-[10px] font-medium text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${escHtml(t.location)}</p>`:''}</td>
+                    <td class="p-3 font-black text-[10px] uppercase tracking-wider ${isCom?'text-purple-600':'text-blue-600'}" onclick="window.openDetailsModal('${escHtml(t.id)}')">${isCom?'Comercial':'Técnico'}</td>
+                    <td class="p-3 font-bold text-slate-700" onclick="window.openDetailsModal('${escHtml(t.id)}')">${techNames}</td>
+                    <td class="p-3" onclick="window.openDetailsModal('${escHtml(t.id)}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgUrg}">${t.urgency==='CRITICAL'?'Crítica':t.urgency==='HIGH'?'Alta':t.urgency==='MEDIUM'?'Média':'Baixa'}</span></td>
+                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${escHtml(t.id)}')">${fmtDateShort(t.scheduledDate)}</td>
+                    <td class="p-3 text-slate-600" onclick="window.openDetailsModal('${escHtml(t.id)}')">${fmtDateShort(t.dueDate)}</td>
+                    <td class="p-3" onclick="window.openDetailsModal('${escHtml(t.id)}')"><span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgStat}">${t.status==='PENDING'?'Agendado':t.status==='IN_PROGRESS'?'Em Andamento':'Concluído'}</span></td>
+                    <td class="p-3 text-right space-x-1 no-print"><button onclick="window.openTaskModal('${escHtml(t.id)}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-md transition"><i class="fa-solid fa-pen"></i></button><button onclick="window.deleteTaskById('${escHtml(t.id)}')" class="p-2 text-red-600 hover:bg-red-100 rounded-md transition"><i class="fa-solid fa-trash-can"></i></button></td>
                 </tr>`;
-            }).join('');
+            }).join('')||'<tr><td colspan="8" class="text-center text-slate-400 py-10">Nenhum agendamento encontrado.</td></tr>';
+
+            if(mobile){
+                mobile.innerHTML=filteredTasks.map(t=>{
+                    const techs=window.getTechsForTask(t),status=t.status==='PENDING'?['Agendado','bg-blue-100 text-blue-800']:t.status==='IN_PROGRESS'?['Em andamento','bg-amber-100 text-amber-800']:['Concluído','bg-emerald-100 text-emerald-800'];
+                    return `<article class="task-mobile-card" onclick="window.openDetailsModal('${escHtml(t.id)}')">
+                        <div class="flex items-start justify-between gap-2"><div class="min-w-0">${t.osNumber?`<span class="text-[9px] font-black bg-slate-100 border px-1.5 py-0.5 rounded">${escHtml(t.osNumber)}</span>`:''}<h3 class="text-sm font-black text-slate-900 mt-1">${escHtml(t.client)}</h3><p class="text-[10px] text-slate-500 mt-1">${escHtml(t.location||'Local não informado')}</p></div><span class="text-[9px] font-black px-2 py-1 rounded ${status[1]} shrink-0">${status[0]}</span></div>
+                        <div class="mt-2 pt-2 border-t flex items-center justify-between gap-2"><div class="flex flex-wrap gap-1">${techs.slice(0,2).map(x=>`<span class="text-[9px] font-bold bg-slate-100 rounded-full px-2 py-1">${escHtml(x.name)}</span>`).join('')}</div><span class="text-[9px] font-bold text-slate-400">${fmtDateShort(t.scheduledDate)}</span></div>
+                    </article>`;
+                }).join('')||'<div class="p-8 text-center text-xs text-slate-400">Nenhum agendamento encontrado.</div>';
+            }
         };
+
+        window.deleteTaskById=async function(id){
+            const t=window.tasks.find(x=>x.id===id);if(!t)return;
+            if(!confirm('Excluir agendamento?'))return;
+            try{await window.fsDeleteDoc(window.fsDoc(window.AppDB,'artifacts','plataforma-cij','public','data','agenda_tasks_v2',t.__docId||t.id))}catch(e){console.error('[Agenda] excluir',e)}
+        };
+
+        function todayLocal(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 
         window.openTaskModal = function(id = null) {
             document.getElementById('taskForm').reset();
@@ -715,14 +1046,14 @@
                 const t = window.tasks.find(x => x.id === id);
                 document.getElementById('taskId').value = t.id;
                 document.getElementById('taskOsNumber').value = t.osNumber || '';
-                document.getElementById('taskClient').value = t.client;
-                document.getElementById('taskType').value = t.type;
-                document.getElementById('taskLocation').value = t.location;
-                document.getElementById('taskUrgency').value = t.urgency;
-                document.getElementById('taskScheduledDate').value = t.scheduledDate;
-                document.getElementById('taskDueDate').value = t.dueDate;
-                document.getElementById('taskStatus').value = t.status;
-                document.getElementById('taskDescription').value = t.description;
+                document.getElementById('taskClient').value = t.client || '';
+                document.getElementById('taskType').value = t.type || 'TECHNICAL';
+                document.getElementById('taskLocation').value = t.location || '';
+                document.getElementById('taskUrgency').value = t.urgency || 'MEDIUM';
+                document.getElementById('taskScheduledDate').value = t.scheduledDate || todayLocal();
+                document.getElementById('taskDueDate').value = t.dueDate || t.scheduledDate || todayLocal();
+                document.getElementById('taskStatus').value = t.status || 'PENDING';
+                document.getElementById('taskDescription').value = t.description || '';
                 document.getElementById('modalTitle').innerText = 'Editar Agendamento';
 
                 const ids = window.getTaskTechIds(t);
@@ -732,8 +1063,8 @@
                 });
             } else {
                 document.getElementById('taskId').value = '';
-                document.getElementById('taskScheduledDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('taskScheduledDate').value = todayLocal();
+                document.getElementById('taskDueDate').value = todayLocal();
                 document.getElementById('modalTitle').innerText = 'Novo Agendamento';
 
                 const cb = document.querySelector(`.tech-checkbox[value="${currentUser}"]`);
@@ -767,27 +1098,31 @@
                 dEnd = dStart;
             }
 
-            const data = {
-                id: id,
+            const existing=window.tasks.find(t=>t.id===id)||null;
+            const data = taskWritePayload(existing,{
+                id,
                 osNumber: document.getElementById('taskOsNumber').value.trim(),
                 client: document.getElementById('taskClient').value.trim(),
                 title: document.getElementById('taskClient').value.trim(),
                 type: document.getElementById('taskType').value,
                 location: document.getElementById('taskLocation').value.trim(),
-                techIds: selectedTechs, 
-                techId: selectedTechs[0], 
-                urgency: document.getElementById('taskUrgency').value,
-                scheduledDate: dStart,
-                dueDate: dEnd,
-                status: document.getElementById('taskStatus').value,
-                description: document.getElementById('taskDescription').value.trim()
-            };
+                techIds:selectedTechs,
+                techId:selectedTechs[0],
+                urgency:document.getElementById('taskUrgency').value,
+                scheduledDate:dStart,
+                dueDate:dEnd,
+                status:document.getElementById('taskStatus').value,
+                description:document.getElementById('taskDescription').value.trim(),
+                updatedByUid:currentIdentity.uid||'',
+                updatedByName:currentIdentity.name||'',
+                updatedByEmail:currentIdentity.email||''
+            });
 
             const sendToGoogle = document.getElementById('syncGoogle').checked;
 
             try {
-                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', data.id), data);
-                if (!window.tasks.find(t => t.id === data.id)) window.tasks.push(data);
+                await window.fsSetDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', existing?.__docId||data.id), data);
+                if (!window.tasks.find(t => t.id === data.id)) window.tasks.push(normalizeTask(data,data.id));
                 window.closeTaskModal();
                 if (sendToGoogle) {
                     window.addToGoogleCalendar(data.id);
@@ -802,8 +1137,8 @@
             const title = encodeURIComponent((task.osNumber ? task.osNumber + ' - ' : '') + task.client);
             const location = encodeURIComponent(task.location || '');
             
-            const dStart = task.scheduledDate.replace(/-/g, '');
-            const dEndDateObj = new Date(task.dueDate + 'T00:00:00');
+            const dStart = (task.scheduledDate||todayLocal()).replace(/-/g, '');
+            const dEndDateObj = new Date((task.dueDate||task.scheduledDate||todayLocal()) + 'T00:00:00');
             dEndDateObj.setDate(dEndDateObj.getDate() + 1); 
             const dEnd = dEndDateObj.toISOString().split('T')[0].replace(/-/g, '');
             const dates = `${dStart}/${dEnd}`;
@@ -840,8 +1175,8 @@
             
             document.getElementById('detailUrgency').innerHTML = badgeU;
             document.getElementById('detailStatus').innerHTML = badgeS;
-            document.getElementById('detailScheduled').innerText = t.scheduledDate.split('-').reverse().join('/');
-            document.getElementById('detailDue').innerText = t.dueDate.split('-').reverse().join('/');
+            document.getElementById('detailScheduled').innerText = fmtDateShort(t.scheduledDate);
+            document.getElementById('detailDue').innerText = fmtDateShort(t.dueDate);
             document.getElementById('detailDescription').innerText = t.description || 'Nenhuma observação registrada.';
 
             document.getElementById('btnGoogleCalendar').setAttribute('onclick', `window.addToGoogleCalendar('${t.id}')`);
@@ -849,13 +1184,20 @@
             document.getElementById('btnEditTask').onclick = () => { window.closeDetailsModal(); window.openTaskModal(t.id); };
             document.getElementById('btnDeleteTask').onclick = async () => {
                 if(confirm('Tem certeza que deseja excluir este agendamento?')) {
-                    try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', t.id)); window.closeDetailsModal(); } catch(e){}
+                    try { await window.fsDeleteDoc(window.fsDoc(window.AppDB, 'artifacts', 'plataforma-cij', 'public', 'data', 'agenda_tasks_v2', t.__docId||t.id)); window.closeDetailsModal(); } catch(e){console.error('[Agenda] excluir',e)}
                 }
             };
             document.getElementById('detailsModal').classList.remove('hidden');
         };
 
         window.closeDetailsModal = () => document.getElementById('detailsModal').classList.add('hidden');
+        document.addEventListener('keydown',e=>{
+            if(e.key==='Escape'){
+                window.closeDayModal?.();
+                window.closeTaskModal?.();
+                window.closeDetailsModal?.();
+            }
+        });
     </script>
 </body>
 </html>
