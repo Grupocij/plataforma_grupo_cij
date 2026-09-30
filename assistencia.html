@@ -137,7 +137,7 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
 }
 
 
-/* V1.72.6 — rastreabilidade de recebimento da OS */
+/* V1.72.7 — rastreabilidade de recebimento da OS */
 .tech-receipt-panel{
   border:1px solid #bfdbfe;background:linear-gradient(135deg,#eff6ff,#fff);
   border-radius:16px;padding:12px;margin-top:10px
@@ -1575,7 +1575,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.6</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4">
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.7</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4">
 <section class="os-detail-section">
   <div class="os-detail-kicker">Equipe técnica</div>
   <h3 class="section-title"><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-2"></i>Recebimento da OS</h3>
@@ -2460,6 +2460,44 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
 (function(){'use strict';
 const BASE=['artifacts','plataforma-cij','public','data'];
 const state={clientes:[],parque:[],modelos:[],usuarios:[],osr:[],os:[],agenda:[],selectedOS:null,equipmentType:'PARQUE'};
+// V1.72.7 — uma instância por documento, inclusive durante a sincronização.
+function assistOSMemoryKey(o){return String(o?.id||o?.internalId||'').trim()}
+function assistPreserveLocalOSMemory(target,source){
+ Object.keys(source).forEach(k=>{if(target[k]===undefined)target[k]=source[k]});
+ if(!target._equipamentos?.length&&source._equipamentos?.length)target._equipamentos=source._equipamentos;
+ const receipts={...(target.tecnicoRecebimentos||{})};
+ Object.entries(source.tecnicoRecebimentos||{}).forEach(([key,e])=>{
+   if(!receipts[key]){receipts[key]=e;return}
+   const current=receipts[key];
+   if(current.atribuidaEmISO&&e.atribuidaEmISO&&current.atribuidaEmISO!==e.atribuidaEmISO)return;
+   receipts[key]={...current};
+   Object.keys(e).forEach(k=>{if(receipts[key][k]===undefined||receipts[key][k]==='')receipts[key][k]=e[k]});
+ });
+ if(Object.keys(receipts).length)target.tecnicoRecebimentos=receipts;
+}
+function assistUpsertOSMemory(row){
+ const key=assistOSMemoryKey(row);if(!key)return null;
+ const matches=(state.os||[]).filter(o=>assistOSMemoryKey(o)===key);
+ const target=matches[0]||row;
+ // Preserva dados locais que ainda não vieram no snapshot (equipamentos etc.).
+ matches.slice(1).forEach(duplicate=>assistPreserveLocalOSMemory(target,duplicate));
+ Object.assign(target,row);
+ const index=(state.os||[]).findIndex(o=>assistOSMemoryKey(o)===key);
+ state.os=(state.os||[]).filter(o=>assistOSMemoryKey(o)!==key);
+ state.os.splice(index<0?state.os.length:index,0,target);
+ if(state.selectedOS&&assistOSMemoryKey(state.selectedOS)===key)state.selectedOS=target;
+ return target;
+}
+function assistDeduplicateOSMemory(){
+ const unique=new Map(),unidentified=[];
+ (state.os||[]).forEach(o=>{
+   const key=assistOSMemoryKey(o);if(!key){unidentified.push(o);return}
+   if(unique.has(key))assistPreserveLocalOSMemory(unique.get(key),o);else unique.set(key,o);
+ });
+ state.os=[...unique.values(),...unidentified];
+ const selectedKey=assistOSMemoryKey(state.selectedOS);
+ if(selectedKey&&unique.has(selectedKey))state.selectedOS=unique.get(selectedKey);
+}
 window.assistAlertsConfig={roles:{},loaded:false};
 const ASSIST_ALERT_ROLES=[
  ['SUPERVISOR_TECNICO','Supervisor técnico / revisão','Solicitações técnicas aguardando revisão.','fa-user-check'],
@@ -2565,7 +2603,7 @@ async function assistSincronizarEquipeRecebimento(o,ids,nomes,novos=[],notificat
  o.tecnicoRecebimentos=map;o.tecnicoRecebimentosAtualizadosEmISO=now;
 }
 
-// V1.72.6 — eventos individuais, transação e fila offline por usuário.
+// V1.72.7 — eventos individuais, transação e fila offline por usuário.
 function assistReceiptMatchesAssignment(o,ident){
  const tokens=assistReceiptIdentityTokens(ident),refs=assistReceiptAssignedRefs(o);
  if(!tokens.size)return false;
@@ -2657,10 +2695,9 @@ function assistStartReceiptMonitor(){
  assistReceiptUnsubscribe=window.fsOnSnapshot(col('os_ordens'),snap=>{
    if(assistOfflineCurrentUid()!==owner){assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null;return}
    snap.docChanges().forEach(change=>{
-     const id=change.doc.id,ix=state.os.findIndex(o=>String(o.id||o.internalId)===id);
-     if(change.type==='removed'){if(ix>=0)state.os.splice(ix,1);return}
-     const data={id,...change.doc.data()};
-     if(ix>=0)Object.assign(state.os[ix],data);else state.os.push(data);
+     const id=String(change.doc.id);
+     if(change.type==='removed'){state.os=(state.os||[]).filter(o=>assistOSMemoryKey(o)!==id);return}
+     assistUpsertOSMemory({...change.doc.data(),id});
    });
    if(state.selectedOS){
      const selected=(state.os||[]).find(o=>String(o.id||o.internalId)===String(state.selectedOS.id||state.selectedOS.internalId));
@@ -3334,7 +3371,7 @@ async function assistOfflineCacheSetStrict(key,data){
 }
 async function assistOfflineFetchCollectionDirect(nome,timeout=10000){
   const snap=await assistOfflineTimeout(window.fsGetDocs(col(nome)),timeout,'prepare:'+nome),a=[];
-  snap.forEach(d=>a.push({id:d.id,...d.data()}));
+  snap.forEach(d=>a.push(nome==='os_ordens'?{...d.data(),id:d.id}:{id:d.id,...d.data()}));
   await assistOfflineCacheSetStrict('collection:'+nome,a);
   return a;
 }
@@ -3959,7 +3996,7 @@ async function read(n){
  }
  try{
    const snap=await assistOfflineTimeout(window.fsGetDocs(col(n)),ASSIST_NETWORK_TIMEOUT_MS,'read:'+n),a=[];
-   snap.forEach(d=>a.push({id:d.id,...d.data()}));
+   snap.forEach(d=>a.push(n==='os_ordens'?{...d.data(),id:d.id}:{id:d.id,...d.data()}));
    if(assistOfflineTechRequested())await assistOfflineCacheSet(key,a);
    assistOfflineClearForced();
    return a;
@@ -4305,6 +4342,7 @@ async function carregarPendenciasOS(){
  await Promise.all((state.os||[]).filter(assistOSAtiva).map(async o=>{try{o._equipamentos=(await readSub(o.internalId||o.id,'equipamentos')).filter(e=>e?.is_deleted!==true&&e?.ativo!==false)}catch(_){o._equipamentos=o._equipamentos||[]}}));
 }
 function renderKanban(){
+ assistDeduplicateOSMemory();
  const data=filtered(),b=document.getElementById('kanban-board');
  const ativos=(state.os||[]).filter(assistOSAtiva);
  document.getElementById('empty-os').classList.toggle('hidden',ativos.length!==0);
@@ -4697,7 +4735,7 @@ async function sincronizarOSRKanban(){
       await saveSubDoc(numero,'equipamentos','EQ_OSR',docs.eq);
       await addHistory({id:numero,...docs.os},'OSR_IMPORTADA',docs.resolvido?'Suporte remoto resolvido':'Suporte remoto convertido em atendimento',
         (r.defeito||'')+(r.solucao?' · '+r.solucao:''),{origemOSR:numero,conclusao:r.conclusao||''});
-      state.os.push({id:numero,...docs.os,_equipamentos:[{id:'EQ_OSR',...docs.eq}]});
+      assistUpsertOSMemory({id:numero,...docs.os,_equipamentos:[{id:'EQ_OSR',...docs.eq}]});
       count++;
     }catch(e){
       console.warn('[Assistência] sincronização OSR -> Kanban',numero,e);
@@ -4708,6 +4746,7 @@ async function sincronizarOSRKanban(){
 window.sincronizarOSRKanban=sincronizarOSRKanban;
 
 function renderModoTecnico(){
+ assistDeduplicateOSMemory();
  const lista=document.getElementById('tech-lista');if(!lista)return;
  const nome=window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'Técnico',label=document.getElementById('tech-user-label');if(label)label.textContent=nome;
  const q=(document.getElementById('tech-busca')?.value||'').trim().toLowerCase();
@@ -7166,7 +7205,7 @@ window.abrirDetalheOS=function(id){
 }
 window.fecharDetalheOS=()=>{document.getElementById('modal-detalhe-os').classList.add('hidden');state.selectedOS=null};
 window.toastDetalheIndisponivel=(nome)=>toast(`${nome}: será liberado em uma próxima fase.`);
-window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);const novaOSObj={id:internalId,...data};await addHistory(novaOSObj,'CRIACAO','OS criada',data.descricaoInicial||'');state.os.push(novaOSObj);if(tecnicoId){const notifId=await assistNotify(assistTechnicianRecipients(novaOSObj,[tecnicoId]),{eventType:'OS_ATRIBUIDA',titulo:'Nova OS atribuída',mensagem:`${osNumber} · ${data.clienteNome} foi atribuída a você.`,tipo:data.prioridade==='URGENTE'?'danger':'info',o:novaOSObj,dedupeKey:`OS_ATRIBUIDA:${internalId}:${tecnicoId}`});await assistSincronizarEquipeRecebimento(novaOSObj,[tecnicoId],[data.tecnicoNome],[tecnicoId],notifId||'')}renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tipo-atendimento').value='INTERNO';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
+window.salvarNovaOS=async function(){const clienteId=document.getElementById('nova-cliente')?.value||'';if(!clienteId){alert('Selecione o cliente.');return}const btn=document.getElementById('btn-salvar-os');const cliente=state.clientes.find(x=>x.id===clienteId);const tecnicoId=document.getElementById('nova-tecnico')?.value||'';const now=new Date();const internalId=(window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)));const osNumber=await nextOSNumber();const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:cliente?clientLabel(cliente):selectedText('nova-cliente'),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome:tecnicoId?selectedText('nova-tecnico'):'',descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now.toISOString(),updatedAtISO:now.toISOString(),schemaVersion:1};try{if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}await saveDoc('os_ordens',internalId,data);const novaOSObj={id:internalId,...data};await addHistory(novaOSObj,'CRIACAO','OS criada',data.descricaoInicial||'');assistUpsertOSMemory(novaOSObj);if(tecnicoId){const notifId=await assistNotify(assistTechnicianRecipients(novaOSObj,[tecnicoId]),{eventType:'OS_ATRIBUIDA',titulo:'Nova OS atribuída',mensagem:`${osNumber} · ${data.clienteNome} foi atribuída a você.`,tipo:data.prioridade==='URGENTE'?'danger':'info',o:novaOSObj,dedupeKey:`OS_ATRIBUIDA:${internalId}:${tecnicoId}`});await assistSincronizarEquipeRecebimento(novaOSObj,[tecnicoId],[data.tecnicoNome],[tecnicoId],notifId||'')}renderKanban();window.fecharNovaOS();toast(`${osNumber} criada com sucesso.`);document.getElementById('nova-cliente').value='';document.getElementById('nova-prioridade').value='NORMAL';document.getElementById('nova-origem').value='MANUAL';document.getElementById('nova-tipo-atendimento').value='INTERNO';document.getElementById('nova-tecnico').value='';document.getElementById('nova-descricao').value=''}catch(e){console.error('[Assistência] erro ao salvar OS',e);alert('Não foi possível salvar a OS. Verifique as Security Rules do Firestore e tente novamente.\n\n'+(e?.message||e))}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}};
 window.assistenciaAtualizar=load;window.filtrarKanban=renderKanban;window.legacyPage=(delta)=>{legacyCurrentPage+=delta;renderLegacy();};
 // FASE 1.28 — auditoria e histórico completo
 let auditEventos=[],auditFiltro='TODOS';
@@ -7941,7 +7980,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.76.9';
+const ASSISTENCIA_BUILD='1.76.10';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -9645,7 +9684,7 @@ window.confirmarDuplicarOS=async function(){
       {novaOSId:novoId,novaOSNumero:novoNumero}
     );
 
-    state.os.push(novaOSMem);
+    assistUpsertOSMemory(novaOSMem);
     window.fecharDuplicarOS();
     renderKanban();
     renderCentralPendencias?.();
