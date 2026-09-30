@@ -225,7 +225,9 @@ const injectLayout = () => {
         </div>
         <div class="px-3 py-2 border-b border-slate-100 flex flex-wrap gap-2">
             <button id="notif-enable-device" onclick="window.ativarNotificacoesDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black bg-blue-600 text-white"><i class="fa-solid fa-mobile-screen mr-1"></i>Ativar no dispositivo</button>
+            <button id="notif-test-vibrate" onclick="window.testarVibracaoDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-amber-300 text-amber-700 bg-amber-50"><i class="fa-solid fa-mobile-screen-button mr-1"></i>Testar vibração</button>
             <button onclick="window.marcarTodasNotificacoesLidas()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-slate-300 text-slate-600 bg-white"><i class="fa-solid fa-check-double mr-1"></i>Marcar todas como lidas</button>
+            <div id="notif-device-status" class="w-full text-[9px] text-slate-500"></div>
         </div>
         <div id="notif-list" class="notif-list"><div class="p-8 text-center text-xs text-slate-400">Nenhuma notificação.</div></div>
     </section>
@@ -485,10 +487,21 @@ function notifSafeId(v){return String(v||'').trim().toLowerCase().replace(/[^a-z
 function notifUserKey(){const s=window.__notifState;return String(s.user?.email||s.profile?.email||s.user?.uid||'').toLowerCase().trim()}
 function notifReadDocId(id){return notifSafeId(notifUserKey())+'__'+notifSafeId(id)}
 function notifTarget(n,profile,user){
-    if(!n)return false;if(String(profile?.perfil||'')==='Master')return true;
-    const email=String(user?.email||profile?.email||'').toLowerCase().trim(),uid=String(user?.uid||profile?.authUid||profile?.uid||'').trim(),perfil=String(profile?.perfil||'');
-    const emails=(n.targetEmails||[]).map(x=>String(x||'').toLowerCase().trim()),uids=(n.targetUids||[]).map(x=>String(x||'').trim()),profiles=(n.targetProfiles||[]).map(String);
-    return n.broadcast===true||(email&&emails.includes(email))||(uid&&uids.includes(uid))||(perfil&&profiles.includes(perfil));
+    if(!n)return false;
+    const email=String(user?.email||profile?.email||'').toLowerCase().trim();
+    const uid=String(user?.uid||profile?.authUid||profile?.uid||'').trim();
+    const perfil=String(profile?.perfil||'').toLowerCase().trim();
+    const emails=(n.targetEmails||[]).map(x=>String(x||'').toLowerCase().trim()).filter(Boolean);
+    const uids=(n.targetUids||[]).map(x=>String(x||'').trim()).filter(Boolean);
+    const profiles=(n.targetProfiles||[]).map(x=>String(x||'').toLowerCase().trim()).filter(Boolean);
+
+    // Regra estrita: não existe mais exceção para Master.
+    // O usuário só recebe se for destinatário explícito ou se o alerta for broadcast.
+    if(n.broadcast===true)return true;
+    if(email&&emails.includes(email))return true;
+    if(uid&&uids.includes(uid))return true;
+    if(perfil&&profiles.includes(perfil))return true;
+    return false;
 }
 function notifTs(n){return Number(n.timestamp||Date.parse(n.createdAtISO||'')||0)}
 function notifEsc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -503,6 +516,32 @@ function notifVibrationPattern(n){
 function notifDeviceTitle(n){
     return notifType(n)==='danger' ? `URGENTE · ${n.titulo||'Portal CIJ'}` : (n.titulo||'Portal CIJ');
 }
+
+function notifSetDeviceStatus(message,kind='info'){
+    const el=document.getElementById('notif-device-status');if(!el)return;
+    el.className='w-full text-[9px] '+(kind==='ok'?'text-emerald-700':kind==='error'?'text-rose-700':kind==='warning'?'text-amber-700':'text-slate-500');
+    el.textContent=message||'';
+}
+function notifVibrationCapability(){
+    return {
+        api:typeof navigator!=='undefined'&&typeof navigator.vibrate==='function',
+        activated:!!navigator.userActivation?.hasBeenActive,
+        permission:('Notification'in window)?Notification.permission:'unsupported'
+    };
+}
+window.testarVibracaoDispositivo=function(){
+    const cap=notifVibrationCapability();
+    if(!cap.api){
+        notifSetDeviceStatus('Este navegador/aparelho não oferece a API de vibração para páginas web.','error');
+        alert('A vibração não é suportada pelo navegador deste aparelho.');
+        return false;
+    }
+    let ok=false;
+    try{ok=navigator.vibrate([300,120,300,120,500])===true}catch(_){ok=false}
+    if(ok)notifSetDeviceStatus('O navegador aceitou o comando de vibração. Se não vibrou, revise Som/Vibração e Não Perturbe no celular.','ok');
+    else notifSetDeviceStatus('O navegador recusou o comando de vibração neste aparelho.','warning');
+    return ok;
+};
 
 function notifIcon(t){return ({info:'fa-circle-info',warning:'fa-triangle-exclamation',success:'fa-circle-check',danger:'fa-circle-exclamation'})[t]||'fa-bell'}
 window.enviarNotificacaoApp=async function(payloadOrMessage,targetEmails=[],targetProfiles=[],tipo='info'){
@@ -520,10 +559,26 @@ window.enviarNotificacaoApp=async function(payloadOrMessage,targetEmails=[],targ
 };
 window.toggleNotificationCenter=function(force){const p=document.getElementById('notif-panel');if(!p)return;const open=typeof force==='boolean'?force:p.classList.contains('hidden');p.classList.toggle('hidden',!open);if(open)window.renderNotificationCenter?.()};
 window.ativarNotificacoesDispositivo=async function(){
-    const btn=document.getElementById('notif-enable-device');if(!('Notification'in window)){if(btn)btn.textContent='Sem suporte';return}
-    try{const permission=await Notification.requestPermission();if(permission==='granted'){if(btn){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
-      const reg=await navigator.serviceWorker?.ready?.catch(()=>null);if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',silent:false,vibrate:[120],data:{url:location.href}});
-    }else if(btn)btn.textContent=permission==='denied'?'Notificações bloqueadas':'Ativar no dispositivo'}catch(e){console.warn(e)}
+    const btn=document.getElementById('notif-enable-device');
+    if(!('Notification'in window)){if(btn)btn.textContent='Sem suporte';notifSetDeviceStatus?.('Este navegador não suporta notificações web.','error');return}
+    let vibrateResult=null;
+    try{if(typeof navigator.vibrate==='function')vibrateResult=navigator.vibrate([180,80,180])}catch(_){vibrateResult=false}
+    try{
+        const permission=await Notification.requestPermission();
+        if(permission==='granted'){
+            if(btn){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
+            if(typeof notifSetDeviceStatus==='function'){
+                if(vibrateResult===true)notifSetDeviceStatus('Notificações autorizadas e teste de vibração enviado.','ok');
+                else if(typeof navigator.vibrate!=='function')notifSetDeviceStatus('Notificações autorizadas, mas este navegador não disponibiliza vibração Web.','warning');
+                else notifSetDeviceStatus('Notificações autorizadas. A vibração foi recusada ou ignorada pelo navegador/aparelho.','warning');
+            }
+            const reg=await navigator.serviceWorker?.ready?.catch(()=>null);
+            if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',silent:false,vibrate:[120],data:{url:location.href}});
+        }else{
+            if(btn)btn.textContent=permission==='denied'?'Notificações bloqueadas':'Ativar no dispositivo';
+            notifSetDeviceStatus?.(permission==='denied'?'As notificações estão bloqueadas no navegador.':'Permissão não concedida.','warning');
+        }
+    }catch(e){console.warn(e);notifSetDeviceStatus?.('Falha ao solicitar permissão de notificação.','error')}
 };
 async function notifMarkRead(id){
     if(!id||!notifUserKey())return;window.__notifState.readIds.add(String(id));
@@ -542,20 +597,15 @@ async function notifShowDevice(n){
     if(!('Notification'in window)||Notification.permission!=='granted')return;
     const pattern=notifVibrationPattern(n),danger=notifType(n)==='danger';
     try{
-        // Vibração imediata enquanto o Portal/PWA está aberto (quando suportado, principalmente Android).
-        if(navigator.vibrate)navigator.vibrate(pattern);
+        if(typeof navigator.vibrate==='function'&&navigator.userActivation?.hasBeenActive){
+            navigator.vibrate(pattern);
+        }
     }catch(_){}
     try{
         const reg=await navigator.serviceWorker?.ready;
         if(reg)await reg.showNotification(notifDeviceTitle(n),{
-            body:n.mensagem||'',
-            icon:'assistencia-icon-192.png',
-            badge:'assistencia-icon-192.png',
-            tag:n.dedupeKey||n.id,
-            renotify:danger,
-            silent:false,
-            vibrate:pattern,
-            requireInteraction:danger,
+            body:n.mensagem||'',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',
+            tag:n.dedupeKey||n.id,renotify:danger,silent:false,vibrate:pattern,requireInteraction:danger,
             data:{url:n.url||location.href,notificationId:n.id,tipo:notifType(n)}
         });
     }catch(e){console.warn('[Core] alerta dispositivo',e)}
