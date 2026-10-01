@@ -591,6 +591,7 @@ window.renderNotificationCenter=function(){
     const rows=(s.rows||[]).filter(n=>notifTarget(n,s.profile,s.user)).sort((a,b)=>notifTs(b)-notifTs(a)).slice(0,80),unread=rows.filter(n=>!s.readIds.has(String(n.id))).length;
     if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',unread===0)}
     if(sub)sub.textContent=unread?`${unread} não lida${unread===1?'':'s'} · ${rows.length} recentes`:`${rows.length} notificação${rows.length===1?'':'ões'} · tudo em dia`;
+    window.dispatchEvent(new CustomEvent('cij-notifications-updated',{detail:{unread}}));
     box.innerHTML=rows.length?rows.map(n=>{const unreadRow=!s.readIds.has(String(n.id)),t=notifType(n);return `<button class="notif-item ${t==='danger'?'danger':''} ${unreadRow?'unread':''}" onclick="window.abrirNotificacao('${notifEsc(n.id)}')"><span class="notif-icon ${t}"><i class="fa-solid ${notifIcon(t)}"></i></span><span class="min-w-0 flex-1"><span class="notif-title">${notifEsc(n.titulo||'Portal CIJ')}</span><span class="notif-message block">${notifEsc(n.mensagem||'')}</span><span class="notif-meta block">${new Date(notifTs(n)).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${n.osNumber?' · '+notifEsc(n.osNumber):''}</span></span>${unreadRow?'<span class="notif-dot"></span>':''}</button>`}).join(''):'<div class="p-8 text-center text-xs text-slate-400"><i class="fa-regular fa-bell-slash text-2xl mb-2"></i><div>Nenhuma notificação para você.</div></div>';
 };
 async function notifShowDevice(n){
@@ -662,8 +663,8 @@ onAuthStateChanged(auth, async (user) => {
         try {
             const snap = await getDocs(collection(db, 'artifacts', 'plataforma-cij', 'public', 'data', 'usuarios_permissoes'));
             snap.forEach(d => { 
-                if (d.data().email.toLowerCase() === cleanEmail) {
-                    dbUser = d.data();
+                if (String(d.data().email||'').toLowerCase().trim() === cleanEmail) {
+                    dbUser = {...d.data(), id:d.id};
                 }
             });
         } catch (e) {
@@ -714,6 +715,7 @@ onAuthStateChanged(auth, async (user) => {
 
         saveCoreOfflineProfile(user, dbUser);
 
+        window.__assistOfflineColdSession = false;
         window.currentUser = user;
         window.nomeUsuarioLogado = dbUser.nome || cleanEmail.split('@')[0].toUpperCase();
         window.userProfile = dbUser; 

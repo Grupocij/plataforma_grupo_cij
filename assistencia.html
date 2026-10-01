@@ -181,6 +181,9 @@ body{font-family:'Inter',sans-serif}.tag{font-size:.62rem;font-weight:900;paddin
   .receipt-state-pill{width:max-content}
 }
 
+/* O sino do core fica oculto no modo técnico; o painel é acessado pelo botão Alertas. */
+body.tech-app-mode #notif-panel{z-index:100040}
+#tech-notifications-count{border-radius:999px;background:#dc2626;color:#fff;padding:1px 5px}
 </style>
 
 <style>
@@ -1331,6 +1334,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
     <button type="button" id="tech-build-badge" class="tech-build-badge" onclick="event.preventDefault();event.stopPropagation();window.verificarAtualizacaoApp(true)" title="Clique para verificar atualização">v1.69</button>
   </div>
   <div class="tech-app-controls">
+    <button type="button" id="tech-notifications-btn" class="tech-build-badge" onclick="window.toggleNotificationCenter?.()" aria-label="Abrir notificações do técnico"><i class="fa-solid fa-bell"></i> Alertas <span id="tech-notifications-count" class="hidden">0</span></button>
     <div class="tech-tools-wrap">
       <button type="button" id="tech-tools-menu-btn" class="tech-tools-trigger" onclick="event.preventDefault();event.stopPropagation();window.toggleTechToolsMenu()"><i class="fa-solid fa-sliders"></i><span>Ferramentas</span><i class="fa-solid fa-chevron-down text-[9px]"></i></button>
       <div id="tech-tools-menu" class="tech-tools-menu hidden" onclick="event.stopPropagation()">
@@ -2544,7 +2548,10 @@ function assistReceiptSafeKey(v){
 }
 function assistReceiptEntries(o){return (o&&o.tecnicoRecebimentos&&typeof o.tecnicoRecebimentos==='object')?o.tecnicoRecebimentos:{}}
 function assistReceiptResolveRef(ref,nomeHint=''){
- const raw=String(ref||'').trim(),u=assistUserByTechId(raw),r=u?assistAlertUserRecord(u):null;
+ const raw=String(ref||'').trim();
+ const own=window.userProfile||{},me=window.currentUser||{};
+ const ownRefs=[own.id,own.userId,own.uid,own.authUid,own.email,me.uid,me.email].filter(Boolean).map(String);
+ const u=assistUserByTechId(raw)||(ownRefs.some(v=>v.toLowerCase()===raw.toLowerCase())?{...own,uid:me.uid||own.authUid||own.uid,email:me.email||own.email}:null),r=u?assistAlertUserRecord(u):null;
  return {
    id:String(r?.id||raw||'').trim(),
    uid:String(r?.uid||'').trim(),
@@ -2607,7 +2614,9 @@ async function assistSincronizarEquipeRecebimento(o,ids,nomes,novos=[],notificat
 function assistReceiptMatchesAssignment(o,ident){
  const tokens=assistReceiptIdentityTokens(ident),refs=assistReceiptAssignedRefs(o);
  if(!tokens.size)return false;
- return refs.some(ref=>{const t=assistReceiptIdentityTokens(assistReceiptResolveRef(ref));return [...tokens].some(v=>t.has(v))});
+ const direct=refs.some(ref=>{const t=assistReceiptIdentityTokens(assistReceiptResolveRef(ref));return [...tokens].some(v=>t.has(v))});
+ const found=assistReceiptFindEntry(o,ident);
+ return direct||!!(found&&found.entry.ativo!==false&&refs.includes(String(found.entry.ref||found.entry.tecnicoId||'')));
 }
 function assistReceiptApplyEvent(o,event){
  if(!o||o.is_deleted===true||!assistReceiptMatchesAssignment(o,event.ident))return null;
@@ -2652,6 +2661,7 @@ async function assistReceiptRawEvent(osid,event){
 const assistReceiptInFlight=new Map();
 async function assistRegistrarEventoTecnico(o,tipo){
  if(!document.body.classList.contains('tech-app-mode')||!o||!isMinhaOS(o))return null;
+ if(navigator.onLine!==false&&!assistReceiptLiveOwner())return null;
  const ident=assistReceiptCurrentIdentity(),found=assistReceiptCurrentEntry(o),osid=String(o.internalId||o.id);
  const field={RECEBIDA:'recebidaNoAppEmISO',VISUALIZADA:'primeiraVisualizacaoEmISO',CONFIRMADA:'confirmadoEmISO'}[tipo];
  if(!field)throw new Error('Evento de recebimento inválido.');
@@ -2686,27 +2696,79 @@ async function assistReceiptRegisterArrivals(){
    try{await assistRegistrarEventoTecnico(o,'RECEBIDA')}catch(e){console.warn('[Assistência] chegada da OS',e)}
  }
 }
-let assistReceiptUnsubscribe=null,assistReceiptOwner='';
-function assistStartReceiptMonitor(){
- if(assistOfflineSemRede()||typeof window.fsOnSnapshot!=='function')return;
- const owner=assistOfflineCurrentUid();if(!owner)return;
- if(assistReceiptUnsubscribe&&assistReceiptOwner===owner)return;
- assistReceiptUnsubscribe?.();assistReceiptOwner=owner;
- assistReceiptUnsubscribe=window.fsOnSnapshot(col('os_ordens'),snap=>{
-   if(assistOfflineCurrentUid()!==owner){assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null;return}
-   snap.docChanges().forEach(change=>{
-     const id=String(change.doc.id);
-     if(change.type==='removed'){state.os=(state.os||[]).filter(o=>assistOSMemoryKey(o)!==id);return}
-     assistUpsertOSMemory({...change.doc.data(),id});
-   });
-   if(state.selectedOS){
-     const selected=(state.os||[]).find(o=>String(o.id||o.internalId)===String(state.selectedOS.id||state.selectedOS.internalId));
-     if(selected){state.selectedOS.tecnicoRecebimentos=selected.tecnicoRecebimentos;renderTecnicoRecebimentosOS(state.selectedOS);renderTechReceiptStatus(state.selectedOS)}
-   }
-   renderKanban();renderModoTecnico();assistReceiptRegisterArrivals();
- },e=>{console.warn('[Assistência] monitor de recebimento',e);assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null});
+// V1.72.8 — monitor independente da carga de cadastros e recuperação no próprio app.
+let assistReceiptUnsubscribe=null,assistReceiptOwner='',assistReceiptGeneration=0,assistReceiptRevision=0;
+let assistReceiptRetryTimer=null,assistReceiptRetryCount=0,assistReceiptLastResume=0;
+function assistReceiptLiveOwner(){
+ const me=window.currentUser;
+ if(!me||me.offlineRestored)return '';
+ if(window.AppAuth&&(!window.AppAuth.currentUser||window.AppAuth.currentUser.uid!==me.uid))return '';
+ return assistOfflineCurrentUid();
 }
-window.addEventListener('online',()=>{assistStartReceiptMonitor();assistReceiptRegisterArrivals()});
+function assistStopReceiptMonitor(){
+ ++assistReceiptGeneration;clearTimeout(assistReceiptRetryTimer);assistReceiptRetryTimer=null;
+ assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null;
+}
+function assistReceiptRenderLive(){
+ if(state.selectedOS){
+   const selected=(state.os||[]).find(o=>assistOSMemoryKey(o)===assistOSMemoryKey(state.selectedOS));
+   if(selected){state.selectedOS.tecnicoRecebimentos=selected.tecnicoRecebimentos;renderTecnicoRecebimentosOS(state.selectedOS);renderTechReceiptStatus(state.selectedOS)}
+ }
+ renderKanban();renderModoTecnico();assistReceiptRegisterArrivals().catch(e=>console.warn('[Assistência] recebimento',e));assistTryOpenNotificationOS();
+}
+function assistStartReceiptMonitor(force=false){
+ // O modo offline temporário de um cadastro auxiliar não desliga a conexão de OS.
+ const owner=assistReceiptLiveOwner();
+ if(navigator.onLine===false||!owner){assistStopReceiptMonitor();return}
+ if(typeof window.fsOnSnapshot!=='function')return;
+ if(assistReceiptUnsubscribe&&assistReceiptOwner===owner&&!force)return;
+ assistStopReceiptMonitor();
+ if(assistReceiptOwner&&assistReceiptOwner!==owner){state.os=[];state.selectedOS=null}
+ assistReceiptOwner=owner;const generation=assistReceiptGeneration;
+ const failed=e=>{
+   if(generation!==assistReceiptGeneration)return;
+   console.warn('[Assistência] monitor de recebimento',e);assistReceiptUnsubscribe?.();assistReceiptUnsubscribe=null;
+   if(assistOfflineNetworkError(e)){
+     const delay=Math.min(30000,1500*2**Math.min(assistReceiptRetryCount++,5));
+     assistReceiptRetryTimer=setTimeout(()=>{if(generation===assistReceiptGeneration)assistStartReceiptMonitor()},delay);
+   }
+ };
+ try{
+   assistReceiptUnsubscribe=window.fsOnSnapshot(col('os_ordens'),{includeMetadataChanges:true},snap=>{
+     if(generation!==assistReceiptGeneration)return;
+     if(assistReceiptLiveOwner()!==owner){assistStopReceiptMonitor();return}
+     const changes=snap.docChanges();if(changes.length)++assistReceiptRevision;
+     changes.forEach(change=>{
+       const id=String(change.doc.id);
+       if(change.type==='removed'){state.os=(state.os||[]).filter(o=>assistOSMemoryKey(o)!==id);return}
+       assistUpsertOSMemory({...change.doc.data(),id});
+     });
+     if(snap.metadata?.fromCache===false){
+       assistReceiptRetryCount=0;assistOfflineClearForced();techAppSetConnection();
+       if(assistOfflineTechRequested())assistReceiptSyncPending().catch(e=>console.warn('[Assistência] fila de recebimento',e));
+     }
+     assistReceiptRenderLive();
+   },failed);
+ }catch(e){failed(e)}
+}
+async function assistReceiptSyncPending(){
+ const owner=assistReceiptLiveOwner();if(!owner||navigator.onLine===false)return;
+ const pending=await assistOfflinePending();
+ if(pending.length&&assistReceiptLiveOwner()===owner)await window.sincronizarPendenciasOffline?.();
+}
+function assistReceiptResume(){
+ if(!assistOfflineTechRequested()||document.visibilityState==='hidden')return;
+ if(!assistReceiptLiveOwner()){assistStopReceiptMonitor();return}
+ if(navigator.onLine===false)return;
+ const now=Date.now();if(now-assistReceiptLastResume<1000&&assistReceiptUnsubscribe)return;assistReceiptLastResume=now;
+ assistOfflineClearForced();techAppSetConnection();assistStartReceiptMonitor(true);
+ assistReceiptRegisterArrivals().catch(e=>console.warn('[Assistência] chegada da OS',e));
+ assistReceiptSyncPending().catch(e=>console.warn('[Assistência] sincronização ao retornar',e));
+}
+window.addEventListener('online',()=>{assistStartReceiptMonitor();assistReceiptResume()});
+window.addEventListener('focus',assistReceiptResume);
+window.addEventListener('pageshow',assistReceiptResume);
+document.addEventListener('visibilitychange',assistReceiptResume);
 window.confirmarRecebimentoOSTecnico=async function(){
  const o=state.selectedOS;if(!o)return;
  if(!isMinhaOS(o)){alert('Esta OS não está atribuída ao seu usuário.');return}
@@ -3293,6 +3355,9 @@ const ASSIST_NETWORK_TIMEOUT_MS=3500;
 
 function assistOfflineForced(){
   return Date.now()<Number(__assistOfflineForceUntil||0);
+}
+function assistOfflineNetworkError(e){
+ return ['unavailable','deadline-exceeded','ASSIST_NETWORK_TIMEOUT','network-request-failed','auth/network-request-failed','firestore/unavailable','firestore/deadline-exceeded'].includes(String(e?.code||''));
 }
 function assistOfflineMarkNetworkFailure(){
   __assistOfflineForceUntil=Date.now()+60000;
@@ -4001,8 +4066,8 @@ async function read(n){
    assistOfflineClearForced();
    return a;
  }catch(e){
-   if(assistOfflineTechRequested()){
-     assistOfflineMarkNetworkFailure();
+   if(assistOfflineTechRequested()&&assistOfflineNetworkError(e)){
+     if(n==='os_ordens')assistOfflineMarkNetworkFailure();
      const cached=await assistOfflineCacheGet(key);
      if(cached!==null)return cached;
    }
@@ -4030,7 +4095,7 @@ async function readSub(osId,sub){
    assistOfflineClearForced();
    return a;
  }catch(e){
-   if(assistOfflineTechRequested()){
+   if(assistOfflineTechRequested()&&assistOfflineNetworkError(e)){
      assistOfflineMarkNetworkFailure();
      const cached=await assistOfflineCacheGet(key);
      if(cached!==null)return cached;
@@ -4801,22 +4866,40 @@ window.abrirOSDoSuporte=function(){
   window.fecharSuporteTecnicoDetalhe();window.mudarView('kanban',document.querySelector('[data-view="kanban"]'));window.abrirDetalheOS(id);
 };
 
+window.addEventListener('cij-notifications-updated',event=>{
+ const count=Number(event.detail?.unread||0),badge=document.getElementById('tech-notifications-count');
+ if(badge){badge.textContent=String(count);badge.classList.toggle('hidden',count===0)}
+});
 window.renderModoTecnico=renderModoTecnico;
 function clientLabel(x){return x.fantasia||x.razao_social||x.nomeFantasia||x.razaoSocial||x.nome||x.cliente||'Cliente sem nome'}
 function fillSelects(){const c=document.getElementById('nova-cliente'),u=document.getElementById('nova-tecnico');if(c)c.innerHTML='<option value="">Selecione o cliente</option>'+[...state.clientes].sort((a,b)=>clientLabel(a).localeCompare(clientLabel(b),'pt-BR')).map(x=>`<option value="${x.id}">${clientLabel(x)}</option>`).join('');if(u)u.innerHTML='<option value="">A definir</option>'+state.usuarios.map(x=>`<option value="${x.uid||x.id}">${x.nome||x.email||x.id}</option>`).join('')}
 async function load(){
   const st=document.getElementById('status-geral');if(st){st.className='status-badge status-pending';st.textContent='Carregando...'}
   const r={};
-  for(const f of fontes){
-    try{state[f[0]]=await read(f[1]);r[f[0]]={ok:true,count:state[f[0]].length}}
-    catch(e){console.warn('[Assistência]',f[1],e);state[f[0]]=[];r[f[0]]={ok:false,error:e?.message||'erro'}}
-  }
+  const owner=assistOfflineCurrentUid();
+  const loadSource=async f=>{
+    const revision=assistReceiptRevision;
+    try{
+      const rows=await read(f[1]);if(assistOfflineCurrentUid()!==owner)return;
+      // Não sobrescrever OS mais novas entregues pelo monitor durante esta leitura.
+      if(f[0]!=='os'||assistReceiptRevision===revision)state[f[0]]=rows;
+      r[f[0]]={ok:true,count:state[f[0]].length};
+    }catch(e){
+      if(assistOfflineCurrentUid()!==owner)return;
+      console.warn('[Assistência]',f[1],e);
+      if(f[0]!=='os')state[f[0]]=[];
+      r[f[0]]={ok:false,error:e?.message||'erro'};
+    }
+    if(f[0]==='usuarios'||f[0]==='os')assistReceiptRenderLive();
+  };
+  await Promise.all(fontes.filter(f=>['usuarios','os'].includes(f[0])).map(loadSource));
+  await Promise.all(fontes.filter(f=>!['usuarios','os'].includes(f[0])).map(loadSource));
+  if(assistOfflineCurrentUid()!==owner)return;
 
   try{
     const n=await sincronizarOSRKanban();
     if(n>0){
-      state.os=await read('os_ordens');
-      r.os={ok:true,count:state.os.length};
+      await loadSource(fontes.find(f=>f[0]==='os'));
     }
   }catch(e){console.warn('[Assistência] backfill OSR',e)}
 
@@ -7980,7 +8063,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.76.10';
+const ASSISTENCIA_BUILD='1.76.11';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -9884,17 +9967,19 @@ window.initModule=function(p){
   const params=new URLSearchParams(location.search);
   if(params.get('modo')==='tecnico'||params.get('app')==='tecnico'||techAppStandalone())document.body.classList.add('tech-app-mode');
 
+  // A interface, o sino e o monitor de OS não esperam a carga dos demais módulos.
+  iniciarAppTecnico();assistStartReceiptMonitor();
   Promise.resolve(load())
     .catch(e=>console.warn('[Assistência] carga inicial parcial',e))
     .finally(()=>{
       techAppStamp();
-      iniciarAppTecnico();
+      assistReceiptRenderLive();
     });
 };
 })();
 
 </script>
-<script type="module" src="core.js?v=20260929-1800-1700"></script>
+<script type="module" src="core.js?v=20261001-1715"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){
