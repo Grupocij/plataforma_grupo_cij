@@ -5,7 +5,7 @@
   <title>Despesas e prestação de contas · Grupo CIJ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="despesas-v2.css?v=20260930-2">
+  <link rel="stylesheet" href="despesas-v2.css?v=20261001-1">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js" defer></script>
@@ -13,7 +13,7 @@
 <body>
 <main id="main-content" class="expense-app hidden">
   <div class="expense-heading" role="banner">
-    <div><div class="eyebrow">GRUPO CIJ <span>DESPESAS · V2.0</span></div><h1>Despesas e prestação de contas</h1><p>Compras, viagens e comprovantes organizados por relatório.</p></div>
+    <div><div class="eyebrow">GRUPO CIJ <span>DESPESAS · V2.1</span></div><h1>Despesas e prestação de contas</h1><p>Compras, viagens e comprovantes organizados por relatório.</p></div>
     <div class="heading-actions"><span id="connection-state" class="connection">Conectado</span><button id="btn-cards" class="button secondary hidden" type="button">Gerenciar cartões</button><button id="btn-permissions" class="button secondary hidden" type="button">Permissões</button></div>
   </div>
   <div id="module-status" class="notice" role="status">Carregando seus dados…</div>
@@ -27,7 +27,7 @@
           <div class="report-context"><div><strong id="current-report-label">Novo rascunho</strong><small id="current-report-owner">Os lançamentos deste relatório pertencem a você.</small></div><button id="btn-new-report" class="text-button" type="button">Novo relatório</button></div>
           <label class="field">Profissional responsável *<select id="tecnico" required><option value="">Selecione…</option></select></label>
           <label class="field">OS vinculada <span class="optional">opcional</span><select id="os-select"><option value="">Sem vínculo com OS</option></select></label>
-          <label class="field">Cliente atendido *<input id="cliente" list="clientes-options" maxlength="180" required placeholder="Selecione ou digite o cliente"><datalist id="clientes-options"></datalist></label>
+          <div class="field"><label for="cliente">Cliente atendido *</label><select id="cliente-mode" aria-label="Como informar o cliente atendido"><option value="cadastro">Selecionar do cadastro</option><option value="manual">Digitar cliente não cadastrado</option></select><input id="cliente" list="clientes-options" maxlength="180" required placeholder="Selecione ou digite o cliente" aria-describedby="cliente-help"><datalist id="clientes-options"></datalist><small id="cliente-help">Escolha um nome sugerido. Para informar outro nome, selecione a opção de digitar.</small></div>
           <label class="field">Cidade *<input id="cidade" maxlength="120" required placeholder="Ex.: Joinville"></label>
           <label class="field">Descrição da despesa *<input id="descricao" maxlength="250" required placeholder="Ex.: Almoço, combustível, peças…"></label>
           <div class="field-row"><label class="field">Valor (R$) *<input id="valor" type="text" inputmode="decimal" maxlength="20" required placeholder="0,00"></label><label class="field">Data do pagamento *<input id="data_pagamento" type="date" required></label></div>
@@ -56,6 +56,6 @@
 <dialog id="history-dialog" class="app-dialog wide"><div class="dialog-heading"><div><div class="eyebrow">RASTREABILIDADE</div><h2 id="history-title">Histórico do relatório</h2></div><button class="dialog-close" data-close="history-dialog" aria-label="Fechar">×</button></div><div id="history-list" class="history-list"></div></dialog>
 <dialog id="confirm-dialog" class="app-dialog compact"><form id="confirm-form"><div class="dialog-heading"><h2 id="confirm-title">Confirmar ação</h2></div><p id="confirm-message" class="confirm-message"></p><label id="confirm-reason-field" class="field hidden">Justificativa / referência<input id="confirm-reason" maxlength="250"></label><div class="dialog-actions"><button id="confirm-cancel" class="button secondary" type="button">Cancelar</button><button id="confirm-ok" class="button primary" type="submit">Confirmar</button></div></form></dialog>
 <div id="toast-region" class="toast-region" aria-live="polite"></div>
-<script src="despesas-v2.js?v=20260930-2"></script>
+<script src="despesas-v2.js?v=20261001-1"></script>
 <script type="module" src="core.js?v=20260929-1800-1700"></script>
 </body></html>
