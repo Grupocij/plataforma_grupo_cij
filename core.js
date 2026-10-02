@@ -1,4 +1,4 @@
-// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Push 1.76.12
+// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Central de OS 1.77.0
 import {instalarPushCIJ} from "./push-client.js?v=20261001-push1";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -28,6 +28,8 @@ const injectLayout = () => {
 
     const style = document.createElement('style');
     style.innerHTML = `
+        @media(min-width:1024px){header .core-global-search{width:clamp(110px,12vw,180px)!important;flex:0 1 auto!important;min-width:110px}}
+        @media(min-width:1024px) and (max-width:1279px){#desktop-nav-menu button{padding-left:6px!important;padding-right:6px!important;font-size:11px!important}}
         #cat-diretoria { display: none !important; }
         body.diretoria-unlocked #cat-diretoria { display: flex !important; }
         .mobile-secret { display: none !important; }
@@ -107,7 +109,7 @@ const injectLayout = () => {
                     </div>
 
                     <!-- Caixa de Pesquisa Global Flexível Mobile -->
-                    <div class="relative flex-1 sm:w-64 sm:flex-none ml-0 sm:ml-2">
+                    <div class="core-global-search relative flex-1 sm:w-64 sm:flex-none ml-0 sm:ml-2">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="text" id="global-search-input" onkeyup="window.filterGlobalModules()" placeholder="Buscar módulo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-800 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-slate-700 transition-all placeholder-slate-500">
                         <ul id="global-search-results" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl overflow-hidden z-[9999] hidden max-h-60 overflow-y-auto custom-scrollbar"></ul>
@@ -124,6 +126,8 @@ const injectLayout = () => {
                                 <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo chamado mobile</p></div></a>
 
                                 <a href="assistencia.html" data-module="assistencia.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Assistência Técnica</h4><p class="text-[10px] text-slate-500">Kanban, OS, orçamento e gestão</p></div></a>
+
+                                <a href="central_os.html" data-module="central_os.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central de OS</h4><p class="text-[10px] text-slate-500">Consulta, indicadores e faturamento</p></div></a>
 
                                 <a href="assistencia.html?modo=tecnico" data-module="app_tecnico.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-mobile-screen-button"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">App do Técnico</h4><p class="text-[10px] text-slate-500">Execução mobile e offline</p></div></a>
 
@@ -323,6 +327,7 @@ const moduleAccessAliases = {
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Assistência Técnica', url: 'assistencia.html', icon: 'fa-screwdriver-wrench text-blue-500' },
+    { name: 'Central de OS', url: 'central_os.html', icon: 'fa-table-list text-cyan-600' },
     { name: 'App do Técnico', url: 'app_tecnico.html', href: 'assistencia.html?modo=tecnico', icon: 'fa-mobile-screen-button text-sky-500' },
     { name: 'Consulta Parque', url: 'parque_consulta.html', icon: 'fa-industry text-indigo-700' },
     { name: 'Gestão de OSR', url: 'servicos_osr.html', icon: 'fa-table-list text-indigo-500' },
@@ -452,6 +457,9 @@ function userHasGlobalView(dbUser, url) {
     const vg = dbUser.visaoGlobalPorTela || {};
     return vg[url] === true;
 }
+
+window.portalTemAcessoModulo = url => userHasModuleAccess(window.userProfile, url);
+window.portalTemVisaoGlobal = url => userHasGlobalView(window.userProfile, url);
 
 window.aplicarPermissoesDeModulos = function(dbUser) {
     const allLinks = document.querySelectorAll('a.nav-item');
@@ -745,6 +753,7 @@ onAuthStateChanged(auth, async (user) => {
         window.cijIniciarPush?.(null);
         for(const unsubscribe of window.__notifState.unsubs||[]){try{unsubscribe()}catch(_){}}
         window.__notifState.unsubs=[];window.__notifState.rows=[];window.currentUser=null;
+        window.dispatchEvent(new Event('portal-session-ended'));
         if(loginScreen) loginScreen.classList.remove('hidden');
         const authForm = document.getElementById('auth-form');
         if(authForm) authForm.classList.remove('hidden');

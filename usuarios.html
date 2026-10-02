@@ -95,6 +95,17 @@
                     </div>
                 </div>
 
+                <section class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <h4 class="font-bold text-sm text-blue-900">Opções da Central de OS</h4>
+                    <p class="text-[11px] text-blue-800 mt-1">Libere primeiro o módulo Central de OS na matriz acima. Visão Global permite consultar toda a equipe; desativada, mostra as OS criadas pelo usuário ou atribuídas a ele.</p>
+                    <div class="flex flex-wrap gap-5 mt-3 text-xs font-semibold text-blue-900">
+                        <label class="flex gap-2 items-center"><input type="checkbox" id="u_central_indicadores"> Consultar indicadores</label>
+                        <label class="flex gap-2 items-center"><input type="checkbox" id="u_central_faturamento"> Consultar valores e faturamento</label>
+                        <label class="flex gap-2 items-center"><input type="checkbox" id="u_central_exportar"> Exportar consulta em CSV</label>
+                    </div>
+                    <p class="text-[11px] text-blue-800 mt-3">Criar OS pelos cadastros exige acesso à Assistência Técnica. As permissões para aprovar, faturar ou reabrir uma OS continuam na Assistência.</p>
+                </section>
+
                 <div class="flex justify-end pt-4 mt-2 border-t border-slate-200">
                     <button id="btnSalvar" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl transition shadow-md text-sm flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-save"></i> Salvar Acessos
@@ -105,7 +116,7 @@
     </div>
 
     <!-- MOTOR CENTRAL DO SISTEMA -->
-    <script type="module" src="core.js?v=20260928-1720"></script>
+    <script type="module" src="core.js?v=20261002-central1"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -140,6 +151,7 @@
 
             { id: 'suporte-mobile.html', nome: 'Suporte OSR (Mobile)', cat: 'Serviços' },
             { id: 'assistencia.html', nome: 'Assistência Técnica', cat: 'Serviços' },
+            { id: 'central_os.html', nome: 'Central de OS', cat: 'Serviços' },
             { id: 'app_tecnico.html', nome: 'App do Técnico', cat: 'Serviços' },
             { id: 'parque_consulta.html', nome: 'Consulta Parque (Somente leitura)', cat: 'Serviços' },
             { id: 'servicos_osr.html', nome: 'Gestão de OSR', cat: 'Serviços' },
@@ -312,6 +324,7 @@
             document.getElementById('u_email').value = u.email;
             document.getElementById('u_email').readOnly = true; 
             document.getElementById('u_perfil').value = u.perfil;
+            ['indicadores','faturamento','exportar'].forEach(k => document.getElementById('u_central_'+k).checked = u.permissoesCentralOS?.[k] === true);
 
             // Desabilita a senha em modo de edição (Pois o usuário já existe e troca a senha pelo "Esqueci a senha")
             document.getElementById('u_senha').value = '********';
@@ -405,6 +418,7 @@
                 perfil: document.getElementById('u_perfil').value,
                 visaoGlobalPorTela: visaoGlobalObj,
                 modulos: modulosSelecionados,
+                permissoesCentralOS: Object.fromEntries(['indicadores','faturamento','exportar'].map(k => [k, modulosSelecionados.includes('central_os.html') && document.getElementById('u_central_'+k).checked])),
                 userId: docId,
                 authUid: authUid || '',
                 uid: authUid || usuarioExistente?.uid || '',

@@ -1,3 +1,4 @@
+// Cadastros V4.3.2 + atalhos de OS 1.77.0
 window.ERPDB={clientes:[],modelos:[],pecas:[],consumiveis:[],parque:[],os:[],osr:[],movimentos:[]};
 window.ERPUI={page:document.body.dataset.erpPage||'',editing:null,material:null,pendingPhoto:null,removePhoto:false,maquina:null,
 pagination:{
@@ -661,3 +662,44 @@ window.renderParqueFicha=function(id){
 window.abrirTransferencia=function(){const m=ERPUI.maquina;if(!m)return;window.erpPopulateParque();document.getElementById('tr-resumo').textContent=`${eModel(m)} · SN ${eSerial(m)} · Cliente atual: ${eClientName(m)}`;document.getElementById('tr-cliente').value='';document.getElementById('tr-data').value=new Date().toISOString().slice(0,10);document.getElementById('tr-local').value='';document.getElementById('tr-motivo').value='';document.getElementById('modal-transferencia').classList.remove('hidden')};
 window.salvarTransferencia=async function(e){e.preventDefault();const m=ERPUI.maquina,cid=document.getElementById('tr-cliente').value,c=ERPDB.clientes.find(x=>String(x.id)===String(cid));if(!m||!c)return;if(String(m.clienteId||'')===String(cid)){alert('A máquina já está vinculada a este cliente.');return}const now=new Date().toISOString(),nome=eCliLabel(c),tr={id:'tr_'+Date.now(),clienteAntigoId:m.clienteId||'',cliente_antigo:eClientName(m),clienteNovoId:cid,cliente_novo:nome,data:document.getElementById('tr-data').value,motivo:document.getElementById('tr-motivo').value.trim().toUpperCase(),localAnterior:m.localInstalacao||'',localNovo:document.getElementById('tr-local').value.trim().toUpperCase(),responsavel:window.nomeUsuarioLogado||window.currentUser?.email||'',createdAtISO:now};const data={...m,clienteId:cid,clienteNome:nome,cliente_atual:nome,clienteAtual:nome,dataInstalacaoAtual:tr.data,data_instalacao:tr.data,localInstalacao:tr.localNovo||m.localInstalacao||'',identificacaoLocal:tr.localNovo||m.identificacaoLocal||'',historico_transferencias:[...(m.historico_transferencias||[]),tr],updatedAtISO:now};await window.fsSetDoc(eDoc('parque_maquinas',m.id),data);ERPUI.maquina=data;window.erpClose('modal-transferencia');window.renderParqueFicha(m.id)};
 window.imprimirEtiqueta=function(){const m=ERPUI.maquina;if(!m||!window.QRCode)return;const temp=document.createElement('div');temp.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(temp);new QRCode(temp,{text:eSerial(m),width:220,height:220});setTimeout(()=>{const qr=temp.querySelector('canvas')?.toDataURL()||temp.querySelector('img')?.src||'',w=window.open('','_blank');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>QR ${eEsc(eSerial(m))}</title><style>@page{size:70mm 50mm;margin:3mm}body{font-family:Arial;text-align:center;margin:0}.sn{font-size:14px;font-weight:900}.mod{font-size:10px;margin-top:2px}img{width:30mm;height:30mm}</style></head><body><img src="${qr}"><div class="sn">${eEsc(eSerial(m))}</div><div class="mod">${eEsc((m.fabricante||m.marca||'')+' '+eModel(m))}</div><script>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();temp.remove()},180)};
+
+// Central de OS 1.77 — atalhos a partir de cadastros já salvos.
+window.erpPodeCriarOS=()=>window.portalTemAcessoModulo?.('assistencia.html')===true;
+window.erpCriarOSCadastro=function(clienteId,parqueId=''){
+  if(!window.erpPodeCriarOS()){alert('Seu usuário precisa de acesso à Assistência Técnica para criar uma OS.');return}
+  const m=parqueId?ERPDB.parque.find(x=>String(x.id)===String(parqueId)):null;
+  const cid=String(m?.clienteId||clienteId||'');
+  const c=ERPDB.clientes.find(x=>String(x.id)===cid);
+  if(!c||!eAtivo(c)){alert('Salve ou ative o cadastro do cliente antes de criar a OS.');return}
+  if(parqueId&&(!m||!eAtivo(m))){alert('O equipamento precisa estar salvo e ativo no Parque de Máquinas.');return}
+  if(document.getElementById('modal-cliente')&&!document.getElementById('modal-cliente').classList.contains('hidden')||document.getElementById('modal-maquina')&&!document.getElementById('modal-maquina').classList.contains('hidden')){
+    if(!confirm('A OS será aberta com os dados já salvos. Alterações ainda não salvas nesta janela serão descartadas. Continuar?'))return;
+  }
+  const params=new URLSearchParams({novaOS:'1',clienteId:cid,origemCadastro:parqueId?'equipamento':'cliente'});
+  if(parqueId)params.set('parqueMaquinaId',String(parqueId));
+  location.href='assistencia.html?'+params.toString();
+};
+function erpAtalhoOS(anchor,clienteId,parqueId=''){
+  if(!anchor)return;
+  const container=anchor.parentElement;
+  let button=container.querySelector('[data-erp-criar-os]');
+  if(!button){button=document.createElement('button');button.type='button';button.className='erp-btn erp-btn-primary';button.dataset.erpCriarOs='1';button.innerHTML='<i class="fa-solid fa-plus"></i> Criar OS';container.appendChild(button)}
+  const c=ERPDB.clientes.find(x=>String(x.id)===String(clienteId));
+  const m=parqueId?ERPDB.parque.find(x=>String(x.id)===String(parqueId)):null;
+  button.classList.toggle('hidden',!window.erpPodeCriarOS()||!c||!eAtivo(c)||(!!parqueId&&(!m||!eAtivo(m))));
+  button.onclick=()=>window.erpCriarOSCadastro(clienteId,parqueId);
+  if(window.portalTemAcessoModulo?.('central_os.html')){
+    let link=container.querySelector('[data-erp-central-os]');
+    if(!link){link=document.createElement('a');link.className='erp-btn erp-btn-light';link.dataset.erpCentralOs='1';link.textContent='Consultar OS';container.appendChild(link)}
+    link.href='central_os.html?'+new URLSearchParams({clienteId:String(clienteId||''),status:'TODAS'}).toString();
+    link.classList.toggle('hidden',!c);
+  }
+}
+const erpRenderClienteFichaAnterior=window.renderClienteFicha;
+window.renderClienteFicha=function(id){const result=erpRenderClienteFichaAnterior.apply(this,arguments);erpAtalhoOS(document.getElementById('btn-editar-cliente'),id);return result};
+const erpRenderParqueFichaAnterior=window.renderParqueFicha;
+window.renderParqueFicha=function(id){const result=erpRenderParqueFichaAnterior.apply(this,arguments);const m=ERPDB.parque.find(x=>String(x.id)===String(id));erpAtalhoOS(document.getElementById('btn-editar-maquina'),m?.clienteId||'',id);return result};
+const erpAbrirClienteAnterior=window.abrirCliente;
+window.abrirCliente=function(id){const result=erpAbrirClienteAnterior.apply(this,arguments);erpAtalhoOS(document.querySelector('#modal-cliente button[type="submit"],#modal-cliente button:not([type])'),id);return result};
+const erpAbrirMaquinaAnterior=window.abrirMaquina;
+window.abrirMaquina=function(id){const result=erpAbrirMaquinaAnterior.apply(this,arguments);const m=ERPDB.parque.find(x=>String(x.id)===String(id));erpAtalhoOS(document.querySelector('#modal-maquina button[type="submit"],#modal-maquina button:not([type])'),m?.clienteId||'',id);return result};

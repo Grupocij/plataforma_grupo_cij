@@ -1,5 +1,5 @@
-const SW_VERSION='3.12.12';
-const APP_BUILD='1.76.12';
+const SW_VERSION='3.13.0';
+const APP_BUILD='1.77.0';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -12,6 +12,13 @@ const PORTAL_SHELL=[
   './push-client.js?v=20261001-push1',
   './push-configuracao.html',
   './core.js?v=20261001-push1',
+  './core.js?v=20261002-central1',
+  './central_os.html',
+  './central-os.js',
+  './central-os-dados.js',
+  './central-os.css',
+  './cliente_ficha.html',
+  './parque_ficha.html',
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
@@ -160,6 +167,11 @@ async function networkFirst(request,cacheName){
 async function navigationFallback(request){
   const url=new URL(request.url);
   const isAssistencia=url.pathname.endsWith('/assistencia.html')||
+      url.pathname.endsWith('/central_os.html')||
+      url.pathname.endsWith('/central-os.js')||
+      url.pathname.endsWith('/central-os-dados.js')||
+      url.pathname.endsWith('/central-os.css')||
+      url.pathname.endsWith('/erp-cadastros-v4-3-2.js')||
                       url.searchParams.get('modo')==='tecnico'||
                       url.searchParams.get('app')==='tecnico';
 
@@ -210,6 +222,11 @@ self.addEventListener('fetch',event=>{
       url.pathname.endsWith('/push-client.js')||
       url.pathname.endsWith('/push-configuracao.html')||
       url.pathname.endsWith('/assistencia.html')||
+      url.pathname.endsWith('/central_os.html')||
+      url.pathname.endsWith('/central-os.js')||
+      url.pathname.endsWith('/central-os-dados.js')||
+      url.pathname.endsWith('/central-os.css')||
+      url.pathname.endsWith('/erp-cadastros-v4-3-2.js')||
       url.pathname.endsWith('/assistencia-manifest-v4.json')||
       url.pathname.endsWith('/manifest.json');
 

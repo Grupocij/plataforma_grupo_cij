@@ -1554,7 +1554,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
   </div>
 </div>
 
-<div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Tipo de atendimento *</span><select id="nova-tipo-atendimento" class="input"><option value="INTERNO">Interno / Laboratório</option><option value="EXTERNO">Externo / Campo</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o histórico de <b>Suporte Técnico (suportes_osr)</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
+<div id="modal-nova-os" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-blue">PRÉVIA DA FASE 1.3</span><h2 class="text-xl font-black mt-2">Nova Ordem de Serviço</h2><p class="text-xs text-slate-500 mt-1">Cadastre a OS no novo domínio da Assistência Técnica.</p></div><button onclick="window.fecharNovaOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div class="grid md:grid-cols-2 gap-4 mt-5"><label><span class="field-label">Cliente *</span><select id="nova-cliente" class="input"><option value="">Selecione o cliente</option></select></label><label><span class="field-label">Prioridade</span><select id="nova-prioridade" class="input"><option>NORMAL</option><option>BAIXA</option><option>ALTA</option><option>URGENTE</option></select></label><label><span class="field-label">Origem</span><select id="nova-origem" class="input"><option>MANUAL</option><option>OSR</option><option>GARANTIA</option></select></label><label><span class="field-label">Tipo de atendimento *</span><select id="nova-tipo-atendimento" class="input"><option value="INTERNO">Interno / Laboratório</option><option value="EXTERNO">Externo / Campo</option></select></label><label><span class="field-label">Técnico responsável</span><select id="nova-tecnico" class="input"><option value="">A definir</option></select></label><label id="nova-parque-contexto-box" class="md:col-span-2 hidden"><span class="field-label">Equipamento do cadastro</span><select id="nova-parque-contexto" class="input"></select><small class="block text-xs text-slate-500 mt-1">O equipamento selecionado será vinculado ao salvar a OS.</small></label><label class="md:col-span-2"><span class="field-label">Descrição inicial</span><textarea id="nova-descricao" class="input min-h-24" placeholder="Descreva o chamado ou necessidade do cliente..."></textarea></label></div><div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> A OS será criada exclusivamente em <b>os_ordens</b>, sem alterar o histórico de <b>Suporte Técnico (suportes_osr)</b>.</div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharNovaOS()" class="btn btn-light">Cancelar</button><button id="btn-salvar-os" onclick="window.salvarNovaOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar OS</button></div></div></div>
 
 <div id="modal-agendamento-os" class="modal-backdrop hidden" style="z-index:100001 !important;">
  <div class="modal-card !max-w-none" style="width:min(720px,100%)">
@@ -4104,7 +4104,7 @@ async function readSub(osId,sub){
    throw e;
  }
 }
-async function addHistory(o,tipo,titulo,detalhe='',extra={}){try{if(!o)return;const osid=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),now=new Date().toISOString();await saveSubDoc(osid,'historico',id,{internalId:id,tipo,titulo,detalhe,osId:osid,osNumber:o.osNumber||o.numero||'',createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',usuarioEmail:window.currentUser?.email||'',usuarioPerfil:window.userProfile?.perfil||window.userProfile?.role||'',origemEvento:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:2,...extra})}catch(e){console.warn('[Assistência] histórico não gravado',e)}}
+async function addHistory(o,tipo,titulo,detalhe='',extra={}){try{if(!o)return;const osid=o.internalId||o.id,id=window.crypto?.randomUUID?.()||('hist_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),now=new Date().toISOString();await saveSubDoc(osid,'historico',id,{internalId:id,tipo,titulo,detalhe,osId:osid,osNumber:o.osNumber||o.numero||'',createdAtISO:now,cicloAtendimento:Number(o.cicloAtendimento||1),usuarioUid:window.currentUser?.uid||'',usuarioNome:window.nomeUsuarioLogado||window.userProfile?.nome||window.currentUser?.email||'',usuarioEmail:window.currentUser?.email||'',usuarioPerfil:window.userProfile?.perfil||window.userProfile?.role||'',origemEvento:document.body.classList.contains('tech-app-mode')?'APP_TECNICO':'PORTAL_WEB',schemaVersion:2,...extra})}catch(e){console.warn('[Assistência] histórico não gravado',e)}}
 async function renderHistoricoOS(o){const box=document.getElementById('detalhe-historico');if(!box||!o)return;box.innerHTML='<div class="timeline-empty"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando linha do tempo...</div>';let hist=[];try{hist=await readSub(o.internalId||o.id,'historico')}catch(e){console.warn('[Assistência] leitura histórico',e)}const fallback=[{titulo:'OS criada',createdAtISO:o.createdAtISO||o.createdAt,usuarioNome:o.criadoPorNome||o.criadoPorEmail||'',tipo:'CRIACAO'}];if(o.agendadoParaISO)fallback.push({titulo:'Agendamento registrado',createdAtISO:o.updatedAtISO,usuarioNome:o.tecnicoNome||'',detalhe:'Agendado para '+fmtDate(o.agendadoParaISO),tipo:'AGENDAMENTO'});if(o.finalizadoTecnicoEmISO||o.finalizadoEmISO)fallback.push({titulo:'Finalização técnica',createdAtISO:o.finalizadoTecnicoEmISO||o.finalizadoEmISO,usuarioNome:o.finalizadoTecnicoPorNome||o.finalizadoPorNome||'',tipo:'FINALIZACAO'});if(o.encerradoEmISO)fallback.push({titulo:'Encerramento administrativo',createdAtISO:o.encerradoEmISO,usuarioNome:o.encerradoPorNome||'',detalhe:o.situacaoFaturamento==='NAO_FATURAVEL'?'Não faturável':('Faturado'+(o.numeroNF?' · NF '+o.numeroNF:'')),tipo:'ENCERRAMENTO'});const seen=new Set(hist.map(x=>String(x.tipo||'')+'|'+String(x.createdAtISO||'')));fallback.forEach(x=>{const k=String(x.tipo||'')+'|'+String(x.createdAtISO||'');if(!seen.has(k))hist.push(x)});hist.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));box.innerHTML=hist.length?hist.map(h=>`<div class="timeline-item flex gap-3"><span class="timeline-dot"></span><div class="min-w-0"><div class="text-xs font-extrabold">${esc(h.titulo||h.tipo||'Evento')}</div><div class="text-[11px] text-slate-500">${esc(fmtDate(h.createdAtISO))}${h.usuarioNome?' · '+esc(h.usuarioNome):''}</div>${h.detalhe?`<div class="timeline-detail">${esc(h.detalhe)}</div>`:''}${h.equipamentoModelo?`<div class="timeline-detail font-semibold"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>${esc(h.equipamentoModelo)}${h.equipamentoNumeroSerie?' · SN: '+esc(h.equipamentoNumeroSerie):''}</div>`:''}</div></div>`).join(''):'<div class="timeline-empty">Nenhum evento registrado.</div>'}
 function normStage(v){v=String(v||'ENTRADA').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,'_');if(v.includes('ENCERR'))return'ENCERRADOS';if(v.includes('FATUR')||v.includes('FINAL'))return'FATURAMENTO';if(v.includes('AGEND')||v.includes('EXEC'))return'AGENDAMENTO';if(v.includes('ORC'))return'ORCAMENTOS';if(v.includes('TRI')||v.includes('DIAGN'))return'TRIAGEM';return'ENTRADA'}
 function renderIntegrations(r){document.getElementById('integration-list').innerHTML=fontes.map(f=>{const x=r[f[0]],ok=x?.ok;return `<div class="integration-row"><div><div class="integration-title">${f[2]}</div><div class="integration-desc">${f[3]}</div></div><span class="status-badge ${ok?'status-ok':'status-error'}">${ok?'OK':'ERRO'} · ${ok?x.count+' registro(s)':(x?.error||'falha')}</span></div>`}).join('')}
@@ -4907,6 +4907,7 @@ async function load(){
   await carregarPendenciasOS();await carregarConfiguracaoSLA();
   renderKanban();await assistOfflineRefreshPreparedMap?.();renderModoTecnico();assistReceiptRegisterArrivals();assistStartReceiptMonitor();renderCentralPendencias();renderSLAOperacional();renderProdutividadeTecnica();fillSelects();await assistLoadAlertsConfig();assistStartNaoVisualizadaMonitor();assistTryOpenNotificationOS();
   await window.carregarMinhasPermissoesAssistencia?.();window.aplicarPermissoesAssistencia?.();
+  await assistTryCreateFromCadastro();
   const critical=['clientes','parque','modelos','usuarios','osr'].every(k=>r[k]?.ok);
   if(st){st.className='status-badge '+(critical?'status-ok':'status-error');st.textContent=critical?'Integrações base OK':'Verificar integração'}
   toast('Dados atualizados.');
@@ -8063,7 +8064,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.76.12';
+const ASSISTENCIA_BUILD='1.77.0';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -8915,7 +8916,8 @@ function renderCentralPendencias(){
 window.renderCentralPendencias=renderCentralPendencias;
 window.atualizarCentralPendencias=async function(){try{await carregarPendenciasOS();renderCentralPendencias();renderKanban();toast('Central de pendências atualizada.')}catch(e){console.error(e);toast('Não foi possível atualizar as pendências.')}};
 
-window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharFluxoSimplificado?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.();window.fecharDiarioEquipamento?.();window.fecharFormulariosEquipamento?.();window.fecharFormCraftPreencher?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
+window.mudarView=(v,btn)=>{document.querySelectorAll('.view-panel').forEach(e=>e.classList.add('hidden'));document.getElementById('view-'+v)?.classList.remove('hidden');document.querySelectorAll('.nav-pill').forEach(e=>e.classList.remove('active'));btn?.classList.add('active');if(v==='tecnico')renderModoTecnico();if(v==='pendencias')renderCentralPendencias();if(v==='sla'){renderSLAOperacional();renderProdutividadeTecnica()}if(v==='legado')renderLegacy()};window.abrirNovaOS=()=>document.getElementById('modal-nova-os').classList.remove('hidden');window.fecharNovaOS=()=>document.getElementById('modal-nova-os').classList.add('hidden');document.getElementById('nova-cliente')?.addEventListener('change',()=>{if(!document.getElementById('nova-parque-contexto-box')?.classList.contains('hidden'))assistCreationMachineOptions()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.fecharNovaOS?.();window.fecharDetalheOS?.();window.fecharAdicionarEquipamento?.();window.fecharDiagnosticoEquipamento?.();window.fecharOrcamentoEquipamento?.();window.fecharSolicitacaoOrcamento?.();window.fecharAprovacaoOrcamento?.();window.fecharPecasEquipamento?.();window.fecharCheckoutEquipamento?.();window.fecharFaturamentoOS?.();window.fecharRelatorioOS?.();window.fecharAnexosEquipamento?.();window.fecharAssinaturaCliente?.();window.fecharDuplicarOS?.();window.fecharRetornoExterno?.();window.fecharFluxoSimplificado?.();window.fecharVerificacaoIntegridadeOS?.();window.fecharCentralOffline?.();window.fecharDiagnosticoAppTecnico?.();window.fecharDiarioEquipamento?.();window.fecharFormulariosEquipamento?.();window.fecharFormCraftPreencher?.()}});// FASE 1.37 — equipe técnica editável + permissões por usuário
 const ASSIST_PERMISSIONS=[
  ['revisar_solicitacao','Revisar solicitação técnica'],
  ['editar_orcamento','Criar / alterar orçamento comercial'],
@@ -9566,6 +9568,8 @@ window.confirmarReabrirOS=async function(){
     const snapshot={
       internalId:snapshotId,osId:osid,osNumber:o.osNumber||o.numero||'',
       ciclo:cicloAnterior,encerradoEmISO:o.encerradoEmISO||now,
+      tecnicoId:o.tecnicoId||'',tecnicoNome:o.tecnicoNome||'',tecnicoIds:o.tecnicoIds||[],tecnicoNomes:o.tecnicoNomes||[],
+      finalizadoTecnicoEmISO:o.finalizadoTecnicoEmISO||'',valorOrcamentoAprovadoNoEncerramento:o.valorOrcamentoAprovadoNoEncerramento??null,
       situacaoFaturamento:o.situacaoFaturamento||'',
       numeroNF:o.numeroNF||'',faturadoEmData:o.faturadoEmData||'',
       valorFaturado:o.valorFaturado||'',observacaoFaturamento:o.observacaoFaturamento||'',
@@ -9958,6 +9962,82 @@ window.aplicarConciliacaoMateriaisFinalizacao=async function(o,decisoes){
 };
 
 
+// CENTRAL DE OS 1.77 — abertura da criação a partir das fichas de cadastro.
+let assistCadastroCreationOpened=false;
+function assistCreationAccess(){return window.portalTemAcessoModulo?.('assistencia.html')===true||window.userProfile?.perfil==='Master'}
+function assistCreationMachineOptions(selected=''){
+ const box=document.getElementById('nova-parque-contexto-box'),sel=document.getElementById('nova-parque-contexto');if(!sel)return;
+ const cid=document.getElementById('nova-cliente')?.value||'';
+ const machines=state.parque.filter(m=>m.is_deleted!==true&&m.ativo!==false&&machineBelongsToClient(m,{clienteId:cid,clienteNome:clientLabel(state.clientes.find(c=>String(c.id)===String(cid)))}));
+ sel.innerHTML='<option value="">Selecionar depois de criar a OS</option>'+machines.map(m=>`<option value="${esc(m.id)}">${esc(machineLabel(m))}</option>`).join('');
+ sel.value=machines.some(m=>String(m.id)===String(selected))?selected:'';
+ box?.classList.remove('hidden');
+}
+async function assistTryCreateFromCadastro(){
+ const q=new URLSearchParams(location.search);if(q.get('novaOS')!=='1'||assistCadastroCreationOpened)return;
+ assistCadastroCreationOpened=true;
+ if(!assistCreationAccess()){alert('Seu usuário não possui acesso à criação de OS na Assistência Técnica.');return}
+ const cid=q.get('clienteId')||'',pid=q.get('parqueMaquinaId')||'';
+ try{
+  let c=cid?state.clientes.find(c=>String(c.id)===cid):null;
+  if(cid){const snap=await window.fsGetDoc(window.fsDoc(window.AppDB,...BASE,'cadastros_clientes',cid));if(!snap.exists())throw new Error('O cliente não foi encontrado.');c={...snap.data(),id:cid};if(c.is_deleted===true||c.ativo===false)throw new Error('O cliente está inativo.');state.clientes=state.clientes.filter(x=>String(x.id)!==cid).concat(c)}
+  if(pid){const snap=await window.fsGetDoc(window.fsDoc(window.AppDB,...BASE,'parque_maquinas',pid));if(!snap.exists())throw new Error('O equipamento não foi encontrado.');const m={...snap.data(),id:pid};if(m.is_deleted===true||m.ativo===false)throw new Error('O equipamento está inativo.');if(!c||!machineBelongsToClient(m,{clienteId:cid,clienteNome:clientLabel(c)}))throw new Error('O equipamento não está mais vinculado ao cliente informado. Confira o cadastro.');state.parque=state.parque.filter(x=>String(x.id)!==pid).concat(m)}
+  fillSelects();window.abrirNovaOS();
+  if(cid)document.getElementById('nova-cliente').value=cid;
+  assistCreationMachineOptions(pid);
+  document.getElementById('nova-descricao')?.focus();
+  // Não reabrir o modal quando houver atualização ou recarga da mesma página.
+  ['novaOS','clienteId','parqueMaquinaId','origemCadastro'].forEach(k=>q.delete(k));
+  const clean=location.pathname+(q.toString()?'?'+q.toString():'')+location.hash;history.replaceState(null,'',clean);
+ }catch(e){console.warn('[Assistência] criação pelo cadastro',e);alert('Não foi possível preparar a nova OS.\n\n'+(e.message||e))}
+}
+window.salvarNovaOS=async function(){
+ if(state.__creatingOS)return;
+ if(!assistCreationAccess()){alert('Seu usuário não possui acesso à criação de OS.');return}
+ const clienteId=document.getElementById('nova-cliente')?.value||'';
+ const cliente=state.clientes.find(x=>String(x.id)===String(clienteId));
+ if(!cliente||cliente.is_deleted===true||cliente.ativo===false){alert('Selecione um cliente ativo.');return}
+ const pid=document.getElementById('nova-parque-contexto')?.value||'';
+ if(pid&&navigator.onLine===false){alert('Conecte-se à internet para criar a OS e vincular o equipamento do cadastro.');return}
+ const btn=document.getElementById('btn-salvar-os');state.__creatingOS=true;
+ if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'}
+ let saved=false;
+ try{
+  const tecnicoId=document.getElementById('nova-tecnico')?.value||'',now=new Date().toISOString();
+  const internalId=window.crypto?.randomUUID?.()||('os_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+  const osNumber=await nextOSNumber();
+  const tecnicoNome=tecnicoId?selectedText('nova-tecnico'):'';
+  const data={internalId,osNumber,numero:osNumber,clienteId,clienteNome:clientLabel(cliente),prioridade:document.getElementById('nova-prioridade')?.value||'NORMAL',origem:document.getElementById('nova-origem')?.value||'MANUAL',tecnicoId,tecnicoNome,tecnicoIds:tecnicoId?[tecnicoId]:[],tecnicoNomes:tecnicoId?[tecnicoNome]:[],descricaoInicial:document.getElementById('nova-descricao')?.value?.trim()||'',tipoAtendimento:document.getElementById('nova-tipo-atendimento')?.value||'INTERNO',cicloAtendimento:1,etapaKanban:'ENTRADA',status:'ENTRADA',criadoPorUid:window.currentUser?.uid||'',criadoPorEmail:window.currentUser?.email||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',createdAtISO:now,updatedAtISO:now,schemaVersion:1};
+  let equipment=null;
+  if(pid){
+   const eid=window.crypto?.randomUUID?.()||('eq_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+   await window.fsRunTransaction(window.AppDB,async tx=>{
+    const cr=window.fsDoc(window.AppDB,...BASE,'cadastros_clientes',clienteId),mr=window.fsDoc(window.AppDB,...BASE,'parque_maquinas',pid);
+    const cs=await tx.get(cr),ms=await tx.get(mr);
+    if(!cs.exists()||cs.data().ativo===false||cs.data().is_deleted===true)throw new Error('O cliente não está mais ativo.');
+    if(!ms.exists()||ms.data().ativo===false||ms.data().is_deleted===true)throw new Error('O equipamento não está mais ativo.');
+    const m={...ms.data(),id:pid};data.clienteNome=clientLabel({...cs.data(),id:clienteId});
+    if(!machineBelongsToClient(m,data))throw new Error('O equipamento foi transferido para outro cliente. Confira o cadastro antes de criar a OS.');
+    equipment={internalId:eid,osId:internalId,osNumber,clienteId,cicloAtendimento:1,tipo:'PARQUE',parqueMaquinaId:pid,modelo:m.modelo||m.equipamento||m.nomeEquipamento||'Equipamento',marca:m.fabricante||m.marca||'',numeroSerie:m.numero_serie||m.numeroSerie||m.serial||m.sn||m.serie||'',identificacaoLocal:m.identificacaoLocal||m.localInstalacao||m.tag||m.identificacao||'',statusEquipamento:'PENDENTE',ativo:true,createdAtISO:now,updatedAtISO:now,criadoPorUid:window.currentUser?.uid||'',criadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''};
+    data.parqueMaquinaId=pid;data.equipamentoNumeroSerie=equipment.numeroSerie;data.origemCriacao='CADASTRO_EQUIPAMENTO';
+    tx.set(window.fsDoc(window.AppDB,...BASE,'os_ordens',internalId),data);
+    tx.set(window.fsDoc(window.AppDB,...BASE,'os_ordens',internalId,'equipamentos',eid),equipment);
+   });
+  }else await saveDoc('os_ordens',internalId,data);
+  saved=true;const o={...data,id:internalId};assistUpsertOSMemory(o);state.selectedOS=o;
+  try{
+   await addHistory(o,'CRIACAO','OS criada',data.descricaoInicial||'',{cicloAtendimento:1,origemCriacao:data.origemCriacao||'PORTAL'});
+   if(equipment)await addHistory(o,'EQUIPAMENTO','Equipamento vinculado a partir do cadastro',equipment.modelo+' · SN: '+equipment.numeroSerie,{equipamentoId:equipment.internalId,parqueMaquinaId:pid,cicloAtendimento:1});
+   if(tecnicoId){const notifId=await assistNotify(assistTechnicianRecipients(o,[tecnicoId]),{eventType:'OS_ATRIBUIDA',titulo:'Nova OS atribuída',mensagem:`${osNumber} · ${data.clienteNome} foi atribuída a você.`,tipo:data.prioridade==='URGENTE'?'danger':'info',o,dedupeKey:`OS_ATRIBUIDA:${internalId}:${tecnicoId}`});await assistSincronizarEquipeRecebimento(o,[tecnicoId],[tecnicoNome],[tecnicoId],notifId||'')}
+  }catch(e){console.warn('[Assistência] OS salva; falha em histórico/aviso',e);alert(osNumber+' foi criada. Não crie novamente: houve uma falha ao registrar histórico ou enviar o aviso. Confira a OS e a atribuição do técnico.')}
+  renderKanban();window.fecharNovaOS();toast(osNumber+' criada com sucesso.');
+  for(const [id,value] of [['nova-cliente',''],['nova-prioridade','NORMAL'],['nova-origem','MANUAL'],['nova-tipo-atendimento','INTERNO'],['nova-tecnico',''],['nova-descricao',''],['nova-parque-contexto','']]){const el=document.getElementById(id);if(el)el.value=value}
+  document.getElementById('nova-parque-contexto-box')?.classList.add('hidden');
+  await window.abrirDetalheOS(internalId);
+ }catch(e){console.error('[Assistência] criar OS',e);alert((saved?'A OS foi criada, mas não foi possível abrir seus detalhes. Não crie novamente.':'Não foi possível criar a OS.')+'\n\n'+(e.message||e))}
+ finally{state.__creatingOS=false;if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Salvar OS'}}
+};
+
 window.initModule=function(p){
   document.getElementById('login-screen')?.classList.add('hidden');
   document.getElementById('assist-offline-bootstrap-error')?.classList.add('hidden');
@@ -9979,7 +10059,7 @@ window.initModule=function(p){
 })();
 
 </script>
-<script type="module" src="core.js?v=20261001-push1"></script>
+<script type="module" src="core.js?v=20261002-central1"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){
