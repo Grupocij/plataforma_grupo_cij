@@ -1,5 +1,5 @@
-const SW_VERSION='3.12.11';
-const APP_BUILD='1.76.11';
+const SW_VERSION='3.12.12';
+const APP_BUILD='1.76.12';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -8,7 +8,10 @@ const PORTAL_SHELL=[
   './',
   './index.html',
   './core.js',
-  './core.js?v=20261001-1715',
+  './push-client.js',
+  './push-client.js?v=20261001-push1',
+  './push-configuracao.html',
+  './core.js?v=20261001-push1',
   './manifest.json',
   './central_cadastros.html',
   './estoque_pecas.html',
@@ -204,6 +207,8 @@ self.addEventListener('fetch',event=>{
   if(url.origin===self.location.origin){
     const critical=
       url.pathname.endsWith('/core.js')||
+      url.pathname.endsWith('/push-client.js')||
+      url.pathname.endsWith('/push-configuracao.html')||
       url.pathname.endsWith('/assistencia.html')||
       url.pathname.endsWith('/assistencia-manifest-v4.json')||
       url.pathname.endsWith('/manifest.json');
@@ -236,30 +241,63 @@ self.addEventListener('notificationclick',event=>{
   const target=event.notification?.data?.url||'./index.html';
   event.waitUntil((async()=>{
     const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    const url=new URL(target,self.location.origin).href;
+    const candidate=new URL(target,self.registration.scope);
+    const url=candidate.origin===self.location.origin ? candidate.href : new URL('./index.html',self.registration.scope).href;
     for(const c of windows){try{if(new URL(c.url).origin===self.location.origin){await c.focus();if('navigate'in c)await c.navigate(url);return}}catch(_){}}
     if(self.clients.openWindow)return self.clients.openWindow(url);
   })());
 });
+
+// Um só worker cuida de cache offline, push e abertura da OS.
+const PUSH_DB='cij-push-worker-v1';
+let pushQueue=Promise.resolve();
+function pushStorage(mode, run){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open(PUSH_DB,1);
+    request.onupgradeneeded=()=>request.result.createObjectStore('state');
+    request.onerror=()=>reject(request.error);
+    request.onsuccess=()=>{
+      const db=request.result,tx=db.transaction('state',mode),store=tx.objectStore('state');
+      let result;try{result=run(store)}catch(e){db.close();reject(e);return;}
+      tx.oncomplete=()=>{db.close();resolve(result?.result)};
+      tx.onerror=()=>{db.close();reject(tx.error)};
+    };
+  });
+}
+const pushRead=key=>pushStorage('readonly',s=>s.get(key));
+const pushWrite=(key,value)=>pushStorage('readwrite',s=>s.put(value,key));
+function showCIJPush(d){
+  const task=async()=>{
+    if(d.cijPush!=='1' || !d.uid || d.uid!==await pushRead('uid'))return;
+    const id=String(d.notificationId||''), seen=await pushRead('seen')||[];
+    if(id && seen.includes(id))return;
+    const tipo=String(d.tipo||'info'),danger=tipo==='danger',vibrate=danger?[350,120,350,120,650]:tipo==='warning'?[250,100,250]:[180,90,180];
+    const candidate=new URL(d.url||'./index.html',self.registration.scope);
+    const url=candidate.origin===self.location.origin?candidate.href:new URL('./index.html',self.registration.scope).href;
+    await self.registration.showNotification(danger?`URGENTE · ${d.title||'Portal CIJ'}`:(d.title||'Portal CIJ'),{
+      body:d.body||'Você possui um novo aviso.',icon:'./assistencia-icon-192.png',badge:'./assistencia-icon-192.png',
+      tag:d.tag||id||undefined,renotify:false,silent:false,vibrate,requireInteraction:danger,
+      data:{url,notificationId:id,tipo}
+    });
+    if(id)await pushWrite('seen',[...seen,id].slice(-200));
+  };
+  pushQueue=pushQueue.catch(()=>{}).then(task);return pushQueue;
+}
+self.addEventListener('message',event=>{
+  const d=event.data||{};
+  if(d.type==='CIJ_PUSH_USER')event.waitUntil(pushWrite('uid',String(d.uid||'')).then(()=>event.ports?.[0]?.postMessage({ok:true})).catch(()=>event.ports?.[0]?.postMessage({ok:false})));
+  if(d.type==='CIJ_PUSH_SHOW')event.waitUntil(showCIJPush(d.data||{}));
+});
+let cijMessagingReady=false;
+try{
+  // Compat mantém o worker clássico, sem criar outro escopo de cache.
+  importScripts('https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging-compat.js');
+  firebase.initializeApp({apiKey:'AIzaSyDW05GuYDxXUCmtWfSxhfap1-l6_qkNspw',authDomain:'plataforma-cij.firebaseapp.com',projectId:'plataforma-cij',storageBucket:'plataforma-cij.firebasestorage.app',messagingSenderId:'949985395100',appId:'1:949985395100:web:cf881e0c91c63175228859'});
+  firebase.messaging().onBackgroundMessage(payload=>showCIJPush(payload.data||{}));
+  cijMessagingReady=true;
+}catch(e){console.warn('[CIJ] Push SDK indisponível; cache offline preservado.',e)}
 self.addEventListener('push',event=>{
-  let d={};
-  try{d=event.data?.json?.()||{}}catch(_){try{d={body:event.data?.text?.()||''}}catch(__){}}
-  const tipo=String(d.tipo||d.type||d.data?.tipo||'info').toLowerCase();
-  const danger=tipo==='danger'||tipo==='urgent'||tipo==='urgente';
-  const warning=tipo==='warning'||tipo==='aviso';
-  const success=tipo==='success'||tipo==='sucesso';
-  const vibrate=danger?[350,120,350,120,650]:warning?[250,100,250]:success?[120]:[180,90,180];
-  const baseTitle=d.title||d.titulo||'Portal CIJ';
-  const title=danger?`URGENTE · ${baseTitle}`:baseTitle;
-  event.waitUntil(self.registration.showNotification(title,{
-    body:d.body||d.mensagem||'Você possui um novo alerta.',
-    icon:'./assistencia-icon-192.png',
-    badge:'./assistencia-icon-192.png',
-    tag:d.tag||d.dedupeKey||undefined,
-    renotify:danger,
-    silent:false,
-    vibrate,
-    requireInteraction:danger,
-    data:{url:d.url||d.data?.url||'./index.html',tipo}
-  }));
+  if(cijMessagingReady)return; // O SDK já trata a mensagem, evitando dois avisos.
+  let payload;try{payload=event.data?.json()}catch(_){return;}
+  event.waitUntil(showCIJPush(payload?.data||payload||{}));
 });

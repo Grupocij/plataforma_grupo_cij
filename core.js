@@ -1,4 +1,5 @@
-// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ
+// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Push 1.76.12
+import {instalarPushCIJ} from "./push-client.js?v=20261001-push1";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -225,6 +226,9 @@ const injectLayout = () => {
         </div>
         <div class="px-3 py-2 border-b border-slate-100 flex flex-wrap gap-2">
             <button id="notif-enable-device" onclick="window.ativarNotificacoesDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black bg-blue-600 text-white"><i class="fa-solid fa-mobile-screen mr-1"></i>Ativar no dispositivo</button>
+            <button onclick="window.testarPushDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-blue-300 text-blue-700 bg-blue-50">Testar push</button>
+            <button onclick="window.desativarPushDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-slate-300 text-slate-600 bg-white">Desativar neste aparelho</button>
+            <a id="notif-push-config" href="push-configuracao.html" class="hidden px-2.5 py-1.5 rounded-lg text-[10px] font-black text-blue-700">Configurar envio</a>
             <button id="notif-test-vibrate" onclick="window.testarVibracaoDispositivo()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-amber-300 text-amber-700 bg-amber-50"><i class="fa-solid fa-mobile-screen-button mr-1"></i>Testar vibração</button>
             <button onclick="window.marcarTodasNotificacoesLidas()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black border border-slate-300 text-slate-600 bg-white"><i class="fa-solid fa-check-double mr-1"></i>Marcar todas como lidas</button>
             <div id="notif-device-status" class="w-full text-[9px] text-slate-500"></div>
@@ -289,6 +293,7 @@ try {
     db = getFirestore(app);
 }
 
+instalarPushCIJ(app, notifSetDeviceStatus);
 window.AppAuth = auth;
 window.AppDB = db;
 window.AppStorage = storage;
@@ -400,7 +405,7 @@ window.toggleMobileMenu = function() {
     }
 };
 
-window.fazerLogout = () => signOut(auth);
+window.fazerLogout = async () => { await window.desativarPushDispositivo?.(); return signOut(auth); };
 
 window.handleLogin = async (e) => {
     e.preventDefault();
@@ -558,28 +563,6 @@ window.enviarNotificacaoApp=async function(payloadOrMessage,targetEmails=[],targ
     catch(e){console.error('[Core] envio de notificação',e);return null}
 };
 window.toggleNotificationCenter=function(force){const p=document.getElementById('notif-panel');if(!p)return;const open=typeof force==='boolean'?force:p.classList.contains('hidden');p.classList.toggle('hidden',!open);if(open)window.renderNotificationCenter?.()};
-window.ativarNotificacoesDispositivo=async function(){
-    const btn=document.getElementById('notif-enable-device');
-    if(!('Notification'in window)){if(btn)btn.textContent='Sem suporte';notifSetDeviceStatus?.('Este navegador não suporta notificações web.','error');return}
-    let vibrateResult=null;
-    try{if(typeof navigator.vibrate==='function')vibrateResult=navigator.vibrate([180,80,180])}catch(_){vibrateResult=false}
-    try{
-        const permission=await Notification.requestPermission();
-        if(permission==='granted'){
-            if(btn){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
-            if(typeof notifSetDeviceStatus==='function'){
-                if(vibrateResult===true)notifSetDeviceStatus('Notificações autorizadas e teste de vibração enviado.','ok');
-                else if(typeof navigator.vibrate!=='function')notifSetDeviceStatus('Notificações autorizadas, mas este navegador não disponibiliza vibração Web.','warning');
-                else notifSetDeviceStatus('Notificações autorizadas. A vibração foi recusada ou ignorada pelo navegador/aparelho.','warning');
-            }
-            const reg=await navigator.serviceWorker?.ready?.catch(()=>null);
-            if(reg)await reg.showNotification('Portal CIJ',{body:'Alertas deste dispositivo foram ativados.',icon:'assistencia-icon-192.png',badge:'assistencia-icon-192.png',tag:'cij-alertas-ativos',silent:false,vibrate:[120],data:{url:location.href}});
-        }else{
-            if(btn)btn.textContent=permission==='denied'?'Notificações bloqueadas':'Ativar no dispositivo';
-            notifSetDeviceStatus?.(permission==='denied'?'As notificações estão bloqueadas no navegador.':'Permissão não concedida.','warning');
-        }
-    }catch(e){console.warn(e);notifSetDeviceStatus?.('Falha ao solicitar permissão de notificação.','error')}
-};
 async function notifMarkRead(id){
     if(!id||!notifUserKey())return;window.__notifState.readIds.add(String(id));
     try{const rid=notifReadDocId(id);await setDoc(doc(db,'artifacts','plataforma-cij','public','data','notificacoes_app_leituras',rid),{id:rid,notificationId:id,userKey:notifUserKey(),lidaEmISO:new Date().toISOString(),timestamp:Date.now()})}catch(e){console.warn('[Core] leitura notificação',e)}
@@ -595,6 +578,8 @@ window.renderNotificationCenter=function(){
     box.innerHTML=rows.length?rows.map(n=>{const unreadRow=!s.readIds.has(String(n.id)),t=notifType(n);return `<button class="notif-item ${t==='danger'?'danger':''} ${unreadRow?'unread':''}" onclick="window.abrirNotificacao('${notifEsc(n.id)}')"><span class="notif-icon ${t}"><i class="fa-solid ${notifIcon(t)}"></i></span><span class="min-w-0 flex-1"><span class="notif-title">${notifEsc(n.titulo||'Portal CIJ')}</span><span class="notif-message block">${notifEsc(n.mensagem||'')}</span><span class="notif-meta block">${new Date(notifTs(n)).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${n.osNumber?' · '+notifEsc(n.osNumber):''}</span></span>${unreadRow?'<span class="notif-dot"></span>':''}</button>`}).join(''):'<div class="p-8 text-center text-xs text-slate-400"><i class="fa-regular fa-bell-slash text-2xl mb-2"></i><div>Nenhuma notificação para você.</div></div>';
 };
 async function notifShowDevice(n){
+    // O push é exibido pelo worker, evitando duplicação com o radar do Firestore.
+    if(window.cijPushEstaAtivo?.())return;
     if(!('Notification'in window)||Notification.permission!=='granted')return;
     const pattern=notifVibrationPattern(n),danger=notifType(n)==='danger';
     try{
@@ -616,7 +601,7 @@ window.iniciarRadarNotificacoes=function(dbUser){
     const reads=collection(db,'artifacts','plataforma-cij','public','data','notificacoes_app_leituras'),notifs=collection(db,'artifacts','plataforma-cij','public','data','notificacoes_app');
     s.unsubs.push(onSnapshot(reads,snap=>{const key=notifUserKey(),set=new Set();snap.forEach(d=>{const x=d.data();if(String(x.userKey||'').toLowerCase()===key)set.add(String(x.notificationId||''))});s.readIds=set;window.renderNotificationCenter?.()},e=>console.warn('[Core] leituras',e)));
     s.unsubs.push(onSnapshot(notifs,snap=>{const prev=new Set((s.rows||[]).map(x=>String(x.id)));s.rows=[];snap.forEach(d=>s.rows.push({id:d.id,...d.data()}));const fresh=s.rows.filter(n=>!prev.has(String(n.id))&&notifTarget(n,dbUser,window.currentUser)&&notifTs(n)>=s.startedAt-2500);window.renderNotificationCenter?.();if(!s.initial)fresh.sort((a,b)=>notifTs(a)-notifTs(b)).forEach(notifShowDevice);s.initial=false},e=>console.warn('[Core] notificações',e)));
-    const btn=document.getElementById('notif-enable-device');if(btn&&'Notification'in window&&Notification.permission==='granted'){btn.innerHTML='<i class="fa-solid fa-circle-check mr-1"></i>Alertas ativos';btn.classList.remove('bg-blue-600');btn.classList.add('bg-emerald-600')}
+    // A permissão do navegador não basta: push-client confirma o registro no servidor.
 };
 
 // FASE 1.66.2 — perfil autenticado local para inicialização offline
@@ -752,8 +737,14 @@ onAuthStateChanged(auth, async (user) => {
             window.iniciarRadarNotificacoes(dbUser);
         }
 
+        window.cijIniciarPush?.(user);
+        const pushConfig=document.getElementById('notif-push-config');
+        if(pushConfig)pushConfig.classList.toggle('hidden', !isMaster);
         if (typeof window.initModule === 'function') window.initModule(dbUser.perfil);
     } else {
+        window.cijIniciarPush?.(null);
+        for(const unsubscribe of window.__notifState.unsubs||[]){try{unsubscribe()}catch(_){}}
+        window.__notifState.unsubs=[];window.__notifState.rows=[];window.currentUser=null;
         if(loginScreen) loginScreen.classList.remove('hidden');
         const authForm = document.getElementById('auth-form');
         if(authForm) authForm.classList.remove('hidden');
