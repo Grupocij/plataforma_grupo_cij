@@ -1,4 +1,4 @@
-/* Grupo CIJ — Certificação 1.0.0. Dados, validação e transições. */
+/* Grupo CIJ — Certificação 1.1.0. Dados, validação e transições. */
 (function(w){
  'use strict';
  const STATUS={RASCUNHO:'Em preenchimento',PRONTO:'Pronto para revisão',EM_REVISAO:'Em revisão',APROVADO:'Aprovado para emissão',EMITIDO:'PDF emitido',ENVIADO:'Certificado enviado',LIBERADO_FATURAR:'Pode faturar',CANCELADO:'Cancelado'};
@@ -6,11 +6,11 @@
  const FIELDS=[
   ['clienteNome','Cliente','Cliente'],['cnpj','CNPJ','Cliente'],['unidade','Unidade','Cliente'],['endereco','Endereço','Cliente'],['cidadeUF','Cidade / UF','Cliente'],['contato','Contato','Cliente'],['osNumero','Número da OS','Atendimento'],['dataServico','Data do serviço','Atendimento'],['ambiente','Laboratório / Campo','Atendimento'],['localServico','Local do serviço','Atendimento'],['executanteNome','Executante','Atendimento'],['acompanhante','Acompanhado por','Atendimento'],
   ['equipamento','Equipamento / padrão','Identificação'],['marca','Marca','Identificação'],['modelo','Modelo','Identificação'],['numeroSerie','Número de série','Identificação'],['tag','TAG','Identificação'],['tipo','Tipo','Identificação'],
-  ['abertura','Abertura (mm)','Configuração'],['fase','Fase / frequência / potência','Configuração'],['sensibilidade','Sensibilidade','Configuração'],['produto','Produto','Linha'],['temperaturaProduto','Temperatura do produto (°C)','Linha'],['rejeicao','Sistema de rejeição','Linha'],['velocidade','Velocidade da linha','Linha'],
+  ['abertura','Abertura (mm)','Configuração'],['fase','Fase / frequência / potência','Configuração'],['sensibilidade','Sensibilidade','Configuração'],['receita','Receita / programa','Configuração'],['produto','Produto','Linha'],['temperaturaProduto','Temperatura do produto (°C)','Linha'],['rejeicao','Sistema de rejeição','Linha'],['velocidade','Velocidade da linha','Linha'],['posicaoPadrao','Posição do corpo de prova','Linha'],['condicaoProduto','Condição: com / sem produto','Linha'],
   ['material','Material','Padrão de teste'],['diametroNominal','Diâmetro nominal (mm)','Padrão de teste'],['formato','Formato / suporte','Padrão de teste'],['leitura1','Leitura 1 (mm)','Medição'],['leitura2','Leitura 2 (mm)','Medição'],['leitura3','Leitura 3 (mm)','Medição'],['media','Média (mm)','Medição'],['desvio','Desvio do nominal (mm)','Medição'],['incerteza','Incerteza expandida (mm)','Medição'],['fatorK','Fator de abrangência k','Medição'],['confianca','Nível de confiança (%)','Medição'],
-  ['temperaturaAmbiente','Temperatura ambiente (°C)','Condições'],['umidade','Umidade relativa (%)','Condições'],['procedimento','Procedimento / método','Procedimento'],['revisaoProcedimento','Revisão do procedimento','Procedimento'],['criterio','Critério de aceitação','Procedimento'],['padroes','Padrões de referência utilizados','Referências'],['ref_nome','Nome das referências','Referências'],['ref_material','Material das referências','Referências'],['ref_diametro','Diâmetro das referências','Referências'],['ref_numeroSerie','Série das referências','Referências'],['ref_certNumero','Nº de certificado das referências','Referências'],['ref_validade','Validade das referências','Referências'],['resultados','Resultados dos três ciclos','Resultados'],['resultado_sinal','Sinal nos ciclos','Resultados'],['resultado_rejeicao','Rejeição nos ciclos','Resultados'],['conclusao','Conclusão técnica','Conclusão'],['observacoes','Observações','Conclusão'],['proximaAvaliacao','Próxima avaliação acordada','Conclusão'],['responsavelTecnico','Responsável técnico','Responsáveis']
+  ['temperaturaAmbiente','Temperatura ambiente (°C)','Condições'],['umidade','Umidade relativa (%)','Condições'],['procedimento','Procedimento / método','Procedimento'],['revisaoProcedimento','Revisão do procedimento','Procedimento'],['criterio','Critério de aceitação','Procedimento'],['padroes','Padrões de referência utilizados','Referências'],['ref_nome','Nome das referências','Referências'],['ref_material','Material das referências','Referências'],['ref_diametro','Diâmetro das referências','Referências'],['ref_numeroSerie','Série das referências','Referências'],['ref_certNumero','Nº de certificado das referências','Referências'],['ref_validade','Validade das referências','Referências'],['ref_certData','Emissão das referências','Referências'],['ref_emissor','Emissor das referências','Referências'],['resultados','Resultados dos três ciclos','Resultados'],['resultado_sinal','Sinal nos ciclos','Resultados'],['resultado_rejeicao','Rejeição nos ciclos','Resultados'],['resultado_final','Resultado individual do padrão','Resultados'],['conclusao','Conclusão técnica','Conclusão'],['observacoes','Observações','Conclusão'],['proximaAvaliacao','Próxima avaliação acordada','Conclusão'],['responsavelTecnico','Responsável técnico','Responsáveis'],['emissorNome','Autorização da emissão','Responsáveis'],['assinaturas','Espaços para assinaturas','Responsáveis']
  ];
- const ONLY_E=new Set(['abertura','fase','sensibilidade','produto','temperaturaProduto','rejeicao','velocidade','resultados','resultado_sinal','resultado_rejeicao']);
+ const ONLY_E=new Set(['abertura','fase','sensibilidade','receita','posicaoPadrao','condicaoProduto','produto','temperaturaProduto','rejeicao','velocidade','resultados','resultado_sinal','resultado_rejeicao','resultado_final']);
  const ONLY_P=new Set(['material','diametroNominal','formato','leitura1','leitura2','leitura3','media','desvio','incerteza','fatorK','confianca']);
  const clone=x=>JSON.parse(JSON.stringify(x));
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -47,10 +47,11 @@
   if(record.type==='PADRAO'&&!d.incerteza)list.push('Incerteza expandida não informada.');
   return list;
  }
+ function deviceLabel(code){if(!Number.isSafeInteger(code)||code<1)throw new Error('Identificação de aparelho inválida.');let label='';while(code>0){code--;label=String.fromCharCode(65+code%26)+label;code=Math.floor(code/26);}return label;}
  function make(type,id,device,seq,user){
   const now=new Date().toISOString(),year=Number(today().slice(0,4)),prefix=type==='PADRAO'?'CP':'CE';
-  const numero=prefix+'-'+year+'-'+String(device.code).padStart(4,'0')+'-'+String(seq).padStart(6,'0');
-  return {id,type,numero,deviceId:device.id,deviceCode:device.code,sequence:seq,ownerUid:user.uid,ownerEmail:user.email||'',createdAtISO:now,updatedAtISO:now,updatedByUid:user.uid,updatedByEmail:user.email||'',revision:0,status:'RASCUNHO',data:{dataServico:today(),ambiente:'CAMPO',padroes:[],resultados:[]},visible:defaults(type),internalNotes:'',issuer:{nome:'Grupo CIJ Soluções Industriais',site:'www.grupocij.com.br'},titulo:type==='PADRAO'?'Certificado de Calibração de Padrão de Teste':'Certificado de Verificação de Desempenho',dataEmissao:today(),approvedByUid:'',approvedAtISO:'',pdf:null};
+  const numero=prefix+'-'+String(year).slice(-2)+'-'+deviceLabel(device.code)+String(seq).padStart(3,'0');
+  return {id,type,numero,numberFormat:2,documentRevision:'00',deviceId:device.id,deviceCode:device.code,sequence:seq,ownerUid:user.uid,ownerEmail:user.email||'',createdAtISO:now,updatedAtISO:now,updatedByUid:user.uid,updatedByEmail:user.email||'',revision:0,status:'RASCUNHO',data:{dataServico:today(),ambiente:'CAMPO',padroes:[],resultados:[]},visible:defaults(type),internalNotes:'',issuer:{nome:'Grupo CIJ Soluções Industriais',site:'www.grupocij.com.br'},titulo:type==='PADRAO'?'Certificado de Calibração de Padrão de Teste':'Certificado de Verificação de Desempenho',dataEmissao:today(),approvedByUid:'',approvedAtISO:'',pdf:null};
  }
  function actionPermission(action){return {save:'preencher',ready:'preencher',review:'revisar',approve:'aprovar',return:'revisar',issue:'emitir',sent:'enviar',bill:'faturar',cancel:'revisar'}[action];}
  function nextStatus(record,action,profile){
@@ -67,7 +68,7 @@
   throw new Error('Esta ação não está disponível na etapa atual.');
  }
  function value(record,key){
-  const d=record.data||{};if(key==='ambiente')return d[key]==='LABORATORIO'?'Laboratório':d[key]==='CAMPO'?'Campo':text(d[key]);
+  const d=record.data||{};if(key==='emissorNome')return record.approvedByName||text(d[key]);if(key==='ambiente')return d[key]==='LABORATORIO'?'Laboratório':d[key]==='CAMPO'?'Campo':text(d[key]);
   if(['dataServico','proximaAvaliacao'].includes(key))return formatDate(d[key]);
   if(key==='conclusao')return ({APROVADO:'Aprovado',APROVADO_COM_RESSALVA:'Aprovado com ressalva',REPROVADO:'Reprovado'})[d[key]]||text(d[key]);
   if(key==='padroes')return (d.padroes||[]).map(p=>[['ref_nome',p.nome],['ref_material',p.material],['ref_diametro',p.diametro?'Ø '+p.diametro+' mm':''],['ref_numeroSerie',p.numeroSerie?'SN '+p.numeroSerie:''],['ref_certNumero',p.certNumero?'Certificado '+p.certNumero:''],['ref_validade',p.validade?'Validade '+formatDate(p.validade):'']].filter(([k,v])=>record.visible?.[k]!==false&&v).map(([,v])=>v).join(' · ')).filter(Boolean);
@@ -75,5 +76,5 @@
   return text(d[key]);
  }
  function visibleRows(record){return fields(record.type).filter(([key])=>record.visible?.[key]!==false).map(([key,label,group])=>({key,label,group,value:value(record,key)})).filter(r=>Array.isArray(r.value)?r.value.length:text(r.value));}
- w.CertDados={STATUS,PERMS,FIELDS,clone,esc,text,number,today,formatDate,can,fields,defaults,readings,validate,warnings,make,nextStatus,actionPermission,visibleRows,value};
+ w.CertDados={STATUS,PERMS,FIELDS,clone,esc,text,number,today,formatDate,can,fields,defaults,readings,validate,warnings,make,deviceLabel,nextStatus,actionPermission,visibleRows,value};
 })(window);

@@ -179,7 +179,7 @@
    const next=D.clone(before);if(['review','approve'].includes(action)&&Object.keys(patch).length){
     if(!D.can(w.userProfile,'revisar',before.type))throw new Error('Sem permissão para editar a revisão.');
     if(patch.data)next.data=D.readings(D.clone(patch.data));if(patch.visible)next.visible=D.clone(patch.visible);
-    for(const k of ['internalNotes','titulo','dataEmissao','issuer'])if(patch[k]!==undefined)next[k]=D.clone(patch[k]);
+    for(const k of ['internalNotes','titulo','dataEmissao','issuer','documentRevision'])if(patch[k]!==undefined)next[k]=D.clone(patch[k]);
    }
    next.status=D.nextStatus(next,action,w.userProfile);next.revision=before.revision+1;next.updatedAtISO=who.at;next.updatedByUid=user;next.updatedByEmail=who.email;next.lastMutationId=mutation;
    if(action==='return'&&patch.internalNotes!==undefined)next.internalNotes=D.text(patch.internalNotes);
@@ -192,7 +192,7 @@
    // A referência do banco acompanha o PDF emitido do padrão do cliente.
    let bank,beforeBank;if(action==='issue'&&next.type==='PADRAO'){
     const bid=next.data.padraoAlvoId||next.id;const bankSnap=await tx.get(doc('cert_padroes',bid));beforeBank=bankSnap.exists()?bankSnap.data():{};
-    bank={...beforeBank,id:bid,nome:next.data.equipamento,marca:next.data.marca,numeroSerie:next.data.numeroSerie,material:next.data.material||'',diametro:next.data.diametroNominal||'',formato:next.data.formato||'',clienteId:next.data.clienteId||'',clienteNome:next.data.clienteNome,proprietario:'CLIENTE',ativo:true,certNumero:next.numero,certData:next.data.dataServico||next.dataEmissao||D.today(),validade:next.data.proximaAvaliacao||'',certURL:next.pdf.url,certStoragePath:next.pdf.storagePath,sourceCertificateId:next.id,revision:Number(beforeBank.revision||0)+1,updatedAtISO:who.at,updatedByUid:user};
+    bank={...beforeBank,id:bid,nome:next.data.equipamento,marca:next.data.marca,numeroSerie:next.data.numeroSerie,material:next.data.material||'',diametro:next.data.diametroNominal||'',formato:next.data.formato||'',clienteId:next.data.clienteId||'',clienteNome:next.data.clienteNome,proprietario:'CLIENTE',ativo:true,certNumero:next.numero,certEmissor:next.issuer?.nome||'Grupo CIJ Soluções Industriais',certData:next.data.dataServico||next.dataEmissao||D.today(),validade:next.data.proximaAvaliacao||'',certURL:next.pdf.url,certStoragePath:next.pdf.storagePath,sourceCertificateId:next.id,revision:Number(beforeBank.revision||0)+1,updatedAtISO:who.at,updatedByUid:user};
    }
    tx.set(ref,next);writeEvent(tx,next,before,event,who,config);if(bank)tx.set(doc('cert_padroes',bank.id),bank);
    return next;
