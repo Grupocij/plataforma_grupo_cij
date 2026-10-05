@@ -1,10 +1,10 @@
-// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Central de OS 1.77.0
+// core.js - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Certificação 1.0.0 / Assistência 1.78.0
 import {instalarPushCIJ} from "./push-client.js?v=20261001-push1";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, getDocs, runTransaction, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, getDocs, getDocFromServer, getDocsFromServer, query, where, runTransaction, persistentLocalCache, persistentMultipleTabManager, initializeFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, getBlob, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 if (!document.querySelector('link[rel="manifest"]')) {
     const manifestLink = document.createElement('link');
@@ -126,6 +126,12 @@ const injectLayout = () => {
                                 <a href="suporte-mobile.html" data-module="suporte-mobile.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Suporte OSR</h4><p class="text-[10px] text-slate-500">Novo chamado mobile</p></div></a>
 
                                 <a href="assistencia.html" data-module="assistencia.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Assistência Técnica</h4><p class="text-[10px] text-slate-500">Kanban, OS, orçamento e gestão</p></div></a>
+
+                                <a href="certificacao.html" data-module="certificacao.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-file-circle-check"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Certificação de Equipamentos</h4><p class="text-[10px] text-slate-500">Serviço offline, revisão e certificados</p></div></a>
+
+                                <a href="padroes_teste.html" data-module="padroes_teste.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-ruler-combined"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Padrões de Teste</h4><p class="text-[10px] text-slate-500">Banco, calibração em laboratório e campo</p></div></a>
+
+                                <a href="cert_alertas.html" data-module="cert_alertas.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Alertas de Certificação</h4><p class="text-[10px] text-slate-500">Revisão, envio e liberação para faturar</p></div></a>
 
                                 <a href="central_os.html" data-module="central_os.html" class="nav-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200"><div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-table-list"></i></div><div><h4 class="text-xs font-bold text-slate-900 mt-1">Central de OS</h4><p class="text-[10px] text-slate-500">Consulta, indicadores e faturamento</p></div></a>
 
@@ -313,6 +319,11 @@ window.fsOnSnapshot = onSnapshot;
 window.fsGetDoc = getDoc;
 window.fsGetDocs = getDocs;
 window.fsRunTransaction = runTransaction;
+window.fsGetDocFromServer = getDocFromServer;
+window.fsGetDocsFromServer = getDocsFromServer;
+window.fsQuery = query;
+window.fsWhere = where;
+window.fbGetBlob = getBlob;
 
 
 const moduleAccessAliases = {
@@ -327,6 +338,9 @@ const moduleAccessAliases = {
 const globalModulesMap = [
     { name: 'Suporte OSR', url: 'suporte-mobile.html', icon: 'fa-headset text-blue-500' },
     { name: 'Assistência Técnica', url: 'assistencia.html', icon: 'fa-screwdriver-wrench text-blue-500' },
+    { name: 'Certificação de Equipamentos', url: 'certificacao.html', icon: 'fa-file-circle-check text-teal-600' },
+    { name: 'Padrões de Teste', url: 'padroes_teste.html', icon: 'fa-ruler-combined text-teal-600' },
+    { name: 'Alertas de Certificação', url: 'cert_alertas.html', icon: 'fa-bell text-teal-600' },
     { name: 'Central de OS', url: 'central_os.html', icon: 'fa-table-list text-cyan-600' },
     { name: 'App do Técnico', url: 'app_tecnico.html', href: 'assistencia.html?modo=tecnico', icon: 'fa-mobile-screen-button text-sky-500' },
     { name: 'Consulta Parque', url: 'parque_consulta.html', icon: 'fa-industry text-indigo-700' },
