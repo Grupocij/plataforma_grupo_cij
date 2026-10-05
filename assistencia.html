@@ -968,7 +968,12 @@ body:not(.tech-app-mode) button[data-view="tecnico"]{display:none!important}
 
 
 <style id="fase162-anexos-ui">
-.anexo-card{display:flex;flex-direction:column}
+.anexo-card{display:flex;flex-direction:column;min-width:0}
+.anexo-thumb img{object-fit:contain}
+.anexo-feedback{padding:.6rem;text-align:center;color:#64748b;font-size:.65rem;line-height:1.4;display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.anexo-thumb a{display:flex;width:100%;height:100%;align-items:center;justify-content:center}
+.anexo-action[aria-disabled="true"]{opacity:.5;cursor:default;pointer-events:none}
+.anexo-retry{border:1px solid #cbd5e1;border-radius:.4rem;padding:.25rem .4rem;background:#fff;color:#1d4ed8;font-size:.6rem;cursor:pointer}
 .anexo-meta{display:flex;flex-direction:column;flex:1}
 .anexo-actions{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:auto;padding-top:.55rem}
 .anexo-action{display:inline-flex;align-items:center;justify-content:center;gap:.28rem;border-radius:.55rem;border:1px solid #cbd5e1;background:#fff;color:#334155;padding:.4rem .45rem;font-size:.54rem;font-weight:900;min-height:34px}
@@ -7044,6 +7049,113 @@ window.salvarAssinaturaCliente=async function(){
 
 async function storageApi(){if(window.__assistStorageApi)return window.__assistStorageApi;const appMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js');const stMod=await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js');const app=appMod.getApps()[0];if(!app)throw new Error('Firebase ainda não foi inicializado pelo core.js.');const storage=stMod.getStorage(app);return window.__assistStorageApi={storage,...stMod}}
 
+// FASE 1.77.1 — prévias com recuperação de links e fotos locais offline.
+let anexoGaleriaAtual=null;
+function anexoEncerrarGaleria(){
+ const g=anexoGaleriaAtual;anexoGaleriaAtual=null;
+ if(g){g.urls.forEach(url=>URL.revokeObjectURL(url));g.urls.clear();}
+}
+function anexoNovaGaleria(o,eq){
+ anexoEncerrarGaleria();
+ return anexoGaleriaAtual={osId:String(o.internalId||o.id),eqId:String(eq.internalId||eq.id),uid:String(window.currentUser?.uid||''),urls:new Set()};
+}
+function anexoGaleriaAtiva(g){
+ return anexoGaleriaAtual===g&&g.uid===String(window.currentUser?.uid||'')&&g.osId===String(state.selectedOS?.internalId||state.selectedOS?.id)&&g.eqId===String(state.selectedEquipment?.internalId||state.selectedEquipment?.id);
+}
+function anexoURLSegura(v){
+ try{const u=new URL(String(v||''));return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
+}
+function anexoEhImagem(a){
+ return /^image\//i.test(a.contentType||'')||/\.(jpe?g|png|gif|webp|bmp|avif|heic|heif)$/i.test(a.nome||'');
+}
+function anexoComPrazo(p){
+ return new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>reject(Object.assign(new Error('Tempo esgotado'),{code:'anexo/timeout'})),8000);
+  Promise.resolve(p).then(v=>{clearTimeout(timer);resolve(v)},e=>{clearTimeout(timer);reject(e)});
+ });
+}
+function anexoTestarImagem(url){
+ return anexoComPrazo(new Promise((resolve,reject)=>{
+  const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Object.assign(new Error('Prévia indisponível'),{code:'anexo/preview'}));img.src=url;
+ }));
+}
+function anexoDefinirLink(card,url){
+ const a=card.querySelector('[data-anexo-open]');
+ if(url){a.href=url;a.removeAttribute('aria-disabled');}
+ else{a.removeAttribute('href');a.setAttribute('aria-disabled','true');}
+}
+function anexoFeedback(card,text,retry){
+ const thumb=card.querySelector('.anexo-thumb');thumb.replaceChildren();
+ const msg=document.createElement('span');msg.className='anexo-feedback';msg.setAttribute('role','status');msg.textContent=text;
+ if(retry){const btn=document.createElement('button');btn.type='button';btn.className='anexo-retry';btn.textContent='Tentar novamente';btn.onclick=retry;msg.appendChild(btn);}
+ thumb.appendChild(msg);
+}
+function anexoMostrarImagem(card,img,url,nome){
+ img.alt='Foto do equipamento';img.title=nome||'Foto do equipamento';
+ const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.appendChild(img);
+ card.querySelector('.anexo-thumb').replaceChildren(link);
+}
+function anexoMostrarDocumento(card){anexoFeedback(card,'Arquivo disponível. Use Abrir para visualizar.');}
+function anexoCriarURL(card,blob,g){
+ if(card.__anexoObjectURL){URL.revokeObjectURL(card.__anexoObjectURL);g.urls.delete(card.__anexoObjectURL);}
+ const url=URL.createObjectURL(blob);card.__anexoObjectURL=url;g.urls.add(url);return url;
+}
+async function anexoPrepararCloud(card,a,g){
+ if(!card||!anexoGaleriaAtiva(g))return;
+ anexoFeedback(card,'Carregando prévia…');
+ const image=anexoEhImagem(a);let url=anexoURLSegura(a.downloadURL),lastError;
+ anexoDefinirLink(card,url);
+ if(url){
+  if(!image){anexoMostrarDocumento(card);return;}
+  try{const img=await anexoTestarImagem(url);if(anexoGaleriaAtiva(g))anexoMostrarImagem(card,img,url,a.nome);return;}catch(e){lastError=e;}
+ }
+ if(!anexoGaleriaAtiva(g))return;
+ if(navigator.onLine===false){anexoFeedback(card,'Foto não disponível offline neste aparelho.',()=>anexoPrepararCloud(card,a,g));return;}
+ let api,ref;
+ try{
+  if(!a.storagePath)throw Object.assign(new Error('Sem referência do arquivo'),{code:'anexo/no-path'});
+  api=await anexoComPrazo(storageApi());
+  if(!anexoGaleriaAtiva(g))return;
+  ref=api.ref(api.storage,a.storagePath);
+  url=anexoURLSegura(await anexoComPrazo(api.getDownloadURL(ref)));
+  if(!anexoGaleriaAtiva(g))return;
+  if(!url)throw new Error('Link do arquivo inválido');
+  anexoDefinirLink(card,url);
+  if(!image){anexoMostrarDocumento(card);return;}
+  const img=await anexoTestarImagem(url);
+  if(anexoGaleriaAtiva(g))anexoMostrarImagem(card,img,url,a.nome);
+  return;
+ }catch(e){lastError=e;}
+ if(!anexoGaleriaAtiva(g))return;
+ const denied=['storage/unauthorized','storage/unauthenticated','storage/object-not-found'].includes(lastError?.code);
+ // Se o link público falhar, tente o download autenticado, mantendo as regras do Storage.
+ if(!denied&&image&&api?.getBlob&&ref&&Number(a.size||0)<=10*1024*1024){
+  try{
+   const blob=await anexoComPrazo(api.getBlob(ref,10*1024*1024));
+   if(!anexoGaleriaAtiva(g))return;
+   const localURL=anexoCriarURL(card,blob,g);
+   anexoDefinirLink(card,localURL);
+   try{const img=await anexoTestarImagem(localURL);if(anexoGaleriaAtiva(g))anexoMostrarImagem(card,img,localURL,a.nome);return;}
+   catch(_){lastError={code:'anexo/preview'};}
+  }catch(e){lastError=e;}
+ }
+ if(!anexoGaleriaAtiva(g))return;
+ const code=lastError?.code;
+ let message='Não foi possível carregar a foto. Confira a conexão e tente novamente.';
+ if(['storage/unauthorized','storage/unauthenticated'].includes(code)){message='Sem autorização para acessar este arquivo.';anexoDefinirLink(card,'');}
+ else if(code==='storage/object-not-found'){message='Arquivo não encontrado no servidor.';anexoDefinirLink(card,'');}
+ else if(code==='anexo/no-path'){message='Prévia indisponível. O cadastro não contém a referência do arquivo.';}
+ else if(code==='anexo/preview'&&/\.(heic|heif)$/i.test(a.nome||'')){message='Este formato não tem prévia neste navegador. Use Abrir para acessar o original.';}
+ anexoFeedback(card,message,()=>anexoPrepararCloud(card,a,g));
+}
+async function anexoPrepararLocal(card,op,g){
+ if(!card||!anexoGaleriaAtiva(g)||!(op.blob instanceof Blob))return;
+ const url=anexoCriarURL(card,op.blob,g);anexoDefinirLink(card,url);
+ if(!anexoEhImagem(op.meta||{})){anexoMostrarDocumento(card);return;}
+ try{const img=await anexoTestarImagem(url);if(anexoGaleriaAtiva(g))anexoMostrarImagem(card,img,url,op.meta?.nome);}
+ catch(_){if(anexoGaleriaAtiva(g))anexoFeedback(card,'Prévia indisponível neste navegador. Use Abrir para acessar o original.');}
+}
+
 // FASE 1.62 — anexos completos, rastreabilidade e controles restaurados
 function anexoTamanhoLabel(v){
   const n=Number(v||0);
@@ -7070,38 +7182,37 @@ window.descartarAnexoOffline=async function(id){
 
 function anexoCategoriaLabel(v){return({DEFEITO:'Defeito',ANTES:'Antes',DURANTE:'Durante',DEPOIS:'Depois',ETIQUETA:'Etiqueta / Nº de série',DOCUMENTO:'Documento',OUTRO:'Outro'})[String(v||'').toUpperCase()]||v||'Arquivo'}
 window.abrirAnexosEquipamento=async function(eid){const o=state.selectedOS;if(!o)return;const eq=(o._equipamentos||[]).find(x=>x.id===eid||x.internalId===eid);if(!eq)return;state.selectedEquipment=eq;document.getElementById('anexo-equip-titulo').textContent=(eq.modelo||eq.nome||'Equipamento')+' · SN: '+(eq.numeroSerie||'não informado');document.getElementById('anexo-categoria').value='DEFEITO';document.getElementById('anexo-observacao').value='';document.getElementById('anexo-arquivos').value='';document.getElementById('anexo-preview').innerHTML='';document.getElementById('modal-anexos-equipamento').classList.remove('hidden');await window.carregarAnexosEquipamento()};
-window.fecharAnexosEquipamento=function(){document.getElementById('modal-anexos-equipamento')?.classList.add('hidden');const inp=document.getElementById('anexo-arquivos');if(inp)inp.value='';document.getElementById('anexo-preview').innerHTML='';state.selectedEquipment=null};
+window.fecharAnexosEquipamento=function(){anexoEncerrarGaleria();document.getElementById('modal-anexos-equipamento')?.classList.add('hidden');const inp=document.getElementById('anexo-arquivos');if(inp)inp.value='';document.getElementById('anexo-preview').innerHTML='';state.selectedEquipment=null};
 window.previsualizarAnexos=function(){const fs=[...(document.getElementById('anexo-arquivos')?.files||[])];document.getElementById('anexo-preview').innerHTML=fs.map(f=>`<div class="upload-preview-item"><i class="fa-solid ${f.type.startsWith('image/')?'fa-image':'fa-file'} mr-1"></i>${esc(f.name)} · ${(f.size/1024/1024).toFixed(1)} MB</div>`).join('')};
 window.abrirCameraAnexo=function(){let old=document.getElementById('anexo-camera-input');if(old)old.remove();const i=document.createElement('input');i.type='file';i.id='anexo-camera-input';i.accept='image/*';i.capture='environment';i.className='hidden';i.onchange=()=>{const dt=new DataTransfer();[...(document.getElementById('anexo-arquivos')?.files||[])].forEach(f=>dt.items.add(f));[...(i.files||[])].forEach(f=>dt.items.add(f));document.getElementById('anexo-arquivos').files=dt.files;window.previsualizarAnexos()};document.body.appendChild(i);i.click()};
 window.carregarAnexosEquipamento=async function(){
  const o=state.selectedOS,eq=state.selectedEquipment,box=document.getElementById('anexo-lista');
  if(!o||!eq||!box)return;
+ const galeria=anexoNovaGaleria(o,eq);
  box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando...</div>';
  try{
-   let arr=[];
+   let arr=[],erroLeitura=false;
    try{
      const all=await read('os_arquivos');
      arr=all.filter(a=>String(a.osId)===String(o.internalId||o.id)&&String(a.equipamentoId)===String(eq.internalId||eq.id)&&a.is_deleted!==true);
-   }catch(_){}
+   }catch(_){erroLeitura=true;}
 
    const pend=(await assistOfflinePending()).filter(op=>op.kind==='attachment'&&String(op.meta?.osId)===String(o.internalId||o.id)&&String(op.meta?.equipamentoId)===String(eq.internalId||eq.id));
+   if(!anexoGaleriaAtiva(galeria))return;
    arr.sort((a,b)=>new Date(b.createdAtISO||0)-new Date(a.createdAtISO||0));
    pend.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
 
    const count=document.getElementById('anexo-contagem');
    if(count)count.textContent=(arr.length+pend.length)+' arquivo(s)'+(pend.length?' · '+pend.length+' aguardando sync':'');
 
-   const cloud=arr.map(a=>{
-     const url=String(a.downloadURL||'');
-     const image=String(a.contentType||'').startsWith('image/');
+   const cloud=arr.map((a,index)=>{
+     const url=anexoURLSegura(a.downloadURL);
      const canDelete=podeExcluirAnexoEquipamento(a);
      const uploader=a.enviadoPorNome||a.enviadoPorEmail||'Usuário não informado';
      const size=anexoTamanhoLabel(a.size);
-     return `<div class="anexo-card">
+     return `<div class="anexo-card" data-anexo-cloud="${index}">
        <div class="anexo-thumb">
-         ${image&&url
-           ?`<a href="${esc(url)}" target="_blank" rel="noopener" class="w-full h-full"><img src="${esc(url)}" alt="${esc(a.nome||'foto')}"></a>`
-           :`<a href="${esc(url||'#')}" target="_blank" rel="noopener" class="text-3xl text-slate-400"><i class="fa-solid fa-file-lines"></i></a>`}
+         <span class="anexo-feedback">Carregando prévia…</span>
        </div>
        <div class="anexo-meta">
          <div class="anexo-name" title="${esc(a.nome||'Arquivo')}">${esc(a.nome||'Arquivo')}</div>
@@ -7109,15 +7220,15 @@ window.carregarAnexosEquipamento=async function(){
          ${a.observacao?`<div class="mt-1 text-slate-700">${esc(a.observacao)}</div>`:''}
          <div class="anexo-uploader"><i class="fa-solid fa-user mr-1"></i>${esc(uploader)}${size?` · <span class="anexo-size">${esc(size)}</span>`:''}</div>
          <div class="anexo-actions">
-           ${url?`<a href="${esc(url)}" target="_blank" rel="noopener" class="anexo-action open"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir</a>`:'<button type="button" class="anexo-action" disabled><i class="fa-solid fa-link-slash"></i> Sem link</button>'}
+           <a ${url?`href="${esc(url)}"`:'aria-disabled="true"'} target="_blank" rel="noopener noreferrer" class="anexo-action open" data-anexo-open><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir</a>
            ${canDelete?`<button type="button" class="anexo-action delete" onclick="window.excluirAnexoEquipamento('${esc(a.id||a.internalId)}')"><i class="fa-solid fa-trash-can"></i> Excluir</button>`:'<button type="button" class="anexo-action" disabled title="Sem permissão para excluir este arquivo"><i class="fa-solid fa-lock"></i> Protegido</button>'}
          </div>
        </div>
      </div>`;
    }).join('');
 
-   const local=pend.map(op=>`<div class="anexo-card offline-attachment">
-      <div class="anexo-thumb text-2xl text-orange-500"><i class="fa-solid fa-mobile-screen-button"></i></div>
+   const local=pend.map((op,index)=>`<div class="anexo-card offline-attachment" data-anexo-local="${index}">
+      <div class="anexo-thumb"><span class="anexo-feedback">Arquivo salvo no aparelho</span></div>
       <div class="anexo-meta">
         <div class="anexo-name" title="${esc(op.meta?.nome||'Arquivo')}">${esc(op.meta?.nome||'Arquivo')}</div>
         <div class="mt-1"><span class="offline-local-tag"><i class="fa-solid fa-clock"></i> Salvo no aparelho</span></div>
@@ -7125,13 +7236,17 @@ window.carregarAnexosEquipamento=async function(){
         ${op.meta?.observacao?`<div class="mt-1 text-slate-700">${esc(op.meta.observacao)}</div>`:''}
         <div class="anexo-uploader"><i class="fa-solid fa-user mr-1"></i>${esc(op.ownerNome||op.meta?.usuarioNome||'Usuário atual')}${op.meta?.size?` · <span class="anexo-size">${esc(anexoTamanhoLabel(op.meta.size))}</span>`:''}</div>
         <div class="anexo-offline-note"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Aguardando sincronização. O arquivo permanece neste aparelho.</div>
-        <div class="anexo-actions"><button type="button" class="anexo-action local" onclick="window.descartarAnexoOffline('${esc(op.id)}')"><i class="fa-solid fa-trash-can"></i> Descartar arquivo local</button></div>
+        <div class="anexo-actions"><a aria-disabled="true" target="_blank" rel="noopener noreferrer" class="anexo-action open" data-anexo-open>Abrir</a><button type="button" class="anexo-action local" onclick="window.descartarAnexoOffline('${esc(op.id)}')"><i class="fa-solid fa-trash-can"></i> Descartar arquivo local</button></div>
       </div>
    </div>`).join('');
 
-   box.innerHTML=(local+cloud)||'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>';
+   const aviso=erroLeitura?'<div class="anexo-feedback" role="status">Não foi possível consultar os arquivos enviados. Confira a conexão e tente novamente.</div>':'';
+   box.innerHTML=aviso+((local+cloud)||(!erroLeitura?'<div class="text-xs text-slate-400">Nenhum arquivo enviado para este equipamento.</div>':''));
+   pend.forEach((op,index)=>anexoPrepararLocal(box.querySelector(`[data-anexo-local="${index}"]`),op,galeria));
+   arr.forEach((a,index)=>anexoPrepararCloud(box.querySelector(`[data-anexo-cloud="${index}"]`),a,galeria));
  }catch(e){
    console.error('[Assistência] anexos',e);
+   if(!anexoGaleriaAtiva(galeria))return;
    box.innerHTML='<div class="text-xs text-rose-600">Não foi possível carregar os anexos.</div>';
  }
 }
@@ -8064,7 +8179,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.77.0';
+const ASSISTENCIA_BUILD='1.77.1';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
