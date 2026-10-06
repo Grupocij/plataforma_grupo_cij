@@ -1584,7 +1584,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
  </div>
 </div>
 
-<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.72.7</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4">
+<div id="modal-detalhe-os" class="modal-backdrop hidden"><div class="modal-card !max-w-none"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">V1.79.0</span><h2 id="detalhe-numero" class="text-xl font-black mt-2">Ordem de Serviço</h2><p id="detalhe-cliente" class="text-sm font-semibold text-slate-500 mt-1">-</p></div><button onclick="window.fecharDetalheOS()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="detalhe-resumo" class="detail-grid mt-5"></div><div class="os-detail-layout"><div class="os-detail-main space-y-4"><section class="os-detail-section"><div class="os-detail-section-head"><div><div class="os-detail-kicker">Fluxo operacional</div><h3 class="section-title"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-2"></i>Equipamentos da OS</h3><p class="text-xs text-slate-500 mt-1">Cada equipamento possui seu próprio fluxo, pendência atual e ações técnicas.</p></div><span class="status-badge status-pending">Status individual ativo</span></div><div id="detalhe-equipamentos" class="mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500">Nenhum equipamento vinculado nesta OS.</div></section><section class="os-detail-section"><div class="os-detail-kicker">Informações do chamado</div><h3 class="section-title"><i class="fa-solid fa-align-left text-blue-600 mr-2"></i>Descrição inicial</h3><div id="detalhe-descricao" class="mt-3 text-sm text-slate-700 whitespace-pre-wrap">-</div></section></div><aside class="os-detail-side space-y-4">
 <section class="os-detail-section">
   <div class="os-detail-kicker">Equipe técnica</div>
   <h3 class="section-title"><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-2"></i>Recebimento da OS</h3>
@@ -2261,7 +2261,7 @@ body.tech-app-mode #main-content{overflow-x:hidden!important}
 <div id="modal-historico-equipamento" class="modal-backdrop hidden" style="z-index:100033!important"><div class="modal-card !max-w-none" style="width:min(860px,100%)"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Histórico do equipamento</h2><p id="eq-hist-titulo" class="text-xs text-slate-500 mt-1">-</p></div><button onclick="window.fecharHistoricoEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-hist-conteudo" class="mt-5"><div class="text-xs text-slate-400">Carregando histórico...</div></div></div></div>
 
 <div id="modal-equipamento" class="modal-backdrop hidden"><div class="modal-card"><div class="flex justify-between items-start gap-4"><div><span class="tag tag-green">FASE 1.32</span><h2 class="text-xl font-black mt-2">Adicionar equipamento à OS</h2><p id="eq-modal-regra" class="text-xs text-slate-500 mt-1">Primeiro são verificados somente os equipamentos vinculados ao cliente desta OS.</p></div><button onclick="window.fecharAdicionarEquipamento()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div><div id="eq-tabs" class="mt-5 flex gap-2"><button id="tab-eq-parque" class="nav-pill active" onclick="window.tipoEquipamento('PARQUE',this)"><i class="fa-solid fa-industry"></i> Equipamento do cliente</button><button id="tab-eq-temp" class="nav-pill hidden" onclick="window.tipoEquipamento('TEMPORARIO',this)"><i class="fa-solid fa-wrench"></i> Equipamento temporário</button></div><div id="eq-parque-box" class="mt-5 space-y-4"><label><span class="field-label">Equipamento do cliente *</span><select id="eq-parque-select" class="input"><option value="">Selecione um equipamento</option></select></label><button type="button" class="btn btn-light w-full justify-center" onclick="window.abrirLeitorQREquipamento()"><i class="fa-solid fa-qrcode"></i> Ler QR Code / Número de série</button><div id="eq-qr-feedback" class="hidden rounded-xl border p-3 text-xs"></div><div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">São exibidos <b>somente</b> equipamentos do Parque de Máquinas vinculados ao cliente desta OS.</div></div><div id="eq-temp-box" class="mt-5 hidden grid md:grid-cols-2 gap-4"><label><span class="field-label">Fabricante / Marca</span><input id="eq-temp-marca" class="input" placeholder="Ex.: Leadjet"></label><label><span class="field-label">Modelo *</span><input id="eq-temp-modelo" class="input" placeholder="Ex.: V8000"></label><label><span class="field-label">Número de série</span><div class="flex gap-2"><input id="eq-temp-sn" class="input" placeholder="Se houver"><button type="button" class="btn btn-light shrink-0" onclick="window.abrirLeitorQREquipamento()" title="Ler QR Code"><i class="fa-solid fa-qrcode"></i></button></div></label><label><span class="field-label">Identificação local</span><input id="eq-temp-tag" class="input" placeholder="Ex.: Linha 2"></label><label class="md:col-span-2"><span class="field-label">Observação</span><textarea id="eq-temp-obs" class="input min-h-20" placeholder="Informações levantadas no atendimento..."></textarea></label><label class="md:col-span-2 flex items-start gap-3 rounded-xl bg-blue-50 border border-blue-200 p-3 cursor-pointer">
-  <input id="eq-temp-add-parque" type="checkbox" class="mt-1">
+  <input id="eq-temp-add-parque" disabled type="checkbox" class="mt-1">
   <span class="text-xs text-blue-900"><b>Cadastrar também no Parque de Máquinas deste cliente.</b><br>Ao marcar esta opção, o equipamento deixa de ser apenas temporário e passa a integrar o cadastro oficial do cliente.</span>
 </label>
 <div class="md:col-span-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900"><b>Sem marcar a opção acima:</b> o equipamento permanecerá somente nesta OS e não alterará o Parque de Máquinas oficial.</div></div><div class="mt-5 flex justify-end gap-2"><button onclick="window.fecharAdicionarEquipamento()" class="btn btn-light">Cancelar</button><button id="btn-salvar-equipamento" onclick="window.salvarEquipamentoOS()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Vincular equipamento</button></div></div></div>
@@ -5306,6 +5306,10 @@ window.alterarStatusEquipamento=async function(eid,status){
 async function renderEquipamentosOS(o){const box=document.getElementById('detalhe-equipamentos');if(!box)return;box.innerHTML='<div class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Carregando equipamentos...</div>';try{const allItems=await readSub(o.internalId||o.id,'equipamentos');const items=allItems.filter(e=>e?.is_deleted!==true&&e?.ativo!==false);o._equipamentos=items;if(!items.length){box.className='mt-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 p-5 text-center text-xs text-slate-500';box.textContent='Nenhum equipamento vinculado nesta OS.';return}await recalcOSStage(o,items);box.className='mt-4 space-y-3';box.innerHTML=items.map((e,idx)=>{const st=String(e.statusEquipamento||'PENDENTE').toUpperCase();const actions=equipmentStatuses.map(x=>`<button class="eq-action ${st===x[0]?'current':''} ${x[0]==='RECUSADO'?'danger':''}" onclick="event.stopPropagation();window.alterarStatusEquipamento('${esc(e.id)}','${x[0]}')">${esc(x[1])}</button>`).join('');const clsDiag=equipmentActionFlowClass(e,'diag');const clsSol=equipmentActionFlowClass(e,'solicitacao');const clsOrc=equipmentActionFlowClass(e,'orcamento');const clsApr=equipmentActionFlowClass(e,'aprovacao');const clsAge=equipmentActionFlowClass(e,'agendamento');const clsChk=equipmentActionFlowClass(e,'checkout');return `<div class="eq-card ${st==='CONCLUIDO'?'eq-done':st==='RECUSADO'?'eq-refused':''}"><div class="eq-card-head flex items-start justify-between gap-3"><div><div class="eq-title-row"><span class="eq-index">${idx+1}</span><div class="text-xs font-black text-slate-900">${esc(e.modelo||e.nome||e.equipamentoNome||'Equipamento')}</div></div><div class="text-[11px] text-slate-500 mt-1">${e.marca?esc(e.marca)+' · ':''}SN: ${esc(e.numeroSerie||'não informado')} ${e.identificacaoLocal?' · '+esc(e.identificacaoLocal):''}</div><div class="text-[10px] mt-2 font-bold ${e.tipo==='TEMPORARIO'?'text-amber-700':'text-emerald-700'}">${e.tipo==='TEMPORARIO'?'TEMPORÁRIO — não altera o Parque':'VINCULADO AO PARQUE'}</div>${fluxoSimplificadoEquipamento(e)?`<div class="flow-simplified-badge"><i class="fa-solid fa-forward-fast"></i>Fluxo simplificado · ${esc(fluxoSimplificadoNaturezaLabel(e.fluxoSimplificadoNatureza||o.fluxoSimplificadoNatureza))}</div>`:''}</div><span class="status-badge ${st==='CONCLUIDO'?'status-ok':st==='RECUSADO'?'status-error':'status-pending'}">${esc(statusLabel(st))}</span></div>${(()=>{const p=pendenciaEquipamento(e);return `<div class="pending-chip ${p.tipo==='ok'?'ok':p.tipo==='admin'?'admin':''}"><i class="fa-solid ${p.tipo==='ok'?'fa-circle-check':'fa-triangle-exclamation'} mt-[1px]"></i><span><b>Pendência atual:</b> ${esc(p.texto)}</span></div>`})()}<div class="eq-flow-block"><div class="eq-block-label"><i class="fa-solid fa-route"></i> Fluxo do atendimento</div><div class="eq-status-flow">${actions}</div></div>${window.portalTemAcessoModulo?.('certificacao.html')?`<div class="mt-3"><a class="btn btn-light" href="certificacao.html?nova=1&osId=${encodeURIComponent(o.internalId||o.id)}&clienteId=${encodeURIComponent(o.clienteId||'')}&equipamentoId=${encodeURIComponent(e.parqueId||e.parqueEquipamentoId||'')}&equipamentoOSId=${encodeURIComponent(e.internalId||e.id)}"><i class="fa-solid fa-file-circle-check"></i> Certificar equipamento</a></div>`:''}<div class="eq-tools-block">
 <div class="eq-block-label"><i class="fa-solid fa-toolbox"></i> Ações do equipamento · ordem do fluxo</div>
 <div class="eq-actions">
+${e.tipo==='TEMPORARIO'&&window.MaterialOS?.can('revisar_parque')?`<button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.revisarTemporarioParque('${esc(e.id)}')"><i class="fa-solid fa-building-circle-check"></i> Revisar e cadastrar no parque</button>`:''}
+${window.MaterialOS?.can('faturar')?`<button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.faturarEquipamentoMateriais('${esc(e.id)}')"><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento deste equipamento</button>`:''}
+${window.MaterialOS?.can('liberar_saida')?`<button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.liberarEntregaMateriais('${esc(e.id)}')"><i class="fa-solid fa-truck"></i> Conferir / liberar entrega</button>`:''}
+${e.materialLiberacaoSaida?`<span class="text-xs font-bold ${e.materialLiberacaoSaida.invalidada?'text-rose-700':'text-emerald-700'}">${e.materialLiberacaoSaida.invalidada?'Entrega exige nova conferência':'Entrega liberada · '+esc(e.materialLiberacaoSaida.recebedor)}</span>`:''}
 <button class="eq-edit-btn flow-neutral" onclick="event.stopPropagation();window.abrirEditarEquipamento('${esc(e.id)}')"><i class="fa-solid fa-pen-to-square"></i> Editar dados</button>
 <button class="diag-btn ${clsDiag}" onclick="event.stopPropagation();window.abrirDiagnosticoEquipamento('${esc(e.id)}')"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</button>
 <button class="orc-tech-btn ${clsSol}" onclick="event.stopPropagation();window.abrirSolicitacaoOrcamento('${esc(e.id)}')"><i class="fa-solid fa-clipboard-list"></i> Solicitação orçamento</button>
@@ -5539,151 +5543,7 @@ window.fecharPecasEquipamento=function(){
  }
 };
 
-window.gerarRequisicoesMateriais=async function(){
- const o=state.selectedOS,eq=state.selectedEquipment,orc=window.materialCentralState.orcamento;
- if(!o||!eq)return;
- if(!orc){alert('É necessário possuir um orçamento aprovado antes de gerar a requisição de material.');return}
- const rows=[...document.querySelectorAll('#pecas-planejamento-body .mat-plan-row')];
- if(!rows.length){alert('Não há peças aprovadas para requisitar.');return}
-
- const osid=o.internalId||o.id,eid=eq.id||eq.internalId,ciclo=Number(o.cicloAtendimento||1);
- const tech=assistTecnicoResponsavel(o);
- const now=new Date().toISOString();
- const grupoId='REQOS_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
- const grupoNumero='REQ-'+String(Date.now()).slice(-8);
- const destinoBase=(o.clienteNome||o.cliente||'Cliente')+' · '+(eq.modelo||'Equipamento')+(eq.numeroSerie?' · SN '+eq.numeroSerie:'');
- const planoItens=[];
- const criadas=[];
- const promises=[];
-
- rows.forEach((row,index)=>{
-   const itemKey=row.dataset.itemKey||String(orc.internalId||orc.id)+':'+index;
-   const materialDigitado=row.querySelector('.mat-material-oficial')?.value.trim()||'';
-   const destinoMaterial=row.querySelector('.mat-destino')?.value||'REQUISITAR';
-   const quantidadeDesejada=Number(row.querySelector('.mat-qtd-desejada')?.value||0);
-   const orcado=Number(orc.baseTecnicaSnapshot?.pecas?.[index]?.quantidade||orc.baseTecnicaSnapshot?.pecas?.[index]?.qtd||1);
-   const catalogItem=matCatalogResolve(materialDigitado,window.materialCentralState.catalogo);
-   const necessitaOficial=!['CLIENTE','NAO_UTILIZAR'].includes(destinoMaterial);
-
-   if(necessitaOficial&&!catalogItem){
-     throw new Error('Item '+(index+1)+': selecione uma peça/consumível oficial da lista. Para peças, condição e saldo precisam estar identificados.');
-   }
-
-   const material=catalogItem?.baseLabel||materialDigitado;
-   const materialMeta={
-     materialOficial:material,
-     materialLabel:catalogItem?.label||materialDigitado,
-     materialId:catalogItem?.id||'',
-     materialCodigo:catalogItem?.codigo||'',
-     materialNome:catalogItem?.nome||'',
-     materialTipo:catalogItem?.tipo||'',
-     materialCondicao:catalogItem?.condicao||'',
-     materialEndereco:catalogItem?.endereco||'',
-     estoqueSaldoSolicitacao:catalogItem?.tipo==='PECA'?Number(catalogItem?.saldo||0):null
-   };
-
-   planoItens.push({
-     itemKey,descricaoTecnica:orc.baseTecnicaSnapshot?.pecas?.[index]?.descricao||'',
-     ...materialMeta,destinoMaterial,quantidadeDesejada,quantidadeOrcada:orcado
-   });
-
-   if(['CLIENTE','NAO_UTILIZAR'].includes(destinoMaterial))return;
-   if(quantidadeDesejada<=0)return;
-
-   const jaAtivo=matQtdAtiva(itemKey);
-   const delta=Math.max(0,quantidadeDesejada-jaAtivo);
-   if(delta<=0)return;
-
-   const rid='req_'+Date.now()+'_'+index+'_'+Math.random().toString(36).slice(2,5);
-   const statusInicial=destinoMaterial==='COM_TECNICO'?'COM_TECNICO':'PENDENTE';
-   const data={
-     id:rid,
-     tecnico:tech.nome||window.nomeUsuarioLogado||'',
-     autor_email:tech.email||String(window.currentUser?.email||'').toLowerCase(),
-     filial:'Matriz',
-     material,
-     ...materialMeta,
-     qtd:delta,
-     destino:destinoBase,
-     os:o.osNumber||o.numero||'',
-     status:statusInicial,
-     data_solicitacao:now,
-     timestamp:Date.now()+index,
-
-     origem:'ASSISTENCIA_OS',
-     origemModulo:'ASSISTENCIA_TECNICA',
-     osId:osid,
-     clienteId:o.clienteId||'',
-     clienteNome:o.clienteNome||o.cliente||'',
-     equipamentoId:eid,
-     equipamentoModelo:eq.modelo||'',
-     equipamentoNumeroSerie:eq.numeroSerie||'',
-     cicloAtendimento:ciclo,
-     orcamentoId:orc.internalId||orc.id||'',
-     orcamentoVersao:Number(orc.versao||1),
-     solicitacaoTecnicaId:orc.solicitacaoOrcamentoId||'',
-     orcamentoItemIndex:index,
-     orcamentoItemKey:itemKey,
-     quantidadeOrcada:orcado,
-     grupo_requisicao_id:grupoId,
-     grupo_requisicao_numero:grupoNumero,
-     gerado_por_uid:window.currentUser?.uid||'',
-     gerado_por_nome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
-     gerado_por_email:window.currentUser?.email||'',
-
-     integracaoEstoqueVersao:2,
-     estoqueMovimentado:false,
-     estoqueDevolucaoMovimentada:false,
-     estoqueBaixaDispensada:destinoMaterial==='COM_TECNICO',
-     estoqueIntegracao:catalogItem?.tipo==='PECA'
-       ? (destinoMaterial==='COM_TECNICO'?'BAIXA_DISPENSADA_JA_COM_TECNICO':'AGUARDANDO_APROVACAO')
-       : 'NAO_APLICAVEL_CONSUMIVEL',
-     aprovacao_dispensada:destinoMaterial==='COM_TECNICO',
-     observacao_origem:destinoMaterial==='COM_TECNICO'
-       ? 'Material informado como já em posse do técnico; não efetuar nova baixa automática no estoque.'
-       : ''
-   };
-   promises.push(saveDoc('requisicoes_material',rid,data));
-   criadas.push(data);
- });
- const pid=matPlanId(o,eq);
- const plano={
-   internalId:pid,osId:osid,osNumber:o.osNumber||o.numero||'',equipamentoId:eid,
-   cicloAtendimento:ciclo,orcamentoId:orc.internalId||orc.id||'',orcamentoVersao:Number(orc.versao||1),
-   itens:planoItens,updatedAtISO:now,updatedByUid:window.currentUser?.uid||'',updatedByNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
- };
- const btn=document.getElementById('btn-gerar-requisicoes');
- try{
-   btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Integrando...';
-   await saveSubDoc(osid,'materiais_planejamento',pid,plano);
-   if(promises.length)await Promise.all(promises);
-   if(criadas.length){
-     const statusResumo=criadas.some(x=>x.status==='PENDENTE')?'PENDENTE':criadas[0].status;
-     await mergeSubDoc(osid,'equipamentos',eid,{
-       ultimaSolicitacaoMaterialId:grupoId,
-       ultimaSolicitacaoMaterialNumero:grupoNumero,
-       ultimaSolicitacaoMaterialStatus:statusResumo,
-       updatedAtISO:now
-     });
-     Object.assign(eq,{ultimaSolicitacaoMaterialId:grupoId,ultimaSolicitacaoMaterialNumero:grupoNumero,ultimaSolicitacaoMaterialStatus:statusResumo,updatedAtISO:now});
-     await addHistory(o,'MATERIAL_REQUISICAO','Requisição de material gerada',grupoNumero+' · '+criadas.map(x=>x.material+' x'+x.qtd).join(', '),{
-       equipamentoId:eid,equipamentoModelo:eq.modelo||'Equipamento',equipamentoNumeroSerie:eq.numeroSerie||'',
-       grupoRequisicaoId:grupoId,grupoRequisicaoNumero:grupoNumero,requisicoesIds:criadas.map(x=>x.id),orcamentoId:orc.internalId||orc.id||'',orcamentoVersao:orc.versao||1
-     });
-     const pendentesAprovacao=criadas.filter(x=>x.status==='PENDENTE');if(pendentesAprovacao.length){await assistNotify('APROVACAO_MATERIAIS',{eventType:'MATERIAL_APROVACAO_PENDENTE',titulo:'Pedido de peças aguardando autorização',mensagem:`${o.osNumber||o.numero||'OS'} · ${grupoNumero} · ${pendentesAprovacao.length} item(ns) aguardando aprovação.`,tipo:'warning',o,eq,sourceId:grupoId,url:'requisicao_material.html',dedupeKey:`MATERIAL:${grupoId}`});await assistNotify('LOGISTICA',{eventType:'MATERIAL_REQUISICAO_GERADA',titulo:'Nova requisição de material',mensagem:`${o.osNumber||o.numero||'OS'} · ${grupoNumero} foi gerada pela Assistência.`,tipo:'info',o,eq,sourceId:grupoId,url:'requisicao_material.html',dedupeKey:`LOGISTICA:${grupoId}`})}
-     toast(criadas.length+' item(ns) enviados para Requisição de Material.');
-   }else{
-     toast('Planejamento salvo. Nenhuma nova requisição precisava ser criada.');
-   }
-   await window.atualizarCentralMateriais();
-   await renderEquipamentosOS(o);
- }catch(e){
-   console.error('[Assistência] integração requisição material',e);
-   alert('Não foi possível gerar a requisição de material.\n\n'+(e?.message||e));
- }finally{
-   btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Gerar requisição';
- }
-};
+window.gerarRequisicoesMateriais=async function(){const e=state.selectedEquipment;if(e)await window.abrirPecasEquipamento(e.id||e.internalId);};
 
 
 function moedaBR(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
@@ -6704,7 +6564,7 @@ window.salvarEquipamentoOS=async function(){
     const modelo=document.getElementById('eq-temp-modelo').value.trim();
     if(!modelo){alert('Informe o modelo do equipamento temporário.');return}
     const marca=document.getElementById('eq-temp-marca').value.trim(),sn=document.getElementById('eq-temp-sn').value.trim(),tag=document.getElementById('eq-temp-tag').value.trim(),obs=document.getElementById('eq-temp-obs').value.trim();
-    const cadastrar=!!document.getElementById('eq-temp-add-parque')?.checked;
+    const cadastrar=false; // O cadastro no parque depende de revisão administrativa.
 
     if(cadastrar){
       if(sn){
@@ -6874,7 +6734,7 @@ window.salvarFaturamentoOS=async function(){
  const btn=document.getElementById('btn-salvar-faturamento');
  try{
    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Encerrando...';
-   await mergeOSDoc(o.internalId||o.id,payload);Object.assign(o,payload);
+   const confirmed=await window.MaterialOS.execute('CLOSE_OS',{osId:o.internalId||o.id,billing:payload});Object.assign(o,confirmed.billing);
    const detalhe=situacao==='FATURADO'
      ? `NF ${nf} · Faturado ${moedaBR(valorNum)} · Aprovado ${moedaBR(aprovado)} · Diferença ${(diferenca>=0?'+ ':'')+moedaBR(diferenca)}${diverge?' · Justificativa: '+just:''}`
      : `Não faturável · Base aprovada: ${moedaBR(aprovado)} · Motivo: ${obs}`;
@@ -7720,6 +7580,7 @@ window.renderAtendimentoTecnico=async function(){
       ${e.recolhidoEmISO?`<div class="tech-execution-note wait"><i class="fa-solid fa-box mr-1"></i>Recolhido em ${esc(fmtDate(e.recolhidoEmISO))}${e.recolhidoMotivo?' · '+esc(e.recolhidoMotivo):''}</div>`:''}
       ${execNote}
       ${techMateriaisHTML(e,oficiais,planejamentos,solicitacoes,ciclo)}
+      <div class="tech-eq-actions"><button class="tech-action sky col-span-2" onclick="window.abrirPecasEquipamento('${esc(e.id)}')"><i class="fa-solid fa-boxes-stacked"></i> Materiais / requisitar peça</button></div>
       ${window.portalTemAcessoModulo?.('certificacao.html')?`<div class="tech-eq-actions"><a class="tech-action sky col-span-2 flex items-center justify-center" href="certificacao.html?nova=1&osId=${encodeURIComponent(o.internalId||o.id)}&clienteId=${encodeURIComponent(o.clienteId||'')}&equipamentoOSId=${encodeURIComponent(e.internalId||e.id)}"><i class="fa-solid fa-file-circle-check mr-2"></i> Certificar este equipamento</a></div>`:''}
       <div class="tech-eq-actions">
         <button class="tech-action" onclick="window.abrirDiarioEquipamento('${esc(e.id)}')"><i class="fa-solid fa-book-open"></i> Diário</button>
@@ -8180,7 +8041,7 @@ Use esta opção quando o aplicativo continuar dizendo que existe atualização 
 };
 
 // FASE 1.63 — controle de versão e atualização do PWA
-const ASSISTENCIA_BUILD='1.78.0';
+const ASSISTENCIA_BUILD='1.79.0';
 const ASSISTENCIA_SW_FILE='sw.js';
 let techSWRegistration=null;
 let techSWWaiting=null;
@@ -9593,7 +9454,7 @@ window.confirmarExclusaoAssistencia=async function(){
         removidoDaOSEmISO:now,removidoDaOSMotivo:motivo,
         removidoDaOSPorUid:usuarioUid,removidoDaOSPorNome:usuarioNome,updatedAtISO:now
       };
-      await mergeSubDoc(o.internalId||o.id,'equipamentos',eq.id||eq.internalId,patch);
+      await window.MaterialOS.execute('ARCHIVE_EQUIPMENT',{osId:o.internalId||o.id,equipmentId:eq.id||eq.internalId,reason:motivo});
       await addHistory(o,'EQUIPAMENTO_REMOVIDO','Equipamento removido da OS',motivo,{
         equipamentoId:eq.id||eq.internalId,equipamentoModelo:eq.modelo||'Equipamento',
         equipamentoNumeroSerie:eq.numeroSerie||'',statusAnterior:eq.statusEquipamento||'PENDENTE',
@@ -9621,7 +9482,7 @@ window.confirmarExclusaoAssistencia=async function(){
         excluidaEmISO:now,excluidaMotivo:motivo,
         excluidaPorUid:usuarioUid,excluidaPorNome:usuarioNome,updatedAtISO:now
       };
-      await mergeOSDoc(o.internalId||o.id,patch);
+      await window.MaterialOS.execute('ARCHIVE_OS',{osId:o.internalId||o.id,reason:motivo});
       Object.assign(o,patch);
 
       window.fecharExclusaoAssistencia();
@@ -9677,71 +9538,8 @@ window.confirmarReabrirOS=async function(){
   try{
     btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Reabrindo...';
 
-    const equipamentos=(await readSub(osid,'equipamentos').catch(()=>[]))
-      .filter(e=>e?.is_deleted!==true&&e?.ativo!==false);
-
-    const snapshotId='CICLO_'+String(cicloAnterior).padStart(3,'0');
-    const snapshot={
-      internalId:snapshotId,osId:osid,osNumber:o.osNumber||o.numero||'',
-      ciclo:cicloAnterior,encerradoEmISO:o.encerradoEmISO||now,
-      tecnicoId:o.tecnicoId||'',tecnicoNome:o.tecnicoNome||'',tecnicoIds:o.tecnicoIds||[],tecnicoNomes:o.tecnicoNomes||[],
-      finalizadoTecnicoEmISO:o.finalizadoTecnicoEmISO||'',valorOrcamentoAprovadoNoEncerramento:o.valorOrcamentoAprovadoNoEncerramento??null,
-      situacaoFaturamento:o.situacaoFaturamento||'',
-      numeroNF:o.numeroNF||'',faturadoEmData:o.faturadoEmData||'',
-      valorFaturado:o.valorFaturado||'',observacaoFaturamento:o.observacaoFaturamento||'',
-      assinaturaClienteURL:o.assinaturaClienteURL||'',
-      assinaturaClienteNome:o.assinaturaClienteNome||'',
-      assinaturaClienteFuncao:o.assinaturaClienteFuncao||'',
-      assinaturaClienteObservacao:o.assinaturaClienteObservacao||'',
-      assinaturaClienteEmISO:o.assinaturaClienteEmISO||'',
-      atendimentoStatus:o.atendimentoStatus||'',
-      atendimentoDuracaoSegundos:Number(o.atendimentoDuracaoSegundos||0),
-      agendaTaskId:o.agendaTaskId||'',agendadoParaISO:o.agendadoParaISO||'',
-      equipamentos:equipamentos.map(e=>({
-        equipamentoId:e.id||e.internalId,modelo:e.modelo||'',numeroSerie:e.numeroSerie||'',
-        statusEquipamento:e.statusEquipamento||'',statusDetalhado:e.statusDetalhado||'',
-        ultimoOrcamentoId:e.ultimoOrcamentoId||'',ultimoOrcamentoVersao:e.ultimoOrcamentoVersao||null,
-        ultimoOrcamentoStatus:e.ultimoOrcamentoStatus||'',checkoutConcluidoEmISO:e.checkoutConcluidoEmISO||''
-      })),
-      snapshotCriadoEmISO:now,
-      snapshotCriadoPorUid:window.currentUser?.uid||'',
-      snapshotCriadoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||''
-    };
-    await saveSubDoc(osid,'ciclos',snapshotId,snapshot);
-
-    const statusEq=etapa==='TRIAGEM'?'EM_DIAGNOSTICO':'PENDENTE';
-    for(const eq of equipamentos){
-      const ep={
-        cicloAtendimento:novoCiclo,statusEquipamento:statusEq,statusDetalhado:statusEq,
-        solicitacaoOrcamentoId:'',solicitacaoOrcamentoStatus:'',
-        ultimoOrcamentoId:'',ultimoOrcamentoVersao:null,ultimoOrcamentoTotal:null,
-        ultimoOrcamentoTotalFormatado:'',ultimoOrcamentoStatus:'',
-        ultimaSolicitacaoMaterialId:'',ultimaSolicitacaoMaterialNumero:'',ultimaSolicitacaoMaterialStatus:'',
-        liberadoExecucaoEmISO:null,liberadoExecucaoPorUid:'',liberadoExecucaoPorNome:'',
-        checkoutConcluidoEmISO:null,checkoutConcluidoPorUid:'',checkoutConcluidoPorNome:'',
-        checkoutServicoExecutado:'',checkoutTesteFinal:'',checkoutCondicaoSaida:'',checkoutObservacao:'',
-        updatedAtISO:now
-      };
-      await mergeSubDoc(osid,'equipamentos',eq.id||eq.internalId,ep);
-      Object.assign(eq,ep);
-    }
-
-    const patch={
-      cicloAtendimento:novoCiclo,
-      etapaKanban:etapa,status:etapa,
-      encerradoAdministrativamente:false,encerradoEmISO:null,encerradoPorUid:'',encerradoPorNome:'',
-      faturado:false,situacaoFaturamento:'',numeroNF:'',faturadoEmData:'',valorFaturado:'',observacaoFaturamento:'',
-      finalizadoTecnico:false,finalizadoTecnicoEmISO:null,finalizadoTecnicoPorUid:'',finalizadoTecnicoPorNome:'',
-      statusAgendamento:'',agendaTaskId:'',agendadoParaISO:'',
-      atendimentoStatus:'NAO_INICIADO',atendimentoDuracaoSegundos:0,atendimentoUltimoInicioEmISO:null,
-      assinaturaClienteURL:'',assinaturaClienteNome:'',assinaturaClienteFuncao:'',
-      assinaturaClienteObservacao:'',assinaturaClienteEmISO:null,
-      reabertoEmISO:now,reabertoMotivo:motivo,reabertoPorUid:window.currentUser?.uid||'',
-      reabertoPorNome:window.nomeUsuarioLogado||window.userProfile?.nome||'',
-      updatedAtISO:now
-    };
-    await mergeOSDoc(osid,patch);
-    Object.assign(o,patch,{_equipamentos:equipamentos});
+    const confirmed=await window.MaterialOS.execute('REOPEN_OS',{osId:osid,reason:motivo,targetStage:etapa});
+    Object.assign(o,confirmed.patch);o._equipamentos=await readSub(osid,'equipamentos');
 
     await addHistory(o,'OS_REABERTA','OS reaberta — novo ciclo',
       'Ciclo '+cicloAnterior+' → Ciclo '+novoCiclo+' · '+motivo,
@@ -10172,10 +9970,18 @@ window.initModule=function(p){
       assistReceiptRenderLive();
     });
 };
+window.AssistMateriaisBridge={
+ selected(eid){const o=state.selectedOS,e=(o?._equipamentos||[]).find(x=>String(x.id||x.internalId)===String(eid));if(!o||!e)throw Error('Abra a OS e selecione o equipamento.');state.selectedEquipment=e;return {o,e};},
+ async refresh(){const o=state.selectedOS;if(!o)return;await renderEquipamentosOS(o);if(document.body.classList.contains('tech-app-mode')&&!document.getElementById('modal-tech-atendimento')?.classList.contains('hidden'))await window.renderAtendimentoTecnico?.();},
+ notify:toast
+};
 })();
 
 </script>
-<script type="module" src="core.js?v=20261005-cert1"></script>
+<link rel="stylesheet" href="materiais-os.css?v=1.79.0">
+<script src="materiais-os.js?v=1.79.0"></script>
+<script src="assistencia-materiais.js?v=1.79.0"></script>
+<script type="module" src="core.js?v=20261006-mat1"></script>
 <script id="assist-offline-cold-bootstrap">
 (function(){
   function tryOfflineBoot(){

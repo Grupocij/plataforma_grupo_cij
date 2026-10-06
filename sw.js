@@ -1,5 +1,5 @@
-const SW_VERSION='3.14.1';
-const APP_BUILD='1.78.0';
+const SW_VERSION='3.15.0';
+const APP_BUILD='1.79.0';
 
 const CACHE_SHELL='portal-cij-unified-v3-shell';
 const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
@@ -13,7 +13,7 @@ const PORTAL_SHELL=[
   './push-configuracao.html',
   './core.js?v=20261001-push1',
   './core.js?v=20261002-central1',
-  './core.js?v=20261005-cert1',
+  './core.js?v=20261006-mat1',
   './certificacao.html',
   './padroes_teste.html',
   './cert_alertas.html',
@@ -47,6 +47,9 @@ const PORTAL_SHELL=[
 
 const ASSISTENCIA_SHELL=[
   './assistencia.html',
+  './materiais-os.js?v=1.79.0',
+  './materiais-os.css?v=1.79.0',
+  './assistencia-materiais.js?v=1.79.0',
   './assistencia-manifest-v4.json',
   './assistencia-icon-192.png',
   './assistencia-icon-512.png'
@@ -100,7 +103,7 @@ self.addEventListener('message',event=>{
     event.waitUntil((async()=>{
       const cache=await caches.open(CACHE_SHELL);
       const missing=[];
-      for(const url of ['./core.js?v=20261005-cert1','./push-client.js?v=20261001-push1','./certificacao.html','./padroes_teste.html','./cert_alertas.html','./certificacao.css?v=1.1.0','./certificacao-dados.js?v=1.1.0','./certificacao-offline.js?v=1.1.0','./certificacao-pdf.js?v=1.1.0','./certificacao.js?v=1.1.0','./certificacao-manifest.json'])if(!await cacheOne(cache,url))missing.push(url);
+      for(const url of ['./core.js?v=20261006-mat1','./push-client.js?v=20261001-push1','./certificacao.html','./padroes_teste.html','./cert_alertas.html','./certificacao.css?v=1.1.0','./certificacao-dados.js?v=1.1.0','./certificacao-offline.js?v=1.1.0','./certificacao-pdf.js?v=1.1.0','./certificacao.js?v=1.1.0','./certificacao-manifest.json'])if(!await cacheOne(cache,url))missing.push(url);
       const runtime=await caches.open(CACHE_RUNTIME);
       for(const url of ['https://cdn.tailwindcss.com/','https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging.js','https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js'])if(!await cacheOne(runtime,url))missing.push(url);
       for(const url of ['https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/webfonts/fa-solid-900.woff2','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/webfonts/fa-regular-400.woff2'])await cacheOne(runtime,url);
