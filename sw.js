@@ -1,8 +1,8 @@
-const SW_VERSION='3.15.1';
-const APP_BUILD='1.79.1';
+const SW_VERSION='3.15.2';
+const APP_BUILD='1.79.2';
 
-const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.1';
-const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.1';
+const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.2';
+const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.2';
 
 const PORTAL_SHELL=[
   './central_cadastros.html',
