@@ -1,4 +1,4 @@
-// Cadastros V4.3.2 + atalhos de OS 1.77.0
+// Cadastros V4.3.3 — compatibilidade Firebase 1.79.1
 window.ERPDB={clientes:[],modelos:[],pecas:[],consumiveis:[],parque:[],os:[],osr:[],movimentos:[]};
 window.ERPUI={page:document.body.dataset.erpPage||'',editing:null,material:null,pendingPhoto:null,removePhoto:false,maquina:null,
 pagination:{
@@ -609,30 +609,64 @@ window.renderMateriais=function(tipo){
 };
 window.abrirMaterial=function(id=null,tipo='PECA'){
   const arr=tipo==='PECA'?ERPDB.pecas:ERPDB.consumiveis,x=id?arr.find(v=>v.id===id):null;ERPUI.material=x?{...x,__tipo:tipo}:{__tipo:tipo};ERPUI.pendingPhoto=null;ERPUI.removePhoto=false;
-  const vals={'mat-id':x?.id||'','mat-codigo':x?.sku||x?.codigo||'','mat-nome':x?.nome||x?.descricao||'','mat-subtipo':x?.tipo||'','mat-unidade':x?.unidade||'UN','mat-estoque':x?.estoqueAtual??0,'mat-minimo':x?.estoqueMinimo??0,'mat-local':x?.localizacaoEstoque||x?.localizacao||'','mat-obs':x?.observacoes||''};Object.entries(vals).forEach(([i,v])=>{const el=document.getElementById(i);if(el)el.value=v});
+  const vals={'mat-id':x?.id||'','mat-codigo':x?.sku||x?.codigo||'','mat-nome':x?.nome||x?.descricao||'','mat-subtipo':x?.tipo||'','mat-unidade':x?.unidade||'UN','mat-estoque':x?.estoqueAtual??x?.quantity??x?.qtd??x?.quantidade??0,'mat-minimo':x?.estoqueMinimo??0,'mat-local':x?.localizacaoEstoque||x?.localizacao||'','mat-obs':x?.observacoes||''};Object.entries(vals).forEach(([i,v])=>{const el=document.getElementById(i);if(el)el.value=v});
+  const saldoInput=document.getElementById('mat-estoque');saldoInput.readOnly=!!x||!eCanStock();saldoInput.title=x?'Para alterar o saldo, use Movimentar estoque.':!eCanStock()?'Crie com saldo zero. O estoque autorizado fará a entrada.':'Saldo inicial: será registrado junto do histórico.';document.getElementById('mat-ativo').disabled=!!x;
   document.getElementById('mat-ativo').value=String(x?.ativo!==false);document.getElementById('material-titulo').textContent=x?'Editar cadastro':tipo==='PECA'?'Nova peça':'Novo consumível';document.getElementById('row-subtipo')?.classList.toggle('hidden',tipo!=='CONSUMIVEL');document.getElementById('row-foto')?.classList.toggle('hidden',tipo!=='PECA');
   const prev=document.getElementById('foto-preview');if(prev){prev.src=x?.fotoURL||'';prev.classList.toggle('hidden',!x?.fotoURL)}const ph=document.getElementById('foto-placeholder');if(ph)ph.classList.toggle('hidden',!!x?.fotoURL);const fi=document.getElementById('mat-foto');if(fi)fi.value='';
   document.getElementById('modal-material').classList.remove('hidden');
 };
 window.previewFotoPeca=function(input){const f=input.files?.[0];if(!f)return;if(!f.type.startsWith('image/')){alert('Selecione uma imagem.');input.value='';return}if(f.size>5*1024*1024){alert('A foto deve ter no máximo 5 MB.');input.value='';return}ERPUI.pendingPhoto=f;ERPUI.removePhoto=false;const url=URL.createObjectURL(f),p=document.getElementById('foto-preview');p.src=url;p.classList.remove('hidden');document.getElementById('foto-placeholder')?.classList.add('hidden')};
 window.removerFotoPeca=function(){ERPUI.pendingPhoto=null;ERPUI.removePhoto=true;const p=document.getElementById('foto-preview');p.src='';p.classList.add('hidden');document.getElementById('foto-placeholder')?.classList.remove('hidden');const i=document.getElementById('mat-foto');if(i)i.value=''};
-window.salvarMaterial=async function(e){
-  e.preventDefault();const tipo=ERPUI.material?.__tipo||'PECA',arr=tipo==='PECA'?ERPDB.pecas:ERPDB.consumiveis,id=document.getElementById('mat-id').value||((tipo==='PECA'?'peca_':'cons_')+Date.now()),old=arr.find(x=>x.id===id)||{},now=new Date().toISOString(),codigo=document.getElementById('mat-codigo').value.trim().toUpperCase(),nome=document.getElementById('mat-nome').value.trim().toUpperCase(),dup=arr.find(x=>x.id!==id&&x.is_deleted!==true&&((codigo&&String(x.sku||x.codigo||'').toUpperCase()===codigo)||eNorm(x.nome||x.descricao)===eNorm(nome)));if(dup){alert('Já existe cadastro com este código ou descrição.');return}
-  const estoque=Number(document.getElementById('mat-estoque').value||0);let data={...old,id,codigo,sku:codigo,nome,descricao:nome,tipo:tipo==='CONSUMIVEL'?document.getElementById('mat-subtipo').value.trim().toUpperCase():'PECA',unidade:document.getElementById('mat-unidade').value,estoqueAtual:estoque,estoqueMinimo:Number(document.getElementById('mat-minimo').value||0),localizacaoEstoque:document.getElementById('mat-local').value.trim().toUpperCase(),observacoes:document.getElementById('mat-obs').value.trim(),ativo:document.getElementById('mat-ativo').value==='true',is_deleted:false,createdAtISO:old.createdAtISO||now,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaCadastro:4};
-  await window.fsSetDoc(eDoc(eMatCol(tipo),id),data);
-  if(tipo==='PECA'&&ERPUI.removePhoto&&old.fotoStoragePath){try{await window.fbDeleteObject(window.fbStorageRef(window.AppStorage,old.fotoStoragePath))}catch(_){}data.fotoURL='';data.fotoStoragePath='';await window.fsSetDoc(eDoc('cadastros_pecas',id),data)}
-  if(tipo==='PECA'&&ERPUI.pendingPhoto){
-    if(!window.fbUploadBytes)throw new Error('Firebase Storage não inicializado no core.js.');
-    const f=ERPUI.pendingPhoto,ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,''),sp=`cadastros_pecas/${id}/foto_${Date.now()}.${ext}`,ref=window.fbStorageRef(window.AppStorage,sp);
-    await window.fbUploadBytes(ref,f,{contentType:f.type||'image/jpeg'});const url=await window.fbGetDownloadURL(ref);
-    if(old.fotoStoragePath&&old.fotoStoragePath!==sp){try{await window.fbDeleteObject(window.fbStorageRef(window.AppStorage,old.fotoStoragePath))}catch(_){}}
-    data={...data,fotoURL:url,fotoStoragePath:sp,fotoAtualizadaEmISO:new Date().toISOString()};await window.fsSetDoc(eDoc('cadastros_pecas',id),data);
+function eCanStock(){const p=window.userProfile||{},em=String(window.currentUser?.email||'').toLowerCase();return p.perfil==='Master'||['marcos@grupocij.com','marcos@grupocij.com.br','marcos.bazacas@grupocij.com','marcos.bazacas@grupocij.com.br','adm@grupocij.com','adm@grupocij.com.br'].includes(em)||p.permissoesMateriais?.gerenciar_estoque===true;}
+let eStockCallable;
+async function eStockCall(action,payload){
+ if(!navigator.onLine)throw new Error('Conecte à internet para confirmar a movimentação do estoque.');
+ const input={operationId:crypto.randomUUID(),action,payload};
+ if(window.__CIJMateriaisCall)return window.__CIJMateriaisCall(input);
+ if(!eStockCallable)eStockCallable=Promise.all([import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js'),import('https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js')]).then(([a,f])=>f.httpsCallable(f.getFunctions(a.getApp(),'us-central1'),'cijMateriaisOS',{timeout:60000}));
+ return (await (await eStockCallable)(input)).data;
+}
+async function eSaveCatalog(tipo,id,data,quantity,expectedExisting){
+ const col=eMatCol(tipo),ref=eDoc(col,id),mid='inicial_'+crypto.randomUUID(),now=new Date().toISOString();
+ return window.fsRunTransaction(window.AppDB,async tx=>{
+  const snap=await tx.get(ref),old=snap.exists()?snap.data():null;
+  if(!expectedExisting&&old)throw new Error('Este cadastro já existe. Atualize a lista e abra a edição; o saldo inicial não será lançado novamente.');
+  if(expectedExisting&&!old)throw new Error('Este cadastro não existe mais. Atualize a lista.');
+  if(old&&Number(old.estoqueAtual??old.quantity??old.qtd??old.quantidade??0)!==quantity)throw new Error('O saldo foi alterado. Faça a movimentação pelo botão Movimentar estoque, com motivo e confirmação do servidor.');
+  if(old&&(old.ativo!==false)!==(data.ativo!==false))throw new Error('Para inativar um item, use o Estoque de Peças e confira o saldo e as pendências.');
+  const next={...(old||{}),...data,updatedAtISO:now};
+  if(old){next.ativo=old.ativo;next.is_deleted=old.is_deleted;Object.keys(next).forEach(k=>{if(next[k]===undefined)delete next[k]});}
+  else{
+   next.estoqueAtual=quantity;next.quantity=quantity;next.is_deleted=false;next.createdAtISO=now;
+   if(quantity>0){
+    if(!eCanStock())throw new Error('Seu usuário pode criar o cadastro com saldo zero. Para informar o saldo inicial, é necessária a permissão Gerenciar estoque.');
+    next.cadastroSaldoInicialId=mid;
+    tx.set(eDoc('estoque_movimentacoes',mid),{id:mid,materialColecao:col,materialTipo:tipo,materialId:id,materialNome:data.nome,codigo:data.codigo,tipoMovimento:'SALDO_INICIAL',quantidade:quantity,saldoAnterior:0,saldoPosterior:quantity,motivo:'SALDO INICIAL DO CADASTRO',createdAtISO:now,usuarioUid:window.currentUser.uid,usuarioEmail:String(window.currentUser.email).toLowerCase(),usuario:window.nomeUsuarioLogado||window.currentUser.email});
+   }
   }
-  if(!old.id&&estoque!==0){const mid='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);await window.fsSetDoc(eDoc('estoque_movimentacoes',mid),{id:mid,materialTipo:tipo,materialId:id,materialNome:nome,tipoMovimento:'SALDO_INICIAL',quantidade:estoque,saldoAnterior:0,saldoPosterior:estoque,motivo:'SALDO INICIAL DO CADASTRO',createdAtISO:now,usuario:window.nomeUsuarioLogado||window.currentUser?.email||''})}
-  window.erpClose('modal-material');
+  tx.set(ref,next);return next;
+ });
+}
+window.salvarMaterial=async function(e){
+ e.preventDefault();
+ const tipo=ERPUI.material?.__tipo||'PECA',arr=tipo==='PECA'?ERPDB.pecas:ERPDB.consumiveis;
+ const id=document.getElementById('mat-id').value||((tipo==='PECA'?'peca_':'cons_')+crypto.randomUUID());
+ document.getElementById('mat-id').value=id;
+ const old=arr.find(x=>x.id===id)||{},codigo=document.getElementById('mat-codigo').value.trim().toUpperCase(),nome=document.getElementById('mat-nome').value.trim().toUpperCase();
+ if(!nome)throw new Error('Informe a descrição do material.');
+ if(arr.some(x=>x.id!==id&&x.is_deleted!==true&&((codigo&&String(x.sku||x.codigo||'').toUpperCase()===codigo)||eNorm(x.nome||x.descricao)===eNorm(nome))))throw new Error('Já existe cadastro com este código ou descrição.');
+ const quantity=Number(document.getElementById('mat-estoque').value||0),minimum=Number(document.getElementById('mat-minimo').value||0);
+ if(!Number.isFinite(quantity)||quantity<0||!Number.isFinite(minimum)||minimum<0)throw new Error('Informe saldos e estoque mínimo válidos, sem valores negativos.');
+ let data={id,codigo,sku:codigo,nome,descricao:nome,tipo:tipo==='CONSUMIVEL'?document.getElementById('mat-subtipo').value.trim().toUpperCase():'PECA',unidade:document.getElementById('mat-unidade').value,estoqueMinimo:minimum,localizacaoEstoque:document.getElementById('mat-local').value.trim().toUpperCase(),observacoes:document.getElementById('mat-obs').value.trim(),ativo:document.getElementById('mat-ativo').value==='true',atualizado_em:new Date().toISOString(),atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||'',schemaCadastro:4};
+ let uploadedPath='';
+ if(tipo==='PECA'&&ERPUI.pendingPhoto){const f=ERPUI.pendingPhoto;if(!window.fbUploadBytes)throw new Error('Atualize o core.js para enviar fotos.');uploadedPath=`cadastros_pecas/${id}/foto_${crypto.randomUUID()}.jpg`;const ref=window.fbStorageRef(window.AppStorage,uploadedPath);await window.fbUploadBytes(ref,f,{contentType:f.type||'image/jpeg'});data.fotoURL=await window.fbGetDownloadURL(ref);data.fotoStoragePath=uploadedPath;}
+ if(tipo==='PECA'&&ERPUI.removePhoto){data.fotoURL='';data.fotoStoragePath='';}
+ await eSaveCatalog(tipo,id,data,quantity,!!old.id);
+ if(tipo==='PECA'&&(ERPUI.removePhoto||uploadedPath)&&old.fotoStoragePath&&old.fotoStoragePath!==uploadedPath){try{await window.fbDeleteObject(window.fbStorageRef(window.AppStorage,old.fotoStoragePath))}catch(error){console.warn('[Cadastros] foto anterior preservada',error.code);}}
+ window.erpClose('modal-material');
 };
-window.abrirMovimento=function(tipo,id){const arr=tipo==='PECA'?ERPDB.pecas:ERPDB.consumiveis,x=arr.find(v=>v.id===id);if(!x)return;ERPUI.material={...x,__tipo:tipo};document.getElementById('mov-material').textContent=`${x.sku||x.codigo||''} · ${x.nome||x.descricao||''} · Saldo: ${Number(x.estoqueAtual||0).toLocaleString('pt-BR')} ${x.unidade||'UN'}`;document.getElementById('mov-tipo').value='ENTRADA';document.getElementById('mov-qtd').value='';document.getElementById('mov-motivo').value='';document.getElementById('mov-ref').value='';document.getElementById('modal-movimento').classList.remove('hidden')};
-window.salvarMovimento=async function(e){e.preventDefault();const x=ERPUI.material;if(!x)return;const tipo=document.getElementById('mov-tipo').value,q=Number(document.getElementById('mov-qtd').value||0),anterior=Number(x.estoqueAtual||0);let posterior=anterior;if(tipo==='ENTRADA')posterior=anterior+q;else if(tipo==='SAIDA')posterior=anterior-q;else posterior=q;if(posterior<0){alert('O movimento resultaria em estoque negativo.');return}const now=new Date().toISOString(),id='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),collection=eMatCol(x.__tipo);await window.fsSetDoc(eDoc(collection,x.id),{...x,estoqueAtual:posterior,updatedAtISO:now,atualizado_em:now,atualizado_por:window.nomeUsuarioLogado||window.currentUser?.email||''});await window.fsSetDoc(eDoc('estoque_movimentacoes',id),{id,materialTipo:x.__tipo,materialId:x.id,materialNome:x.nome||x.descricao||'',codigo:x.sku||x.codigo||'',tipoMovimento:tipo,quantidade:q,saldoAnterior:anterior,saldoPosterior:posterior,motivo:document.getElementById('mov-motivo').value.trim().toUpperCase(),referencia:document.getElementById('mov-ref').value.trim().toUpperCase(),createdAtISO:now,usuarioUid:window.currentUser?.uid||'',usuario:window.nomeUsuarioLogado||window.currentUser?.email||''});window.erpClose('modal-movimento')};
+window.abrirMovimento=function(tipo,id){const arr=tipo==='PECA'?ERPDB.pecas:ERPDB.consumiveis,x=arr.find(v=>v.id===id);if(!x)return;if(!eCanStock()){alert('Seu usuário precisa da permissão Gerenciar estoque para lançar entradas ou inventários.');return;}ERPUI.material={...x,__tipo:tipo};document.getElementById('mov-material').textContent=`${x.sku||x.codigo||''} · ${x.nome||x.descricao||''} · Saldo: ${Number(x.estoqueAtual??x.quantity??0).toLocaleString('pt-BR')} ${x.unidade||'UN'}`;const select=document.getElementById('mov-tipo');select.querySelector('option[value="SAIDA"]')?.remove();select.value='ENTRADA';document.getElementById('mov-qtd').value='';document.getElementById('mov-motivo').value='';document.getElementById('mov-ref').value='';document.getElementById('modal-movimento').classList.remove('hidden');};
+window.salvarMovimento=async function(e){e.preventDefault();const x=ERPUI.material;if(!x)return;const kind=document.getElementById('mov-tipo').value;if(kind==='SAIDA')throw new Error('Para retirar uma peça, faça a requisição dentro da OS e identifique o responsável.');await eStockCall('STOCK_MOVE',{materialId:x.id,materialTipo:x.__tipo,origin:'MATRIZ',kind:kind==='ENTRADA'?'Entrada':'Ajuste',quantity:document.getElementById('mov-qtd').value,reason:document.getElementById('mov-motivo').value.trim(),reference:document.getElementById('mov-ref').value.trim(),expectedStockTimestamp:x.updatedAtISO||''});window.erpClose('modal-movimento');};
 
 window.erpPopulateParque=function(){
   const clientes=ERPDB.clientes.filter(eAtivo).sort((a,b)=>eCliLabel(a).localeCompare(eCliLabel(b),'pt-BR')),mods=ERPDB.modelos.filter(eAtivo).sort((a,b)=>String(a.modelo||'').localeCompare(String(b.modelo||''),'pt-BR'));
@@ -703,3 +737,18 @@ const erpAbrirClienteAnterior=window.abrirCliente;
 window.abrirCliente=function(id){const result=erpAbrirClienteAnterior.apply(this,arguments);erpAtalhoOS(document.querySelector('#modal-cliente button[type="submit"],#modal-cliente button:not([type])'),id);return result};
 const erpAbrirMaquinaAnterior=window.abrirMaquina;
 window.abrirMaquina=function(id){const result=erpAbrirMaquinaAnterior.apply(this,arguments);const m=ERPDB.parque.find(x=>String(x.id)===String(id));erpAtalhoOS(document.querySelector('#modal-maquina button[type="submit"],#modal-maquina button:not([type])'),m?.clienteId||'',id);return result};
+
+// Os formulários mantêm os dados preenchidos quando uma gravação é recusada.
+for(const name of ['salvarCliente','salvarModelo','salvarMaterial','salvarMovimento','salvarMaquina','salvarTransferencia']){
+ const save=window[name];if(!save)continue;
+ window[name]=async function(event,...args){
+  event?.preventDefault?.();const form=event?.target,button=event?.submitter;
+  if(form?.dataset?.cijSaving==='1')return;
+  if(form?.dataset)form.dataset.cijSaving='1';if(button)button.disabled=true;
+  try{return await save.call(this,event,...args);}catch(error){
+   console.error('[Cadastros] gravação recusada',error.code||error.name);
+   const message=['permission-denied','functions/permission-denied'].includes(error.code)?'Não foi possível salvar. Confira o acesso a Cadastros e a permissão Gerenciar estoque para saldos iniciais; publique as regras Firestore 1.79.1.':error.code==='unavailable'?'A gravação não pôde ser confirmada. Verifique a conexão e atualize a lista antes de repetir.':error.message||'Não foi possível confirmar a gravação.';
+   alert(message);
+  }finally{if(form?.dataset)delete form.dataset.cijSaving;if(button)button.disabled=false;}
+ };
+}

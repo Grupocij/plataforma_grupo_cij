@@ -1,10 +1,19 @@
-const SW_VERSION='3.15.0';
-const APP_BUILD='1.79.0';
+const SW_VERSION='3.15.1';
+const APP_BUILD='1.79.1';
 
-const CACHE_SHELL='portal-cij-unified-v3-shell';
-const CACHE_RUNTIME='portal-cij-unified-v3-runtime';
+const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.1';
+const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.1';
 
 const PORTAL_SHELL=[
+  './central_cadastros.html',
+  './cadastros_clientes.html',
+  './cadastros_modelos.html',
+  './cadastros_consumiveis.html',
+  './erp-cadastros-v4-3-2.js',
+  './erp-cadastros-v4-3-2.js?v=20261002-central1',
+  './despesas.html',
+  './despesas-v2.js?v=20261006-firebase1',
+  './despesas-v2.css?v=20261002-2',
   './',
   './index.html',
   './core.js',
