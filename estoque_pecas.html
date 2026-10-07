@@ -335,7 +335,7 @@ async function confirmImport(){const btn=document.getElementById('btn-confirm-im
 function downloadSampleTemplate(){const rows=[{'Código':'FIL-HIT-01','Nome':'Filtro Principal Hitachi 10 micra','Marca':'Hitachi','Categoria':'Filtros','Armário':'A01','Prateleira':'P02','Caixa':'G03','Condição':'Novos','Quantidade':8,'Estoque Mínimo':3,'Observações':'Saco original'}],ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Modelo_Estoque');XLSX.writeFile(wb,'Modelo_Importacao_Estoque.xlsx')}
 function exportToExcel(){const rows=STOCK.items.filter(active).map(i=>({'Código':i.code,'Nome/Descrição':i.name,'Marca':i.brand,'Categoria':i.category,'Endereço Físico':`${i.cabinet}-${i.shelf}-${i.box}`,'Armário':i.cabinet,'Prateleira':i.shelf,'Caixa/Gaveta':i.box,'Condição':i.condition,'Quantidade':i.quantity,'Estoque Mínimo':i.minQty,'Observações':i.notes||''}));if(!rows.length){toast('Não há itens para exportar.','error');return}const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Estoque_Atual');XLSX.writeFile(wb,`Relatorio_Estoque_${new Date().toISOString().slice(0,10)}.xlsx`)}
 </script>
-<script src="materiais-os.js?v=1.79.0"></script>
-<script type="module" src="core.js?v=20261006-mat1"></script>
+<script src="materiais-os.js?v=1.79.3"></script>
+<script type="module" src="core.js?v=20261007-mat2"></script>
 </body>
 </html>

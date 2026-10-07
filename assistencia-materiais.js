@@ -1,4 +1,4 @@
-/* Integração Assistência CIJ 1.79.0: mantém a navegação e o fluxo técnico existente. */
+/* Integração Assistência CIJ 1.79.3: mantém a navegação e o fluxo técnico existente. */
 (function(){'use strict';
  window.__CIJMateriaisAssistencia=true;
  function selected(eid){return window.AssistMateriaisBridge.selected(eid);}
@@ -6,7 +6,6 @@
  window.abrirPecasEquipamento=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.open(o,e,refresh);}catch(err){alert(err.message);}};
  window.revisarTemporarioParque=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.convert(o,e,refresh);}catch(err){alert(err.message);}};
  window.liberarEntregaMateriais=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.release(o,e,refresh);}catch(err){alert(err.message);}};
- window.faturarEquipamentoMateriais=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.equipmentBilling(o,e,refresh);}catch(err){alert(err.message);}};
  // Concluir a etapa técnica não decide automaticamente aplicação, devolução ou faturamento.
  window.solicitarConciliacaoMateriaisFinalizacao=async()=>[];
  window.aplicarConciliacaoMateriaisFinalizacao=async()=>[];
