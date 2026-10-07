@@ -1,4 +1,4 @@
-/* Integração Assistência CIJ 1.79.3: mantém a navegação e o fluxo técnico existente. */
+/* Integração Assistência CIJ 1.79.4: mantém a navegação e o fluxo técnico existente. */
 (function(){'use strict';
  window.__CIJMateriaisAssistencia=true;
  function selected(eid){return window.AssistMateriaisBridge.selected(eid);}
@@ -7,10 +7,10 @@
  window.revisarTemporarioParque=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.convert(o,e,refresh);}catch(err){alert(err.message);}};
  window.liberarEntregaMateriais=async eid=>{try{const {o,e}=selected(eid);await window.MaterialOS.release(o,e,refresh);}catch(err){alert(err.message);}};
  // Concluir a etapa técnica não decide automaticamente aplicação, devolução ou faturamento.
- window.solicitarConciliacaoMateriaisFinalizacao=async()=>[];
+ window.solicitarConciliacaoMateriaisFinalizacao=async(o,e)=>{try{await window.MaterialOS.validateFinish(o,e);return [];}catch(error){alert(error.message);return null;}};
  window.aplicarConciliacaoMateriaisFinalizacao=async()=>[];
  const oldPrepare=window.prepararOSOffline;
- if(oldPrepare)window.prepararOSOffline=async function(){const result=await oldPrepare.apply(this,arguments);if(result&&navigator.onLine){try{await window.MaterialOS.prepare();}catch(e){window.AssistMateriaisBridge.notify('Preparo dos materiais incompleto: '+e.message);return false;}}return result;};
+ if(oldPrepare)window.prepararOSOffline=async function(){const result=await oldPrepare.apply(this,arguments);if(result&&navigator.onLine){try{await window.MaterialOS.prepare(window.AssistMateriaisBridge.current().o);}catch(e){window.AssistMateriaisBridge.notify('Preparo dos materiais incompleto: '+e.message);return false;}}return result;};
  const oldSync=window.sincronizarPendenciasOffline;
  if(oldSync){window.MaterialOS.beforeSync=()=>oldSync.call(window,false);window.sincronizarPendenciasOffline=async function(){const result=await oldSync.apply(this,arguments);if(navigator.onLine)await window.MaterialOS.sync();return result;};}
  const oldPermission=window.temPermissaoAssistencia;

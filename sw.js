@@ -1,8 +1,8 @@
-const SW_VERSION='3.15.3';
-const APP_BUILD='1.79.3';
+const SW_VERSION='3.15.4';
+const APP_BUILD='1.79.4';
 
-const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.3';
-const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.3';
+const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.4';
+const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.4';
 
 const PORTAL_SHELL=[
   './central_cadastros.html',
@@ -23,7 +23,7 @@ const PORTAL_SHELL=[
   './core.js?v=20261001-push1',
   './core.js?v=20261002-central1',
   './core.js?v=20261006-mat1',
-  './core.js?v=20261007-mat2',
+  './core.js?v=20261007-mat4',
   './certificacao.html',
   './padroes_teste.html',
   './cert_alertas.html',
@@ -57,9 +57,9 @@ const PORTAL_SHELL=[
 
 const ASSISTENCIA_SHELL=[
   './assistencia.html',
-  './materiais-os.js?v=1.79.3',
-  './materiais-os.css?v=1.79.3',
-  './assistencia-materiais.js?v=1.79.3',
+  './materiais-os.js?v=1.79.4',
+  './materiais-os.css?v=1.79.4',
+  './assistencia-materiais.js?v=1.79.4',
   './assistencia-manifest-v4.json',
   './assistencia-icon-192.png',
   './assistencia-icon-512.png'

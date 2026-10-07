@@ -1,4 +1,4 @@
-// core.js 1.79.3 - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Certificação 1.0.0 / Assistência 1.78.0
+// core.js 1.79.4 - MOTOR CENTRAL DO PORTAL GRUPO CIJ — Certificação 1.0.0 / Assistência 1.78.0
 import {instalarPushCIJ} from "./push-client.js?v=20261001-push1";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
