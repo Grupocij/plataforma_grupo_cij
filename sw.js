@@ -1,8 +1,8 @@
-const SW_VERSION='3.15.4';
-const APP_BUILD='1.79.4';
+const SW_VERSION='3.15.6-legacy';
+const APP_BUILD='1.79.4-legacy';
 
-const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.4';
-const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.4';
+const CACHE_SHELL='portal-cij-unified-v3-shell-1.79.4-legacy';
+const CACHE_RUNTIME='portal-cij-unified-v3-runtime-1.79.4-legacy';
 
 const PORTAL_SHELL=[
   './central_cadastros.html',
@@ -59,7 +59,6 @@ const ASSISTENCIA_SHELL=[
   './assistencia.html',
   './materiais-os.js?v=1.79.4',
   './materiais-os.css?v=1.79.4',
-  './assistencia-materiais.js?v=1.79.4',
   './assistencia-manifest-v4.json',
   './assistencia-icon-192.png',
   './assistencia-icon-512.png'
